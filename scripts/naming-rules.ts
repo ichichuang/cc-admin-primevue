@@ -103,7 +103,10 @@ function checkFileName(filePath, fileName) {
   const isI18nFile =
     normalizedPath.includes('/locales/lang/') && /^[a-z]{2}-[A-Z]{2}\.ts$/.test(fileName)
 
-  if (skipFiles.includes(fileName) || isI18nFile) return
+  // 测试文件规则（允许 .test.ts 格式）
+  const isTestFile = /\.test\.(ts|js|vue)$/.test(fileName)
+
+  if (skipFiles.includes(fileName) || isI18nFile || isTestFile) return
 
   // 判断文件所在目录类型
   const isInComponents = normalizedPath.includes('/components/')
@@ -118,6 +121,7 @@ function checkFileName(filePath, fileName) {
   const isInLocales = normalizedPath.includes('/locales/')
   const isInUtils = normalizedPath.includes('/utils/')
   const isInCommon = normalizedPath.includes('/common/')
+  const isInComposables = normalizedPath.includes('/composables/')
   const isVueFile = ext === '.vue'
 
   if (isVueFile) {
@@ -171,7 +175,8 @@ function checkFileName(filePath, fileName) {
       isInRouter ||
       isInLocales ||
       isInUtils ||
-      isInCommon
+      isInCommon ||
+      isInComposables
     ) {
       if (!NAMING_RULES.files.camelCase.test(nameWithoutExt)) {
         addError(
@@ -215,9 +220,19 @@ function checkDirectoryName(dirPath, dirName) {
   const isInLocales = normalizedPath.includes('/locales/')
   const isInUtils = normalizedPath.includes('/utils/')
   const isInCommon = normalizedPath.includes('/common/')
+  const isInComposables = normalizedPath.includes('/composables/')
 
   // 功能模块相关目录：camelCase
-  if (isInApi || isInHooks || isInStores || isInRouter || isInLocales || isInUtils || isInCommon) {
+  if (
+    isInApi ||
+    isInHooks ||
+    isInStores ||
+    isInRouter ||
+    isInLocales ||
+    isInUtils ||
+    isInCommon ||
+    isInComposables
+  ) {
     if (!NAMING_RULES.directories.camelCase.test(dirName)) {
       addError(
         'directory-naming',

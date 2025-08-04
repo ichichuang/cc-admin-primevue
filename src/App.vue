@@ -7,17 +7,14 @@
 
 <script setup lang="ts">
 import LayoutManager from '@/layouts/index.vue'
-import { useColorStore, useLayoutStore, usePostcssStore, useSizeStore } from '@/stores'
+import { useLayoutStore, usePostcssStore, useSizeStore } from '@/stores'
 import { onBeforeUnmount, onMounted } from 'vue'
 
-const colorStore = useColorStore()
 const sizeStore = useSizeStore()
 const layoutStore = useLayoutStore()
 const postcssStore = usePostcssStore()
 
-colorStore.init()
 sizeStore.init()
-
 const cleanup = layoutStore.init()
 
 onMounted(async () => {

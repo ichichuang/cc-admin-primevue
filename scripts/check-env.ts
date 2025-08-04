@@ -377,6 +377,17 @@ function checkEnvConfig(): void {
 export { checkEnvConfig, validationRules, validators }
 
 /* -------------------- 执行 -------------------- */
-if (import.meta.url === `file://${process.argv[1]}`) {
-  checkEnvConfig()
+// 检查是否直接运行此脚本
+const isDirectExecution =
+  import.meta.url === `file://${process.argv[1]}` ||
+  process.argv[1]?.includes('check-env.ts') ||
+  process.argv[0]?.includes('tsx')
+
+if (isDirectExecution) {
+  try {
+    checkEnvConfig()
+  } catch (error) {
+    console.error('环境检查脚本执行出错:', error)
+    process.exit(1)
+  }
 }

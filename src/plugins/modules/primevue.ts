@@ -5,9 +5,11 @@
  * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
  */
 
+import { useColorStore } from '@/stores/modules/color'
 import Aura from '@primeuix/themes/aura'
 import PrimeVue from 'primevue/config'
 import type { App } from 'vue'
+import { createPrimeVuePreset, primeVueThemeOptions } from './primevue-theme'
 
 /**
  * PrimeVue 配置选项
@@ -44,10 +46,17 @@ export function setupPrimeVue(app: App, config: Partial<PrimeVueConfig> = {}) {
     ...config,
   }
 
+  // 获取颜色存储实例
+  const colorStore = useColorStore()
+
+  // 创建动态主题预设
+  const dynamicPreset = createPrimeVuePreset(colorStore.getThemeColors(), colorStore.isDark)
+
   app.use(PrimeVue, {
     theme: {
-      preset: finalConfig.preset,
+      preset: dynamicPreset,
       options: {
+        ...primeVueThemeOptions,
         prefix: finalConfig.prefix,
         darkModeSelector: finalConfig.darkModeSelector,
         cssLayer: finalConfig.cssLayer,

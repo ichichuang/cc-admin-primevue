@@ -5,30 +5,256 @@
   本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
 -->
 
-<script setup lang="ts">
-import { ref } from 'vue'
-
-const visible = ref(false)
-</script>
+<script setup lang="ts"></script>
 <template>
   <div class="full bg-bg200">
     Dashboard
-    <div class="card center w50">
-      <Drawer
-        v-model:visible="visible"
-        header="Drawer"
-      >
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-          ullamco laboris nisi ut aliquip ex ea commodo consequat.
-        </p>
-      </Drawer>
-      <Button
-        icon="pi pi-arrow-right"
-        label="Drawer"
-        @click="visible = true"
-      />
+
+    <div class="p-gap between-col gap-gap">
+      <div class="card evenly">
+        <Button label="Primary" />
+        <Button
+          label="Secondary"
+          severity="secondary"
+        />
+        <Button
+          label="Success"
+          severity="success"
+        />
+        <Button
+          label="Info"
+          severity="info"
+        />
+        <Button
+          label="Warn"
+          severity="warn"
+        />
+        <Button
+          label="Help"
+          severity="help"
+        />
+        <Button
+          label="Danger"
+          severity="danger"
+        />
+        <Button
+          label="Contrast"
+          severity="contrast"
+        />
+      </div>
+      <div class="card evenly">
+        <Button
+          label="Primary"
+          raised
+        />
+        <Button
+          label="Secondary"
+          severity="secondary"
+          raised
+        />
+        <Button
+          label="Success"
+          severity="success"
+          raised
+        />
+        <Button
+          label="Info"
+          severity="info"
+          raised
+        />
+        <Button
+          label="Warn"
+          severity="warn"
+          raised
+        />
+        <Button
+          label="Help"
+          severity="help"
+          raised
+        />
+        <Button
+          label="Danger"
+          severity="danger"
+          raised
+        />
+        <Button
+          label="Contrast"
+          severity="contrast"
+          raised
+        />
+      </div>
+      <div class="card evenly">
+        <Button
+          label="Primary"
+          rounded
+        />
+        <Button
+          label="Secondary"
+          severity="secondary"
+          rounded
+        />
+        <Button
+          label="Success"
+          severity="success"
+          rounded
+        />
+        <Button
+          label="Info"
+          severity="info"
+          rounded
+        />
+        <Button
+          label="Warn"
+          severity="warn"
+          rounded
+        />
+        <Button
+          label="Help"
+          severity="help"
+          rounded
+        />
+        <Button
+          label="Danger"
+          severity="danger"
+          rounded
+        />
+        <Button
+          label="Contrast"
+          severity="contrast"
+          rounded
+        />
+      </div>
+      <div class="card evenly">
+        <Button
+          label="Primary"
+          variant="text"
+        />
+        <Button
+          label="Secondary"
+          severity="secondary"
+          variant="text"
+        />
+        <Button
+          label="Success"
+          severity="success"
+          variant="text"
+        />
+        <Button
+          label="Info"
+          severity="info"
+          variant="text"
+        />
+        <Button
+          label="Warn"
+          severity="warn"
+          variant="text"
+        />
+        <Button
+          label="Help"
+          severity="help"
+          variant="text"
+        />
+        <Button
+          label="Danger"
+          severity="danger"
+          variant="text"
+        />
+        <Button
+          label="Contrast"
+          severity="contrast"
+          variant="text"
+        />
+      </div>
+      <div class="card evenly">
+        <Button
+          label="Primary"
+          variant="text"
+          raised
+        />
+        <Button
+          label="Secondary"
+          severity="secondary"
+          variant="text"
+          raised
+        />
+        <Button
+          label="Success"
+          severity="success"
+          variant="text"
+          raised
+        />
+        <Button
+          label="Info"
+          severity="info"
+          variant="text"
+          raised
+        />
+        <Button
+          label="Warn"
+          severity="warn"
+          variant="text"
+          raised
+        />
+        <Button
+          label="Help"
+          severity="help"
+          variant="text"
+          raised
+        />
+        <Button
+          label="Danger"
+          severity="danger"
+          variant="text"
+          raised
+        />
+        <Button
+          label="Contrast"
+          severity="contrast"
+          variant="text"
+          raised
+        />
+      </div>
+      <div class="card evenly">
+        <Button
+          label="Primary"
+          variant="outlined"
+        />
+        <Button
+          label="Secondary"
+          severity="secondary"
+          variant="outlined"
+        />
+        <Button
+          label="Success"
+          severity="success"
+          variant="outlined"
+        />
+        <Button
+          label="Info"
+          severity="info"
+          variant="outlined"
+        />
+        <Button
+          label="Warn"
+          severity="warn"
+          variant="outlined"
+        />
+        <Button
+          label="Help"
+          severity="help"
+          variant="outlined"
+        />
+        <Button
+          label="Danger"
+          severity="danger"
+          variant="outlined"
+        />
+        <Button
+          label="Contrast"
+          severity="contrast"
+          variant="outlined"
+        />
+      </div>
     </div>
   </div>
 </template>

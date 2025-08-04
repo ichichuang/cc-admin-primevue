@@ -92,14 +92,14 @@ export default tseslint.config(
           selector: 'method',
           format: ['camelCase'],
         },
-        // 类属性使用 camelCase，但允许特殊属性名
+        // 类属性使用 camelCase，但允许特殊属性名和数字属性名
         {
           selector: 'property',
           format: ['camelCase'],
           leadingUnderscore: 'allow',
           filter: {
             regex:
-              '^(@|vue/|no-|prefer-|eqeqeq|curly|VITE_|__.*__|drop_|AtRule|content-type|access-control-allow-origin|access-control-allow-methods|access-control-allow-headers|Content-Type|Access-Control-Allow-Origin|Access-Control-Allow-Methods|Access-Control-Allow-Headers)',
+              '^(@|vue/|no-|prefer-|eqeqeq|curly|VITE_|__.*__|drop_|AtRule|content-type|access-control-allow-origin|access-control-allow-methods|access-control-allow-headers|Content-Type|Access-Control-Allow-Origin|Access-Control-Allow-Methods|Access-Control-Allow-Headers|^[0-9]+$)',
             match: false,
           },
         },

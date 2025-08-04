@@ -184,13 +184,13 @@ import { registerRouterGuards } from '@/router'
 
 ```typescript
 // 用户相关类型
-import type { UserInfo, UserRole } from '@/Types'
+import type { UserInfo, UserRole } from '@/types'
 
 // 路由相关类型
-import type { RouteConfig, MenuItem } from '@/Types'
+import type { RouteConfig, MenuItem } from '@/types'
 
 // 设备相关类型
-import type { DeviceInfo, ScreenSize } from '@/Types'
+import type { DeviceInfo, ScreenSize } from '@/types'
 ```
 
 ## 🎯 优化效果
@@ -234,8 +234,8 @@ import { useUserStore } from '@/stores/modules/user'
 ### 2. 类型导入
 
 ```typescript
-// ✅ 推荐：从 Types 模块导入
-import type { UserInfo, RouteConfig } from '@/Types'
+// ✅ 推荐：从 types 模块导入
+import type { UserInfo, RouteConfig } from '@/types'
 
 // ✅ 推荐：从具体模块导入
 import type { UserInfo } from '@/stores/modules/user'

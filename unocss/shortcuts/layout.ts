@@ -19,6 +19,7 @@ export const layoutShortcuts = {
   center: 'flex items-center justify-center',
   between: 'flex items-center justify-between',
   around: 'flex items-center justify-around',
+  evenly: 'flex items-center justify-evenly',
   start: 'flex items-center justify-start',
   end: 'flex items-center justify-end',
   'center-col': 'flex flex-col items-center justify-center',

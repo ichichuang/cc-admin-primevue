@@ -32,6 +32,14 @@ interface FunctionalColor {
   error: FunctionalColors // 错误色
   info: FunctionalColors // 信息色
 }
+
+/**
+ * 颜色映射配置接口
+ */
+export interface ColorMappingConfig {
+  [key: string]: string
+}
+
 export interface ThemeColors {
   // 主题色
   primary100: string // 主色深色调 - 用于主要按钮、导航栏、重要操作元素
@@ -106,6 +114,7 @@ const functionalColors: FunctionalColor = {
     light: '#e6f7ff',
   },
 }
+
 const lightThemeOptions: ThemeColor[] = [
   {
     label: '蓝调点缀',
@@ -327,14 +336,29 @@ export const useColorStore = defineStore('color', {
       const isDark = state.darkMode
       const themeValue = isDark ? state.darkThemeValue : state.lightThemeValue
       const themeOptions = isDark ? darkThemeOptions : lightThemeOptions
-      const themeColor = themeOptions.find(item => item.value === themeValue) as ThemeColor
+      const themeColor = themeOptions.find(item => item.value === themeValue)
+
+      // 如果找不到主题，使用默认主题
+      if (!themeColor) {
+        console.warn(`Theme not found: ${themeValue}, using default theme`)
+        return isDark ? darkThemeOptions[0].label : lightThemeOptions[0].label
+      }
+
       return themeColor.label
     },
     getThemeColors: state => () => {
       const isDark = state.darkMode
       const themeValue = isDark ? state.darkThemeValue : state.lightThemeValue
       const themeOptions = isDark ? darkThemeOptions : lightThemeOptions
-      const themeColor = themeOptions.find(item => item.value === themeValue) as ThemeColor
+
+      const themeColor = themeOptions.find(item => item.value === themeValue)
+
+      // 如果找不到主题，使用默认主题
+      if (!themeColor) {
+        console.warn(`Theme not found: ${themeValue}, using default theme`)
+        return isDark ? darkThemeOptions[0].themeColors : lightThemeOptions[0].themeColors
+      }
+
       return themeColor.themeColors
     },
 

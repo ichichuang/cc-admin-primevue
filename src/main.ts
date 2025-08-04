@@ -45,6 +45,11 @@ app.config.warnHandler = (msg, instance, trace) => {
 // 配置路由和状态管理
 setupCore(app)
 
+// 初始化 store
+import { useColorStore } from '@/stores'
+const colorStore = useColorStore()
+colorStore.init()
+
 // 配置 PrimeVue
 setupPrimeVue(app, {
   darkModeSelector: '.dark',
