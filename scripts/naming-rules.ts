@@ -317,8 +317,8 @@ async function scanDirectory(dirPath) {
       if (stats.isDirectory()) {
         const relativePath = itemPath.replace(projectRoot, '').replace(/\\/g, '/')
 
-        // 排除 src/Types 目录（大小写敏感）
-        if (relativePath.includes('/src/Types')) continue
+        // 排除 src/types 目录（大小写敏感）
+        if (relativePath.includes('/src/types')) continue
 
         checkDirectoryName(itemPath, item)
         await scanDirectory(itemPath)

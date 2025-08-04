@@ -519,7 +519,7 @@ function DynamicComponent<T extends 'button' | 'link' | 'text'>(props: DynamicCo
 ### 环境变量类型
 
 ```typescript
-// src/Types/env.d.ts
+// src/types/env.d.ts
 interface ImportMetaEnv {
   readonly VITE_API_BASE_URL: string
   readonly VITE_APP_TITLE: string
@@ -542,7 +542,7 @@ interface ImportMeta {
 ### 路由类型扩展
 
 ```typescript
-// src/Types/router.d.ts
+// src/types/router.d.ts
 import 'vue-router'
 
 declare module 'vue-router' {
@@ -563,7 +563,7 @@ declare module 'vue-router' {
 ### Pinia Store类型扩展
 
 ```typescript
-// src/Types/stores.d.ts
+// src/types/stores.d.ts
 import { Router } from 'vue-router'
 
 declare module 'pinia' {

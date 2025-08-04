@@ -113,7 +113,7 @@ export * from './modules/router'
 
 - 模块导出方法很多（如 `src/common/modules/date.ts` 有 50+ 个方法）
 - 工具函数集合（如 lodash 风格的函数库）
-- 类型定义模块（如 `src/Types/`）
+- 类型定义模块（如 `src/types/`）
 - 常量配置模块（如 `src/constants/`）
 
 **使用按需导出的场景：**

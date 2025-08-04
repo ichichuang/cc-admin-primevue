@@ -12,15 +12,17 @@
     "paths": {
       "@/*": ["./src/*"],
       "@build/*": ["./build/*"],
-      "@types/*": ["./types/*"],
+      "@types/*": ["./src/types/*"],
       "@assets/*": ["./src/assets/*"],
       "@components/*": ["./src/components/*"],
       "@views/*": ["./src/views/*"],
       "@utils/*": ["./src/utils/*"],
       "@stores/*": ["./src/stores/*"],
       "@router/*": ["./src/router/*"],
-      "@test/*": ["./src/views/test/*"],
-      "@Types/*": ["./src/Types/*"]
+      "@api/*": ["./src/api/*"],
+      "@hooks/*": ["./src/hooks/*"],
+      "@common/*": ["./src/common/*"],
+      "@test/*": ["./src/views/test/*"]
     }
   }
 }

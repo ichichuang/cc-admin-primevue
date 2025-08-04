@@ -1,6 +1,8 @@
+import { PrimeVueResolver } from '@primevue/auto-import-resolver'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import UnoCSS from 'unocss/vite'
+import Components from 'unplugin-vue-components/vite'
 import type { PluginOption } from 'vite'
 import { name, version } from '../package.json'
 import type { ViteEnv } from './utils'
@@ -48,6 +50,10 @@ export function getPluginsList(env: ViteEnv): PluginOption[] {
     vue(),
     // JSX/TSX 语法支持
     vueJsx(),
+    // PrimeVue 自动导入
+    Components({
+      resolvers: [PrimeVueResolver()],
+    }),
     // 注意：我们不需要 Vue I18n 编译插件，因为使用运行时配置
   ].filter(Boolean) as PluginOption[]
 
