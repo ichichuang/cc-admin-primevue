@@ -1,0 +1,135 @@
+{
+  "name": "cc-admin-primevue",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "author": "chichuang",
+  "copyright": "Copyright (c) 2025 chichuang",
+  "license": "Custom (Non-Commercial Use Only)",
+  "description": "cc-admin-PrimeVue 企业级后台管理框架 - 基于 Vue 3.5+、TypeScript 5+ 和 PrimeVue 的现代化企业级后台管理框架",
+  "keywords": [
+    "vue3",
+    "typescript",
+    "vite",
+    "primevue",
+    "pinia",
+    "alova",
+    "admin",
+    "framework",
+    "cc-admin-primevue",
+    "chichuang"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ichichuang/cc-admin-homepage"
+  },
+  "homepage": "https://github.com/ichichuang/cc-admin-homepage#readme",
+  "bugs": {
+    "url": "https://github.com/ichichuang/cc-admin-homepage/issues"
+  },
+  "engines": {
+    "node": ">=22.x",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@10.12.4",
+  "scripts": {
+    "dev": "pnpm exec tsx scripts/dev-parallel.ts",
+    "build": "vue-tsc --noEmit && vite build",
+    "build:analyze": "vue-tsc --noEmit && vite build --mode analyze",
+    "preview": "vite preview",
+    "report": "npx vite-bundle-analyzer dist/stats.html",
+    "type-check": "vue-tsc --noEmit",
+    "lint": "eslint . --fix",
+    "format": "prettier --write src/",
+    "check": "pnpm type-check && pnpm lint",
+    "fix": "pnpm format && pnpm lint",
+    "pre-commit": "pnpm check",
+    "commit": "git-cz",
+    "prepare": "husky",
+    "init:project": "pnpm exec tsx scripts/init.ts"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,vue}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{css,scss,sass,less,styl,json,md}": [
+      "prettier --write"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "pnpm": {
+    "overrides": {
+      "glob": "^11.0.3",
+      "mockjs": "1.0.1-beta3"
+    },
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "core-js",
+      "esbuild"
+    ]
+  },
+  "dependencies": {
+    "@unocss/preset-rem-to-px": "^66.3.3",
+    "alova": "^3.3.3",
+    "crypto-js": "^4.2.0",
+    "lodash-es": "^4.17.21",
+    "pinia": "^3.0.3",
+    "pinia-plugin-persistedstate": "^4.4.0",
+    "vue": "^3.5.12",
+    "vue-i18n": "^10.0.8",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.6.0",
+    "@commitlint/config-conventional": "^19.6.0",
+    "@eslint/js": "^9.17.0",
+    "@faker-js/faker": "^9.9.0",
+    "@iconify/json": "^2.2.353",
+    "@tsconfig/node22": "^22.0.2",
+    "@types/chokidar": "^2.1.7",
+    "@types/crypto-js": "^4.2.2",
+    "@types/lodash-es": "^4.17.12",
+    "@types/node": "^22.10.1",
+    "@types/postcss-pxtorem": "^6.1.0",
+    "@unocss/preset-attributify": "^66.3.2",
+    "@unocss/preset-icons": "^66.3.2",
+    "@unocss/preset-typography": "^66.3.2",
+    "@unocss/preset-uno": "^66.3.2",
+    "@unocss/reset": "^66.3.2",
+    "@unocss/transformer-directives": "^66.3.2",
+    "@unocss/transformer-variant-group": "^66.3.2",
+    "@vitejs/plugin-legacy": "^7.0.0",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "@vitejs/plugin-vue-jsx": "^5.0.0",
+    "@vue/tsconfig": "^0.7.0",
+    "chokidar": "^4.0.3",
+    "commitizen": "^4.3.1",
+    "concurrently": "^9.1.0",
+    "cross-env": "^7.0.3",
+    "cz-conventional-changelog": "^3.3.0",
+    "dayjs": "^1.11.13",
+    "eslint": "^9.17.0",
+    "eslint-plugin-vue": "^9.31.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.11",
+    "npm-run-all2": "^7.0.2",
+    "postcss-pxtorem": "^6.1.0",
+    "prettier": "^3.4.2",
+    "rollup-plugin-visualizer": "^6.0.3",
+    "sass": "^1.89.2",
+    "terser": "^5.36.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
+    "typescript": "^5.6.2",
+    "typescript-eslint": "^8.18.1",
+    "unocss": "^66.3.2",
+    "vite": "^7.0.0",
+    "vite-plugin-compression": "^0.5.1",
+    "vue-tsc": "^2.2.10"
+  }
+}

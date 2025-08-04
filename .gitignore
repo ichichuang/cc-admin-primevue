@@ -1,0 +1,71 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Build outputs
+dist
+dist-ssr
+coverage
+*.local
+
+# Environment variables
+# 忽略包含敏感信息的环境变量文件
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 注意：.env、.env.development 和 .env.production 不被忽略
+# 它们可以安全地提交到版本控制中（不包含敏感信息）
+
+# Editor directories and files
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# TypeScript
+*.tsbuildinfo
+
+# Package manager lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Testing
+/tests/e2e/videos/
+/tests/e2e/screenshots/
+
+# Local Netlify folder
+.netlify
+
+# Temporary folders
+tmp/
+temp/
+
+# OS generated files
+Thumbs.db

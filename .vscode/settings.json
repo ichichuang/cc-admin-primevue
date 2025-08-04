@@ -1,0 +1,225 @@
+{
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "package.json": "pnpm-lock.yaml,.npmrc,.nvmrc,pnpm-workspace.yaml,.editorconfig,.gitattributes,.gitignore,.prettierrc.json",
+    "vite.config.ts": "vite.config.*.ts,vitest.config.ts",
+    "tsconfig.json": "tsconfig.*.json",
+    "eslint.config.ts": ".eslintignore,eslint.config.js,eslint.config.mjs",
+    ".prettierrc.json": ".prettierignore,.prettierrc.*",
+    "commitlint.config.ts": ".gitmessage,.czrc,.cz-config.js",
+    "README.md": "CHANGELOG.md,LICENSE,CONTRIBUTING.md",
+    ".env": "$(capture).env.*",
+    "index.vue": "components,views,utils,types,README.md"
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "editor.trimAutoWhitespace": true,
+  "editor.wordWrap": "off",
+  "editor.lineNumbers": "on",
+  "editor.minimap.enabled": true,
+  "editor.fontSize": 14,
+  "editor.fontFamily": "'JetBrains Mono', 'Fira Code', Monaco, 'Courier New', monospace",
+  "editor.fontLigatures": true,
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "files.trimFinalNewlines": true,
+  "eslint.enable": true,
+  "eslint.format.enable": true,
+  "eslint.lintTask.enable": true,
+  "eslint.run": "onType",
+  "eslint.workingDirectories": ["."],
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact", "vue"],
+  "prettier.enable": true,
+  "prettier.requireConfig": true,
+  "vetur.format.enable": false,
+  "vetur.validation.template": false,
+  "vetur.validation.script": false,
+  "vetur.validation.style": false,
+  "vue.codeActions.enabled": true,
+  "vue.complete.casing.tags": "pascal",
+  "vue.complete.casing.props": "camel",
+  "vue.updateImportsOnFileMove.enabled": true,
+  "typescript.format.enable": false,
+  "typescript.validate.enable": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.suggest.autoImports": true,
+  "typescript.suggest.completeFunctionCalls": true,
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.preferences.rename.enabled": true,
+  "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
+  "typescript.inlayHints.parameterNames.enabled": "all",
+  "typescript.inlayHints.parameterTypes.enabled": true,
+  "typescript.inlayHints.variableTypes.enabled": true,
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    },
+    "unocss.autocomplete.enabled": true
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    }
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      "source.organizeImports": "explicit"
+    }
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "unocss.autocomplete.enabled": true
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": {
+      "comments": "off",
+      "strings": "off",
+      "other": "off"
+    }
+  },
+  "explorer.compactFolders": false,
+  "explorer.sortOrder": "type",
+  "explorer.decorations.badges": true,
+  "explorer.decorations.colors": true,
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/coverage": true,
+    "**/.git": true,
+    "**/pnpm-lock.yaml": true
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/.git/**": true
+  },
+  "files.associations": {
+    "*.vue": "vue",
+    "*.ts": "typescript",
+
+    "*.json": "jsonc",
+    "uno.config.ts": "typescript"
+  },
+  "workbench.iconTheme": "material-icon-theme",
+  "editor.suggest.showKeywords": true,
+  "editor.suggest.showSnippets": true,
+  "editor.suggest.showFiles": true,
+  "editor.suggest.showReferences": true,
+  "editor.suggest.showFunctions": true,
+  "editor.suggest.showVariables": true,
+  "editor.suggest.showClasses": true,
+  "editor.suggest.showModules": true,
+  "editor.suggest.showProperties": true,
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": true
+  },
+  "editor.suggest.filterGraceful": true,
+  "editor.acceptSuggestionOnEnter": "on",
+  "editor.tabCompletion": "on",
+  "editor.wordBasedSuggestions": "matchingDocuments",
+  "editor.semanticHighlighting.enabled": true,
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "git.enableSmartCommit": true,
+  "git.suggestSmartCommit": true,
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.fontFamily": "'JetBrains Mono', Monaco, 'Courier New', monospace",
+  "terminal.integrated.fontSize": 13,
+  "files.autoSave": "onFocusChange",
+  "files.hotExit": "onExitAndWindowClose",
+  "cursor.chat.showInEditor": true,
+  "cursor.cpp.enableIntelliSense": true,
+  "cursor.general.enableCodeActions": true,
+  "problems.showCurrentInStatus": true,
+  "problems.sortOrder": "severity",
+  "editor.rulers": [100],
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+
+  // === UnoCSS 相关配置 ===
+  "unocss.root": "./",
+  "unocss.configFile": "uno.config.ts",
+  "unocss.remToPxPreview": true,
+  "unocss.colorPreview": true,
+  "unocss.enableIntelliSense": true,
+  "unocss.intelliSense.autocomplete": true,
+  "unocss.intelliSense.matchHighlight": true,
+  "unocss.intelliSense.remToPxHover": true,
+  "unocss.intelliSense.strictDetection": false,
+
+  // === 包管理器配置 ===
+  "npm.packageManager": "pnpm",
+
+  // CSS 类名智能提示增强（UnoCSS 支持）
+  "css.validate": false,
+
+  // === i18n Ally 国际化插件配置 ===
+  "i18n-ally.localesPaths": ["src/locales/lang"],
+  "i18n-ally.keystyle": "nested",
+  "i18n-ally.sortKeys": true,
+  "i18n-ally.namespace": false,
+  "i18n-ally.pathMatcher": "{locale}.{ext}",
+  "i18n-ally.dirStructure": "file",
+  "i18n-ally.enabledParsers": ["ts", "js"],
+  "i18n-ally.sourceLanguage": "zh-CN",
+  "i18n-ally.displayLanguage": "zh-CN",
+  "i18n-ally.enabledFrameworks": ["vue", "vue-i18n"],
+  "i18n-ally.parserOptions": {
+    "ts": {
+      "strictObjectKeyAsString": false
+    }
+  },
+  "i18n-ally.extract.keyPrefix": "",
+  "i18n-ally.extract.keyMaxLength": 100,
+  "i18n-ally.extract.parsers.html.attributes": ["alt", "title", "placeholder"],
+  "i18n-ally.extract.parsers.html.ignoredTags": ["script", "style"],
+  "i18n-ally.review.enabled": true,
+  "i18n-ally.review.gutters": true,
+  "i18n-ally.dirStructure": "dir",
+  "i18n-ally.annotationInPlace": true,
+  "i18n-ally.annotationMaxLength": 50,
+  "i18n-ally.editor.preferEditor": true,
+  "i18n-ally.readonly": false,
+  "i18n-ally.refactor.templates": [
+    {
+      "name": "vue-i18n",
+      "find": "\\$t\\('([^']*)'\\)",
+      "replace": "{{ \\$t('$1') }}"
+    }
+  ],
+  "i18n-ally.usage.scanningDirs": ["src"],
+  "i18n-ally.usage.ignoredFiles": ["**/*.d.ts", "**/node_modules/**", "**/dist/**"]
+}

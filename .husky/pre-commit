@@ -1,0 +1,7 @@
+# 运行lint-staged检查暂存文件
+pnpm dlx lint-staged
+
+# 检查命名规范
+pnpm check
+
+echo "✅ 代码检查和命名规范检查通过！"

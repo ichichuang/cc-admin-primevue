@@ -1,0 +1,2 @@
+# 检查提交信息格式
+pnpm dlx commitlint --edit $1
