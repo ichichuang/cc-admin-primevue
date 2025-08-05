@@ -8,7 +8,7 @@
 /**
  * 国际化配置入口文件
  */
-import { env } from '@/utils/env'
+import { env } from '@/utils'
 import type { App } from 'vue'
 import { createI18n } from 'vue-i18n'
 import enUS from './lang/en-US'

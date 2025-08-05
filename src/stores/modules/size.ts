@@ -8,7 +8,7 @@
 /* 尺寸配置 */
 import { cloneDeep, toKebabCase } from '@/common'
 import store, { useLayoutStoreWithOut } from '@/stores'
-import { env } from '@/utils/env'
+import { env } from '@/utils'
 import { defineStore } from 'pinia'
 
 /* 尺寸模式类型 宽松尺寸 > 舒适尺寸 > 紧凑尺寸 */
@@ -218,7 +218,14 @@ export const useSizeStore = defineStore('size', {
       return gap.key
     },
     // 获取当前间距的具体数值
-    getGapValue: state => state.sizes.gapOptions.find(option => option.key === state.gap)?.value,
+    getGapValue: state =>
+      state.sizes.gapOptions.find(option => option.key === state.gap)?.value as number,
+    // 获取间距尺寸
+    getGapsValue: state => {
+      const gapOptions = state.sizes.gapOptions
+      const gap = gapOptions.find(option => option.key === state.gap) as GapOptions
+      return (gap.value / 2) as number
+    },
     // 获取间距尺寸标签
     getGapLabel: state => state.sizes.gapOptions.find(option => option.key === state.gap)?.label,
     // 获取间距选项
@@ -229,7 +236,7 @@ export const useSizeStore = defineStore('size', {
     getRounded: state => state.rounded,
     // 获取圆角尺寸的具体数值
     getRoundedValue: state =>
-      state.roundedOptions.find(option => option.key === state.rounded)?.value,
+      state.roundedOptions.find(option => option.key === state.rounded)?.value as number,
     // 获取圆角尺寸标签
     getRoundedLabel: state =>
       state.roundedOptions.find(option => option.key === state.rounded)?.label,
@@ -347,7 +354,7 @@ export const useSizeStore = defineStore('size', {
 
         // 间距变量
         [toKebabCase('gap', '--')]: (this.getGapValue || 0) + 'px',
-        [toKebabCase('gaps', '--')]: (this.getGapValue || 0) / 2 + 'px',
+        [toKebabCase('gaps', '--')]: (this.getGapsValue || 0) / 2 + 'px',
 
         // 圆角变量
         [toKebabCase('rounded', '--')]: (this.getRoundedValue || 0) + 'px',

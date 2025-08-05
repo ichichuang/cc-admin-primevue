@@ -404,10 +404,7 @@ export function getDynamicSafelist() {
   const routeMetaIcons = getRouteMetaIcons()
 
   return [
-    // 功能色相关
-    'color-primary100',
-    'color-primary200',
-    'color-primary300',
+    // 功能色相关 - 基础主题色
     'bg-primary100',
     'bg-primary200',
     'bg-primary300',
@@ -416,24 +413,97 @@ export function getDynamicSafelist() {
     'bg-bg100',
     'bg-bg200',
     'bg-bg300',
-    'border-primary',
-    'border-success',
-    'border-warning',
-    'border-error',
-    'border-info',
 
-    // 主题相关
-    'text-theme',
-    'bg-theme',
-    'border-theme',
-    'text-themeTextColor',
-    'bg-themeTextColor',
+    // 主题相关 - 已删除不存在的变量
 
-    // 文字和背景
-    'text-textColor',
-    'text-textMutedColor',
-    'bg-backgroundColor',
-    'bg-backgroundHighlightColor',
+    // 功能色相关 - 基础颜色
+    'text-primaryColor',
+    'text-secondaryColor',
+    'text-successColor',
+    'text-infoColor',
+    'text-warnColor',
+    'text-helpColor',
+    'text-dangerColor',
+    'text-contrastColor',
+
+    'bg-primaryColor',
+    'bg-secondaryColor',
+    'bg-successColor',
+    'bg-infoColor',
+    'bg-warnColor',
+    'bg-helpColor',
+    'bg-dangerColor',
+    'bg-contrastColor',
+
+    // 功能色相关 - 文本颜色
+    'text-primaryTextColor',
+    'text-secondaryTextColor',
+    'text-successTextColor',
+    'text-infoTextColor',
+    'text-warnTextColor',
+    'text-helpTextColor',
+    'text-dangerTextColor',
+    'text-contrastTextColor',
+
+    // 功能色相关 - 边框颜色
+    'border-primaryBorderColor',
+    'border-secondaryBorderColor',
+    'border-successBorderColor',
+    'border-infoBorderColor',
+    'border-warnBorderColor',
+    'border-helpBorderColor',
+    'border-dangerBorderColor',
+    'border-contrastBorderColor',
+
+    // 功能色相关 - 阴影效果
+    'shadow-primaryShadowColor',
+    'shadow-secondaryShadowColor',
+    'shadow-successShadowColor',
+    'shadow-infoShadowColor',
+    'shadow-warnShadowColor',
+    'shadow-helpShadowColor',
+    'shadow-dangerShadowColor',
+    'shadow-contrastShadowColor',
+
+    // 功能色相关 - 焦点效果
+    'focus:shadow-primaryFocusColor',
+    'focus:shadow-secondaryFocusColor',
+    'focus:shadow-successFocusColor',
+    'focus:shadow-infoFocusColor',
+    'focus:shadow-warnFocusColor',
+    'focus:shadow-helpFocusColor',
+    'focus:shadow-dangerFocusColor',
+    'focus:shadow-contrastFocusColor',
+
+    // 悬停状态
+    'hover:bg-primaryHoverColor',
+    'hover:bg-secondaryHoverColor',
+    'hover:bg-successHoverColor',
+    'hover:bg-infoHoverColor',
+    'hover:bg-warnHoverColor',
+    'hover:bg-helpHoverColor',
+    'hover:bg-dangerHoverColor',
+    'hover:bg-contrastHoverColor',
+
+    // 激活状态
+    'active:bg-primaryActiveColor',
+    'active:bg-secondaryActiveColor',
+    'active:bg-successActiveColor',
+    'active:bg-infoActiveColor',
+    'active:bg-warnActiveColor',
+    'active:bg-helpActiveColor',
+    'active:bg-dangerActiveColor',
+    'active:bg-contrastActiveColor',
+
+    // 禁用状态
+    'disabled:bg-primaryDisabledColor',
+    'disabled:bg-secondaryDisabledColor',
+    'disabled:bg-successDisabledColor',
+    'disabled:bg-infoDisabledColor',
+    'disabled:bg-warnDisabledColor',
+    'disabled:bg-helpDisabledColor',
+    'disabled:bg-dangerDisabledColor',
+    'disabled:bg-contrastDisabledColor',
 
     // 动态图标类
     ...Object.values(customIcons).flat(),

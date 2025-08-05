@@ -5,7 +5,7 @@
  * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
  */
 
-import { env } from '@/utils/env'
+import { env } from '@/utils'
 import type { MockMethod } from './types'
 
 // 导入所有 Mock 模块

@@ -7,7 +7,7 @@
 
 /* 尺寸配置 */
 import store from '@/stores'
-import { env } from '@/utils/env'
+import { env } from '@/utils'
 import { defineStore } from 'pinia'
 
 interface PermissionState {

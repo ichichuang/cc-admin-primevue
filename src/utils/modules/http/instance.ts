@@ -6,7 +6,7 @@
  */
 
 // src/utils/http/instance.ts
-import { env } from '@/utils/env'
+import { env } from '@/utils'
 import { createAlova } from 'alova'
 import adapterFetch from 'alova/fetch'
 import VueHook from 'alova/vue'

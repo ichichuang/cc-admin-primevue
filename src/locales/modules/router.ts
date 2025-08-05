@@ -20,11 +20,6 @@ export const routerZhCN: RouterLocaleMessages = {
   },
   example: {
     example: '示例',
-    i18n: '国际化',
-    color: '主题',
-    size: '尺寸',
-    rem: 'rem 适配',
-    date: '日期',
   },
   error: {
     notFound: '页面未找到',
@@ -43,11 +38,6 @@ export const routerEnUS: RouterLocaleMessages = {
   },
   example: {
     example: 'Example',
-    i18n: 'I18n',
-    color: 'Theme',
-    size: 'Size',
-    rem: 'rem Adapter',
-    date: 'Date',
   },
   error: {
     notFound: 'Page Not Found',
@@ -66,11 +56,6 @@ export const routerZhTW: RouterLocaleMessages = {
   },
   example: {
     example: '示例',
-    i18n: '國際化',
-    color: '主題',
-    size: '尺寸',
-    rem: 'rem 適配',
-    date: '日期',
   },
   error: {
     notFound: '頁面未找到',

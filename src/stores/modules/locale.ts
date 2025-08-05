@@ -9,7 +9,7 @@
 import { getCurrentLocale, setLocale, supportedLocales } from '@/locales'
 import type { LocaleInfo, SupportedLocale } from '@/locales/types'
 import store from '@/stores'
-import { env } from '@/utils/env'
+import { env } from '@/utils'
 import { defineStore } from 'pinia'
 
 interface LocaleState {

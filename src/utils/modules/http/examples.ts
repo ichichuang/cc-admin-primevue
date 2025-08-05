@@ -10,7 +10,7 @@
  * Contact: https://github.com/ichichuang/cc-admin/issues
  */
 
-import { env } from '@/utils/env'
+import { env } from '@/utils'
 import {
   addConnectionListener,
   addUploadTask,

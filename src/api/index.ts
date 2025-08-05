@@ -6,7 +6,7 @@
  */
 
 // API 统一管理入口
-import { autoImportModulesSync } from '@/utils/moduleLoader'
+import { autoImportModulesSync } from '@/utils'
 
 // 自动导入所有 API 模块
 const apiModules = import.meta.glob('./modules/**/*.ts', { eager: true })

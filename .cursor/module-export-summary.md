@@ -248,7 +248,7 @@ import type { UserInfo } from '@/stores/modules/user'
 import { env, isDev, getDeviceInfo } from '@/utils'
 
 // ✅ 推荐：从具体模块导入
-import { env } from '@/utils/env'
+import { env } from '@/utils'
 
 // ✅ 推荐：从 common 统一导入（方法较多时）
 import { DateUtils, goBack, cloneDeep } from '@/common'

@@ -5,7 +5,7 @@
  * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
  */
 
-import { env } from '@/utils/env'
+import { env } from '@/utils'
 import { post } from './methods'
 import type {
   ChunkInfo,

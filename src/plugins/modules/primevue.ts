@@ -5,11 +5,10 @@
  * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
  */
 
-import { useColorStore } from '@/stores/modules/color'
-import Aura from '@primeuix/themes/aura'
+import { useColorStore, useSizeStore } from '@/stores'
 import PrimeVue from 'primevue/config'
-import type { App } from 'vue'
-import { createPrimeVuePreset, primeVueThemeOptions } from './primevue-theme'
+import { watch, type App } from 'vue'
+import { createPrimeVuePreset, updatePrimeVueTheme } from './primevue-theme'
 
 /**
  * PrimeVue 配置选项
@@ -21,18 +20,25 @@ export interface PrimeVueConfig {
   prefix?: string
   /** 暗色模式选择器 */
   darkModeSelector?: string
-  /** 是否启用 CSS Layer */
-  cssLayer?: boolean
+  /** CSS Layer 配置 */
+  cssLayer?:
+    | {
+        name: string
+        order: string
+      }
+    | boolean
 }
 
 /**
  * 默认 PrimeVue 配置
  */
 const defaultConfig: PrimeVueConfig = {
-  preset: Aura,
   prefix: 'p',
-  darkModeSelector: 'system',
-  cssLayer: false,
+  darkModeSelector: '.dark',
+  cssLayer: {
+    name: 'primevue',
+    order: 'reset, primevue, cc-admin-custom',
+  },
 }
 
 /**
@@ -48,20 +54,25 @@ export function setupPrimeVue(app: App, config: Partial<PrimeVueConfig> = {}) {
 
   // 获取颜色存储实例
   const colorStore = useColorStore()
+  const sizeStore = useSizeStore()
 
   // 创建动态主题预设
-  const dynamicPreset = createPrimeVuePreset(colorStore.getThemeColors(), colorStore.isDark)
+  const dynamicPreset = createPrimeVuePreset(colorStore, sizeStore)
 
+  // 设置 PrimeVue
   app.use(PrimeVue, {
     theme: {
       preset: dynamicPreset,
       options: {
-        ...primeVueThemeOptions,
         prefix: finalConfig.prefix,
         darkModeSelector: finalConfig.darkModeSelector,
         cssLayer: finalConfig.cssLayer,
       },
     },
+  })
+
+  watch([colorStore, sizeStore], () => {
+    updatePrimeVueTheme(colorStore, sizeStore)
   })
 }
 

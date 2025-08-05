@@ -10,71 +10,43 @@
   Contact: https://github.com/ichichuang/cc-admin-homepage/issues
 -->
 
-# 更新日志
-
-本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/) 规范。
+# 变更日志
 
 ## [未发布]
 
-### 🚀 新功能
+### 重构
 
-- 初始版本
+- **FunctionalColors 接口重构**: 为了适配 PrimeVue v4 的设计令牌系统，重构了 `FunctionalColors` 接口
+  - 移除了 PrimeVue 特定属性: `textColor`, `borderColor`, `backgroundColor`, `focusShadowColor`
+  - 保留了核心属性: `color`, `hover`, `active`, `disabled`, `light`
+  - 简化了接口结构，提高了代码可维护性
+  - 适配了 PrimeVue v4 的色阶系统 (50-950)
+  - 更新了相关的 getter 方法和 CSS 变量设置
+  - 更新了示例页面和文档
 
-### 🐛 修复
+### 技术改进
 
-- 无
+- 优化了颜色系统的设计令牌映射
+- 简化了 CSS 变量定义
+- 提高了与 PrimeVue v4 的兼容性
+- 更新了 UnoCSS 配置以适配重构后的颜色系统
+- 修复了按钮和边框快捷方式的命名一致性
+- 使用项目内置的文本颜色变量 `text-text100` 替代硬编码的 `text-white`
+- 简化了样式定义，提高了代码可维护性
 
-### 📝 文档
+### 文档更新
 
-- 无
+- 更新了 `PRIMEVUE_COLOR_SYSTEM.md` 文档
+- 添加了重构说明和迁移指南
+- 更新了使用示例和最佳实践
+- 新增了 `CONFIGURATION_UPDATE.md` 配置文件更新总结
 
-### 🔧 构建
+## [0.0.1] - 2025-01-XX
 
-- 无
-
----
-
-## [v5.0.0] - 2025-01-27
-
-### 🚀 新功能
+### 新增
 
 - 初始版本发布
-- 基于 Vue 3.5+ 的管理后台框架
-- 支持 TypeScript 5+
-- 集成 Vite 7+ 构建工具
-- 使用 UnoCSS 原子化 CSS 框架
-- 集成 Pinia 状态管理
-- 支持国际化 (i18n)
-- 响应式布局设计
-- 权限管理系统
-- 路由懒加载
-- 主题切换功能
-
-### 🐛 修复
-
-- 无
-
-### 📝 文档
-
-- 添加项目 README 文档
-- 添加 Git 提交规范
-- 添加 GitHub Actions 工作流配置
-
-### 🔧 构建
-
-- 配置 Vite 构建工具
-- 配置 TypeScript 编译选项
-- 配置 ESLint 代码检查
-- 配置 Prettier 代码格式化
-- 配置 Husky Git hooks
-- 配置 Commitlint 提交信息检查
-
-## [v5.0.0] - 2025-08-03
-
-### 🚀 新功能
-
-### 🐛 修复
-
-### 📝 文档
-
-### 🔧 构建
+- 完整的主题色管理系统
+- PrimeVue 组件库集成
+- 亮色/暗色主题支持
+- 多种预设主题色

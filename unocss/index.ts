@@ -17,7 +17,6 @@ import {
 } from 'unocss'
 import { devOptions, prodOptions } from './env'
 import { createPixelRules } from './rules/pixelRules'
-import { createThemeVariableRules } from './rules/themeRules'
 import { shortcuts } from './shortcuts'
 import { themeConfig } from './theme'
 import { getCustomCollections, getDynamicSafelist } from './utils/icons'
@@ -92,7 +91,7 @@ export default defineConfig({
     transformerVariantGroup(),
   ],
 
-  // 自定义变体 - 简化变体，只保留必要的
+  // 自定义变体 - 只保留实际使用的
   variants: [
     // 深色模式变体
     matcher => {
@@ -233,9 +232,6 @@ export default defineConfig({
 
     // 像素值规则（保留原有功能）
     ...createPixelRules(),
-
-    // 主题变量规则
-    ...createThemeVariableRules(),
 
     // 自定义透明度规则
     [

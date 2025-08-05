@@ -5,7 +5,6 @@
  * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
  */
 
-import { debounce } from 'lodash-es'
 import {
   adapterStrategies,
   adaptiveConfig,
@@ -18,7 +17,8 @@ import {
   mobileConfig,
   remConfig,
   ultraWideConfig,
-} from '../constants/modules/rem'
+} from '@/constants'
+import { debounce } from 'lodash-es'
 
 // 从配置获取 rem 适配配置
 export const parseRemConfigFromConfig = (): RemAdapterConfig => {

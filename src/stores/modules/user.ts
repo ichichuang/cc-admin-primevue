@@ -8,7 +8,7 @@
 import { getUserInfo } from '@/api'
 import router from '@/router'
 import store from '@/stores'
-import { env } from '@/utils/env'
+import { env } from '@/utils'
 import { defineStore } from 'pinia'
 
 interface UserState {

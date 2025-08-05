@@ -61,6 +61,11 @@ export function createPixelRules() {
     ['my', ['margin-top', 'margin-bottom']],
     ['gapx', ['gap-x']],
     ['gapy', ['gap-y']],
+    ['gap', ['gap']],
+    ['t', ['top']],
+    ['r', ['right']],
+    ['b', ['bottom']],
+    ['l', ['left']],
   ] as const
 
   const rules: any[] = []

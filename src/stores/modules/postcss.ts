@@ -7,8 +7,7 @@
 
 import store from '@/stores'
 import { useLayoutStoreWithOut } from '@/stores/modules/layout'
-import { env } from '@/utils/env'
-import { RemAdapter, type RemAdapterConfig, parseRemConfigFromConfig } from '@/utils/remAdapter'
+import { RemAdapter, type RemAdapterConfig, env, parseRemConfigFromConfig } from '@/utils'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 

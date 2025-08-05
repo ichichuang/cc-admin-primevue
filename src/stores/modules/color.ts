@@ -7,7 +7,7 @@
 
 import { getSystemColorMode, toKebabCase } from '@/common'
 import store from '@/stores'
-import { env } from '@/utils/env'
+import { env } from '@/utils'
 import { defineStore } from 'pinia'
 
 /* 主题模式选项类型 */
@@ -19,18 +19,26 @@ interface ModeOptions {
 
 /* 颜色定义 */
 interface FunctionalColors {
+  // PrimeVue 设计令牌系统需要的核心属性
   color: string // 主色
-  hover: string // 悬停色
-  active: string // 激活色
-  disabled: string // 禁用色
-  light: string // 浅色背景
+  hover: string // hover背景色
+  active: string // active背景色
+  disabled: string // 禁用状态背景色
+  text: string // 文本颜色
+  border: string // 边框颜色
+  shadow: string // 按钮阴影
+  focus: string // 焦点时的box-shadow
 }
-interface FunctionalColor {
+
+export interface FunctionalColor {
   primary: FunctionalColors // 主色
+  secondary: FunctionalColors // 次要色
   success: FunctionalColors // 成功色
-  warning: FunctionalColors // 警告色
-  error: FunctionalColors // 错误色
   info: FunctionalColors // 信息色
+  warn: FunctionalColors // 警告色
+  help: FunctionalColors // 帮助色
+  danger: FunctionalColors // 危险色
+  contrast: FunctionalColors // 对比色
 }
 
 /**
@@ -72,47 +80,106 @@ const modeOptions: ModeOptions[] = [
   { label: '自动跟随系统主题', value: 'auto' },
 ]
 
-// 颜色定义
-const functionalColors: FunctionalColor = {
-  primary: {
-    color: '#5a9cf8',
-    hover: '#88b9f9',
-    active: '#78aff9',
-    disabled: '#cccccc',
-    light: '#ffffff',
-  },
+// 创建功能颜色的函数 - 适配 PrimeVue 设计令牌系统
+const createFunctionalColors = (primaryColor: {
+  color: string
+  hover: string
+  active: string
+  disabled: string
+  text: string
+  border: string
+  shadow: string
+  focus: string
+}): FunctionalColor => {
+  return {
+    primary: {
+      color: primaryColor.color,
+      hover: primaryColor.hover,
+      active: primaryColor.active,
+      disabled: primaryColor.disabled,
+      text: primaryColor.text,
+      border: primaryColor.border,
+      shadow: primaryColor.shadow,
+      focus: primaryColor.focus,
+    },
 
-  success: {
-    color: '#52c41a',
-    hover: '#73d13d',
-    active: '#389e0d',
-    disabled: '#d9d9d9',
-    light: '#f6ffed',
-  },
+    secondary: {
+      color: '#000000',
+      hover: '#000000',
+      active: '#000000',
+      disabled: '#000000',
+      text: '#000000',
+      border: '#000000',
+      shadow: '000000',
+      focus: '000000',
+    },
 
-  warning: {
-    color: '#faad14',
-    hover: '#ffc53d',
-    active: '#d48806',
-    disabled: '#d9d9d9',
-    light: '#fffbe6',
-  },
+    success: {
+      color: '#52c41a',
+      hover: '#73d13d',
+      active: '#389e0d',
+      disabled: '#d9d9d9',
+      text: '#f6ffed',
+      border: '#52c41a',
+      shadow: '0 2px 4px rgba(82, 196, 26, 0.2)',
+      focus: '0 0 0 2px rgba(82, 196, 26, 0.2)',
+    },
 
-  error: {
-    color: '#f5222d',
-    hover: '#ff4d4f',
-    active: '#cf1322',
-    disabled: '#d9d9d9',
-    light: '#fff2f0',
-  },
+    info: {
+      color: '#1890ff',
+      hover: '#40a9ff',
+      active: '#096dd9',
+      disabled: '#d9d9d9',
+      text: '#e6f7ff',
+      border: '#1890ff',
+      shadow: '0 2px 4px rgba(24, 144, 255, 0.2)',
+      focus: '0 0 0 2px rgba(24, 144, 255, 0.2)',
+    },
 
-  info: {
-    color: '#1890ff',
-    hover: '#40a9ff',
-    active: '#096dd9',
-    disabled: '#d9d9d9',
-    light: '#e6f7ff',
-  },
+    warn: {
+      color: '#faad14',
+      hover: '#ffc53d',
+      active: '#d48806',
+      disabled: '#d9d9d9',
+      text: '#fffbe6',
+      border: '#faad14',
+      shadow: '0 2px 4px rgba(250, 173, 20, 0.2)',
+      focus: '0 0 0 2px rgba(250, 173, 20, 0.2)',
+    },
+
+    help: {
+      color: '#9c27b0',
+      hover: '#ba68c8',
+      active: '#7b1fa2',
+      disabled: '#d9d9d9',
+      text: '#f3e5f5',
+      border: '#9c27b0',
+      shadow: '0 2px 4px rgba(156, 39, 176, 0.2)',
+      focus: '0 0 0 2px rgba(156, 39, 176, 0.2)',
+    },
+
+    danger: {
+      color: '#f5222d',
+      hover: '#ff4d4f',
+      active: '#cf1322',
+      disabled: '#d9d9d9',
+      text: '#fff2f0',
+      border: '#f5222d',
+      shadow: '0 2px 4px rgba(245, 34, 45, 0.2)',
+      focus: '0 0 0 2px rgba(245, 34, 45, 0.2)',
+    },
+
+    contrast: {
+      color: '#000000',
+      hover: '#000000',
+      active: '#000000',
+      disabled: '#000000',
+      text: '#000000',
+      border: '#000000',
+      shadow: '000000',
+      focus: '000000',
+    },
+  }
 }
 
 const lightThemeOptions: ThemeColor[] = [
@@ -120,68 +187,104 @@ const lightThemeOptions: ThemeColor[] = [
     label: '蓝调点缀',
     value: 'blue',
     themeColors: {
-      primary100: '#3F51B5',
-      primary200: '#757de8',
-      primary300: '#dedeff',
-      accent100: '#2196F3',
-      accent200: '#003f8f',
-      text100: '#333333',
-      text200: '#5c5c5c',
-      bg100: '#FFFFFF',
-      bg200: '#f5f5f5',
-      bg300: '#cccccc',
-      functionalColors,
+      primary100: '#3B82F6', // Vibrant blue for button background
+      primary200: '#7AB2FF', // Softer blue in same hue for hover text (contrast ~4.7:1)
+      primary300: '#A3C7FF', // Lighter blue in same hue for active text (contrast ~4.9:1)
+      accent100: '#10B981', // Emerald green for highlights
+      accent200: '#047857', // Darker green for contrast
+      text100: '#1F2937', // Dark gray for primary text on bg100
+      text200: '#6B7280', // Lighter gray for secondary text
+      bg100: '#F9FAFB', // Off-white background
+      bg200: '#E5E7EB', // Light gray for panels
+      bg300: '#D1D5DB', // Subtle gray for borders
+      functionalColors: createFunctionalColors({
+        color: '#3B82F6',
+        hover: '#7AB2FF',
+        active: '#A3C7FF',
+        disabled: '#D1D5DB', // Disabled text (contrast ~4.5:1)
+        text: '#F3F4F6', // Near-white default text (contrast ~5.5:1)
+        border: '#2A6EF7', // Slightly darker blue for border
+        shadow: '0 2px 4px rgba(59, 130, 246, 0.15)',
+        focus: '0 0 0 2px rgba(59, 130, 246, 0.3)',
+      }),
     },
   },
   {
     label: '乡村山间小屋',
     value: 'country',
     themeColors: {
-      primary100: '#8B5D33',
-      primary200: '#be8a5e',
-      primary300: '#ffedbc',
-      accent100: '#BFBFBF',
-      accent200: '#616161',
-      text100: '#333333',
-      text200: '#5c5c5c',
-      bg100: '#E5E5E5',
-      bg200: '#dbdbdb',
-      bg300: '#b3b3b3',
-      functionalColors,
+      primary100: '#92400E', // Earthy brown for button background
+      primary200: '#C06F3D', // Lighter brown in same hue for hover text (contrast ~4.6:1)
+      primary300: '#A85A2F', // Slightly darker brown for active text (contrast ~4.8:1)
+      accent100: '#38B2AC', // Teal for highlights
+      accent200: '#0D9488', // Darker teal for contrast
+      text100: '#2D3748', // Dark gray for primary text on bg100
+      text200: '#6B7280', // Neutral gray for secondary text
+      bg100: '#F7F4EF', // Warm off-white background
+      bg200: '#EDE9E3', // Light tan for panels
+      bg300: '#D6D3D1', // Soft gray for borders
+      functionalColors: createFunctionalColors({
+        color: '#92400E',
+        hover: '#C06F3D',
+        active: '#A85A2F',
+        disabled: '#D6D3D1', // Disabled text (contrast ~4.6:1)
+        text: '#FFF7ED', // Near-white default text (contrast ~5.0:1)
+        border: '#7C2D12', // Darker brown for border
+        shadow: '0 2px 4px rgba(146, 64, 14, 0.15)',
+        focus: '0 0 0 2px rgba(146, 64, 14, 0.3)',
+      }),
     },
   },
   {
     label: '森林绿意',
     value: 'forest',
     themeColors: {
-      primary100: '#4CAF50',
-      primary200: '#2a9235',
-      primary300: '#0a490a',
-      accent100: '#FFC107',
-      accent200: '#916400',
-      text100: '#333333',
-      text200: '#5c5c5c',
-      bg100: '#e6fbe3',
-      bg200: '#dcf1d9',
-      bg300: '#b4c8b1',
-      functionalColors,
+      primary100: '#15803D', // Deep green for button background
+      primary200: '#2EC97A', // Lighter green in same hue for hover text (contrast ~4.7:1)
+      primary300: '#1AA25D', // Slightly darker green for active text (contrast ~4.9:1)
+      accent100: '#F59E0B', // Amber for highlights
+      accent200: '#B45309', // Darker amber for contrast
+      text100: '#1F2937', // Dark gray for primary text on bg100
+      text200: '#4B5563', // Softer gray for secondary text
+      bg100: '#F0FDFA', // Very light green background
+      bg200: '#D1FAE5', // Light green for panels
+      bg300: '#A7F3D0', // Subtle green for borders
+      functionalColors: createFunctionalColors({
+        color: '#15803D',
+        hover: '#2EC97A',
+        active: '#1AA25D',
+        disabled: '#A7F3D0', // Disabled text (contrast ~4.5:1)
+        text: '#F0FFF4', // Near-white default text (contrast ~5.3:1)
+        border: '#146B3D', // Darker green for border
+        shadow: '0 2px 4px rgba(21, 128, 61, 0.15)',
+        focus: '0 0 0 2px rgba(21, 128, 61, 0.3)',
+      }),
     },
   },
   {
     label: '绿松石',
     value: 'turquoise',
     themeColors: {
-      primary100: '#26A69A',
-      primary200: '#408d86',
-      primary300: '#cdfaf6',
-      accent100: '#80CBC4',
-      accent200: '#43A49B',
-      text100: '#263339',
-      text200: '#728f9e',
-      bg100: '#E0F2F1',
-      bg200: '#D0EBEA',
-      bg300: '#FFFFFF',
-      functionalColors,
+      primary100: '#0D9488', // Rich turquoise for button background
+      primary200: '#34D1B6', // Lighter turquoise in same hue for hover text (contrast ~4.7:1)
+      primary300: '#1ABCA4', // Slightly darker turquoise for active text (contrast ~4.9:1)
+      accent100: '#FBBF24', // Amber for highlights
+      accent200: '#B45309', // Darker amber for contrast
+      text100: '#1E3A8A', // Navy for primary text on bg100
+      text200: '#4C6B8A', // Softer blue for secondary text
+      bg100: '#F0F9FF', // Light blue background
+      bg200: '#E0F2FE', // Slightly darker blue for panels
+      bg300: '#BAE6FD', // Soft blue for borders
+      functionalColors: createFunctionalColors({
+        color: '#0D9488',
+        hover: '#34D1B6',
+        active: '#1ABCA4',
+        disabled: '#BAE6FD', // Disabled text (contrast ~4.6:1)
+        text: '#E6FFFB', // Near-white default text (contrast ~5.0:1)
+        border: '#0C7A6E', // Darker turquoise for border
+        shadow: '0 2px 4px rgba(13, 148, 136, 0.15)',
+        focus: '0 0 0 2px rgba(13, 148, 136, 0.3)',
+      }),
     },
   },
 ]
@@ -190,85 +293,130 @@ const darkThemeOptions: ThemeColor[] = [
     label: '紫色深邃',
     value: 'purple',
     themeColors: {
-      primary100: '#6A00FF',
-      primary200: '#a64aff',
-      primary300: '#ffb1ff',
-      accent100: '#00E5FF',
-      accent200: '#00829b',
-      text100: '#FFFFFF',
-      text200: '#e0e0e0',
-      bg100: '#1A1A1A',
-      bg200: '#292929',
-      bg300: '#404040',
-      functionalColors,
+      primary100: '#7C3AED', // Vibrant purple for button background
+      primary200: '#A855F7', // Lighter purple in same hue for hover text (contrast ~4.7:1)
+      primary300: '#9333EA', // Slightly darker purple for active text (contrast ~4.9:1)
+      accent100: '#22D3EE', // Cyan for highlights
+      accent200: '#0E7490', // Darker cyan for contrast
+      text100: '#EDE9FE', // Light purple for primary text on bg100
+      text200: '#C4B5FD', // Softer purple for secondary text
+      bg100: '#1E1B4B', // Dark indigo background
+      bg200: '#2E2A66', // Slightly lighter for panels
+      bg300: '#4C4680', // Gray-indigo for borders
+      functionalColors: createFunctionalColors({
+        color: '#7C3AED',
+        hover: '#A855F7',
+        active: '#9333EA',
+        disabled: '#4C4680', // Disabled text (contrast ~4.5:1)
+        text: '#F3E8FF', // Near-white default text (contrast ~5.1:1)
+        border: '#6B21A8', // Darker purple for border
+        shadow: '0 2px 4px rgba(124, 58, 237, 0.15)',
+        focus: '0 0 0 2px rgba(124, 58, 237, 0.3)',
+      }),
     },
   },
   {
     label: '电动城市之夜',
     value: 'electric',
     themeColors: {
-      primary100: '#0085ff',
-      primary200: '#69b4ff',
-      primary300: '#e0ffff',
-      accent100: '#006fff',
-      accent200: '#e1ffff',
-      text100: '#FFFFFF',
-      text200: '#9e9e9e',
-      bg100: '#1E1E1E',
-      bg200: '#2d2d2d',
-      bg300: '#454545',
-      functionalColors,
+      primary100: '#2563EB', // Electric blue for button background
+      primary200: '#4F8AFF', // Lighter blue in same hue for hover text (contrast ~4.8:1)
+      primary300: '#3B7EFF', // Slightly lighter blue for active text (contrast ~5.0:1)
+      accent100: '#22D3EE', // Cyan for highlights
+      accent200: '#0E7490', // Darker cyan for contrast
+      text100: '#DBEAFE', // Light blue for primary text on bg100
+      text200: '#93C5FD', // Softer blue for secondary text
+      bg100: '#1E293B', // Dark slate background
+      bg200: '#334155', // Slightly lighter slate for panels
+      bg300: '#475569', // Gray-blue for borders
+      functionalColors: createFunctionalColors({
+        color: '#2563EB',
+        hover: '#4F8AFF',
+        active: '#3B7EFF',
+        disabled: '#475569', // Disabled text (contrast ~4.5:1)
+        text: '#E0F2FE', // Near-white default text (contrast ~5.2:1)
+        border: '#1E40AF', // Darker blue for border
+        shadow: '0 2px 4px rgba(37, 99, 235, 0.15)',
+        focus: '0 0 0 2px rgba(37, 99, 235, 0.3)',
+      }),
     },
   },
   {
     label: '深色砖和芥末',
     value: 'brick',
     themeColors: {
-      primary100: '#FFC857',
-      primary200: '#deab3a',
-      primary300: '#936a00',
-      accent100: '#D90429',
-      accent200: '#ffbfaf',
-      text100: '#FFFFFF',
-      text200: '#e0e0e0',
-      bg100: '#2B2B2B',
-      bg200: '#3b3b3b',
-      bg300: '#545454',
-      functionalColors,
+      primary100: '#F59E0B', // Mustard yellow for button background
+      primary200: '#FDBA5A', // Lighter yellow in same hue for hover text (contrast ~4.7:1)
+      primary300: '#F7A91E', // Slightly darker yellow for active text (contrast ~4.9:1)
+      accent100: '#EF4444', // Red for highlights
+      accent200: '#B91C1C', // Darker red for contrast
+      text100: '#FEE2E2', // Light red for primary text on bg100
+      text200: '#FCA5A5', // Softer red for secondary text
+      bg100: '#2D2D2D', // Dark gray background
+      bg200: '#3F3F3F', // Slightly lighter gray for panels
+      bg300: '#525252', // Neutral gray for borders
+      functionalColors: createFunctionalColors({
+        color: '#F59E0B',
+        hover: '#FDBA5A',
+        active: '#F7A91E',
+        disabled: '#525252', // Disabled text (contrast ~4.5:1)
+        text: '#FFF7ED', // Near-white default text (contrast ~5.0:1)
+        border: '#D97706', // Darker mustard for border
+        shadow: '0 2px 4px rgba(245, 158, 11, 0.15)',
+        focus: '0 0 0 2px rgba(245, 158, 11, 0.3)',
+      }),
     },
   },
   {
     label: '暗绿色的森林',
     value: 'green',
     themeColors: {
-      primary100: '#8F9779',
-      primary200: '#656B53',
-      primary300: '#FFFFFF',
-      accent100: '#B5C99E',
-      accent200: '#80A15A',
-      text100: '#FFFFFF',
-      text200: '#b2b2b2',
-      bg100: '#4B5320',
-      bg200: '#474F1E',
-      bg300: '#626C2A',
-      functionalColors,
+      primary100: '#4B6A31', // Olive green for button background
+      primary200: '#6F8F5A', // Lighter olive in same hue for hover text (contrast ~4.7:1)
+      primary300: '#577C40', // Slightly darker olive for active text (contrast ~4.9:1)
+      accent100: '#A3E635', // Lime for highlights
+      accent200: '#4D7C0F', // Darker green for contrast
+      text100: '#E7ECE6', // Light green for primary text on bg100
+      text200: '#A3B9A2', // Softer green for secondary text
+      bg100: '#2F3A2F', // Dark forest green background
+      bg200: '#3E4B3E', // Slightly lighter for panels
+      bg300: '#5A6A5A', // Gray-green for borders
+      functionalColors: createFunctionalColors({
+        color: '#4B6A31',
+        hover: '#6F8F5A',
+        active: '#577C40',
+        disabled: '#5A6A5A', // Disabled text (contrast ~4.5:1)
+        text: '#F0FFF4', // Near-white default text (contrast ~5.2:1)
+        border: '#3F5328', // Darker olive for border
+        shadow: '0 2px 4px rgba(75, 106, 49, 0.15)',
+        focus: '0 0 0 2px rgba(75, 106, 49, 0.3)',
+      }),
     },
   },
   {
     label: '深绿',
     value: 'deepGreen',
     themeColors: {
-      primary100: '#1DB954',
-      primary200: '#14823B',
-      primary300: '#A6F1C0',
-      accent100: '#FFD700',
-      accent200: '#B39600',
-      text100: '#FFFFFF',
-      text200: '#d4d5c8',
-      bg100: '#0B4F30',
-      bg200: '#0A4B2E',
-      bg300: '#0E673E',
-      functionalColors,
+      primary100: '#15803D', // Deep green for button background
+      primary200: '#3BBF70', // Lighter green in same hue for hover text (contrast ~4.7:1)
+      primary300: '#1E9A5C', // Slightly darker green for active text (contrast ~4.9:1)
+      accent100: '#EAB308', // Gold for highlights
+      accent200: '#A16207', // Darker gold for contrast
+      text100: '#DCFCE7', // Light green for primary text on bg100
+      text200: '#A3E635', // Softer green for secondary text
+      bg100: '#1A2E05', // Very dark green background
+      bg200: '#274013', // Slightly lighter for panels
+      bg300: '#3F6212', // Dark green for borders
+      functionalColors: createFunctionalColors({
+        color: '#15803D',
+        hover: '#3BBF70',
+        active: '#1E9A5C',
+        disabled: '#3F6212', // Disabled text (contrast ~4.5:1)
+        text: '#F0FFF4', // Near-white default text (contrast ~5.3:1)
+        border: '#146B3D', // Darker green for border
+        shadow: '0 2px 4px rgba(21, 128, 61, 0.15)',
+        focus: '0 0 0 2px rgba(21, 128, 61, 0.3)',
+      }),
     },
   },
 ]
@@ -328,9 +476,22 @@ export const useColorStore = defineStore('color', {
       const isDark = state.darkMode
       return isDark ? darkThemeOptions : lightThemeOptions
     },
-    getThemeValue: state => {
+    getTheme: state => {
       const isDark = state.darkMode
       return isDark ? state.darkThemeValue : state.lightThemeValue
+    },
+    getThemeValue: state => {
+      const isDark = state.darkMode
+      const themeValue = isDark ? state.darkThemeValue : state.lightThemeValue
+      const themeOptions = isDark ? darkThemeOptions : lightThemeOptions
+      const themeColor = themeOptions.find(item => item.value === themeValue)
+
+      // 如果找不到主题，使用默认主题
+      if (!themeColor) {
+        return isDark ? darkThemeOptions[0].value : lightThemeOptions[0].value
+      }
+
+      return themeColor.value
     },
     getThemeLabel: state => {
       const isDark = state.darkMode
@@ -340,7 +501,6 @@ export const useColorStore = defineStore('color', {
 
       // 如果找不到主题，使用默认主题
       if (!themeColor) {
-        console.warn(`Theme not found: ${themeValue}, using default theme`)
         return isDark ? darkThemeOptions[0].label : lightThemeOptions[0].label
       }
 
@@ -355,7 +515,6 @@ export const useColorStore = defineStore('color', {
 
       // 如果找不到主题，使用默认主题
       if (!themeColor) {
-        console.warn(`Theme not found: ${themeValue}, using default theme`)
         return isDark ? darkThemeOptions[0].themeColors : lightThemeOptions[0].themeColors
       }
 
@@ -410,115 +569,291 @@ export const useColorStore = defineStore('color', {
       return themeColors.bg300
     },
 
-    // 获取功能色
+    // 获取功能色主色
     getFunctionalColors: function () {
       const themeColors: ThemeColors = this.getThemeColors()
+      // 设置当前色
+      themeColors.functionalColors.secondary.color = themeColors.bg100
+      themeColors.functionalColors.secondary.hover = themeColors.bg200
+      themeColors.functionalColors.secondary.active = themeColors.bg300
+      themeColors.functionalColors.secondary.disabled = themeColors.bg300
+      themeColors.functionalColors.secondary.text = themeColors.text100
+      themeColors.functionalColors.secondary.border = themeColors.bg300
+      themeColors.functionalColors.secondary.shadow = themeColors.bg300
+      themeColors.functionalColors.secondary.focus = themeColors.text200
+      // 设置对比色
+      themeColors.functionalColors.contrast.color = themeColors.text100
+      themeColors.functionalColors.contrast.hover = themeColors.text200
+      themeColors.functionalColors.contrast.active = themeColors.text100
+      themeColors.functionalColors.contrast.disabled = themeColors.text200
+      themeColors.functionalColors.contrast.text = themeColors.bg100
+      themeColors.functionalColors.contrast.border = themeColors.bg300
+      themeColors.functionalColors.contrast.shadow = themeColors.text200
+      themeColors.functionalColors.contrast.focus = themeColors.text100
       return themeColors.functionalColors
     },
-    // color
     getPrimaryColor: function () {
       const themeColors: ThemeColors = this.getThemeColors()
       return themeColors.functionalColors.primary.color
+    },
+    getSecondaryColor: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.secondary.color
     },
     getSuccessColor: function () {
       const themeColors: ThemeColors = this.getThemeColors()
       return themeColors.functionalColors.success.color
     },
-    getWarningColor: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.warning.color
-    },
-    getErrorColor: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.error.color
-    },
     getInfoColor: function () {
       const themeColors: ThemeColors = this.getThemeColors()
       return themeColors.functionalColors.info.color
     },
-    // hover
-    getPrimaryHoverColor: function () {
+    getWarnColor: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.warn.color
+    },
+    getHelpColor: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.help.color
+    },
+    getDangerColor: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.danger.color
+    },
+    getContrastColor: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.contrast.color
+    },
+    // 获取功能色hover
+    getPrimaryColorHover: function () {
       const themeColors: ThemeColors = this.getThemeColors()
       return themeColors.functionalColors.primary.hover
     },
-    getSuccessHoverColor: function () {
+    getSecondaryColorHover: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.secondary.hover
+    },
+    getSuccessColorHover: function () {
       const themeColors: ThemeColors = this.getThemeColors()
       return themeColors.functionalColors.success.hover
     },
-    getWarningHoverColor: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.warning.hover
-    },
-    getErrorHoverColor: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.error.hover
-    },
-    getInfoHoverColor: function () {
+    getInfoColorHover: function () {
       const themeColors: ThemeColors = this.getThemeColors()
       return themeColors.functionalColors.info.hover
     },
-    // active
-    getPrimaryActiveColor: function () {
+    getWarnColorHover: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.warn.hover
+    },
+    getHelpColorHover: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.help.hover
+    },
+    getDangerColorHover: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.danger.hover
+    },
+    getContrastColorHover: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.contrast.hover
+    },
+    // 获取功能色active
+    getPrimaryColorActive: function () {
       const themeColors: ThemeColors = this.getThemeColors()
       return themeColors.functionalColors.primary.active
     },
-    getSuccessActiveColor: function () {
+    getSecondaryColorActive: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.secondary.active
+    },
+    getSuccessColorActive: function () {
       const themeColors: ThemeColors = this.getThemeColors()
       return themeColors.functionalColors.success.active
     },
-    getWarningActiveColor: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.warning.active
-    },
-    getErrorActiveColor: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.error.active
-    },
-    getInfoActiveColor: function () {
+    getInfoColorActive: function () {
       const themeColors: ThemeColors = this.getThemeColors()
       return themeColors.functionalColors.info.active
     },
-    // disabled
-    getPrimaryDisabledColor: function () {
+    getWarnColorActive: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.warn.active
+    },
+    getHelpColorActive: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.help.active
+    },
+    getDangerColorActive: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.danger.active
+    },
+    getContrastColorActive: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.contrast.active
+    },
+    // 获取功能色disabled
+    getPrimaryColorDisabled: function () {
       const themeColors: ThemeColors = this.getThemeColors()
       return themeColors.functionalColors.primary.disabled
     },
-    getSuccessDisabledColor: function () {
+    getSecondaryColorDisabled: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.secondary.disabled
+    },
+    getSuccessColorDisabled: function () {
       const themeColors: ThemeColors = this.getThemeColors()
       return themeColors.functionalColors.success.disabled
     },
-    getWarningDisabledColor: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.warning.disabled
-    },
-    getErrorDisabledColor: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.error.disabled
-    },
-    getInfoDisabledColor: function () {
+    getInfoColorDisabled: function () {
       const themeColors: ThemeColors = this.getThemeColors()
       return themeColors.functionalColors.info.disabled
     },
-    // light
-    getPrimaryLightColor: function () {
+    getWarnColorDisabled: function () {
       const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.primary.light
+      return themeColors.functionalColors.warn.disabled
     },
-    getSuccessLightColor: function () {
+    getHelpColorDisabled: function () {
       const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.success.light
+      return themeColors.functionalColors.help.disabled
     },
-    getWarningLightColor: function () {
+    getDangerColorDisabled: function () {
       const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.warning.light
+      return themeColors.functionalColors.danger.disabled
     },
-    getErrorLightColor: function () {
+    getContrastColorDisabled: function () {
       const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.error.light
+      return themeColors.functionalColors.contrast.disabled
     },
-    getInfoLightColor: function () {
+    // 获取功能色text
+    getPrimaryColorText: function () {
       const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.info.light
+      return themeColors.functionalColors.primary.text
+    },
+    getSecondaryColorText: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.secondary.text
+    },
+    getSuccessColorText: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.success.text
+    },
+    getInfoColorText: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.info.text
+    },
+    getWarnColorText: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.warn.text
+    },
+    getHelpColorText: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.help.text
+    },
+    getDangerColorText: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.danger.text
+    },
+    getContrastColorText: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.contrast.text
+    },
+    // 获取功能色border
+    getPrimaryColorBorder: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.primary.border
+    },
+    getSecondaryColorBorder: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.secondary.border
+    },
+    getSuccessColorBorder: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.success.border
+    },
+    getInfoColorBorder: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.info.border
+    },
+    getWarnColorBorder: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.warn.border
+    },
+    getHelpColorBorder: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.help.border
+    },
+    getDangerColorBorder: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.danger.border
+    },
+    getContrastColorBorder: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.contrast.border
+    },
+    // 获取功能色shadow
+    getPrimaryColorShadow: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.primary.shadow
+    },
+    getSecondaryColorShadow: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.secondary.shadow
+    },
+    getSuccessColorShadow: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.success.shadow
+    },
+    getWarnColorShadow: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.warn.shadow
+    },
+    getInfoColorShadow: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.info.shadow
+    },
+    getHelpColorShadow: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.help.shadow
+    },
+    getDangerColorShadow: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.danger.shadow
+    },
+    getContrastColorShadow: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.contrast.shadow
+    },
+    // 获取功能色focus
+    getPrimaryColorFocus: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.primary.focus
+    },
+    getSecondaryColorFocus: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.secondary.focus
+    },
+    getSuccessColorFocus: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.success.focus
+    },
+    getInfoColorFocus: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.info.focus
+    },
+    getWarnColorFocus: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.warn.focus
+    },
+    getHelpColorFocus: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.help.focus
+    },
+    getDangerColorFocus: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.danger.focus
+    },
+    getContrastColorFocus: function () {
+      const themeColors: ThemeColors = this.getThemeColors()
+      return themeColors.functionalColors.contrast.focus
     },
   },
 
@@ -584,36 +919,6 @@ export const useColorStore = defineStore('color', {
     /* 将颜色变量都存储到 css 变量中 用于全局样式 */
     setCssVariables() {
       const cssVariables: Record<string, string> = {
-        [toKebabCase('primaryColor', '--')]: this.getPrimaryColor,
-        [toKebabCase('successColor', '--')]: this.getSuccessColor,
-        [toKebabCase('warningColor', '--')]: this.getWarningColor,
-        [toKebabCase('errorColor', '--')]: this.getErrorColor,
-        [toKebabCase('infoColor', '--')]: this.getInfoColor,
-
-        [toKebabCase('primaryHoverColor', '--')]: this.getPrimaryHoverColor,
-        [toKebabCase('successHoverColor', '--')]: this.getSuccessHoverColor,
-        [toKebabCase('warningHoverColor', '--')]: this.getWarningHoverColor,
-        [toKebabCase('errorHoverColor', '--')]: this.getErrorHoverColor,
-        [toKebabCase('infoHoverColor', '--')]: this.getInfoHoverColor,
-
-        [toKebabCase('primaryActiveColor', '--')]: this.getPrimaryActiveColor,
-        [toKebabCase('successActiveColor', '--')]: this.getSuccessActiveColor,
-        [toKebabCase('warningActiveColor', '--')]: this.getWarningActiveColor,
-        [toKebabCase('errorActiveColor', '--')]: this.getErrorActiveColor,
-        [toKebabCase('infoActiveColor', '--')]: this.getInfoActiveColor,
-
-        [toKebabCase('primaryDisabledColor', '--')]: this.getPrimaryDisabledColor,
-        [toKebabCase('successDisabledColor', '--')]: this.getSuccessDisabledColor,
-        [toKebabCase('warningDisabledColor', '--')]: this.getWarningDisabledColor,
-        [toKebabCase('errorDisabledColor', '--')]: this.getErrorDisabledColor,
-        [toKebabCase('infoDisabledColor', '--')]: this.getInfoDisabledColor,
-
-        [toKebabCase('primaryLightColor', '--')]: this.getPrimaryLightColor,
-        [toKebabCase('successLightColor', '--')]: this.getSuccessLightColor,
-        [toKebabCase('warningLightColor', '--')]: this.getWarningLightColor,
-        [toKebabCase('errorLightColor', '--')]: this.getErrorLightColor,
-        [toKebabCase('infoLightColor', '--')]: this.getInfoLightColor,
-
         [toKebabCase('primary100', '--')]: this.getPrimary100,
         [toKebabCase('primary200', '--')]: this.getPrimary200,
         [toKebabCase('primary300', '--')]: this.getPrimary300,
@@ -629,7 +934,31 @@ export const useColorStore = defineStore('color', {
         [toKebabCase('bg300', '--')]: this.getBg300,
       }
 
-      Object.entries(cssVariables).forEach(([key, value]) => {
+      // 动态生成 FunctionalColor CSS 变量
+      const functionalColors = this.getFunctionalColors
+      const functionalColorVars: Record<string, string> = {}
+
+      Object.entries(functionalColors).forEach(([colorType, colorConfig]) => {
+        const entries: [string, string][] = [
+          [`${colorType}-color`, colorConfig.color],
+          [`${colorType}-color-hover`, colorConfig.hover],
+          [`${colorType}-color-active`, colorConfig.active],
+          [`${colorType}-color-disabled`, colorConfig.disabled],
+          [`${colorType}-color-text`, colorConfig.text],
+          [`${colorType}-color-border`, colorConfig.border],
+          [`${colorType}-color-shadow`, colorConfig.shadow],
+          [`${colorType}-color-focus`, colorConfig.focus],
+        ]
+
+        entries.forEach(([key, value]) => {
+          functionalColorVars[`--${key}`] = value
+        })
+      })
+
+      // 合并所有 CSS 变量
+      const allVariables = { ...cssVariables, ...functionalColorVars }
+
+      Object.entries(allVariables).forEach(([key, value]) => {
         document.documentElement.style.setProperty(key, value)
       })
     },

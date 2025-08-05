@@ -9,7 +9,7 @@ import { getAuthRoutes } from '@/api'
 import { errorPages } from '@/constants'
 import { processAsyncRoutes, transformToVueRoutes } from '@/router/utils'
 import { usePermissionStoreWithOut, useUserStoreWithOut } from '@/stores'
-import { isDev } from '@/utils/env'
+import { isDev } from '@/utils'
 import { computed } from 'vue'
 
 /**

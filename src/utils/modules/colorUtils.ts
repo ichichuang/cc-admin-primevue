@@ -185,19 +185,19 @@ export function generatePrimaryPalette(
 /**
  * 生成功能色调色板
  * @param themeColors 主题颜色配置
- * @param colorType 颜色类型 (primary, success, warning, error, info)
+ * @param colorType 颜色类型 (primary, secondary, success, info, warn, help, danger, contrast)
  * @returns 功能色调色板
  */
 export function generateFunctionalPalette(
   themeColors: ThemeColors,
-  colorType: 'primary' | 'success' | 'warning' | 'error' | 'info'
+  colorType: 'primary' | 'secondary' | 'success' | 'info' | 'warn' | 'help' | 'danger' | 'contrast'
 ): Record<string, string> {
   const functionalColors = themeColors.functionalColors[colorType]
 
   return {
-    '50': functionalColors.light,
-    '100': functionalColors.light,
-    '200': functionalColors.light,
+    '50': functionalColors.color,
+    '100': functionalColors.color,
+    '200': functionalColors.color,
     '300': functionalColors.color,
     '400': functionalColors.color,
     '500': functionalColors.color,
@@ -231,10 +231,13 @@ export function generateCompletePalette(themeColors: ThemeColors, isDark: boolea
     surface: generateSurfacePalette(themeColors, isDark),
     functional: {
       primary: generateFunctionalPalette(themeColors, 'primary'),
+      secondary: generateFunctionalPalette(themeColors, 'secondary'),
       success: generateFunctionalPalette(themeColors, 'success'),
-      warning: generateFunctionalPalette(themeColors, 'warning'),
-      error: generateFunctionalPalette(themeColors, 'error'),
       info: generateFunctionalPalette(themeColors, 'info'),
+      warn: generateFunctionalPalette(themeColors, 'warn'),
+      help: generateFunctionalPalette(themeColors, 'help'),
+      danger: generateFunctionalPalette(themeColors, 'danger'),
+      contrast: generateFunctionalPalette(themeColors, 'contrast'),
     },
     contrast: generateContrastColor(themeColors, isDark),
   }

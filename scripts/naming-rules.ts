@@ -121,7 +121,6 @@ function checkFileName(filePath, fileName) {
   const isInLocales = normalizedPath.includes('/locales/')
   const isInUtils = normalizedPath.includes('/utils/')
   const isInCommon = normalizedPath.includes('/common/')
-  const isInComposables = normalizedPath.includes('/composables/')
   const isVueFile = ext === '.vue'
 
   if (isVueFile) {
@@ -175,8 +174,7 @@ function checkFileName(filePath, fileName) {
       isInRouter ||
       isInLocales ||
       isInUtils ||
-      isInCommon ||
-      isInComposables
+      isInCommon
     ) {
       if (!NAMING_RULES.files.camelCase.test(nameWithoutExt)) {
         addError(
@@ -220,19 +218,9 @@ function checkDirectoryName(dirPath, dirName) {
   const isInLocales = normalizedPath.includes('/locales/')
   const isInUtils = normalizedPath.includes('/utils/')
   const isInCommon = normalizedPath.includes('/common/')
-  const isInComposables = normalizedPath.includes('/composables/')
 
   // 功能模块相关目录：camelCase
-  if (
-    isInApi ||
-    isInHooks ||
-    isInStores ||
-    isInRouter ||
-    isInLocales ||
-    isInUtils ||
-    isInCommon ||
-    isInComposables
-  ) {
+  if (isInApi || isInHooks || isInStores || isInRouter || isInLocales || isInUtils || isInCommon) {
     if (!NAMING_RULES.directories.camelCase.test(dirName)) {
       addError(
         'directory-naming',

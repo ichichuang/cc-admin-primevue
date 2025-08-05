@@ -6,7 +6,7 @@
  */
 
 import { useUserStoreWithOut } from '@/stores'
-import { env } from '@/utils/env'
+import { env } from '@/utils'
 import type { Method } from 'alova'
 import { getConnectionState } from './connection'
 

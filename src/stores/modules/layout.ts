@@ -8,8 +8,8 @@
 /* 尺寸配置 */
 import store from '@/stores'
 import { useSizeStoreWithOut } from '@/stores/modules/size'
-import { getDeviceInfo } from '@/utils/deviceInfo'
-import { env } from '@/utils/env'
+import { env } from '@/utils'
+import { getDeviceInfo } from '@/utils'
 import { debounce } from 'lodash-es'
 import { defineStore } from 'pinia'
 

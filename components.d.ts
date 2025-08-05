@@ -9,15 +9,20 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Button: typeof import('primevue/button')['default']
-    Checkbox: typeof import('primevue/checkbox')['default']
-    Drawer: typeof import('primevue/drawer')['default']
-    Dropdown: typeof import('primevue/dropdown')['default']
-    InputText: typeof import('primevue/inputtext')['default']
+    ButtonGroup: typeof import('primevue/buttongroup')['default']
+    ColorSwitch: typeof import('./src/components/common/ColorSwitch.vue')['default']
+    FunctionalColorDemo: typeof import('./src/components/ui/FunctionalColorDemo.vue')['default']
+    FunctionalColorExample: typeof import('./src/components/ui/FunctionalColorExample.vue')['default']
+    GapSwitch: typeof import('./src/components/common/GapSwitch.vue')['default']
     LanguageSwitch: typeof import('./src/components/common/LanguageSwitch.vue')['default']
     Loading: typeof import('./src/components/layout/Loading.vue')['default']
-    Message: typeof import('primevue/message')['default']
+    PrimeVueButton: typeof import('./src/components/ui/PrimeVueButton.vue')['default']
+    RoundSwitch: typeof import('./src/components/common/RoundSwitch.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Select: typeof import('primevue/select')['default']
+    SelectButton: typeof import('primevue/selectbutton')['default']
+    SizeSwitch: typeof import('./src/components/common/SizeSwitch.vue')['default']
+    ThemeSwitch: typeof import('./src/components/common/ThemeSwitch.vue')['default']
   }
 }

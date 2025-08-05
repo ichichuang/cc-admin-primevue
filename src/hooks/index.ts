@@ -6,7 +6,7 @@
  */
 
 // Hooks 统一管理入口
-import { autoImportModulesSync } from '@/utils/moduleLoader'
+import { autoImportModulesSync } from '@/utils'
 
 // 自动导入所有 Hook 模块
 const hookModules = import.meta.glob('./modules/**/*.ts', { eager: true })

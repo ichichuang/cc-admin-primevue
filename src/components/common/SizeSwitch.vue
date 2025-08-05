@@ -1,0 +1,27 @@
+<script setup lang="ts">
+import { useSizeStore, type SizeOptions } from '@/stores'
+import { computed } from 'vue'
+
+const sizeStore = useSizeStore()
+
+const sizeOptions = computed(() => sizeStore.getSizeOptions)
+const size = computed(() => sizeStore.getSize)
+
+const setSize = (value: SizeOptions['value']) => {
+  sizeStore.setSize(value)
+}
+</script>
+<template>
+  <ButtonGroup>
+    <template
+      v-for="item in sizeOptions"
+      :key="item.value"
+    >
+      <Button
+        :label="item.label"
+        :severity="size === item.value ? 'primary' : 'secondary'"
+        @click="setSize(item.value)"
+      />
+    </template>
+  </ButtonGroup>
+</template>

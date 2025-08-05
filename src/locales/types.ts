@@ -55,6 +55,12 @@ export interface CommonLocaleMessages {
     failed: string
     active: string
     inactive: string
+    // 新增功能色状态
+    primary: string
+    secondary: string
+    help: string
+    danger: string
+    contrast: string
   }
 
   // 表单相关
@@ -286,11 +292,6 @@ export interface RouterLocaleMessages {
   }
   example: {
     example: string
-    i18n: string
-    color: string
-    size: string
-    rem: string
-    date: string
   }
   error: {
     notFound: string

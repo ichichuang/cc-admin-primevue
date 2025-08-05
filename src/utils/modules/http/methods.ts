@@ -7,7 +7,7 @@
 
 // src/utils/http/methods.ts
 import { useUserStoreWithOut } from '@/stores'
-import { env } from '@/utils/env'
+import { env } from '@/utils'
 import { alovaInstance } from './instance'
 import { ErrorType, HttpRequestError, isRetryableError } from './interceptors'
 import type { AlovaRequestConfig, RequestConfig, RetryConfig, UploadConfig } from './types'

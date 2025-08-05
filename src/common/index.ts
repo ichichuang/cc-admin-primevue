@@ -6,7 +6,7 @@
  */
 
 // Common 统一管理入口
-import { autoImportModulesSync } from '@/utils/moduleLoader'
+import { autoImportModulesSync } from '@/utils'
 
 // 自动导入所有公共模块
 const commonModules = import.meta.glob('./modules/**/*.ts', { eager: true })

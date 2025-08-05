@@ -8,8 +8,8 @@
 // Router 统一管理入口
 import { createDynamicRouteManager, createRouteUtils, sortRoutes } from '@/router/utils'
 import { registerRouterGuards } from '@/router/utils/customs'
-import { env } from '@/utils/env'
-import { autoImportModulesSync } from '@/utils/moduleLoader'
+import { env } from '@/utils'
+import { autoImportModulesSync } from '@/utils'
 import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 import { initDynamicRoutes } from './utils/helper'
