@@ -41,13 +41,6 @@ export interface FunctionalColor {
   contrast: FunctionalColors // 对比色
 }
 
-/**
- * 颜色映射配置接口
- */
-export interface ColorMappingConfig {
-  [key: string]: string
-}
-
 export interface ThemeColors {
   // 主题色
   primary100: string // 主色深色调 - 用于主要按钮、导航栏、重要操作元素
@@ -66,6 +59,7 @@ export interface ThemeColors {
   // 功能色
   functionalColors: FunctionalColor // 功能色
 }
+
 export interface ThemeColor {
   label: string // 主题色标签
   value: string // 主题色值

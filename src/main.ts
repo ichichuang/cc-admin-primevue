@@ -11,6 +11,7 @@ import 'uno.css'
 import { createApp } from 'vue'
 
 // 导入全局样式
+import '@/assets/styles/custom.scss'
 import '@/assets/styles/reset.scss'
 
 import App from '@/App.vue'

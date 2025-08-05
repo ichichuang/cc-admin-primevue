@@ -5,7 +5,8 @@ import { definePreset, usePreset } from '@primevue/themes'
 import Aura from '@primevue/themes/aura'
 console.log('Aura: ', Aura)
 
-const initBottonColor = (
+// 初始化按钮颜色
+const initButtonColor = (
   colorStore: ReturnType<typeof useColorStore>,
   type: 'root' | 'outlined' | 'text' | 'link' = 'root'
 ) => {
@@ -30,7 +31,7 @@ const initBottonColor = (
           activeBackground:
             colorType === 'Secondary'
               ? colorStore[`get${colorType}Color` as keyof typeof colorStore]
-              : colorStore[`get${colorType}ColorShadow` as keyof typeof colorStore],
+              : colorStore[`get${colorType}ColorActive` as keyof typeof colorStore],
           borderColor:
             colorType === 'Secondary'
               ? colorStore[`get${colorType}ColorText` as keyof typeof colorStore]
@@ -91,44 +92,79 @@ const initBottonColor = (
   }
 }
 
-const customPreset = (
+// 添加其他组件的颜色配置
+const initComponentColors = (
   colorStore: ReturnType<typeof useColorStore>,
   sizeStore: ReturnType<typeof useSizeStore>
 ) => {
   return {
-    components: {
-      button: {
-        colorScheme: {
-          light: {
-            root: initBottonColor(colorStore),
-            outlined: initBottonColor(colorStore, 'outlined'),
-            text: initBottonColor(colorStore, 'text'),
-            link: initBottonColor(colorStore, 'link'),
-          },
-          dark: {
-            root: initBottonColor(colorStore),
-            outlined: initBottonColor(colorStore, 'outlined'),
-            text: initBottonColor(colorStore, 'text'),
-            link: initBottonColor(colorStore, 'link'),
-          },
+    button: {
+      colorScheme: {
+        light: {
+          root: initButtonColor(colorStore),
+          outlined: initButtonColor(colorStore, 'outlined'),
+          text: initButtonColor(colorStore, 'text'),
+          link: initButtonColor(colorStore, 'link'),
+        },
+        dark: {
+          root: initButtonColor(colorStore),
+          outlined: initButtonColor(colorStore, 'outlined'),
+          text: initButtonColor(colorStore, 'text'),
+          link: initButtonColor(colorStore, 'link'),
         },
       },
-    },
-    semantic: {
-      formField: {
-        paddingX: `${sizeStore.getGapValue}px`,
-        paddingY: `${sizeStore.getGapsValue}px`,
+      // 添加按钮尺寸配置
+      size: {
         sm: {
-          paddingX: `${sizeStore.getGapValue}px`,
-          paddingY: `${sizeStore.getGapsValue}px`,
+          paddingX: `${sizeStore.getGapValue * 1.5}px`,
+          paddingY: `${sizeStore.getGapsValue * 1.5}px`,
+          borderRadius: `${sizeStore.getRoundedValue}px`,
+        },
+        md: {
+          paddingX: `${sizeStore.getGapValue * 2}px`,
+          paddingY: `${sizeStore.getGapsValue * 2}px`,
+          borderRadius: `${sizeStore.getRoundedValue}px`,
         },
         lg: {
-          paddingX: `${sizeStore.getGapValue}px`,
-          paddingY: `${sizeStore.getGapsValue}px`,
+          paddingX: `${sizeStore.getGapValue * 2.5}px`,
+          paddingY: `${sizeStore.getGapsValue * 2.5}px`,
+          borderRadius: `${sizeStore.getRoundedValue}px`,
         },
-        borderRadius: `${sizeStore.getRoundedValue}px`,
       },
     },
+  }
+}
+
+// 初始化组件颜色
+const initSemanticColors = (colorStore: ReturnType<typeof useColorStore>) => {
+  return {
+    primary: {
+      '50': colorStore.getPrimary100,
+      '100': colorStore.getPrimary100,
+      '200': colorStore.getPrimary200,
+      '300': colorStore.getPrimary300,
+      '400': colorStore.getPrimary300,
+      '500': colorStore.getPrimary300,
+      '600': colorStore.getPrimary300,
+      '700': colorStore.getPrimary300,
+      '800': colorStore.getPrimary300,
+      '900': colorStore.getPrimary300,
+      '950': colorStore.getPrimary300,
+    },
+  }
+}
+
+const customPreset = (
+  colorStore: ReturnType<typeof useColorStore>,
+  sizeStore: ReturnType<typeof useSizeStore>
+) => {
+  const componentColors = initComponentColors(colorStore, sizeStore)
+
+  return {
+    components: {
+      ...componentColors,
+    },
+    semantic: { ...initSemanticColors(colorStore) },
   }
 }
 /**

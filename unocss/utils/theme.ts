@@ -24,7 +24,6 @@ export const themeConfig: ThemeConfig = {
     lg: '1400px',
     xl: '1660px',
     xls: '1920px',
-    // 🎯 添加缺失的断点，与 REM 适配系统完全同步
     xxl: '2560px', // 超宽屏 (2560px+)
     xxxl: '3840px', // 4K屏 (3840px+)
   },

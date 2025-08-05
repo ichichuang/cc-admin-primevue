@@ -5,7 +5,6 @@
  * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
  */
 
-/* eslint-disable @typescript-eslint/naming-convention */
 /**
  * 布局快捷方式
  */

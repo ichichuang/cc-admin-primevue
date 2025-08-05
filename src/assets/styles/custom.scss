@@ -1,0 +1,15 @@
+#app {
+  * {
+    transition:
+      width 0.25s ease-in-out,
+      height 0.25s ease-in-out,
+      padding 0.25s ease-in-out,
+      margin 0.25s ease-in-out,
+      border-radius 0.25s ease-in-out,
+      border 0.25s ease-in-out,
+      border-color 0.25s ease-in-out,
+      border-width 0.25s ease-in-out,
+      border-style 0.25s ease-in-out,
+      box-shadow 0.25s ease-in-out;
+  }
+}
