@@ -11,11 +11,6 @@ import store from '@/stores'
 import { env } from '@/utils'
 import { defineStore } from 'pinia'
 
-interface UserState {
-  token: string
-  userInfo: UserInfo
-}
-
 export const useUserStore = defineStore('user', {
   state: (): UserState => ({
     token: '',

@@ -5,24 +5,13 @@
  * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
  */
 
-/* 尺寸配置 */
 import store from '@/stores'
 import { useSizeStoreWithOut } from '@/stores/modules/size'
-import { env } from '@/utils'
-import { getDeviceInfo } from '@/utils'
+import { env, getDeviceInfo } from '@/utils'
 import { debounce } from 'lodash-es'
 import { defineStore } from 'pinia'
 
 /* 布局配置 */
-// 布局配置
-interface LayoutConfig {
-  showHeader: boolean
-  showMenu: boolean
-  showSidebar: boolean
-  showBreadcrumb: boolean
-  showFooter: boolean
-  showTabs: boolean
-}
 const layoutConfig: LayoutConfig = {
   showHeader: true,
   showMenu: true,
@@ -32,26 +21,6 @@ const layoutConfig: LayoutConfig = {
   showTabs: true,
 }
 
-interface LayoutState {
-  // 当前布局模式
-  currentLayout: LayoutMode
-  // 布局配置
-  layoutConfig: LayoutConfig
-  // 侧边栏折叠状态
-  sidebarCollapsed: boolean
-  // 移动端侧边栏可见状态
-  mobileSidebarVisible: boolean
-
-  // 框架加载状态
-  isLoading: boolean
-  // 页面加载状态
-  isPageLoading: boolean
-
-  // 设备信息
-  deviceInfo: DeviceInfo
-}
-
-/* 尺寸store */
 export const useLayoutStore = defineStore('layout', {
   state: (): LayoutState => ({
     currentLayout: 'admin',

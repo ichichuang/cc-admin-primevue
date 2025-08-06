@@ -11,14 +11,32 @@ import GapSwitch from '@/components/common/GapSwitch.vue'
 import RoundSwitch from '@/components/common/RoundSwitch.vue'
 import SizeSwitch from '@/components/common/SizeSwitch.vue'
 import ThemeSwitch from '@/components/common/ThemeSwitch.vue'
+
+import { ref } from 'vue'
+
+const op = ref<any>(null)
+const toggle = (event: any) => {
+  console.log('toggle')
+  op.value.toggle(event)
+}
 </script>
 <template>
-  <div class="full between gap-gap">
-    <ThemeSwitch />
-    <ColorSwitch />
-    <SizeSwitch />
-    <GapSwitch />
-    <RoundSwitch />
+  <div class="between h100% gap-gap px-gap">
+    <div
+      class="c-card"
+      @click="toggle"
+    >
+      <div class="icon-line-md:list-indented-reversed fs-24"></div>
+    </div>
+    <Popover ref="op">
+      <div class="w-300 gap-gapx between-col start-col">
+        <ThemeSwitch />
+        <ColorSwitch />
+        <SizeSwitch />
+        <GapSwitch />
+        <RoundSwitch />
+      </div>
+    </Popover>
   </div>
 </template>
 <style lang="scss" scope></style>

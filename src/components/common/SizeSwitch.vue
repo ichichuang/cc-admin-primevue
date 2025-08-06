@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useSizeStore, type SizeOptions } from '@/stores'
+import { useSizeStore } from '@/stores'
 import { computed } from 'vue'
 
 const sizeStore = useSizeStore()

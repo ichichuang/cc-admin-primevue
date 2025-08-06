@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useColorStore, type Mode } from '@/stores'
+import { useColorStore } from '@/stores'
 import { computed } from 'vue'
 
 const colorStore = useColorStore()

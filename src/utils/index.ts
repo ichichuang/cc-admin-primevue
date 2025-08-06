@@ -6,24 +6,22 @@
  */
 
 // Utils 统一管理入口
+import { autoImportModulesSync } from '@/utils'
 
-// 导出环境变量工具
-export * from './modules/env'
+// 自动导入所有工具模块
+const utilModules = import.meta.glob('./modules/**/*.ts', { eager: true })
+const importedUtils = autoImportModulesSync(utilModules)
 
-// 导出 HTTP 工具
-export * from './modules/http'
-
-// 导出设备信息工具
+// 导出所有工具模块
+export * from './modules/colorUtils'
 export * from './modules/deviceInfo'
-
-// 导出模块加载器
+export * from './modules/env'
+export * from './modules/http'
 export * from './modules/moduleLoader'
-
-// 导出 REM 适配器
 export * from './modules/remAdapter'
 
-// 按需导出常用工具函数，便于使用
-export { getDeviceInfo } from './modules/deviceInfo'
-export { env, getAppEnv, isDev, isProd, toBool, toNumber } from './modules/env'
-export { autoImportModulesSync } from './modules/moduleLoader'
-export { getRemBase, remAdapter, toPx, toRem } from './modules/remAdapter'
+// 导出所有工具
+export default importedUtils
+
+// 类型定义
+export type UtilModules = typeof importedUtils

@@ -5,7 +5,6 @@
  * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
  */
 
-/* 尺寸配置 */
 import store from '@/stores'
 import { env } from '@/utils'
 import { defineStore } from 'pinia'
@@ -18,7 +17,6 @@ interface PermissionState {
   // 是否已加载路由
   isRoutesLoaded: boolean
 }
-
 export const usePermissionStore = defineStore('permission', {
   state: (): PermissionState => ({
     staticRoutes: [],

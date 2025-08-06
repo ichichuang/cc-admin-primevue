@@ -455,26 +455,6 @@ export function getDynamicSafelist() {
     'border-dangerBorderColor',
     'border-contrastBorderColor',
 
-    // 功能色相关 - 阴影效果
-    'shadow-primaryShadowColor',
-    'shadow-secondaryShadowColor',
-    'shadow-successShadowColor',
-    'shadow-infoShadowColor',
-    'shadow-warnShadowColor',
-    'shadow-helpShadowColor',
-    'shadow-dangerShadowColor',
-    'shadow-contrastShadowColor',
-
-    // 功能色相关 - 焦点效果
-    'focus:shadow-primaryFocusColor',
-    'focus:shadow-secondaryFocusColor',
-    'focus:shadow-successFocusColor',
-    'focus:shadow-infoFocusColor',
-    'focus:shadow-warnFocusColor',
-    'focus:shadow-helpFocusColor',
-    'focus:shadow-dangerFocusColor',
-    'focus:shadow-contrastFocusColor',
-
     // 悬停状态
     'hover:bg-primaryHoverColor',
     'hover:bg-secondaryHoverColor',

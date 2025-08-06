@@ -5,18 +5,18 @@
  * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
  */
 
-import { env } from '@/utils'
+import { autoImportModulesSync, env } from '@/utils'
 import type { MockMethod } from './types'
 
-// 导入所有 Mock 模块
-import authMock from './modules/auth'
-import routerMock from './modules/router'
+// 自动导入所有 Mock 模块
+const mockModules = import.meta.glob('./modules/**/*.ts', { eager: true })
+const importedMocks = autoImportModulesSync<MockMethod[]>(mockModules)
 
 /**
  * Mock 服务配置
  * 统一管理所有的 Mock 接口
  */
-export const mockServices: MockMethod[] = [...authMock, ...routerMock]
+export const mockServices: MockMethod[] = Object.values(importedMocks).flat()
 
 /**
  * 初始化 Mock 服务
@@ -39,4 +39,12 @@ export function initMockService() {
   }
 }
 
-export default mockServices
+// 导出所有 Mock 模块
+export * from './modules/auth'
+export * from './modules/router'
+
+// 导出所有 Mock
+export default importedMocks
+
+// 类型定义
+export type MockModules = typeof importedMocks

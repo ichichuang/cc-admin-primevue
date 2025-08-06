@@ -5,10 +5,14 @@
  * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
  */
 
+import { createCustomPreset, customPreset } from '@/constants'
 import { useColorStore, useSizeStore } from '@/stores'
+import { definePreset, usePreset } from '@primevue/themes'
+import Aura from '@primevue/themes/aura'
 import PrimeVue from 'primevue/config'
 import { watch, type App } from 'vue'
-import { createPrimeVuePreset, updatePrimeVueTheme } from './primevue-theme'
+
+console.log('加载Aura主题: ', Aura)
 
 /**
  * PrimeVue 配置选项
@@ -39,6 +43,39 @@ const defaultConfig: PrimeVueConfig = {
     name: 'primevue',
     order: 'reset, primevue, cc-admin-custom',
   },
+}
+
+/**
+ * 创建 PrimeVue 动态主题预设
+ * @param colorStore Pinia 颜色状态
+ */
+const createPrimeVuePreset = (
+  colorStore: ReturnType<typeof useColorStore>,
+  sizeStore: ReturnType<typeof useSizeStore>
+) => {
+  return definePreset(
+    createCustomPreset(Aura, {
+      colorStore,
+      sizeStore,
+    }),
+    { ...customPreset(colorStore, sizeStore) }
+  )
+}
+
+/**
+ * 更新 PrimeVue 主题
+ */
+const updatePrimeVueTheme = (
+  colorStore: ReturnType<typeof useColorStore>,
+  sizeStore: ReturnType<typeof useSizeStore>
+) => {
+  usePreset(
+    createCustomPreset(Aura, {
+      colorStore,
+      sizeStore,
+    }),
+    { ...customPreset(colorStore, sizeStore) }
+  )
 }
 
 /**

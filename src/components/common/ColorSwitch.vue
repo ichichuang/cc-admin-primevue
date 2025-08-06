@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useColorStore, type ThemeColor } from '@/stores/modules/color'
+import { useColorStore } from '@/stores'
 import { computed, ref, watch } from 'vue'
 
 const colorStore = useColorStore()

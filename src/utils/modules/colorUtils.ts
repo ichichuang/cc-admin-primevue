@@ -5,7 +5,14 @@
  * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
  */
 
-import type { ColorMappingConfig, ThemeColors } from '@/stores/modules/color'
+import type { ThemeColors } from '@/constants'
+
+/**
+ * 颜色映射配置类型
+ */
+export interface ColorMappingConfig {
+  [key: string]: string
+}
 
 /**
  * 标准颜色色阶

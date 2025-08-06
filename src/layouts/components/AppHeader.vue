@@ -9,7 +9,8 @@
 import AppTopMenu from './AppTopMenu.vue'
 </script>
 <template>
-  <div class="full bg-theme color-theme-text-color">
+  <div class="full between gap-gap px-gap">
+    <div></div>
     <AppTopMenu />
   </div>
 </template>

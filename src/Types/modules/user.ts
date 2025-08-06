@@ -20,6 +20,12 @@ declare global {
     /** 其他用户信息 */
     [key: string]: any
   }
+
+  /** 用户状态接口 */
+  interface UserState {
+    token: string
+    userInfo: UserInfo
+  }
 }
 
 // 导出空对象使其成为外部模块

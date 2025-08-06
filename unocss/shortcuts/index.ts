@@ -7,6 +7,7 @@
 
 import { layoutShortcuts } from './modules/layout'
 import { sizeShortcuts } from './modules/size'
+import { styleShortcuts } from './modules/style'
 import { textShortcuts } from './modules/text'
 
 /**
@@ -21,4 +22,7 @@ export const shortcuts = [
 
   // 尺寸快捷方式
   sizeShortcuts,
+
+  // 样式快捷方式
+  styleShortcuts,
 ]

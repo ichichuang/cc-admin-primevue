@@ -8,13 +8,17 @@
 /**
  * 国际化配置入口文件
  */
-import { env } from '@/utils'
+import { autoImportModulesSync, env } from '@/utils'
 import type { App } from 'vue'
 import { createI18n } from 'vue-i18n'
 import enUS from './lang/en-US'
 import zhCN from './lang/zh-CN'
 import zhTW from './lang/zh-TW'
 import type { LocaleInfo, LocaleMessages, SupportedLocale } from './types'
+
+// 自动导入所有国际化模块
+const localeModules = import.meta.glob('./modules/**/*.ts', { eager: true })
+const importedLocales = autoImportModulesSync(localeModules)
 
 // 支持的语言列表
 export const supportedLocales: LocaleInfo[] = [
@@ -132,6 +136,19 @@ export function d(date: Date | number, format?: string): string {
 export function n(number: number, format?: string): string {
   return format ? i18n.global.n(number, format) : i18n.global.n(number)
 }
+
+// 导出所有国际化模块
+export * from './modules/auth'
+export * from './modules/common'
+export * from './modules/dashboard'
+export * from './modules/router'
+export * from './modules/user'
+
+// 导出所有国际化
+export default importedLocales
+
+// 类型定义
+export type LocaleModules = typeof importedLocales
 
 // 按需导出常用国际化函数，便于使用
 export { getDefaultLocale, messages }

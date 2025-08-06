@@ -5,7 +5,6 @@
  * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
  */
 
-/* 多语言配置 */
 import { getCurrentLocale, setLocale, supportedLocales } from '@/locales'
 import type { LocaleInfo, SupportedLocale } from '@/locales/types'
 import store from '@/stores'
@@ -17,7 +16,6 @@ interface LocaleState {
   loading: boolean
 }
 
-/* 多语言store */
 export const useLocaleStore = defineStore('locale', {
   state: (): LocaleState => ({
     locale: getCurrentLocale(),

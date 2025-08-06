@@ -13,6 +13,8 @@ declare module 'vue' {
     ColorSwitch: typeof import('./src/components/common/ColorSwitch.vue')['default']
     GapSwitch: typeof import('./src/components/common/GapSwitch.vue')['default']
     Loading: typeof import('./src/components/layout/Loading.vue')['default']
+    LocalesSwitch: typeof import('./src/components/common/LocalesSwitch.vue')['default']
+    Popover: typeof import('primevue/popover')['default']
     RoundSwitch: typeof import('./src/components/common/RoundSwitch.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

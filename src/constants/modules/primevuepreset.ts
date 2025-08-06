@@ -1,12 +1,9 @@
 // 文件：primevue-theme.ts
 
 import { useColorStore, useSizeStore } from '@/stores'
-import { definePreset, usePreset } from '@primevue/themes'
-import Aura from '@primevue/themes/aura'
-console.log('Aura: ', Aura)
 
-// 初始化按钮颜色
-const initButtonColor = (
+// 分配按钮颜色
+const initComponentButtonColorSchemeOptionsItems = (
   colorStore: ReturnType<typeof useColorStore>,
   type: 'root' | 'outlined' | 'text' | 'link' = 'root'
 ) => {
@@ -73,10 +70,6 @@ const initButtonColor = (
           color: colorStore[`get${colorType}ColorText` as keyof typeof colorStore],
           hoverColor: colorStore[`get${colorType}ColorText` as keyof typeof colorStore],
           activeColor: colorStore[`get${colorType}ColorText` as keyof typeof colorStore],
-          focusRing: {
-            color: colorStore[`get${colorType}ColorFocus` as keyof typeof colorStore],
-            shadow: colorStore[`get${colorType}ColorShadow` as keyof typeof colorStore],
-          },
         }
     }
   }
@@ -92,98 +85,70 @@ const initButtonColor = (
   }
 }
 
-// 添加其他组件的颜色配置
-const initComponentColors = (
-  colorStore: ReturnType<typeof useColorStore>,
-  sizeStore: ReturnType<typeof useSizeStore>
+/**
+ * 自定义原语颜色
+ * @param _colorStore Pinia 颜色状态
+ * @param _sizeStore Pinia 尺寸状态
+ * @returns 自定义原语颜色
+ */
+const customPrimitive = (
+  _colorStore: ReturnType<typeof useColorStore>,
+  _sizeStore: ReturnType<typeof useSizeStore>
 ) => {
+  return {}
+}
+
+/**
+ * 自定义语义颜色
+ * @param colorStore Pinia 颜色状态
+ * @param _sizeStore Pinia 尺寸状态
+ * @returns 自定义语义颜色
+ */
+const customSemantic = (
+  _colorStore: ReturnType<typeof useColorStore>,
+  _sizeStore: ReturnType<typeof useSizeStore>
+) => {
+  return {}
+}
+
+/**
+ * 自定义组件颜色
+ * @param colorStore Pinia 颜色状态
+ * @returns 自定义组件颜色
+ */
+const customComponent = (colorStore: ReturnType<typeof useColorStore>) => {
+  const colorSchemeOptions = {
+    root: initComponentButtonColorSchemeOptionsItems(colorStore),
+    outlined: initComponentButtonColorSchemeOptionsItems(colorStore, 'outlined'),
+    text: initComponentButtonColorSchemeOptionsItems(colorStore, 'text'),
+    link: initComponentButtonColorSchemeOptionsItems(colorStore, 'link'),
+  }
   return {
     button: {
       colorScheme: {
-        light: {
-          root: initButtonColor(colorStore),
-          outlined: initButtonColor(colorStore, 'outlined'),
-          text: initButtonColor(colorStore, 'text'),
-          link: initButtonColor(colorStore, 'link'),
-        },
-        dark: {
-          root: initButtonColor(colorStore),
-          outlined: initButtonColor(colorStore, 'outlined'),
-          text: initButtonColor(colorStore, 'text'),
-          link: initButtonColor(colorStore, 'link'),
-        },
-      },
-      // 添加按钮尺寸配置
-      size: {
-        sm: {
-          paddingX: `${sizeStore.getGapValue * 1.5}px`,
-          paddingY: `${sizeStore.getGapsValue * 1.5}px`,
-          borderRadius: `${sizeStore.getRoundedValue}px`,
-        },
-        md: {
-          paddingX: `${sizeStore.getGapValue * 2}px`,
-          paddingY: `${sizeStore.getGapsValue * 2}px`,
-          borderRadius: `${sizeStore.getRoundedValue}px`,
-        },
-        lg: {
-          paddingX: `${sizeStore.getGapValue * 2.5}px`,
-          paddingY: `${sizeStore.getGapsValue * 2.5}px`,
-          borderRadius: `${sizeStore.getRoundedValue}px`,
-        },
+        light: { ...colorSchemeOptions },
+        dark: { ...colorSchemeOptions },
       },
     },
   }
 }
 
-// 初始化组件颜色
-const initSemanticColors = (colorStore: ReturnType<typeof useColorStore>) => {
-  return {
-    primary: {
-      '50': colorStore.getPrimary100,
-      '100': colorStore.getPrimary100,
-      '200': colorStore.getPrimary200,
-      '300': colorStore.getPrimary300,
-      '400': colorStore.getPrimary300,
-      '500': colorStore.getPrimary300,
-      '600': colorStore.getPrimary300,
-      '700': colorStore.getPrimary300,
-      '800': colorStore.getPrimary300,
-      '900': colorStore.getPrimary300,
-      '950': colorStore.getPrimary300,
-    },
-  }
-}
-
-const customPreset = (
+/**
+ * 自定义预设
+ * @param colorStore Pinia 颜色状态
+ * @param sizeStore Pinia 尺寸状态
+ * @returns 自定义预设
+ */
+export const customPreset: any = (
   colorStore: ReturnType<typeof useColorStore>,
   sizeStore: ReturnType<typeof useSizeStore>
 ) => {
-  const componentColors = initComponentColors(colorStore, sizeStore)
-
+  const primitiveColors = customPrimitive(colorStore, sizeStore)
+  const semanticColors = customSemantic(colorStore, sizeStore)
+  const componentColors = customComponent(colorStore)
   return {
-    components: {
-      ...componentColors,
-    },
-    semantic: { ...initSemanticColors(colorStore) },
+    primitive: { ...primitiveColors },
+    semantic: { ...semanticColors },
+    components: { ...componentColors },
   }
-}
-/**
- * 创建 PrimeVue 动态主题预设
- * @param colorStore Pinia 颜色状态
- */
-export function createPrimeVuePreset(
-  colorStore: ReturnType<typeof useColorStore>,
-  sizeStore: ReturnType<typeof useSizeStore>
-) {
-  return definePreset(Aura, { ...customPreset(colorStore, sizeStore) })
-}
-
-/**
- * 更新 PrimeVue 主题
- */
-export function updatePrimeVueTheme(
-  colorStore: ReturnType<typeof useColorStore>,
-  sizeStore: ReturnType<typeof useSizeStore>
-) {
-  usePreset(Aura, { ...customPreset(colorStore, sizeStore) })
 }

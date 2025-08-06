@@ -94,26 +94,6 @@ export const themeConfig: ThemeConfig = {
     dangerBorderColor: 'var(--danger-color-border)',
     contrastBorderColor: 'var(--contrast-color-border)',
 
-    // 功能色 - 阴影效果
-    primaryShadowColor: 'var(--primary-color-shadow)',
-    secondaryShadowColor: 'var(--secondary-color-shadow)',
-    successShadowColor: 'var(--success-color-shadow)',
-    infoShadowColor: 'var(--info-color-shadow)',
-    warnShadowColor: 'var(--warn-color-shadow)',
-    helpShadowColor: 'var(--help-color-shadow)',
-    dangerShadowColor: 'var(--danger-color-shadow)',
-    contrastShadowColor: 'var(--contrast-color-shadow)',
-
-    // 功能色 - 焦点效果
-    primaryFocusColor: 'var(--primary-color-focus)',
-    secondaryFocusColor: 'var(--secondary-color-focus)',
-    successFocusColor: 'var(--success-color-focus)',
-    infoFocusColor: 'var(--info-color-focus)',
-    warnFocusColor: 'var(--warn-color-focus)',
-    helpFocusColor: 'var(--help-color-focus)',
-    dangerFocusColor: 'var(--danger-color-focus)',
-    contrastFocusColor: 'var(--contrast-color-focus)',
-
     // 主题色系统
     primary100: 'var(--primary100)',
     primary200: 'var(--primary200)',
@@ -147,6 +127,8 @@ export const themeConfig: ThemeConfig = {
     // 间距系统
     gap: 'var(--gap)',
     gaps: 'var(--gaps)', // gap的一半，用于更精细的间距控制
+    gapx: 'var(--gapx)', // gap的两倍，用于更粗的间距控制
+    gapl: 'var(--gapl)', // gap的四倍，用于更粗的间距控制
 
     // 圆角系统
     rounded: 'var(--rounded)',

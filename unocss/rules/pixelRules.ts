@@ -41,10 +41,10 @@ export function createPixelRules() {
     ['ml', 'margin-left'],
 
     // 位置 - 保持像素值（通过黑名单排除转换）
-    ['t', 'top'],
-    ['r', 'right'],
-    ['b', 'bottom'],
-    ['l', 'left'],
+    ['top', 'top'],
+    ['right', 'right'],
+    ['bottom', 'bottom'],
+    ['left', 'left'],
 
     // 间距 - 会被转换为 rem（适合响应式布局）
     ['gap', 'gap'],

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { login } from '@/api/modules/auth'
+import { login } from '@/api'
 import { useUserStoreWithOut } from '@/stores'
 import { ref } from 'vue'
 
@@ -25,13 +25,11 @@ const handleLogin = async () => {
 
 <template>
   <div class="container center">
-    <button
-      type="button"
-      class="btn btn-primary"
+    <Button
       :disabled="loading"
       @click="handleLogin"
     >
       {{ loading ? '登录中...' : '登录' }}
-    </button>
+    </Button>
   </div>
 </template>

@@ -5,35 +5,37 @@
  * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
  */
 
+// Types 统一管理入口
+import { autoImportModulesSync } from '@/utils'
+
+// 自动导入所有类型声明模块
+const typeModules = import.meta.glob('./modules/**/*.ts', { eager: true })
+const importedTypes = autoImportModulesSync(typeModules)
+
 // 导入所有类型声明模块
+import './modules/app'
 import './modules/device'
+import './modules/layout'
+import './modules/locale'
 import './modules/router'
+import './modules/theme'
 import './modules/user'
 import './modules/utils'
 import './modules/vue'
 
-// 重新导出常用类型，方便在其他文件中使用
-export type {
-  BackendRouteConfig,
-  CacheOperation,
-  ComponentRef,
-  DeviceInfo,
-  DynamicRouteManager,
-  ElRef,
-  LayoutMode,
-  MenuItem,
-  Nullable,
-  PermissionResult,
-  Recordable,
-  RouteConfig,
-  RouteMeta,
-  RouteModule,
-  RouteUtils,
-  UserInfo,
-} from './modules/router'
+// 导出所有类型声明模块
+export * from './modules/app'
+export * from './modules/device'
+export * from './modules/layout'
+export * from './modules/locale'
+export * from './modules/router'
+export * from './modules/theme'
+export * from './modules/user'
+export * from './modules/utils'
+export * from './modules/vue'
 
-// 按需导出常用类型，便于使用
-export type { DeviceInfo, DeviceType, ScreenSize } from './modules/device'
-export type { MenuItem, RouteConfig, RouteMeta } from './modules/router'
-export type { UserInfo, UserPermission, UserRole } from './modules/user'
-export type { ComponentRef, Nullable, Recordable } from './modules/utils'
+// 导出所有类型
+export default importedTypes
+
+// 类型定义
+export type TypeModules = typeof importedTypes

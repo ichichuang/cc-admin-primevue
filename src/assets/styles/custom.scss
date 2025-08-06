@@ -1,15 +1,31 @@
 #app {
-  * {
+  // 仅设置尺寸相关属性过渡
+  *,
+  *::before,
+  *::after {
     transition:
-      width 0.25s ease-in-out,
-      height 0.25s ease-in-out,
-      padding 0.25s ease-in-out,
-      margin 0.25s ease-in-out,
-      border-radius 0.25s ease-in-out,
-      border 0.25s ease-in-out,
-      border-color 0.25s ease-in-out,
-      border-width 0.25s ease-in-out,
-      border-style 0.25s ease-in-out,
-      box-shadow 0.25s ease-in-out;
+      all 0.2s,
+      color 0s,
+      background-color 0.4s,
+      border 0.1s,
+      border-radius 0.4s,
+      box-shadow 0.4s;
+    transition-timing-function: ease-in-out;
+  }
+  button {
+    transition:
+      all 0.2s,
+      color 0.2s,
+      background-color 0.3s,
+      border 0.1s,
+      border-radius 0.4s,
+      box-shadow 0.3s;
+    transition-timing-function: ease-in-out;
+  }
+  .c-card {
+    transition:
+      all 0.3s,
+      border 0.1s;
+    transition-timing-function: ease-in-out;
   }
 }
