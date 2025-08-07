@@ -104,377 +104,765 @@ export const useColorStore = defineStore('color', {
 
     // 获取主题色
     getPrimary100: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.primary100
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.primary100
+      } catch (error) {
+        console.error('获取 primary100 失败:', error)
+        return '#3B82F6' // 默认蓝色
+      }
     },
     getPrimary200: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.primary200
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.primary200
+      } catch (error) {
+        console.error('获取 primary200 失败:', error)
+        return '#7AB2FF' // 默认浅蓝色
+      }
     },
     getPrimary300: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.primary300
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.primary300
+      } catch (error) {
+        console.error('获取 primary300 失败:', error)
+        return '#A3C7FF' // 默认更浅蓝色
+      }
     },
 
     // 获取强调色
     getAccent100: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.accent100
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.accent100
+      } catch (error) {
+        console.error('获取 accent100 失败:', error)
+        return '#10B981' // 默认绿色
+      }
     },
     getAccent200: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.accent200
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.accent200
+      } catch (error) {
+        console.error('获取 accent200 失败:', error)
+        return '#047857' // 默认深绿色
+      }
     },
 
     // 获取文本色
     getText100: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.text100
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.text100
+      } catch (error) {
+        console.error('获取 text100 失败:', error)
+        return '#1F2937' // 默认深灰色
+      }
     },
     getText200: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.text200
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.text200
+      } catch (error) {
+        console.error('获取 text200 失败:', error)
+        return '#6B7280' // 默认灰色
+      }
     },
 
     // 获取背景色
     getBg100: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.bg100
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.bg100
+      } catch (error) {
+        console.error('获取 bg100 失败:', error)
+        return '#F9FAFB' // 默认浅灰色
+      }
     },
     getBg200: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.bg200
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.bg200
+      } catch (error) {
+        console.error('获取 bg200 失败:', error)
+        return '#E5E7EB' // 默认灰色
+      }
     },
     getBg300: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.bg300
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.bg300
+      } catch (error) {
+        console.error('获取 bg300 失败:', error)
+        return '#D1D5DB' // 默认深灰色
+      }
     },
 
     // 获取功能色主色
     getFunctionalColors: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      // 设置当前色
-      themeColors.functionalColors.secondary.color = themeColors.bg100
-      themeColors.functionalColors.secondary.hover = themeColors.bg200
-      themeColors.functionalColors.secondary.active = themeColors.bg300
-      themeColors.functionalColors.secondary.disabled = themeColors.bg300
-      themeColors.functionalColors.secondary.text = themeColors.text100
-      themeColors.functionalColors.secondary.border = themeColors.bg300
-      // 设置对比色
-      themeColors.functionalColors.contrast.color = themeColors.text100
-      themeColors.functionalColors.contrast.hover = themeColors.text200
-      themeColors.functionalColors.contrast.active = themeColors.text100
-      themeColors.functionalColors.contrast.disabled = themeColors.text200
-      themeColors.functionalColors.contrast.text = themeColors.bg100
-      themeColors.functionalColors.contrast.border = themeColors.bg300
-      return themeColors.functionalColors
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        // 设置当前色
+        themeColors.functionalColors.secondary.color = themeColors.bg100
+        themeColors.functionalColors.secondary.hover = themeColors.bg200
+        themeColors.functionalColors.secondary.active = themeColors.bg300
+        themeColors.functionalColors.secondary.disabled = themeColors.bg300
+        themeColors.functionalColors.secondary.text = themeColors.text100
+        themeColors.functionalColors.secondary.border = themeColors.bg300
+        // 设置对比色
+        themeColors.functionalColors.contrast.color = themeColors.text100
+        themeColors.functionalColors.contrast.hover = themeColors.text200
+        themeColors.functionalColors.contrast.active = themeColors.text100
+        themeColors.functionalColors.contrast.disabled = themeColors.text200
+        themeColors.functionalColors.contrast.text = themeColors.bg100
+        themeColors.functionalColors.contrast.border = themeColors.bg300
+        return themeColors.functionalColors
+      } catch (error) {
+        console.error('获取 functionalColors 失败:', error)
+        return {
+          primary: {
+            color: '#3B82F6',
+            hover: '#7AB2FF',
+            active: '#A3C7FF',
+            disabled: '#D1D5DB',
+            text: '#F3F4F6',
+            border: '#2A6EF7',
+          },
+          secondary: {
+            color: '#F9FAFB',
+            hover: '#E5E7EB',
+            active: '#D1D5DB',
+            disabled: '#D1D5DB',
+            text: '#1F2937',
+            border: '#D1D5DB',
+          },
+          success: {
+            color: '#52c41a',
+            hover: '#73d13d',
+            active: '#389e0d',
+            disabled: '#d9d9d9',
+            text: '#f6ffed',
+            border: '#52c41a',
+          },
+          info: {
+            color: '#1890ff',
+            hover: '#40a9ff',
+            active: '#096dd9',
+            disabled: '#d9d9d9',
+            text: '#e6f7ff',
+            border: '#1890ff',
+          },
+          warn: {
+            color: '#faad14',
+            hover: '#ffc53d',
+            active: '#d48806',
+            disabled: '#d9d9d9',
+            text: '#fffbe6',
+            border: '#faad14',
+          },
+          help: {
+            color: '#9c27b0',
+            hover: '#ba68c8',
+            active: '#7b1fa2',
+            disabled: '#d9d9d9',
+            text: '#f3e5f5',
+            border: '#9c27b0',
+          },
+          danger: {
+            color: '#f5222d',
+            hover: '#ff4d4f',
+            active: '#cf1322',
+            disabled: '#d9d9d9',
+            text: '#fff2f0',
+            border: '#f5222d',
+          },
+          contrast: {
+            color: '#1F2937',
+            hover: '#6B7280',
+            active: '#1F2937',
+            disabled: '#6B7280',
+            text: '#F9FAFB',
+            border: '#D1D5DB',
+          },
+        }
+      }
     },
     getPrimaryColor: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.primary.color
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.primary.color
+      } catch (error) {
+        console.error('获取 primaryColor 失败:', error)
+        return '#3B82F6'
+      }
     },
     getSecondaryColor: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.secondary.color
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.secondary.color
+      } catch (error) {
+        console.error('获取 secondaryColor 失败:', error)
+        return '#F9FAFB'
+      }
     },
     getSuccessColor: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.success.color
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.success.color
+      } catch (error) {
+        console.error('获取 successColor 失败:', error)
+        return '#52c41a'
+      }
     },
     getInfoColor: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.info.color
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.info.color
+      } catch (error) {
+        console.error('获取 infoColor 失败:', error)
+        return '#1890ff'
+      }
     },
     getWarnColor: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.warn.color
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.warn.color
+      } catch (error) {
+        console.error('获取 warnColor 失败:', error)
+        return '#faad14'
+      }
     },
     getHelpColor: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.help.color
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.help.color
+      } catch (error) {
+        console.error('获取 helpColor 失败:', error)
+        return '#9c27b0'
+      }
     },
     getDangerColor: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.danger.color
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.danger.color
+      } catch (error) {
+        console.error('获取 dangerColor 失败:', error)
+        return '#f5222d'
+      }
     },
     getContrastColor: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.contrast.color
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.contrast.color
+      } catch (error) {
+        console.error('获取 contrastColor 失败:', error)
+        return '#1F2937'
+      }
     },
     // 获取功能色hover
     getPrimaryColorHover: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.primary.hover
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.primary.hover
+      } catch (error) {
+        console.error('获取 primaryColorHover 失败:', error)
+        return '#7AB2FF'
+      }
     },
     getSecondaryColorHover: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.secondary.hover
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.secondary.hover
+      } catch (error) {
+        console.error('获取 secondaryColorHover 失败:', error)
+        return '#E5E7EB'
+      }
     },
     getSuccessColorHover: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.success.hover
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.success.hover
+      } catch (error) {
+        console.error('获取 successColorHover 失败:', error)
+        return '#73d13d'
+      }
     },
     getInfoColorHover: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.info.hover
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.info.hover
+      } catch (error) {
+        console.error('获取 infoColorHover 失败:', error)
+        return '#40a9ff'
+      }
     },
     getWarnColorHover: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.warn.hover
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.warn.hover
+      } catch (error) {
+        console.error('获取 warnColorHover 失败:', error)
+        return '#ffc53d'
+      }
     },
     getHelpColorHover: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.help.hover
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.help.hover
+      } catch (error) {
+        console.error('获取 helpColorHover 失败:', error)
+        return '#ba68c8'
+      }
     },
     getDangerColorHover: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.danger.hover
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.danger.hover
+      } catch (error) {
+        console.error('获取 dangerColorHover 失败:', error)
+        return '#ff4d4f'
+      }
     },
     getContrastColorHover: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.contrast.hover
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.contrast.hover
+      } catch (error) {
+        console.error('获取 contrastColorHover 失败:', error)
+        return '#6B7280'
+      }
     },
     // 获取功能色active
     getPrimaryColorActive: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.primary.active
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.primary.active
+      } catch (error) {
+        console.error('获取 primaryColorActive 失败:', error)
+        return '#A3C7FF'
+      }
     },
     getSecondaryColorActive: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.secondary.active
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.secondary.active
+      } catch (error) {
+        console.error('获取 secondaryColorActive 失败:', error)
+        return '#D1D5DB'
+      }
     },
     getSuccessColorActive: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.success.active
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.success.active
+      } catch (error) {
+        console.error('获取 successColorActive 失败:', error)
+        return '#389e0d'
+      }
     },
     getInfoColorActive: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.info.active
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.info.active
+      } catch (error) {
+        console.error('获取 infoColorActive 失败:', error)
+        return '#096dd9'
+      }
     },
     getWarnColorActive: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.warn.active
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.warn.active
+      } catch (error) {
+        console.error('获取 warnColorActive 失败:', error)
+        return '#d48806'
+      }
     },
     getHelpColorActive: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.help.active
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.help.active
+      } catch (error) {
+        console.error('获取 helpColorActive 失败:', error)
+        return '#7b1fa2'
+      }
     },
     getDangerColorActive: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.danger.active
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.danger.active
+      } catch (error) {
+        console.error('获取 dangerColorActive 失败:', error)
+        return '#cf1322'
+      }
     },
     getContrastColorActive: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.contrast.active
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.contrast.active
+      } catch (error) {
+        console.error('获取 contrastColorActive 失败:', error)
+        return '#1F2937'
+      }
     },
     // 获取功能色disabled
     getPrimaryColorDisabled: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.primary.disabled
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.primary.disabled
+      } catch (error) {
+        console.error('获取 primaryColorDisabled 失败:', error)
+        return '#D1D5DB'
+      }
     },
     getSecondaryColorDisabled: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.secondary.disabled
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.secondary.disabled
+      } catch (error) {
+        console.error('获取 secondaryColorDisabled 失败:', error)
+        return '#D1D5DB'
+      }
     },
     getSuccessColorDisabled: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.success.disabled
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.success.disabled
+      } catch (error) {
+        console.error('获取 successColorDisabled 失败:', error)
+        return '#d9d9d9'
+      }
     },
     getInfoColorDisabled: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.info.disabled
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.info.disabled
+      } catch (error) {
+        console.error('获取 infoColorDisabled 失败:', error)
+        return '#d9d9d9'
+      }
     },
     getWarnColorDisabled: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.warn.disabled
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.warn.disabled
+      } catch (error) {
+        console.error('获取 warnColorDisabled 失败:', error)
+        return '#d9d9d9'
+      }
     },
     getHelpColorDisabled: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.help.disabled
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.help.disabled
+      } catch (error) {
+        console.error('获取 helpColorDisabled 失败:', error)
+        return '#d9d9d9'
+      }
     },
     getDangerColorDisabled: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.danger.disabled
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.danger.disabled
+      } catch (error) {
+        console.error('获取 dangerColorDisabled 失败:', error)
+        return '#d9d9d9'
+      }
     },
     getContrastColorDisabled: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.contrast.disabled
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.contrast.disabled
+      } catch (error) {
+        console.error('获取 contrastColorDisabled 失败:', error)
+        return '#6B7280'
+      }
     },
     // 获取功能色text
     getPrimaryColorText: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.primary.text
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.primary.text
+      } catch (error) {
+        console.error('获取 primaryColorText 失败:', error)
+        return '#F3F4F6'
+      }
     },
     getSecondaryColorText: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.secondary.text
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.secondary.text
+      } catch (error) {
+        console.error('获取 secondaryColorText 失败:', error)
+        return '#1F2937'
+      }
     },
     getSuccessColorText: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.success.text
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.success.text
+      } catch (error) {
+        console.error('获取 successColorText 失败:', error)
+        return '#f6ffed'
+      }
     },
     getInfoColorText: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.info.text
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.info.text
+      } catch (error) {
+        console.error('获取 infoColorText 失败:', error)
+        return '#e6f7ff'
+      }
     },
     getWarnColorText: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.warn.text
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.warn.text
+      } catch (error) {
+        console.error('获取 warnColorText 失败:', error)
+        return '#fffbe6'
+      }
     },
     getHelpColorText: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.help.text
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.help.text
+      } catch (error) {
+        console.error('获取 helpColorText 失败:', error)
+        return '#f3e5f5'
+      }
     },
     getDangerColorText: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.danger.text
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.danger.text
+      } catch (error) {
+        console.error('获取 dangerColorText 失败:', error)
+        return '#fff2f0'
+      }
     },
     getContrastColorText: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.contrast.text
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.contrast.text
+      } catch (error) {
+        console.error('获取 contrastColorText 失败:', error)
+        return '#F9FAFB'
+      }
     },
     // 获取功能色border
     getPrimaryColorBorder: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.primary.border
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.primary.border
+      } catch (error) {
+        console.error('获取 primaryColorBorder 失败:', error)
+        return '#2A6EF7'
+      }
     },
     getSecondaryColorBorder: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.secondary.border
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.secondary.border
+      } catch (error) {
+        console.error('获取 secondaryColorBorder 失败:', error)
+        return '#D1D5DB'
+      }
     },
     getSuccessColorBorder: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.success.border
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.success.border
+      } catch (error) {
+        console.error('获取 successColorBorder 失败:', error)
+        return '#52c41a'
+      }
     },
     getInfoColorBorder: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.info.border
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.info.border
+      } catch (error) {
+        console.error('获取 infoColorBorder 失败:', error)
+        return '#1890ff'
+      }
     },
     getWarnColorBorder: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.warn.border
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.warn.border
+      } catch (error) {
+        console.error('获取 warnColorBorder 失败:', error)
+        return '#faad14'
+      }
     },
     getHelpColorBorder: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.help.border
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.help.border
+      } catch (error) {
+        console.error('获取 helpColorBorder 失败:', error)
+        return '#9c27b0'
+      }
     },
     getDangerColorBorder: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.danger.border
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.danger.border
+      } catch (error) {
+        console.error('获取 dangerColorBorder 失败:', error)
+        return '#f5222d'
+      }
     },
     getContrastColorBorder: function () {
-      const themeColors: ThemeColors = this.getThemeColors()
-      return themeColors.functionalColors.contrast.border
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.functionalColors.contrast.border
+      } catch (error) {
+        console.error('获取 contrastColorBorder 失败:', error)
+        return '#D1D5DB'
+      }
     },
   },
 
   actions: {
     // 自动跟随系统主题
     setupAutoModeListener() {
-      this.mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+      try {
+        this.mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 
-      // 创建监听器函数
-      this.mediaQueryListener = (_e: MediaQueryListEvent) => {
-        this.darkMode = _e.matches
-        this.setTheme(this.getThemeValue)
+        // 创建监听器函数
+        this.mediaQueryListener = (_e: MediaQueryListEvent) => {
+          this.darkMode = _e.matches
+          this.setTheme(this.getThemeValue)
+        }
+
+        // 添加监听器
+        this.mediaQuery.addEventListener('change', this.mediaQueryListener)
+      } catch (error) {
+        console.error('设置自动模式监听器失败:', error)
       }
-
-      // 添加监听器
-      this.mediaQuery.addEventListener('change', this.mediaQueryListener)
     },
 
     // 清理监听器
     cleanupMediaQueryListener() {
-      if (this.mediaQuery && this.mediaQueryListener) {
-        this.mediaQuery.removeEventListener('change', this.mediaQueryListener)
-        this.mediaQuery = null
-        this.mediaQueryListener = null
+      try {
+        if (this.mediaQuery && this.mediaQueryListener) {
+          this.mediaQuery.removeEventListener('change', this.mediaQueryListener)
+          this.mediaQuery = null
+          this.mediaQueryListener = null
+        }
+      } catch (error) {
+        console.error('清理媒体查询监听器失败:', error)
       }
     },
 
     // 设置主题模式
     setMode(mode: Mode) {
-      this.cleanupMediaQueryListener()
+      try {
+        this.cleanupMediaQueryListener()
 
-      this.mode = mode
-      this.darkMode = mode === 'auto' ? getSystemColorMode() === 'dark' : mode === 'dark'
+        this.mode = mode
+        this.darkMode = mode === 'auto' ? getSystemColorMode() === 'dark' : mode === 'dark'
 
-      document.documentElement.classList.toggle('dark', mode === 'dark')
+        document.documentElement.classList.toggle('dark', mode === 'dark')
 
-      if (mode === 'auto') {
-        this.setupAutoModeListener()
+        if (mode === 'auto') {
+          this.setupAutoModeListener()
+        }
+
+        // 设置完模式后重新设置 CSS 变量
+        this.setCssVariables()
+      } catch (error) {
+        console.error('设置主题模式失败:', error)
       }
-
-      // 设置完模式后重新设置 CSS 变量
-      this.setCssVariables()
     },
 
     // 切换主题模式（在 light 和 dark 之间切换）
     toggleMode() {
-      const isDark = this.darkMode
-      const newMode = isDark ? 'light' : 'dark'
-      this.setMode(newMode)
+      try {
+        const isDark = this.darkMode
+        const newMode = isDark ? 'light' : 'dark'
+        this.setMode(newMode)
+      } catch (error) {
+        console.error('切换主题模式失败:', error)
+      }
     },
 
     // 修改主题色
     setTheme(theme: ThemeColor['value']) {
-      const isDark = this.darkMode
-      if (isDark) {
-        this.darkThemeValue = theme
-      } else {
-        this.lightThemeValue = theme
+      try {
+        const isDark = this.darkMode
+        if (isDark) {
+          this.darkThemeValue = theme
+        } else {
+          this.lightThemeValue = theme
+        }
+        this.setCssVariables()
+      } catch (error) {
+        console.error('设置主题失败:', error)
       }
-      this.setCssVariables()
     },
 
     /* 将颜色变量都存储到 css 变量中 用于全局样式 */
     setCssVariables() {
-      const cssVariables: Record<string, string> = {
-        [toKebabCase('primary100', '--')]: this.getPrimary100,
-        [toKebabCase('primary200', '--')]: this.getPrimary200,
-        [toKebabCase('primary300', '--')]: this.getPrimary300,
+      try {
+        const cssVariables: Record<string, string> = {
+          [toKebabCase('primary100', '--')]: this.getPrimary100,
+          [toKebabCase('primary200', '--')]: this.getPrimary200,
+          [toKebabCase('primary300', '--')]: this.getPrimary300,
 
-        [toKebabCase('accent100', '--')]: this.getAccent100,
-        [toKebabCase('accent200', '--')]: this.getAccent200,
+          [toKebabCase('accent100', '--')]: this.getAccent100,
+          [toKebabCase('accent200', '--')]: this.getAccent200,
 
-        [toKebabCase('text100', '--')]: this.getText100,
-        [toKebabCase('text200', '--')]: this.getText200,
+          [toKebabCase('text100', '--')]: this.getText100,
+          [toKebabCase('text200', '--')]: this.getText200,
 
-        [toKebabCase('bg100', '--')]: this.getBg100,
-        [toKebabCase('bg200', '--')]: this.getBg200,
-        [toKebabCase('bg300', '--')]: this.getBg300,
-      }
+          [toKebabCase('bg100', '--')]: this.getBg100,
+          [toKebabCase('bg200', '--')]: this.getBg200,
+          [toKebabCase('bg300', '--')]: this.getBg300,
+        }
 
-      // 动态生成 FunctionalColor CSS 变量
-      const functionalColors = this.getFunctionalColors
-      const functionalColorVars: Record<string, string> = {}
+        // 动态生成 FunctionalColor CSS 变量
+        const functionalColors = this.getFunctionalColors
+        const functionalColorVars: Record<string, string> = {}
 
-      Object.entries(functionalColors).forEach(([colorType, colorConfig]) => {
-        const entries: [string, string][] = [
-          [`${colorType}-color`, colorConfig.color],
-          [`${colorType}-color-hover`, colorConfig.hover],
-          [`${colorType}-color-active`, colorConfig.active],
-          [`${colorType}-color-disabled`, colorConfig.disabled],
-          [`${colorType}-color-text`, colorConfig.text],
-          [`${colorType}-color-border`, colorConfig.border],
-        ]
+        Object.entries(functionalColors).forEach(([colorType, colorConfig]) => {
+          const entries: [string, string][] = [
+            [`${colorType}-color`, colorConfig.color],
+            [`${colorType}-color-hover`, colorConfig.hover],
+            [`${colorType}-color-active`, colorConfig.active],
+            [`${colorType}-color-disabled`, colorConfig.disabled],
+            [`${colorType}-color-text`, colorConfig.text],
+            [`${colorType}-color-border`, colorConfig.border],
+          ]
 
-        entries.forEach(([key, value]) => {
-          functionalColorVars[`--${key}`] = value
+          entries.forEach(([key, value]) => {
+            functionalColorVars[`--${key}`] = value
+          })
         })
-      })
 
-      // 合并所有 CSS 变量
-      const allVariables = { ...cssVariables, ...functionalColorVars }
+        // 合并所有 CSS 变量
+        const allVariables = { ...cssVariables, ...functionalColorVars }
 
-      Object.entries(allVariables).forEach(([key, value]) => {
-        document.documentElement.style.setProperty(key, value)
-      })
+        Object.entries(allVariables).forEach(([key, value]) => {
+          document.documentElement.style.setProperty(key, value)
+        })
+      } catch (error) {
+        console.error('设置CSS变量失败:', error)
+      }
     },
 
     /* 初始化方法 */
     init() {
-      this.setMode(this.mode)
+      try {
+        this.setMode(this.mode)
+      } catch (error) {
+        console.error('初始化颜色状态失败:', error)
+      }
     },
   },
 

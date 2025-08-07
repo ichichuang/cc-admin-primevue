@@ -307,10 +307,6 @@ export const usePostcssStore = defineStore(
             rootFontObserver.disconnect()
           }
         }
-
-        if (env.debug) {
-          console.log('✅ rem 适配器已初始化')
-        }
       } catch (error) {
         console.error('Failed to initialize rem adapter:', error)
       }

@@ -123,8 +123,8 @@ export interface ChunkInfo {
 }
 
 export interface UploadChunkConfig extends UploadConfig {
-  chunkSize?: number // 分片大小，默认 2MB
-  concurrentChunks?: number // 并发上传分片数，默认 3
+  chunkSize?: number // 分片大小，默认使用 HTTP_CONFIG.defaultChunkSize
+  concurrentChunks?: number // 并发上传分片数，默认使用 HTTP_CONFIG.defaultConcurrentChunks
   onChunkProgress?: (chunkIndex: number, progress: number) => void
   onChunkSuccess?: (chunkIndex: number, response: any) => void
   onChunkError?: (chunkIndex: number, error: Error) => void

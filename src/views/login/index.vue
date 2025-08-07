@@ -13,7 +13,8 @@ const handleLogin = async () => {
 
   try {
     const { token } = await login({ username: 'admin', password: '123456' })
-    userStore.setToken(token)
+    // 登录成功，获取用户信息
+    await userStore.setToken(token)
   } catch (error) {
     console.error('❌ 登录失败:', error)
     result.value = `登录失败: ${error instanceof Error ? error.message : String(error)}`
@@ -31,5 +32,11 @@ const handleLogin = async () => {
     >
       {{ loading ? '登录中...' : '登录' }}
     </Button>
+    <div
+      v-if="result"
+      class="mt-4 text-red-500"
+    >
+      {{ result }}
+    </div>
   </div>
 </template>

@@ -5,7 +5,7 @@
  * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
  */
 
-import { env } from '@/utils'
+import { HTTP_CONFIG } from '@/constants/modules/http'
 import type { ConnectionConfig, ConnectionState } from './types'
 
 /**
@@ -23,9 +23,9 @@ export class ConnectionManager {
   constructor(config?: Partial<ConnectionConfig>) {
     this.config = {
       autoReconnect: true,
-      maxReconnectAttempts: 5,
-      reconnectDelay: 1000,
-      healthCheckInterval: 30000, // 30秒
+      maxReconnectAttempts: HTTP_CONFIG.maxReconnectAttempts,
+      reconnectDelay: HTTP_CONFIG.reconnectDelay,
+      healthCheckInterval: HTTP_CONFIG.healthCheckInterval,
       ...config,
     }
 
@@ -73,10 +73,6 @@ export class ConnectionManager {
 
       this.stopHealthCheck()
       this.notifyListeners()
-
-      if (env.debug) {
-        console.log('🔌 连接已断开:', reason)
-      }
     }
   }
 
@@ -91,10 +87,6 @@ export class ConnectionManager {
     this.state.isReconnecting = true
     this.state.reconnectAttempts = 0
 
-    if (env.debug) {
-      console.log('🔄 开始重连...')
-    }
-
     return this.attemptReconnect()
   }
 
@@ -105,12 +97,6 @@ export class ConnectionManager {
     while (this.state.reconnectAttempts < this.config.maxReconnectAttempts && !this.isDestroyed) {
       this.state.reconnectAttempts++
 
-      if (env.debug) {
-        console.log(
-          `🔄 重连尝试 ${this.state.reconnectAttempts}/${this.config.maxReconnectAttempts}`
-        )
-      }
-
       try {
         // 执行健康检查
         const isHealthy = await this.performHealthCheck()
@@ -120,14 +106,12 @@ export class ConnectionManager {
           return true
         }
       } catch (error) {
-        if (env.debug) {
-          console.error('❌ 重连失败:', error)
-        }
+        console.error('❌ 重连失败:', error)
       }
 
       // 等待后重试，使用指数退避
       const delay = this.config.reconnectDelay * Math.pow(2, this.state.reconnectAttempts - 1)
-      await this.delay(Math.min(delay, 30000)) // 最大延迟30秒
+      await this.delay(Math.min(delay, HTTP_CONFIG.healthCheckInterval)) // 最大延迟30秒
     }
 
     this.onReconnectFailed()
@@ -146,10 +130,6 @@ export class ConnectionManager {
 
     this.startHealthCheck()
     this.notifyListeners()
-
-    if (env.debug) {
-      console.log('✅ 重连成功')
-    }
   }
 
   /**
@@ -160,9 +140,7 @@ export class ConnectionManager {
     this.state.isConnected = false
     this.notifyListeners()
 
-    if (env.debug) {
-      console.error('❌ 重连失败，已达到最大重试次数')
-    }
+    console.error('❌ 重连失败，已达到最大重试次数')
   }
 
   /**
@@ -176,14 +154,12 @@ export class ConnectionManager {
         headers: {
           'Content-Type': 'application/json',
         },
-        signal: AbortSignal.timeout(5000), // 5秒超时
+        signal: AbortSignal.timeout(HTTP_CONFIG.timeout), // 使用配置的超时时间
       })
 
       return response.ok
     } catch (error) {
-      if (env.debug) {
-        console.warn('⚠️ 健康检查失败:', error)
-      }
+      console.warn('⚠️ 健康检查失败:', error)
       return false
     }
   }
@@ -212,7 +188,7 @@ export class ConnectionManager {
             if (this.config.autoReconnect && !this.isDestroyed) {
               this.reconnect()
             }
-          }, 1000)
+          }, HTTP_CONFIG.reconnectDelay)
         }
       }
     }, this.config.healthCheckInterval)
@@ -234,20 +210,12 @@ export class ConnectionManager {
   private setupNetworkListeners(): void {
     // 监听在线/离线状态
     window.addEventListener('online', () => {
-      if (env.debug) {
-        console.log('🌐 网络已连接')
-      }
-
       if (!this.state.isConnected && this.config.autoReconnect && !this.isDestroyed) {
         this.reconnect()
       }
     })
 
     window.addEventListener('offline', () => {
-      if (env.debug) {
-        console.log('🌐 网络已断开')
-      }
-
       this.disconnect('网络断开')
     })
 
@@ -294,10 +262,6 @@ export class ConnectionManager {
       clearTimeout(this.reconnectTimer)
     }
     this.listeners.clear()
-
-    if (env.debug) {
-      console.log('🗑️ 连接管理器已销毁')
-    }
   }
 }
 

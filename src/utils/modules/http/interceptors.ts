@@ -5,10 +5,10 @@
  * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
  */
 
+import { HTTP_CONFIG } from '@/constants/modules/http'
 import { useUserStoreWithOut } from '@/stores'
 import { env } from '@/utils'
 import type { Method } from 'alova'
-import { getConnectionState } from './connection'
 
 /**
  * 错误类型枚举
@@ -69,7 +69,10 @@ export { isRetryableError }
 /**
  * 安全检查和数据清理
  */
-function sanitizeData(data: any, sensitiveFields: string[] = []): any {
+function sanitizeData(
+  data: any,
+  sensitiveFields: string[] = [...HTTP_CONFIG.sensitiveFields]
+): any {
   if (!data || typeof data !== 'object') {
     return data
   }
@@ -111,66 +114,43 @@ function generateRequestSignature(url: string, data: any, timestamp: number): st
  * 全局请求拦截器
  */
 export const beforeRequest = (method: Method) => {
-  // 检查连接状态 - 但允许健康检查请求通过
-  const connectionState = getConnectionState()
-  const isHealthCheck = method.url.includes('/health') || method.url.includes('/api/health')
-
-  if (!isHealthCheck && !connectionState.isConnected && !connectionState.isReconnecting) {
-    throw new HttpRequestError(
-      '网络连接已断开，请检查网络设置',
-      ErrorType.NETWORK,
-      undefined,
-      undefined,
-      undefined,
-      true
-    )
-  }
-
-  // 设置默认请求头
-  method.config.headers = {
-    ...method.config.headers,
-  }
-
-  // 只有非文件上传请求才设置 Content-Type
-  if (!(method.data instanceof FormData)) {
-    method.config.headers['Content-Type'] = 'application/json'
-  }
-
-  // 添加认证 token - 健康检查请求不需要认证
-  if (!isHealthCheck) {
-    const token = useUserStoreWithOut().getToken
-    if (token) {
-      method.config.headers.authorization = `Bearer ${token}`
-    }
-  }
-
-  // 添加请求追踪 ID
+  // 添加请求ID
+  method.config.headers = method.config.headers || {}
   method.config.headers['X-Request-ID'] = generateRequestId()
 
-  // 添加 CSRF Token
-  if (method.config.security?.enableCSRF) {
-    method.config.headers['X-CSRF-Token'] = generateCSRFToken()
+  // 添加时间戳
+  const timestamp = Date.now()
+  method.config.headers['X-Timestamp'] = timestamp.toString()
+
+  // 添加CSRF保护
+  if (HTTP_CONFIG.enableCsrf) {
+    const csrfToken = generateCSRFToken()
+    method.config.headers['X-CSRF-Token'] = csrfToken
   }
 
   // 添加请求签名
-  if (method.config.security?.enableSignature) {
-    const timestamp = Date.now()
+  if (HTTP_CONFIG.enableSignature) {
     const signature = generateRequestSignature(method.url, method.data, timestamp)
-    method.config.headers['X-Request-Signature'] = signature
-    method.config.headers['X-Request-Timestamp'] = timestamp.toString()
+    method.config.headers['X-Signature'] = signature
   }
 
-  // 数据清理（移除敏感信息）
-  if (method.config.security?.sensitiveFields) {
-    method.data = sanitizeData(method.data, method.config.security.sensitiveFields)
+  // 添加认证头
+  const userStore = useUserStoreWithOut()
+  const token = userStore.getToken
+  if (token) {
+    method.config.headers['Authorization'] = `Bearer ${token}`
   }
 
-  // 开发环境下打印请求信息
-  if (env.debug) {
-    const logData = method.config.security?.sensitiveFields
-      ? sanitizeData(method.data, method.config.security.sensitiveFields)
-      : method.data
-    console.log(`🚀 HTTP 请求: [${method.type}] ${method.url}`, logData ?? '')
+  // 数据脱敏处理
+  const isMockRequest = env.mockEnable && method.url.startsWith('/')
+  if (!isMockRequest) {
+    if (method.config.security?.sensitiveFields) {
+      method.data = sanitizeData(method.data, method.config.security.sensitiveFields)
+    } else {
+      method.data = sanitizeData(method.data, [...HTTP_CONFIG.sensitiveFields])
+    }
+  } else {
+    // For Mock requests, only sanitize for logging, keep original data for the request
   }
 }
 
@@ -207,10 +187,6 @@ export const responseHandler = async (response: Response, _method: Method) => {
       }
     }
 
-    if (env.debug) {
-      console.log('📥 HTTP 响应数据:', json)
-    }
-
     // 处理 HTTP 状态码错误
     if (!response.ok) {
       const errorType = getErrorTypeByStatus(response.status)
@@ -239,9 +215,14 @@ export const responseHandler = async (response: Response, _method: Method) => {
       )
     }
 
-    // 如果有 success 字段，返回整个响应对象（包含分页等信息）
+    // 如果有 success 字段且为 true，返回 data 字段（如果存在）或整个响应对象
     // 如果没有 success 字段，说明是根路径等简单响应，直接返回
-    return json.success !== undefined ? json : json.data || json
+    if (json.success === true) {
+      return json.data !== undefined ? json.data : json
+    }
+
+    // 如果没有 success 字段，返回整个响应对象
+    return json
   } catch (error) {
     // 处理网络错误
     if (error instanceof TypeError && error.message.includes('fetch')) {

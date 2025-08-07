@@ -48,26 +48,24 @@ export const initDynamicRoutes = async (
     if (backendRoutes && backendRoutes.length > 0) {
       const processedRoutes = processAsyncRoutes(backendRoutes as BackendRouteConfig[])
       if (isDebug) {
-        console.log('🔄 处理后的动态路由:', processedRoutes)
+        // 处理后的动态路由
       }
       if (!processedRoutes || processedRoutes.length === 0) {
         throw new Error('处理后的动态路由为空')
       }
       permissionStore.setDynamicRoutes(processedRoutes)
-      let addedCount = 0
       processedRoutes.forEach(route => {
         try {
           const vueRoute = transformToVueRoutes([route])[0]
           if (vueRoute.name && !router.hasRoute(vueRoute.name)) {
             router.addRoute(vueRoute)
-            addedCount++
           }
         } catch (routeError) {
           console.warn(`添加路由失败: ${route.path}, routeError: ${routeError}`)
         }
       })
       if (isDebug) {
-        console.log(`✅ 动态路由加载成功，添加了 ${addedCount}/${processedRoutes.length} 个路由`)
+        // 动态路由加载成功
       }
     } else {
       console.warn('后端返回的动态路由为空')

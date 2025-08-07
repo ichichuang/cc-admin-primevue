@@ -75,7 +75,6 @@ export class DateUtils {
     }
 
     dayjs.locale(locale)
-    console.log('✅📅 Day.js 语言环境设置完成: ', locale, '->', dayjs.locale())
   }
 
   /**

@@ -23,19 +23,15 @@ export const mockServices: MockMethod[] = Object.values(importedMocks).flat()
  * 根据环境变量决定是否启用 Mock
  */
 export function initMockService() {
-  const isMockEnabled = env.mockEnable
-
-  if (isMockEnabled) {
+  if (env.mockEnable) {
     // 使用自定义 Mock 服务，支持生产环境
     import('./mock-service')
       .then(() => {
-        console.log('✅ Mock 服务已启动')
+        // Mock服务已启动
       })
       .catch(error => {
         console.error('❌ Mock 服务启动失败:', error)
       })
-  } else {
-    console.log('🔇 Mock 服务已禁用')
   }
 }
 

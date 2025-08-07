@@ -6,6 +6,7 @@
  */
 
 // src/utils/http/methods.ts
+import { HTTP_CONFIG } from '@/constants/modules/http'
 import { useUserStoreWithOut } from '@/stores'
 import { env } from '@/utils'
 import { alovaInstance } from './instance'
@@ -18,7 +19,7 @@ import type { AlovaRequestConfig, RequestConfig, RetryConfig, UploadConfig } fro
 class RequestManager {
   private pendingRequests = new Map<string, Promise<any>>()
   private requestQueue: Array<() => Promise<any>> = []
-  private maxConcurrent = 10
+  private maxConcurrent = HTTP_CONFIG.maxConcurrentRequests
   private runningCount = 0
 
   /**
@@ -27,9 +28,6 @@ class RequestManager {
   async execute<T>(key: string, requestFn: () => Promise<T>, deduplicate = true): Promise<T> {
     // 如果启用去重且请求已存在，返回现有请求
     if (deduplicate && this.pendingRequests.has(key)) {
-      if (env.debug) {
-        console.log('🔄 请求去重:', key)
-      }
       return this.pendingRequests.get(key)!
     }
 
@@ -112,11 +110,11 @@ class RequestManager {
  */
 class EnhancedCache {
   private cache = new Map<string, { data: any; timestamp: number; ttl: number }>()
-  private maxSize = 1000
+  private maxSize = HTTP_CONFIG.maxCacheSize
   private hitCount = 0
   private missCount = 0
 
-  set(key: string, data: any, ttl: number = 5 * 60 * 1000): void {
+  set(key: string, data: any, ttl: number = HTTP_CONFIG.defaultCacheTtl): void {
     // 如果缓存已满，删除最旧的条目
     if (this.cache.size >= this.maxSize) {
       const oldestKey = this.cache.keys().next().value
@@ -139,6 +137,7 @@ class EnhancedCache {
       return null
     }
 
+    // 检查是否过期
     if (Date.now() - item.timestamp > item.ttl) {
       this.cache.delete(key)
       this.missCount++
@@ -163,10 +162,8 @@ class EnhancedCache {
     const total = this.hitCount + this.missCount
     return {
       size: this.cache.size,
-      hitCount: this.hitCount,
-      missCount: this.missCount,
-      hitRate: total > 0 ? (this.hitCount / total) * 100 : 0,
-      missRate: total > 0 ? (this.missCount / total) * 100 : 0,
+      hitRate: total > 0 ? this.hitCount / total : 0,
+      missRate: total > 0 ? this.missCount / total : 0,
     }
   }
 }
@@ -195,8 +192,8 @@ async function executeWithRetry<T>(
   retryConfig?: RetryConfig
 ): Promise<T> {
   const config = {
-    retries: 3,
-    retryDelay: 1000,
+    retries: HTTP_CONFIG.defaultRetryTimes,
+    retryDelay: HTTP_CONFIG.defaultRetryDelay,
     ...retryConfig,
   }
 
@@ -222,10 +219,6 @@ async function executeWithRetry<T>(
       if (attempt < config.retries) {
         const delay = config.retryDelay * Math.pow(2, attempt) // 指数退避
         await new Promise(resolve => setTimeout(resolve, delay))
-
-        if (env.debug) {
-          console.log(`🔄 重试请求 (${attempt + 1}/${config.retries})`)
-        }
       }
     }
   }
@@ -245,9 +238,6 @@ export const get = <T = any>(url: string, config?: RequestConfig) => {
   if (cacheEnabled) {
     const cachedData = cache.get(cacheKey)
     if (cachedData) {
-      if (env.debug) {
-        console.log('📦 从缓存获取数据:', url)
-      }
       return Promise.resolve(cachedData)
     }
   }
@@ -260,7 +250,7 @@ export const get = <T = any>(url: string, config?: RequestConfig) => {
     .then(result => {
       // 如果启用缓存，将结果存入缓存
       if (cacheEnabled) {
-        const ttl = config?.cacheTTL || 5 * 60 * 1000 // 默认 5 分钟
+        const ttl = config?.cacheTTL || HTTP_CONFIG.defaultCacheTtl
         cache.set(cacheKey, result, ttl)
       }
       return result
@@ -383,9 +373,7 @@ export const downloadFile = async (url: string, filename?: string) => {
     document.body.removeChild(link)
     window.URL.revokeObjectURL(downloadUrl)
 
-    if (env.debug) {
-      console.log('✅ 文件下载成功:', filename)
-    }
+    return filename
   } catch (error) {
     console.error('❌ 文件下载失败:', error)
     throw error
@@ -397,9 +385,6 @@ export const downloadFile = async (url: string, filename?: string) => {
  */
 export const clearCache = () => {
   cache.clear()
-  if (env.debug) {
-    console.log('🗑️ 缓存已清除')
-  }
 }
 
 /**
@@ -421,7 +406,4 @@ export const getRequestStats = () => {
  */
 export const clearRequests = () => {
   requestManager.clear()
-  if (env.debug) {
-    console.log('��️ 所有请求已清理')
-  }
 }

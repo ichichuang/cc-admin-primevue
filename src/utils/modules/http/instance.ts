@@ -6,6 +6,7 @@
  */
 
 // src/utils/http/instance.ts
+import { HTTP_CONFIG } from '@/constants/modules/http'
 import { env } from '@/utils'
 import { createAlova } from 'alova'
 import adapterFetch from 'alova/fetch'
@@ -26,7 +27,7 @@ const validateAlovaConfig = () => {
   }
 
   // 检查超时配置
-  const timeout = 10000
+  const timeout = HTTP_CONFIG.timeout
   if (timeout < 1000) {
     errors.push('请求超时时间不能小于 1 秒')
   }
@@ -84,7 +85,7 @@ export const alovaInstance = createAlova({
   responded: responseHandler,
 
   // 全局超时时间 (毫秒)
-  timeout: 10000,
+  timeout: HTTP_CONFIG.timeout,
 })
 
 // 验证配置

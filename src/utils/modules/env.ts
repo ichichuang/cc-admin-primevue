@@ -190,7 +190,6 @@ export class EnvValidator {
 if (isDev()) {
   try {
     EnvValidator.validateAll()
-    console.log('✅ 环境变量验证通过')
   } catch (error) {
     console.error('❌ 环境变量验证失败:', error)
   }

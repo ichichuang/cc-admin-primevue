@@ -31,6 +31,7 @@ export default [
       const { username, password } = body
 
       const user = mockUser.find(item => item.username === username)
+
       if (!user) {
         return {
           success: false,
@@ -56,9 +57,12 @@ export default [
   {
     url: '/auth/userInfo',
     method: 'get',
-    response: ({ headers }: { headers: { authorization: string } }) => {
-      const auth = headers.authorization || ''
+    response: ({ headers }: { headers: Record<string, string> }) => {
+      // 处理不同大小写的Authorization请求头
+      const auth = headers.authorization || headers.Authorization || ''
+
       const token = auth.replace(/^Bearer\s+/i, '')
+
       if (token !== MOCK_TOKEN) {
         return {
           success: false,
@@ -79,6 +83,7 @@ export default [
       const { password: _password, ...userInfo } = user
 
       return {
+        success: true,
         message: '获取用户信息成功',
         data: userInfo,
       }

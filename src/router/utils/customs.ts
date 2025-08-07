@@ -133,6 +133,22 @@ export function registerRouterGuards(
         next({ path: '/login', query: { redirect: to.fullPath } })
         return
       }
+
+      // 如果有 token 但没有用户信息，先尝试获取用户信息
+      if (!userStore.getUserInfo.userId) {
+        try {
+          const { getUserInfo } = await import('@/api/modules/auth')
+          const userInfo = await getUserInfo()
+          userStore.setUserInfo(userInfo)
+        } catch (error) {
+          console.error('获取用户信息失败:', error)
+          userStore.resetToken()
+          userStore.resetUserInfo()
+          next({ path: '/login', query: { redirect: to.fullPath } })
+          return
+        }
+      }
+
       // 动态路由未加载时自动初始化
       if (!permissionStore.isRoutesLoaded) {
         try {

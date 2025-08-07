@@ -53,6 +53,17 @@ export const useUserStore = defineStore('user', {
         permissions: [],
       }
     },
+    logout() {
+      this.resetToken()
+      this.resetUserInfo()
+      const key = `${env.piniaKeyPrefix}-`
+      Object.keys(localStorage).forEach(item => {
+        if (item.startsWith(key)) {
+          localStorage.removeItem(item)
+        }
+      })
+      window.location.reload()
+    },
   },
 
   persist: {

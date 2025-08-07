@@ -17,7 +17,6 @@
     transition:
       all 0.25s,
       font-size 0s,
-      color 0.25s,
       background-color 0.3s,
       border 0.1s,
       border-radius 0.4s,
@@ -50,9 +49,20 @@
 }
 
 /* PrimeVue UI 样式 */
+// 弹出框、抽屉
 .p-popover,
 .p-drawer {
-  * {
-    transition: all 0.25s !important;
+  *,
+  *::before,
+  *::after {
+    transition:
+      all 0.25s,
+      font-size 0s,
+      color 0s,
+      background-color 0.4s,
+      border 0.1s,
+      border-radius 0.4s,
+      box-shadow 0.4s;
+    transition-timing-function: ease-in-out;
   }
 }

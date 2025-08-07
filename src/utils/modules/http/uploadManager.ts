@@ -5,6 +5,7 @@
  * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
  */
 
+import { HTTP_CONFIG } from '@/constants/modules/http'
 import { env } from '@/utils'
 import { post } from './methods'
 import type {
@@ -55,10 +56,7 @@ async function calculateFileHash(file: File): Promise<string> {
 /**
  * 将文件分割为块
  */
-function splitFileIntoChunks(
-  file: File,
-  chunkSize: number = 2 * 1024 * 1024 // 2MB
-): Blob[] {
+function splitFileIntoChunks(file: File, chunkSize: number = HTTP_CONFIG.defaultChunkSize): Blob[] {
   const chunks: Blob[] = []
   let start = 0
 
@@ -130,7 +128,7 @@ export class UploadManager implements IUploadManager {
    */
   addTask(file: File, config?: UploadChunkConfig): string {
     const taskId = this.generateTaskId()
-    const chunkSize = config?.chunkSize || 2 * 1024 * 1024 // 2MB
+    const chunkSize = config?.chunkSize || HTTP_CONFIG.defaultChunkSize // 2MB
     const chunks = splitFileIntoChunks(file, chunkSize)
 
     const task: UploadTask = {
@@ -195,10 +193,6 @@ export class UploadManager implements IUploadManager {
       if (task.cancelToken) {
         task.cancelToken.abort()
       }
-
-      if (env.debug) {
-        console.log(`❌ 取消上传任务: ${taskId}`)
-      }
     }
   }
 
@@ -212,10 +206,6 @@ export class UploadManager implements IUploadManager {
       if (task.cancelToken) {
         task.cancelToken.abort()
         task.cancelToken = new AbortController()
-      }
-
-      if (env.debug) {
-        console.log(`⏸️ 暂停上传任务: ${taskId}`)
       }
     }
   }
@@ -231,10 +221,6 @@ export class UploadManager implements IUploadManager {
         this.uploadQueue.push(taskId)
       }
       this.processQueue()
-
-      if (env.debug) {
-        console.log(`▶️ 恢复上传任务: ${taskId}`)
-      }
     }
   }
 
@@ -273,9 +259,9 @@ export class UploadManager implements IUploadManager {
       try {
         await this.uploadTask(task)
       } catch (error) {
-        if (env.debug) {
-          console.error(`❌ 上传任务失败: ${taskId}`, error)
-        }
+        task.status = 'failed'
+        this.updateTaskProgress(task)
+        throw error
       }
     }
 
@@ -315,7 +301,7 @@ export class UploadManager implements IUploadManager {
       }
 
       // 并发上传分片
-      const concurrentChunks = 3 // 默认并发数
+      const concurrentChunks = HTTP_CONFIG.defaultConcurrentChunks
       const chunks = [...pendingChunks]
 
       for (let i = 0; i < chunks.length; i += concurrentChunks) {
@@ -332,6 +318,7 @@ export class UploadManager implements IUploadManager {
       await this.mergeChunks(task)
     } catch (error) {
       task.status = 'failed'
+      this.updateTaskProgress(task)
       throw error
     }
   }
@@ -380,15 +367,12 @@ export class UploadManager implements IUploadManager {
         signal: task.cancelToken?.signal,
       })
 
+      // 分片上传成功
       task.uploadedChunks.add(chunk.chunkIndex)
       task.failedChunks.delete(chunk.chunkIndex)
 
       // 更新进度
       this.updateTaskProgress(task)
-
-      if (env.debug) {
-        console.log(`✅ 分片上传成功: ${chunk.chunkIndex + 1}/${chunk.totalChunks}`)
-      }
     } catch (error) {
       task.failedChunks.add(chunk.chunkIndex)
 
@@ -418,12 +402,10 @@ export class UploadManager implements IUploadManager {
         totalChunks: task.chunks.length,
       })
 
+      // 文件上传完成
       task.status = 'completed'
       task.progress = 100
-
-      if (env.debug) {
-        console.log(`✅ 文件上传完成: ${task.file.name}`)
-      }
+      this.updateTaskProgress(task)
     } catch (error) {
       task.status = 'failed'
 

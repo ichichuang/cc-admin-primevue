@@ -12,8 +12,9 @@ import GapSwitch from '@/components/common/PaddingSwitch.vue'
 import RoundSwitch from '@/components/common/RoundSwitch.vue'
 import SizeSwitch from '@/components/common/SizeSwitch.vue'
 import ThemeSwitch from '@/components/common/ThemeSwitch.vue'
-
+import { useUserStore } from '@/stores'
 import { ref } from 'vue'
+const userStore = useUserStore()
 
 // 抽屉
 const visible = ref(false)
@@ -26,6 +27,10 @@ const toggle = (type: 'op' | 'visible', event?: any) => {
   } else {
     visible.value = !visible.value
   }
+}
+
+const handleLogout = () => {
+  userStore.logout()
 }
 </script>
 <template>
@@ -77,6 +82,7 @@ const toggle = (type: 'op' | 'visible', event?: any) => {
           class="flex-auto"
           severity="danger"
           text
+          @click="handleLogout"
         ></Button>
       </div>
     </template>
