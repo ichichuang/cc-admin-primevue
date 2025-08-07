@@ -1,15 +1,15 @@
 <!--
   @copyright Copyright (c) 2025 chichuang
   @license MIT
-  @description cc-admin-PrimeVue 企业级后台管理框架 - README
+  @description cc-admin-primevue 企业级后台管理框架 - README
   本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
 -->
 
-# cc-admin-PrimeVue Cursor 配置说明
+# cc-admin-primevue Cursor 配置说明
 
 ## 📋 配置文件总览
 
-本目录包含了 cc-admin-PrimeVue 项目在 Cursor 编辑器中的完整配置，确保最佳的开发体验和代码质量。
+本目录包含了 cc-admin-primevue 项目在 Cursor 编辑器中的完整配置，确保最佳的开发体验和代码质量。
 
 ### 📁 配置文件列表
 

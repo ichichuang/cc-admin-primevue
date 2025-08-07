@@ -1,7 +1,7 @@
 /**
  * @copyright Copyright (c) 2025 chichuang
  * @license MIT
- * @description cc-admin-PrimeVue 企业级后台管理框架 - eslint.config
+ * @description cc-admin-primevue 企业级后台管理框架 - eslint.config
  * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
  */
 

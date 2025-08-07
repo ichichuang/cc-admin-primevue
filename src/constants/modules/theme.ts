@@ -362,8 +362,8 @@ export const sizeOptions: SizeOptions[] = [
  */
 const getCurrentWindowSize = () => {
   return {
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: Math.max(375, Math.min(window.innerWidth, 3840)), // 限制最小375px，最大3840px
+    height: Math.max(667, Math.min(window.innerHeight, 2160)), // 限制最小667px，最大2160px
   }
 }
 
@@ -373,14 +373,15 @@ const getCurrentWindowSize = () => {
 export const createCompactSizes = (): Layout => {
   const { width, height } = getCurrentWindowSize()
   return {
-    sidebarWidth: width * 0.16,
-    sidebarCollapsedWidth: width * 0.04,
-    headerHeight: height * 0.04,
-    breadcrumbHeight: height * 0.026,
-    footerHeight: height * 0.026,
-    tabsHeight: height * 0.03,
+    sidebarWidth: Math.max(200, Math.min(width * 0.16, 400)),
+    sidebarCollapsedWidth: Math.max(60, Math.min(width * 0.04, 80)),
+    headerHeight: Math.max(40, Math.min(height * 0.04, 80)),
+    breadcrumbHeight: Math.max(32, Math.min(height * 0.026, 48)),
+    footerHeight: Math.max(32, Math.min(height * 0.026, 48)),
+    tabsHeight: Math.max(36, Math.min(height * 0.03, 56)),
     contentHeight: 0,
     contentsHeight: 0,
+    gap: 8,
   }
 }
 
@@ -390,14 +391,15 @@ export const createCompactSizes = (): Layout => {
 export const createComfortableSizes = (): Layout => {
   const { width, height } = getCurrentWindowSize()
   return {
-    sidebarWidth: width * 0.18,
-    sidebarCollapsedWidth: width * 0.04,
-    headerHeight: height * 0.05,
-    breadcrumbHeight: height * 0.03,
-    footerHeight: height * 0.03,
-    tabsHeight: height * 0.04,
+    sidebarWidth: Math.max(240, Math.min(width * 0.18, 500)),
+    sidebarCollapsedWidth: Math.max(60, Math.min(width * 0.04, 80)),
+    headerHeight: Math.max(48, Math.min(height * 0.05, 96)),
+    breadcrumbHeight: Math.max(36, Math.min(height * 0.03, 56)),
+    footerHeight: Math.max(36, Math.min(height * 0.03, 56)),
+    tabsHeight: Math.max(40, Math.min(height * 0.04, 64)),
     contentHeight: 0,
     contentsHeight: 0,
+    gap: 16,
   }
 }
 
@@ -407,14 +409,15 @@ export const createComfortableSizes = (): Layout => {
 export const createLooseSizes = (): Layout => {
   const { width, height } = getCurrentWindowSize()
   return {
-    sidebarWidth: width * 0.2,
-    sidebarCollapsedWidth: width * 0.04,
-    headerHeight: height * 0.06,
-    breadcrumbHeight: height * 0.04,
-    footerHeight: height * 0.03,
-    tabsHeight: height * 0.04,
+    sidebarWidth: Math.max(280, Math.min(width * 0.2, 600)),
+    sidebarCollapsedWidth: Math.max(60, Math.min(width * 0.04, 80)),
+    headerHeight: Math.max(56, Math.min(height * 0.06, 112)),
+    breadcrumbHeight: Math.max(40, Math.min(height * 0.04, 64)),
+    footerHeight: Math.max(36, Math.min(height * 0.03, 56)),
+    tabsHeight: Math.max(40, Math.min(height * 0.04, 64)),
     contentHeight: 0,
     contentsHeight: 0,
+    gap: 24,
   }
 }
 
@@ -443,8 +446,22 @@ export const roundedOptions: RoundedOptions[] = [
 /**
  * gap 选项配置
  */
-export const gapOptions: GapOptions[] = [
-  { label: '小', key: 'sm', value: 6 },
-  { label: '中', key: 'md', value: 8 },
-  { label: '大', key: 'lg', value: 10 },
+export const paddingOptions: PaddingOptions[] = [
+  { label: '小', key: 'sm', value: 8 },
+  { label: '中', key: 'md', value: 12 },
+  { label: '大', key: 'lg', value: 15 },
+]
+
+/**
+ * 字体尺寸选项配置
+ */
+export const fontSizeOptions: FontSizeOptions[] = [
+  { label: '迷你', key: 'xs', value: 10 },
+  { label: '小号', key: 'sm', value: 12 },
+  { label: '中号', key: 'md', value: 14 },
+  { label: '大号', key: 'lg', value: 16 },
+  { label: '特大号', key: 'xl', value: 18 },
+  { label: '超特大号', key: 'xls', value: 20 },
+  { label: '超超特大号', key: 'xxl', value: 22 },
+  { label: '超超超特大号', key: 'xxxl', value: 25 },
 ]

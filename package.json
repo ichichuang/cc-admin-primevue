@@ -6,7 +6,7 @@
   "author": "chichuang",
   "copyright": "Copyright (c) 2025 chichuang",
   "license": "Custom (Non-Commercial Use Only)",
-  "description": "cc-admin-PrimeVue 企业级后台管理框架 - 基于 Vue 3.5+、TypeScript 5+ 和 PrimeVue 的现代化企业级后台管理框架",
+  "description": "cc-admin-primevue 企业级后台管理框架 - 基于 Vue 3.5+、TypeScript 5+ 和 PrimeVue 的现代化企业级后台管理框架",
   "keywords": [
     "vue3",
     "typescript",

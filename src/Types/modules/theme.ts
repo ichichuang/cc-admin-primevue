@@ -76,8 +76,8 @@ declare global {
     value: Size
   }
 
-  /* 间距定义 */
-  type Gap = [
+  /* 容器内外边距定义 */
+  type Padding = [
     {
       label: '小'
       key: 'sm'
@@ -92,9 +92,9 @@ declare global {
     },
   ]
 
-  interface GapOptions {
-    label: Gap[number]['label']
-    key: Gap[number]['key']
+  interface PaddingOptions {
+    label: Padding[number]['label']
+    key: Padding[number]['key']
     value: number
   }
 
@@ -124,6 +124,48 @@ declare global {
     value: number
   }
 
+  /* 字体尺寸定义 */
+  type FontSize = [
+    {
+      label: '迷你'
+      key: 'xs'
+    },
+    {
+      label: '小号'
+      key: 'sm'
+    },
+    {
+      label: '中号'
+      key: 'md'
+    },
+    {
+      label: '大号'
+      key: 'lg'
+    },
+    {
+      label: '特大号'
+      key: 'xl'
+    },
+    {
+      label: '超特大号'
+      key: 'xls'
+    },
+    {
+      label: '超超特大号'
+      key: 'xxl'
+    },
+    {
+      label: '超超超特大号'
+      key: 'xxxl'
+    },
+  ]
+
+  interface FontSizeOptions {
+    label: FontSize[number]['label']
+    key: FontSize[number]['key']
+    value: number
+  }
+
   /* 布局尺寸定义 */
   interface Layout {
     // 侧边栏宽度
@@ -142,6 +184,8 @@ declare global {
     contentHeight: number
     // 内容区域高度(不包含头部、底部)
     contentsHeight: number
+    // 间距
+    gap: number
   }
 
   /* ==================== 状态管理相关类型 ==================== */
@@ -168,10 +212,12 @@ declare global {
     size: SizeOptions['value']
     sizeOptions: SizeOptions[]
     sizes: Layout
-    gap: GapOptions['key']
-    gapOptions: GapOptions[]
+    padding: PaddingOptions['key']
+    paddingOptions: PaddingOptions[]
     rounded: RoundedOptions['key']
     roundedOptions: RoundedOptions[]
+    fontSize: FontSizeOptions['key']
+    fontSizeOptions: FontSizeOptions[]
   }
 
   /* ==================== 工具函数类型 ==================== */

@@ -47,4 +47,5 @@ export const designRules = [
   [/^gapx-(\d+)$/, ([, d]) => ({ 'gap-x': `${d}px` }), { layer: 'design-mapping' }],
   [/^gapy-(\d+)$/, ([, d]) => ({ 'gap-y': `${d}px` }), { layer: 'design-mapping' }],
   [/^lh-(\d+)$/, ([, d]) => ({ 'line-height': `${d}px` }), { layer: 'design-mapping' }],
+  [/^fs-(\d+)$/, ([, d]) => ({ 'font-size': `${d}px` }), { layer: 'design-mapping' }],
 ]

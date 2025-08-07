@@ -1,7 +1,7 @@
 <!--
   @copyright Copyright (c) 2025 chichuang
   @license 自定义商业限制许可证
-  @description cc-admin-PrimeVue 企业级后台管理框架 - 更新日志
+  @description cc-admin-primevue 企业级后台管理框架 - 更新日志
 
   本文件受版权保护，商业使用需要授权。
   联系方式: https://github.com/ichichuang/cc-admin-homepage/issues

@@ -1,7 +1,7 @@
 <!--
   @copyright Copyright (c) 2025 chichuang
   @license 自定义商业限制许可证
-  @description cc-admin-PrimeVue 企业级后台管理框架 - 项目说明文档
+  @description cc-admin-primevue 企业级后台管理框架 - 项目说明文档
 
   本文件受版权保护，商业使用需要授权。
   联系方式: https://github.com/ichichuang/cc-admin-homepage/issues
@@ -10,7 +10,7 @@
   Contact: https://github.com/ichichuang/cc-admin-homepage/issues
 -->
 
-# cc-admin-PrimeVue
+# cc-admin-primevue
 
 一个基于 Vue 3.5+、TypeScript 5+ 和 PrimeVue 的现代化企业级后台管理框架
 
@@ -39,7 +39,7 @@
 ## 📁 项目结构
 
 ```
-cc-admin-PrimeVue/
+cc-admin-primevue/
 ├── src/
 │   ├── api/           # API接口管理
 │   ├── stores/        # 状态管理 (Pinia)
@@ -97,4 +97,4 @@ pnpm preview
 
 ---
 
-**cc-admin-PrimeVue** - 让企业级后台开发更简单、更高效！
+**cc-admin-primevue** - 让企业级后台开发更简单、更高效！

@@ -3,7 +3,7 @@
   <div class="full bg-bg200">
     Dashboard
 
-    <div class="p-gap between-col gap-gap">
+    <div class="p-padding between-col gap-gap">
       <div class="card evenly">
         <Button label="Primary" />
         <Button

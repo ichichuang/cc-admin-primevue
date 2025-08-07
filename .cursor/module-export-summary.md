@@ -1,7 +1,7 @@
 <!--
   @copyright Copyright (c) 2025 chichuang
   @license 自定义商业限制许可证
-  @description cc-admin-PrimeVue 企业级后台管理框架 - module-export-summary
+  @description cc-admin-primevue 企业级后台管理框架 - module-export-summary
 
   本文件受版权保护，商业使用需要授权。
   联系方式: https://github.com/ichichuang/cc-admin-homepage/issues
@@ -14,7 +14,7 @@
 
 ## 📋 概述
 
-本文档总结了 cc-admin-PrimeVue 项目中模块导出规范的优化情况，确保所有模块都遵循统一的导出策略。
+本文档总结了 cc-admin-primevue 项目中模块导出规范的优化情况，确保所有模块都遵循统一的导出策略。
 
 ## ✅ 已优化的模块
 

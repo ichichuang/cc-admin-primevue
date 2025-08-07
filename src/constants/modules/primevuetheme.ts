@@ -101,12 +101,12 @@ export function deepMergeStylesAdvanced<T = any>(
         }
       }
 
-      // 检查是否是 popover 对象，如果是则应用 popover 相关的路径样式
-      if (key === 'popover' && typeof value === 'object' && value !== null) {
+      // 动态处理任意 key 的路径样式
+      if (typeof value === 'object' && value !== null) {
         for (const [pathKey, pathValue] of Object.entries(pathStyles)) {
-          // 检查路径是否以 'popover.' 开头
-          if (pathKey.startsWith('popover.')) {
-            const subPath = pathKey.substring(8) // 移除 'popover.' 前缀
+          // 检查路径是否以当前 key 开头
+          if (pathKey.startsWith(`${key}.`)) {
+            const subPath = pathKey.substring(key.length + 1) // 移除 'key.' 前缀
             if (subPath) {
               // 处理多层路径，如 'content.padding'
               const pathParts = subPath.split('.')
@@ -193,6 +193,7 @@ export const createCustomPreset = (
 ) => {
   // console.log('加载主题配置: ', preset)
   const customColor = {
+    shadow: `rgba(${colorStore.getAccent200}, 0.25) 0px 25px 50px -12px`,
     // 边框颜色
     borderColor: colorStore.getBg300, // 默认边框色
     hoverBorderColor: colorStore.getPrimary100, // 悬停时边框色
@@ -243,21 +244,25 @@ export const createCustomPreset = (
   const customSize = {
     borderRadius: `${sizeStore.getRoundedValue}px`, // 圆角尺寸
 
-    gap: `${sizeStore.getGapValue}px`, // 元素之间间距
-    padding: `${sizeStore.getGapsValue}px ${sizeStore.getGapValue}px`, // 元素内边距（上下 左右）
-    margin: `${sizeStore.getGapsValue}px ${sizeStore.getGapValue}px`, // 外边距（上下 左右）
+    gap: `${sizeStore.getGap}px`, // 元素之间间距
+    padding: `${sizeStore.getPaddingsValue}px ${sizeStore.getPaddingValue}px`, // 元素内边距（上下 左右）
+    margin: `${sizeStore.getGap}px ${sizeStore.getGaps}px`, // 外边距（上下 左右）
 
-    paddingX: `${sizeStore.getGapValue}px`, // 左右内边距
-    paddingY: `${sizeStore.getGapsValue}px`, // 上下内边距
-    marginX: `${sizeStore.getGapsValue}px`, // 左右外边距
-    marginY: `${sizeStore.getGapValue}px`, // 上下外边距
+    paddingX: `${sizeStore.getPaddingValue}px`, // 左右内边距
+    paddingY: `${sizeStore.getPaddingsValue}px`, // 上下内边距
+    marginX: `${sizeStore.getGap}px`, // 左右外边距
+    marginY: `${sizeStore.getGaps}px`, // 上下外边距
   }
 
   // 路径样式，用于深度匹配
   const pathStyles: Record<string, any> = {
-    ['popover.padding']: `${sizeStore.getGapValue}px`,
-    ['popover.content.padding']: `${sizeStore.getGaplValue}px`,
-    ['popover.root.borderRadius']: `4px`,
+    // 弹出框
+    ['popover.padding']: `${sizeStore.getPaddingxValue}px`,
+    ['popover.content.padding']: `${sizeStore.getPaddingxValue}px`,
+    ['popover.root.borderRadius']: `6px`,
+
+    // 遮罩层
+    ['mask.background']: `${colorStore.getBg200}80`,
   }
 
   const customPreset = {
@@ -271,4 +276,5 @@ export const createCustomPreset = (
 
   console.log('注入自定义主题配置: ', newPreset)
   return newPreset
+  // return preset
 }

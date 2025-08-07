@@ -11,6 +11,6 @@
 export const styleShortcuts = {
   'c-border': 'border border-solid border-bg300',
   'c-card':
-    'p-gaps c-cp rounded-rounded bg-bg200 color-text100 hover:color-primary100 c-border border-bg200 hover:border-color-bg100 active:border-color-bg200',
+    'c-cp rounded-rounded bg-bg200 color-text100 hover:color-primary100 c-border border-bg200 hover:border-color-bg100 active:border-color-bg200',
   'c-cp': 'cursor-pointer',
 }

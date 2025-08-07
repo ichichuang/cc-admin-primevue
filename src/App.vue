@@ -34,10 +34,11 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div
+  <!--   <div
     id="app"
     class="fixed left-0 top-0 bottom-0 right-0 z-0 container fs-16 md:fs-18 lg:fs-16 xls:fs-18 xxl:fs-20 xxxl:fs-22"
-  >
+  > -->
+  <div class="fixed left-0 top-0 bottom-0 right-0 z-0 container fs-appFontSize">
     <LayoutManager />
   </div>
 </template>

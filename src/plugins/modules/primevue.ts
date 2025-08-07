@@ -12,8 +12,6 @@ import Aura from '@primevue/themes/aura'
 import PrimeVue from 'primevue/config'
 import { watch, type App } from 'vue'
 
-console.log('加载Aura主题: ', Aura)
-
 /**
  * PrimeVue 配置选项
  */

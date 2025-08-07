@@ -39,6 +39,7 @@ export function createThemeVariableRules() {
     ['gapy', 'gap-y'],
     ['borderw', 'border-width'],
     ['rounded', 'border-radius'],
+    ['fs', 'font-size'],
   ] as const
 
   return properties.map(([prefix, cssProperty]) => [

@@ -8,12 +8,16 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Avatar: typeof import('primevue/avatar')['default']
     Button: typeof import('primevue/button')['default']
     ButtonGroup: typeof import('primevue/buttongroup')['default']
     ColorSwitch: typeof import('./src/components/common/ColorSwitch.vue')['default']
+    Drawer: typeof import('primevue/drawer')['default']
+    FontSizeSwitch: typeof import('./src/components/common/FontSizeSwitch.vue')['default']
     GapSwitch: typeof import('./src/components/common/GapSwitch.vue')['default']
     Loading: typeof import('./src/components/layout/Loading.vue')['default']
     LocalesSwitch: typeof import('./src/components/common/LocalesSwitch.vue')['default']
+    PaddingSwitch: typeof import('./src/components/common/PaddingSwitch.vue')['default']
     Popover: typeof import('primevue/popover')['default']
     RoundSwitch: typeof import('./src/components/common/RoundSwitch.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

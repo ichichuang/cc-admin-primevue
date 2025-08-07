@@ -123,6 +123,10 @@ export const themeConfig: ThemeConfig = {
     tabsHeight: 'var(--tabs-height)',
     contentHeight: 'var(--content-height)',
     contentsHeight: 'var(--contents-height)',
+    padding: 'var(--padding)',
+    paddings: 'var(--paddings)',
+    paddingx: 'var(--paddingx)',
+    paddingl: 'var(--paddingl)',
 
     // 间距系统
     gap: 'var(--gap)',
@@ -132,5 +136,11 @@ export const themeConfig: ThemeConfig = {
 
     // 圆角系统
     rounded: 'var(--rounded)',
+
+    // 字体尺寸系统
+    appFontSize: 'var(--app-font-size)',
+    appFontSizes: 'var(--app-font-sizes)',
+    appFontSizex: 'var(--app-font-sizex)',
+    appFontSizel: 'var(--app-font-sizel)',
   },
 }

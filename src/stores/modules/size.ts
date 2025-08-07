@@ -9,7 +9,8 @@
 import { cloneDeep, toKebabCase } from '@/common'
 import {
   comfortableSizes,
-  gapOptions,
+  fontSizeOptions,
+  paddingOptions,
   roundedOptions,
   sizeOptions,
   sizePresetsMap,
@@ -25,11 +26,14 @@ export const useSizeStore = defineStore('size', {
 
     sizes: cloneDeep(comfortableSizes),
 
-    gap: 'md',
-    gapOptions,
+    padding: 'md',
+    paddingOptions,
 
     rounded: 'smooth',
     roundedOptions,
+
+    fontSize: 'md',
+    fontSizeOptions,
   }),
 
   getters: {
@@ -58,37 +62,43 @@ export const useSizeStore = defineStore('size', {
     getContentHeight: state => state.sizes.contentHeight,
     // 获取内容区域高度(不包含头部、底部)
     getContentsHeight: state => state.sizes.contentsHeight,
+    // 获取间距
+    getGap: state => state.sizes.gap,
+    getGaps: state => state.sizes.gap / 2,
+    getGapx: state => state.sizes.gap + state.sizes.gap / 2,
+    getGapl: state => state.sizes.gap * 2,
 
-    /* 尺寸变量配置相关 gap */
+    /* 尺寸变量配置相关 padding */
     // 获取间距尺寸
-    getGap: state => {
-      const gapOptions = state.gapOptions
-      const gap = gapOptions.find(option => option.key === state.gap) as GapOptions
-      return gap.key
+    getPadding: state => {
+      const paddingOptions = state.paddingOptions
+      const padding = paddingOptions.find(option => option.key === state.padding) as PaddingOptions
+      return padding.key
     },
     // 获取当前间距的具体数值
-    getGapValue: state =>
-      state.gapOptions.find(option => option.key === state.gap)?.value as number,
+    getPaddingValue: state =>
+      state.paddingOptions.find(option => option.key === state.padding)?.value as number,
     // 获取间距尺寸
-    getGapsValue: state => {
-      const gapOptions = state.gapOptions
-      const gap = gapOptions.find(option => option.key === state.gap) as GapOptions
-      return (gap.value / 2) as number
+    getPaddingsValue: state => {
+      const paddingOptions = state.paddingOptions
+      const padding = paddingOptions.find(option => option.key === state.padding) as PaddingOptions
+      return (padding.value / 2) as number
     },
-    getGapxValue: state => {
-      const gapOptions = state.gapOptions
-      const gap = gapOptions.find(option => option.key === state.gap) as GapOptions
-      return (gap.value + gap.value / 2) as number
+    getPaddingxValue: state => {
+      const paddingOptions = state.paddingOptions
+      const padding = paddingOptions.find(option => option.key === state.padding) as PaddingOptions
+      return (padding.value + padding.value / 2) as number
     },
-    getGaplValue: state => {
-      const gapOptions = state.gapOptions
-      const gap = gapOptions.find(option => option.key === state.gap) as GapOptions
-      return (gap.value * 2) as number
+    getPaddinglValue: state => {
+      const paddingOptions = state.paddingOptions
+      const padding = paddingOptions.find(option => option.key === state.padding) as PaddingOptions
+      return (padding.value * 2) as number
     },
     // 获取间距尺寸标签
-    getGapLabel: state => state.gapOptions.find(option => option.key === state.gap)?.label,
+    getPaddingLabel: state =>
+      state.paddingOptions.find(option => option.key === state.padding)?.label,
     // 获取间距选项
-    getGapOptions: state => state.gapOptions,
+    getPaddingOptions: state => state.paddingOptions,
 
     /* 尺寸变量配置相关 rounded */
     // 获取圆角尺寸
@@ -101,6 +111,21 @@ export const useSizeStore = defineStore('size', {
       state.roundedOptions.find(option => option.key === state.rounded)?.label,
     // 获取圆角尺寸选项
     getRoundedOptions: state => state.roundedOptions,
+
+    /* 字体尺寸相关 */
+    getFontSize: state => state.fontSize,
+    getFontSizeOptions: state => state.fontSizeOptions,
+    getFontSizeValue: state =>
+      state.fontSizeOptions.find(option => option.key === state.fontSize)?.value,
+    getFontSizeLabel: state =>
+      state.fontSizeOptions.find(option => option.key === state.fontSize)?.label,
+    getFontSizesValue: state =>
+      (state.fontSizeOptions.find(option => option.key === state.fontSize)?.value as number) / 2,
+    getFontSizexValue: state =>
+      (state.fontSizeOptions.find(option => option.key === state.fontSize)?.value as number) +
+      (state.fontSizeOptions.find(option => option.key === state.fontSize)?.value as number) / 2,
+    getFontSizelValue: state =>
+      (state.fontSizeOptions.find(option => option.key === state.fontSize)?.value as number) * 2,
   },
 
   actions: {
@@ -195,13 +220,13 @@ export const useSizeStore = defineStore('size', {
       this.setCssVariables()
     },
 
-    /* 尺寸变量配置相关 gap */
+    /* 尺寸变量配置相关 padding */
     // 设置间距尺寸
-    setGap(gap: GapOptions['key']) {
-      if (this.gap === gap) {
+    setPadding(padding: PaddingOptions['key']) {
+      if (this.padding === padding) {
         return
       }
-      this.gap = gap
+      this.padding = padding
       this.setCssVariables()
     },
     // 设置圆角尺寸
@@ -210,6 +235,15 @@ export const useSizeStore = defineStore('size', {
         return
       }
       this.rounded = rounded
+      this.setCssVariables()
+    },
+
+    /* 字体尺寸相关 */
+    setFontSize(fontSize: FontSizeOptions['key']) {
+      if (this.fontSize === fontSize) {
+        return
+      }
+      this.fontSize = fontSize
       this.setCssVariables()
     },
 
@@ -228,15 +262,25 @@ export const useSizeStore = defineStore('size', {
         [toKebabCase('tabsHeight', '--')]: this.getTabsHeight + 'px',
         [toKebabCase('contentHeight', '--')]: this.sizes.contentHeight + 'px',
         [toKebabCase('contentsHeight', '--')]: this.sizes.contentsHeight + 'px',
+        [toKebabCase('gap', '--')]: this.getGap + 'px',
+        [toKebabCase('gaps', '--')]: this.getGaps + 'px',
+        [toKebabCase('gapx', '--')]: this.getGapx + 'px',
+        [toKebabCase('gapl', '--')]: this.getGapl + 'px',
 
         // 间距变量
-        [toKebabCase('gap', '--')]: (this.getGapValue || 0) + 'px',
-        [toKebabCase('gaps', '--')]: (this.getGapsValue || 0) + 'px',
-        [toKebabCase('gapx', '--')]: (this.getGapxValue || 0) + 'px',
-        [toKebabCase('gapl', '--')]: (this.getGaplValue || 0) + 'px',
+        [toKebabCase('padding', '--')]: (this.getPaddingValue || 0) + 'px',
+        [toKebabCase('paddings', '--')]: (this.getPaddingsValue || 0) + 'px',
+        [toKebabCase('paddingx', '--')]: (this.getPaddingxValue || 0) + 'px',
+        [toKebabCase('paddingl', '--')]: (this.getPaddinglValue || 0) + 'px',
 
         // 圆角变量
         [toKebabCase('rounded', '--')]: (this.getRoundedValue || 0) + 'px',
+
+        // 字体尺寸变量
+        [toKebabCase('appFontSize', '--')]: (this.getFontSizeValue || 0) + 'px',
+        [toKebabCase('appFontSizes', '--')]: (this.getFontSizesValue || 0) + 'px',
+        [toKebabCase('appFontSizex', '--')]: (this.getFontSizexValue || 0) + 'px',
+        [toKebabCase('appFontSizel', '--')]: (this.getFontSizelValue || 0) + 'px',
       }
 
       Object.entries(cssVariables).forEach(([key, value]) => {
@@ -287,7 +331,7 @@ export const useSizeStore = defineStore('size', {
     /* 重置方法 - 用于调试 */
     reset() {
       this.size = 'comfortable'
-      this.gap = 'md'
+      this.padding = 'md'
       this.rounded = 'smooth'
       this.sizes = cloneDeep(comfortableSizes)
       this.setCssVariables()

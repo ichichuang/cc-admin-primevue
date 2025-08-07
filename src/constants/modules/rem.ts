@@ -6,30 +6,6 @@
  */
 
 /**
- * REM 适配系统配置
- */
-export const remConfig = {
-  // 设计稿基准宽度（桌面端）
-  designWidth: 1800,
-
-  // 基准字体大小（设计稿上的基准值，桌面端）
-  baseFontSize: 16,
-
-  // 最小字体大小（桌面端）
-  minFontSize: 12,
-
-  // 最大字体大小（桌面端）
-  maxFontSize: 24,
-
-  // 是否启用移动端优先策略
-  // 注意：移动端优先时会自动使用 mobileConfig 中的配置
-  mobileFirst: false,
-
-  // PostCSS root 值（与 baseFontSize 保持一致）
-  postcssRootValue: 16,
-} as const
-
-/**
  * 断点配置（与 UnoCSS 保持一致）
  */
 export const breakpoints = {
@@ -66,184 +42,95 @@ export const adapterStrategies = {
 } as const
 
 /**
- * 移动端特殊配置
- *
- * 当启用移动端优先策略时，会自动使用这些配置：
- * - 设计稿宽度：768px（而不是桌面端的 1800px）
- * - 基准字体大小：14px（而不是桌面端的 16px）
- * - 字体大小范围：12px - 18px
+ * 统一的设备配置接口
  */
-export const mobileConfig = {
-  // 移动端最大设计稿宽度
-  maxDesignWidth: 768,
-
-  // 移动端最大基准字体大小
-  maxBaseFontSize: 16,
-
-  // 移动端最小字体大小
-  minFontSize: 12,
-
-  // 移动端最大字体大小
-  maxFontSize: 18,
-} as const
+export interface DeviceConfig {
+  minWidth: number
+  maxWidth?: number
+  designWidth: number
+  baseFontSize: number
+  minFontSize: number
+  maxFontSize: number
+  name: string
+}
 
 /**
- * 桌面端特殊配置
- *
- * 当使用桌面端优先策略时，会使用这些配置：
- * - 设计稿宽度：1800px（来自 remConfig.designWidth）
- * - 基准字体大小：16px（来自 remConfig.baseFontSize）
- * - 字体大小范围：12px - 28px
+ * 统一的设备配置映射
  */
-export const desktopConfig = {
-  // 桌面端最小设计稿宽度
-  minDesignWidth: 1024,
-
-  // 桌面端最小基准字体大小
-  minBaseFontSize: 14,
-
-  // 桌面端最小字体大小
-  minFontSize: 12,
-
-  // 桌面端最大字体大小
-  maxFontSize: 28,
-} as const
-
-/**
- * 大屏特殊配置
- *
- * 当屏幕宽度 > 1920px 时，会使用这些配置：
- * - 设计稿宽度：2560px
- * - 基准字体大小：18px
- * - 字体大小范围：14px - 32px
- */
-export const largeScreenConfig = {
-  // 大屏设计稿宽度
-  designWidth: 2560,
-
-  // 大屏基准字体大小
-  baseFontSize: 18,
-
-  // 大屏最小字体大小
-  minFontSize: 14,
-
-  // 大屏最大字体大小
-  maxFontSize: 32,
-
-  // 大屏最小宽度阈值
-  minWidth: 1920,
-} as const
-
-/**
- * 超大屏特殊配置
- *
- * 当屏幕宽度 > 2560px 时，会使用这些配置：
- * - 设计稿宽度：3200px
- * - 基准字体大小：20px
- * - 字体大小范围：16px - 36px
- */
-export const ultraWideConfig = {
-  // 超大屏设计稿宽度
-  designWidth: 3200,
-
-  // 超大屏基准字体大小
-  baseFontSize: 20,
-
-  // 超大屏最小字体大小
-  minFontSize: 16,
-
-  // 超大屏最大字体大小
-  maxFontSize: 36,
-
-  // 超大屏最小宽度阈值
-  minWidth: 2560,
-} as const
-
-/**
- * 4K屏特殊配置
- *
- * 当屏幕宽度 > 3840px 时，会使用这些配置：
- * - 设计稿宽度：3840px
- * - 基准字体大小：24px
- * - 字体大小范围：20px - 48px
- */
-export const fourKConfig = {
-  // 4K屏设计稿宽度
-  designWidth: 3840,
-
-  // 4K屏基准字体大小
-  baseFontSize: 24,
-
-  // 4K屏最小字体大小
-  minFontSize: 20,
-
-  // 4K屏最大字体大小
-  maxFontSize: 48,
-
-  // 4K屏最小宽度阈值
-  minWidth: 3840,
-} as const
-
-/**
- * 自适应配置
- *
- * 根据屏幕宽度自动选择合适的配置：
- * - 移动端：768px 设计稿
- * - 桌面端：1800px 设计稿
- * - 大屏：2560px 设计稿
- * - 超大屏：3200px 设计稿
- * - 4K屏：3840px 设计稿
- */
-export const adaptiveConfig = {
-  // 自适应策略配置
-  strategies: {
-    mobile: {
-      maxWidth: 768,
-      designWidth: 768,
-      baseFontSize: 14,
-      minFontSize: 12,
-      maxFontSize: 18,
-    },
-    tablet: {
-      minWidth: 768,
-      maxWidth: 1024,
-      designWidth: 1024,
-      baseFontSize: 15,
-      minFontSize: 12,
-      maxFontSize: 20,
-    },
-    desktop: {
-      minWidth: 1024,
-      maxWidth: 1920,
-      designWidth: 1800,
-      baseFontSize: 16,
-      minFontSize: 12,
-      maxFontSize: 28,
-    },
-    largeScreen: {
-      minWidth: 1920,
-      maxWidth: 2560,
-      designWidth: 2560,
-      baseFontSize: 18,
-      minFontSize: 14,
-      maxFontSize: 32,
-    },
-    ultraWide: {
-      minWidth: 2560,
-      maxWidth: 3840,
-      designWidth: 3200,
-      baseFontSize: 20,
-      minFontSize: 16,
-      maxFontSize: 36,
-    },
-    fourK: {
-      minWidth: 3840,
-      designWidth: 3840,
-      baseFontSize: 24,
-      minFontSize: 20,
-      maxFontSize: 48,
-    },
+export const deviceConfigs: Record<string, DeviceConfig> = {
+  mobile: {
+    minWidth: 0,
+    maxWidth: 768,
+    designWidth: 768,
+    baseFontSize: 14,
+    minFontSize: 12,
+    maxFontSize: 18,
+    name: '移动端',
   },
+  tablet: {
+    minWidth: 768,
+    maxWidth: 1024,
+    designWidth: 1024,
+    baseFontSize: 15,
+    minFontSize: 12,
+    maxFontSize: 20,
+    name: '平板',
+  },
+  desktop: {
+    minWidth: 1024,
+    maxWidth: 1920,
+    designWidth: 1800,
+    baseFontSize: 16,
+    minFontSize: 12,
+    maxFontSize: 28,
+    name: '桌面端',
+  },
+  largeScreen: {
+    minWidth: 1920,
+    maxWidth: 2560,
+    designWidth: 2560,
+    baseFontSize: 18,
+    minFontSize: 14,
+    maxFontSize: 32,
+    name: '大屏',
+  },
+  ultraWide: {
+    minWidth: 2560,
+    maxWidth: 3840,
+    designWidth: 3200,
+    baseFontSize: 20,
+    minFontSize: 16,
+    maxFontSize: 36,
+    name: '超大屏',
+  },
+  fourK: {
+    minWidth: 3840,
+    designWidth: 3840,
+    baseFontSize: 24,
+    minFontSize: 20,
+    maxFontSize: 48,
+    name: '4K屏',
+  },
+} as const
+
+/**
+ * REM 适配系统配置
+ */
+export const remConfig = {
+  // 默认策略
+  strategy: 'adaptive' as keyof typeof adapterStrategies,
+
+  // 是否启用移动端优先策略（兼容性）
+  mobileFirst: false,
+
+  // PostCSS root 值（与基准字体大小保持一致）
+  postcssRootValue: 16,
+
+  // 设备配置
+  deviceConfigs,
+
+  // 断点配置
+  breakpoints,
 } as const
 
 /**
@@ -262,3 +149,54 @@ export const debugConfig = {
   // 是否显示断点信息
   showBreakpointInfo: false,
 } as const
+
+/**
+ * 工具函数：根据屏幕宽度获取设备配置
+ */
+export const getDeviceConfig = (width: number): DeviceConfig => {
+  const configs = Object.values(deviceConfigs)
+
+  // 按最小宽度降序排列，找到第一个匹配的配置
+  const sortedConfigs = configs.sort((a, b) => b.minWidth - a.minWidth)
+
+  for (const config of sortedConfigs) {
+    if (width >= config.minWidth && (!config.maxWidth || width < config.maxWidth)) {
+      return config
+    }
+  }
+
+  // 默认返回桌面端配置
+  return deviceConfigs.desktop
+}
+
+/**
+ * 工具函数：获取设备类型
+ */
+export const getDeviceType = (width: number): keyof typeof deviceTypes => {
+  if (width >= 3840) {
+    return 'fourK'
+  }
+  if (width >= 2560) {
+    return 'ultraWide'
+  }
+  if (width >= 1920) {
+    return 'largeScreen'
+  }
+  if (width >= 1024) {
+    return 'pc'
+  }
+  if (width >= 768) {
+    return 'tablet'
+  }
+  return 'mobile'
+}
+
+// 向后兼容的导出
+export const mobileConfig = deviceConfigs.mobile
+export const desktopConfig = deviceConfigs.desktop
+export const largeScreenConfig = deviceConfigs.largeScreen
+export const ultraWideConfig = deviceConfigs.ultraWide
+export const fourKConfig = deviceConfigs.fourK
+export const adaptiveConfig = {
+  strategies: deviceConfigs,
+}

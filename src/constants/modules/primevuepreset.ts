@@ -146,9 +146,10 @@ export const customPreset: any = (
   const primitiveColors = customPrimitive(colorStore, sizeStore)
   const semanticColors = customSemantic(colorStore, sizeStore)
   const componentColors = customComponent(colorStore)
-  return {
+  const customPreset = {
     primitive: { ...primitiveColors },
     semantic: { ...semanticColors },
     components: { ...componentColors },
   }
+  return customPreset
 }
