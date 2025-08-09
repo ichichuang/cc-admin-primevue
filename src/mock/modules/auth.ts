@@ -60,7 +60,6 @@ export default [
     response: ({ headers }: { headers: Record<string, string> }) => {
       // 处理不同大小写的Authorization请求头
       const auth = headers.authorization || headers.Authorization || ''
-
       const token = auth.replace(/^Bearer\s+/i, '')
 
       if (token !== MOCK_TOKEN) {

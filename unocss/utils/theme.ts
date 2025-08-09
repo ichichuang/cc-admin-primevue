@@ -98,6 +98,7 @@ export const themeConfig: ThemeConfig = {
     primary100: 'var(--primary100)',
     primary200: 'var(--primary200)',
     primary300: 'var(--primary300)',
+    primary400: 'var(--primary400)',
 
     // 强调色系统
     accent100: 'var(--accent100)',

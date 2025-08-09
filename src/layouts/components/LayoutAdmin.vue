@@ -6,7 +6,7 @@
 -->
 
 <script setup lang="ts">
-import { useLayoutStore } from '@/stores'
+import { useLayoutStore, useSizeStore } from '@/stores'
 import { computed } from 'vue'
 import AppBreadcrumb from './AppBreadcrumb.vue'
 import AppContainer from './AppContainer.vue'
@@ -16,6 +16,7 @@ import AppSidebar from './AppSidebar.vue'
 import AppTabs from './AppTabs.vue'
 
 const layoutStore = useLayoutStore()
+const sizeStore = useSizeStore()
 const showHeader = computed(() => layoutStore.getShowHeader)
 const showSidebar = computed(() => layoutStore.getShowSidebar)
 const showBreadcrumb = computed(() => layoutStore.getShowBreadcrumb)
@@ -23,65 +24,69 @@ const showFooter = computed(() => layoutStore.getShowFooter)
 const showTabs = computed(() => layoutStore.getShowTabs)
 
 // 侧边栏折叠
-const sidebarCollapsed = computed(() => layoutStore.sidebarCollapsed)
+const sidebarCollapsed = computed(() => layoutStore.getSidebarCollapsed)
 // 移动端侧边栏可见
-const mobileSidebarVisible = computed(() => layoutStore.mobileSidebarVisible)
+// const mobileSidebarVisible = computed(() => layoutStore.mobileSidebarVisible)
 
 // 主容器类名
-const sidebarClass = computed(() => [
-  {
-    sidebarCollapsed: sidebarCollapsed.value,
-    mobileSidebarVisible: mobileSidebarVisible.value,
-  },
-])
+const sidebarClass = computed(() => ({
+  width: showSidebar.value
+    ? sidebarCollapsed.value
+      ? `${sizeStore.getSidebarCollapsedWidth}px`
+      : `${sizeStore.getSidebarWidth}px`
+    : 0,
+}))
 </script>
 
 <template>
-  <div class="container">
-    <!-- 头部 -->
-    <template v-if="showHeader">
-      <header class="h-headerHeight">
-        <AppHeader />
-      </header>
-    </template>
+  <div class="container between">
+    <!-- 菜单栏目 -->
 
-    <!-- 内容区域 -->
-    <main class="h-contentsHeight between">
-      <!-- 侧边栏 -->
-      <template v-if="showSidebar">
-        <div
-          class="w-sidebarWidth h100%"
-          :class="sidebarClass"
-        >
-          <AppSidebar />
-        </div>
+    <!-- <template v-if="showSidebar"> -->
+    <aside
+      aside
+      class="hfull bg-primary100 color-primary400"
+      :style="sidebarClass"
+    >
+      <AppSidebar />
+    </aside>
+    <!-- </template> -->
+    <!-- 主体 -->
+    <main class="full">
+      <!-- 头部 -->
+      <template v-if="showHeader">
+        <header class="h-headerHeight">
+          <AppHeader />
+        </header>
       </template>
-      <div class="wfull hfull">
+
+      <!-- 内容区域 -->
+      <div class="full h-contentsHeight">
         <!-- 面包屑 -->
         <template v-if="showBreadcrumb">
-          <section class="wfull h-breadcrumbHeight">
+          <section class="full h-breadcrumbHeight">
             <AppBreadcrumb />
           </section>
         </template>
 
         <!-- 标签页 -->
         <template v-if="showTabs">
-          <section class="h-tabsHeight">
+          <section class="full h-tabsHeight">
             <AppTabs />
           </section>
         </template>
 
-        <div class="wfull h-contentHeight">
+        <div class="full h-contentHeight p-paddingl bg-bg200">
           <AppContainer />
         </div>
       </div>
-    </main>
 
-    <!-- 底部 -->
-    <template v-if="showFooter">
-      <footer class="h-footerHeight">
-        <AppFooter />
-      </footer>
-    </template>
+      <!-- 底部 -->
+      <template v-if="showFooter">
+        <footer class="h-footerHeight">
+          <AppFooter />
+        </footer>
+      </template>
+    </main>
   </div>
 </template>

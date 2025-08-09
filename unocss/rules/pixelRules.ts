@@ -62,10 +62,10 @@ export function createPixelRules() {
     ['gapx', ['gap-x']],
     ['gapy', ['gap-y']],
     ['gap', ['gap']],
-    ['t', ['top']],
-    ['r', ['right']],
-    ['b', ['bottom']],
-    ['l', ['left']],
+    ['top', ['top']],
+    ['right', ['right']],
+    ['bottom', ['bottom']],
+    ['left', ['left']],
   ] as const
 
   const rules: any[] = []

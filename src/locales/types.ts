@@ -292,6 +292,7 @@ export interface RouterLocaleMessages {
   }
   example: {
     example: string
+    animate: string
   }
   error: {
     notFound: string

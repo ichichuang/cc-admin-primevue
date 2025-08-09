@@ -206,6 +206,126 @@ export function deepMergeStylesAdvanced<T = any>(
 }
 
 /**
+ * 高级版本（原地修改） - 功能与 deepMergeStylesAdvanced 等效，但直接修改目标对象
+ * 不返回任何内容
+ */
+export function deepMergeStylesAdvancedInPlace<T = any>(
+  target: T,
+  styles: Record<string, any>,
+  options: MergeOptions = {}
+): void {
+  const { deepMerge = true, override = true, matcher, transformer } = options
+
+  const processedStyles: Record<string, any> = {}
+  const pathStyles: Record<string, any> = {}
+
+  for (const [key, value] of Object.entries(styles)) {
+    if (key.includes('.')) {
+      pathStyles[key] = value
+    } else {
+      processedStyles[key] = value
+    }
+  }
+
+  function setIfExistsByPath(root: any, baseKey: string, subPath: string, valueToSet: any): void {
+    if (!root || typeof root !== 'object') {
+      return
+    }
+    const base = root[baseKey]
+    if (base === null || typeof base !== 'object') {
+      return
+    }
+    if (!subPath) {
+      return
+    }
+
+    const parts = subPath.split('.')
+    let current: any = base
+    for (let i = 0; i < parts.length - 1; i++) {
+      const part = parts[i]
+      if (!Object.prototype.hasOwnProperty.call(current, part)) {
+        return
+      }
+      current = current[part]
+      if (current === null || typeof current !== 'object') {
+        return
+      }
+    }
+    const last = parts[parts.length - 1]
+    if (!Object.prototype.hasOwnProperty.call(current, last)) {
+      return
+    }
+    if (!override && current[last] !== undefined) {
+      return
+    }
+    current[last] = valueToSet
+  }
+
+  function traverse(obj: any, path: string[] = []): void {
+    if (obj === null || typeof obj !== 'object') {
+      return
+    }
+
+    for (const [key, value] of Object.entries(obj)) {
+      const currentPath = [...path, key]
+      const currentPathString = currentPath.join('.')
+
+      let matchedPathStyle = false
+      let pathStyleValue: any = null
+
+      for (const [pathKey, pathValue] of Object.entries(pathStyles)) {
+        if (pathKey === currentPathString) {
+          matchedPathStyle = true
+          pathStyleValue = pathValue
+          break
+        }
+      }
+
+      if (typeof value === 'object' && value !== null) {
+        for (const [pathKey, pathValue] of Object.entries(pathStyles)) {
+          if (pathKey.startsWith(`${key}.`)) {
+            const subPath = pathKey.substring(key.length + 1)
+            if (subPath) {
+              setIfExistsByPath(obj, key, subPath, pathValue)
+            }
+          }
+        }
+      }
+
+      const shouldMatch = matcher
+        ? matcher(key, value, currentPath)
+        : Object.prototype.hasOwnProperty.call(processedStyles, key) || matchedPathStyle
+
+      if (shouldMatch) {
+        const newValue = matchedPathStyle ? pathStyleValue : processedStyles[key]
+        if (!override && obj[key] !== undefined) {
+          // skip
+        } else if (transformer) {
+          obj[key] = transformer(key, value, newValue)
+        } else if (
+          deepMerge &&
+          typeof value === 'object' &&
+          value !== null &&
+          typeof newValue === 'object' &&
+          newValue !== null
+        ) {
+          obj[key] = { ...value, ...newValue }
+        } else {
+          obj[key] = newValue
+        }
+      }
+
+      // 递归使用更新后的引用，避免遗漏新合并的对象
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        traverse(obj[key], currentPath)
+      }
+    }
+  }
+
+  traverse(target)
+}
+
+/**
  * PrimeVue主题配置接口
  */
 export interface PrimeVueThemeConfig {
@@ -235,7 +355,7 @@ export const createCustomPreset = (preset: any, { colorStore, sizeStore }: Prime
 
     // 自定义颜色配置
     const customColor = {
-      shadow: `rgba(${colorStore.getAccent200}, 0.25) 0px 25px 50px -12px`,
+      shadow: `${colorStore.getAccent200}80, 0px 25px 50px -12px`,
 
       // 边框颜色
       borderColor: colorStore.getBg300, // 默认边框色
@@ -288,10 +408,10 @@ export const createCustomPreset = (preset: any, { colorStore, sizeStore }: Prime
     const customSize = {
       borderRadius: `${sizeStore.getRoundedValue}px`, // 圆角尺寸
       gap: `${sizeStore.getGap}px`, // 元素之间间距
-      padding: `${sizeStore.getPaddingsValue}px ${sizeStore.getPaddingValue}px`, // 元素内边距（上下 左右）
-      margin: `${sizeStore.getGap}px ${sizeStore.getGaps}px`, // 外边距（上下 左右）
+      padding: `${sizeStore.getPaddingValue}px`, // 元素内边距（上下 左右）
       paddingX: `${sizeStore.getPaddingValue}px`, // 左右内边距
       paddingY: `${sizeStore.getPaddingsValue}px`, // 上下内边距
+      margin: `${sizeStore.getGap}px`, // 外边距（上下 左右）
       marginX: `${sizeStore.getGap}px`, // 左右外边距
       marginY: `${sizeStore.getGaps}px`, // 上下外边距
     }
@@ -299,16 +419,23 @@ export const createCustomPreset = (preset: any, { colorStore, sizeStore }: Prime
     // 路径样式，用于深度匹配
     const pathStyles: Record<string, any> = {
       // 弹出框
-      ['popover.padding']: `${sizeStore.getPaddingxValue}px`,
-      ['popover.content.padding']: `${sizeStore.getPaddingxValue}px`,
+      ['popover.padding']: `${sizeStore.getPaddingValue}px`,
+      ['popover.content.padding']: `${sizeStore.getPaddingValue}px`,
       ['popover.root.borderRadius']: `6px`,
       // 遮罩层
-      ['mask.background']: `${colorStore.getBg200}80`,
+      ['mask.background']: `${colorStore.getBg300}80`,
+      // 抽屉
+      ['drawer.root.borderColor']: `${colorStore.getBg300}`,
+      ['drawer.title.fontSize']: `${sizeStore.getFontSizexValue}px`,
+      ['drawer.header.padding']: `12px`,
+      ['drawer.content.padding']: `18px`,
+      ['drawer.footer.padding']: `12px`,
     }
 
     const customPreset = {
       ...customColor,
       ...customSize,
+      ...pathStyles,
     }
 
     // 先合并普通样式，再合并路径样式
@@ -319,6 +446,21 @@ export const createCustomPreset = (preset: any, { colorStore, sizeStore }: Prime
     newPreset = deepMergeStylesAdvanced(newPreset, pathStyles, {
       deepMerge: true,
       override: true,
+    })
+
+    // 单独处理组件
+    const customComponentsStyle = {
+      padding: `6px 8px`,
+      margin: `6px`,
+      gap: `4px`,
+    }
+    // select 组件单独处理
+    deepMergeStylesAdvancedInPlace(newPreset.components.select, {
+      ['list.padding']: `10px 12px`,
+      ...customComponentsStyle,
+    })
+    deepMergeStylesAdvancedInPlace(newPreset.components.speeddial, {
+      ...customComponentsStyle,
     })
 
     // 缓存结果

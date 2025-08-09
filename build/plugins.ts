@@ -2,6 +2,7 @@ import { PrimeVueResolver } from '@primevue/auto-import-resolver'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import UnoCSS from 'unocss/vite'
+import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import type { PluginOption } from 'vite'
 import { name, version } from '../package.json'
@@ -48,11 +49,44 @@ export function getPluginsList(env: ViteEnv): PluginOption[] {
     UnoCSS(),
     // Vue 支持
     vue(),
+    // 自动导入常用 API（vue、vue-router、pinia）
+    AutoImport({
+      imports: ['vue', 'vue-router', 'pinia'],
+      // 将类型声明输出到项目根目录，避免被 src 的命名规范脚本扫描
+      dts: 'auto-imports.d.ts',
+    }),
     // JSX/TSX 语法支持
     vueJsx(),
-    // PrimeVue 自动导入
+    // 组件自动导入
     Components({
-      resolvers: [PrimeVueResolver()],
+      // 扫描全局组件与布局组件目录
+      dirs: ['src/components', 'src/layouts', 'src/layouts/components'],
+      extensions: ['vue'],
+      deep: true,
+      dts: 'components.d.ts',
+      resolvers: [
+        PrimeVueResolver(),
+        // 自定义解析：允许在模板中直接使用 LayoutManager（映射到 src/layouts/index.vue）
+        name => {
+          if (name === 'LayoutManager') {
+            return {
+              name: 'default',
+              from: '@/layouts/index.vue',
+            }
+          }
+          return null
+        },
+        // 动态解析：Layout* 与 App* 统一映射到布局子组件目录
+        name => {
+          if (name.startsWith('Layout') || name.startsWith('App')) {
+            return {
+              name: 'default',
+              from: `@/layouts/components/${name}.vue`,
+            }
+          }
+          return null
+        },
+      ],
     }),
     // 注意：我们不需要 Vue I18n 编译插件，因为使用运行时配置
   ].filter(Boolean) as PluginOption[]

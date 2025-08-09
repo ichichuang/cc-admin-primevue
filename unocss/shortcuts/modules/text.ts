@@ -8,4 +8,7 @@
 /**
  * 文本快捷方式
  */
-export const textShortcuts = {}
+export const textShortcuts = {
+  // 单行文本超出省略
+  'text-ellipsis': 'text-ellipsis overflow-hidden whitespace-nowrap',
+}

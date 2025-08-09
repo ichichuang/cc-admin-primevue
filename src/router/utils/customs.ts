@@ -142,6 +142,7 @@ export function registerRouterGuards(
           userStore.setUserInfo(userInfo)
         } catch (error) {
           console.error('获取用户信息失败:', error)
+          // 清空用户状态并跳转到登录页
           userStore.resetToken()
           userStore.resetUserInfo()
           next({ path: '/login', query: { redirect: to.fullPath } })

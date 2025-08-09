@@ -12,16 +12,19 @@ const setSize = (value: SizeOptions['value']) => {
 }
 </script>
 <template>
-  <ButtonGroup>
-    <template
-      v-for="item in sizeOptions"
-      :key="item.value"
-    >
-      <Button
-        :label="item.label"
-        :severity="size === item.value ? 'primary' : 'secondary'"
-        @click="setSize(item.value)"
-      />
-    </template>
-  </ButtonGroup>
+  <div class="between-start gap-gap">
+    <span>尺寸</span>
+    <ButtonGroup>
+      <template
+        v-for="item in sizeOptions"
+        :key="item.value"
+      >
+        <Button
+          :label="item.label"
+          :severity="size === item.value ? 'help' : 'secondary'"
+          @click="setSize(item.value)"
+        />
+      </template>
+    </ButtonGroup>
+  </div>
 </template>

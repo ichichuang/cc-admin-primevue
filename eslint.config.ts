@@ -8,6 +8,7 @@
 import js from '@eslint/js'
 import pluginVue from 'eslint-plugin-vue'
 import tseslint from 'typescript-eslint'
+import vueEslintParser from 'vue-eslint-parser'
 
 export default tseslint.config(
   { name: 'app/files-to-lint', files: ['**/*.{ts,mts,tsx,vue}'] },
@@ -19,9 +20,30 @@ export default tseslint.config(
     name: 'app/vue-rules',
     files: ['**/*.vue'],
     languageOptions: {
+      parser: vueEslintParser as any,
       parserOptions: {
         parser: tseslint.parser,
+        // 让 ESLint 能正确解析 Pug 模板，从而在模板中使用到的变量不被判定为未使用
+        // 详情参见：https://github.com/vuejs/eslint-plugin-vue/issues/1375
+        templateTokenizer: {
+          pug: 'vue-eslint-parser-template-tokenizer-pug',
+        },
       },
+    },
+    rules: {
+      // 使 <script setup> 中的变量在模板中使用时被正确识别为已使用
+      'vue/script-setup-uses-vars': 'error',
+      // 忽略在模板中使用的变量（特别是 Pug 模板中的组件）
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_|^[A-Z][a-zA-Z]*$', // 忽略以_开头的变量和PascalCase组件名
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+      // 允许在模板中使用的组件
+      'vue/no-unused-components': 'off',
     },
   },
   {
@@ -33,7 +55,7 @@ export default tseslint.config(
         'error',
         {
           argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_',
+          varsIgnorePattern: '^_|^[A-Z][a-zA-Z]*$', // 忽略以_开头的变量和PascalCase组件名
           caughtErrorsIgnorePattern: '^_',
         },
       ],

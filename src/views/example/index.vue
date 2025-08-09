@@ -1,7 +1,6 @@
 <script setup lang="ts"></script>
-<template>
-  <div>
-    <h1>Example</h1>
-  </div>
+<template lang="pug">
+.full.center
+  span 示例
 </template>
 <style lang="scss" scope></style>

@@ -16,9 +16,9 @@ const layoutConfig: LayoutConfig = {
   showHeader: true,
   showMenu: true,
   showSidebar: true,
-  showBreadcrumb: true,
-  showFooter: true,
-  showTabs: true,
+  showBreadcrumb: false,
+  showFooter: false,
+  showTabs: false,
 }
 
 export const useLayoutStore = defineStore('layout', {

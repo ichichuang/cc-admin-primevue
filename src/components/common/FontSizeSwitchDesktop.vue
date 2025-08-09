@@ -20,7 +20,7 @@ const setFontSize = (value: FontSizeOptions['key']) => {
     >
       <Button
         :label="item.label"
-        :severity="fontSize === item.key ? 'primary' : 'secondary'"
+        :severity="fontSize === item.key ? 'help' : 'secondary'"
         @click="setFontSize(item.key)"
       />
     </template>

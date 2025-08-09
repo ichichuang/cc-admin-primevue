@@ -43,6 +43,7 @@
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact", "vue"],
   "prettier.enable": true,
   "prettier.requireConfig": true,
+  "prettier.prettierPath": "./node_modules/prettier",
   "vetur.format.enable": false,
   "vetur.validation.template": false,
   "vetur.validation.script": false,

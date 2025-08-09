@@ -21,12 +21,18 @@ export const layoutShortcuts = {
   evenly: 'flex items-center justify-evenly',
   start: 'flex items-center justify-start',
   end: 'flex items-center justify-end',
+
   'center-col': 'flex flex-col items-center justify-center',
   'between-col': 'flex flex-col justify-between',
   'evenly-col': 'flex flex-col justify-evenly',
   'around-col': 'flex flex-col justify-around',
   'start-col': 'flex flex-col justify-start',
   'end-col': 'flex flex-col justify-end',
+
+  'center-start': 'flex items-start justify-center',
+  'between-start': 'flex items-center justify-start',
+  'center-end': 'flex items-end justify-center',
+  'between-end': 'flex items-center justify-end',
 
   // Grid 布局
   'grid-center': 'grid place-items-center',

@@ -9,7 +9,7 @@
 import AppTopMenu from './AppTopMenu.vue'
 </script>
 <template>
-  <div class="full between gap-gap px-paddingl">
+  <div class="full between gap-gap px-padding">
     <div></div>
     <AppTopMenu />
   </div>

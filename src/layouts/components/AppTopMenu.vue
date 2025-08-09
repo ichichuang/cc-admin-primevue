@@ -7,21 +7,23 @@
 
 <script setup lang="ts">
 import ColorSwitch from '@/components/common/ColorSwitch.vue'
-import FontSizeSwitch from '@/components/common/FontSizeSwitch.vue'
-import GapSwitch from '@/components/common/PaddingSwitch.vue'
+import FontSizeSwitchDesktop from '@/components/common/FontSizeSwitchDesktop.vue'
+import FontSizeSwitchMobile from '@/components/common/FontSizeSwitchMobile.vue'
+import LocalesSwitch from '@/components/common/LocalesSwitch.vue'
+import PaddingSwitch from '@/components/common/PaddingSwitch.vue'
 import RoundSwitch from '@/components/common/RoundSwitch.vue'
 import SizeSwitch from '@/components/common/SizeSwitch.vue'
 import ThemeSwitch from '@/components/common/ThemeSwitch.vue'
-import { useUserStore } from '@/stores'
+import { useLayoutStore, useUserStore } from '@/stores'
 import { ref } from 'vue'
 const userStore = useUserStore()
-
+const layoutStore = useLayoutStore()
 // 抽屉
 const visible = ref(false)
 // 弹出框
 const op = ref<any>(null)
 // 打开/关闭弹出框
-const toggle = (type: 'op' | 'visible', event?: any) => {
+const toggleSetting = (type: 'op' | 'visible', event?: any) => {
   if (type === 'op') {
     op.value.toggle(event)
   } else {
@@ -32,41 +34,66 @@ const toggle = (type: 'op' | 'visible', event?: any) => {
 const handleLogout = () => {
   userStore.logout()
 }
+
+/* 控制侧边栏显示 */
+const toggleSidebar = () => {
+  layoutStore.setShowSidebar(!layoutStore.getShowSidebar)
+}
+/* 控制侧边栏折叠 */
+const toggleSidebarCollapsed = () => {
+  layoutStore.setSidebarCollapsed(!layoutStore.getSidebarCollapsed)
+}
 </script>
 <template>
-  <div class="between h100%">
+  <div class="between h100% gap-gap">
     <div
-      class="md:hidden c-card p-paddings size-1-1 center"
-      @click="toggle('op', $event)"
+      class="c-card size-1-1 center"
+      @click="toggleSidebar"
     >
       <div class="icon-line-md:list-indented-reversed fs-appFontSizex"></div>
     </div>
     <div
-      class="hidden md:block c-card p-paddings size-1-1 center"
-      @click="toggle('visible', $event)"
+      class="c-card size-1-1 center"
+      @click="toggleSidebarCollapsed"
     >
-      <div class="icon-line-md:list-indented-reversed fs-appFontSizex"></div>
+      <template v-if="layoutStore.getSidebarCollapsed">
+        <div class="icon-line-md:arrow-open-right fs-appFontSizex"></div>
+      </template>
+      <template v-else>
+        <div class="icon-line-md:arrow-open-left fs-appFontSizex"></div>
+      </template>
+    </div>
+    <div
+      class="md:hidden c-card size-1-1 center"
+      @click="toggleSetting('op', $event)"
+    >
+      <div class="icon-line-md:cog-filled fs-appFontSizex"></div>
+    </div>
+    <div
+      class="hidden md:block c-card size-1-1 center"
+      @click="toggleSetting('visible', $event)"
+    >
+      <div class="icon-line-md:cog-filled fs-appFontSizex text-ellipsis"></div>
     </div>
   </div>
 
-  <!-- 抽屉 -->
+  <!-- 桌面端 -->
   <Drawer
     v-model:visible="visible"
     position="right"
-    class="w22%"
+    class="w40% lg:w30% xl:w24% xls:w22%"
   >
     <template #header>
-      <div class="font-bold">设置</div>
+      <div class="font-bold fs-appFontSizex">设置</div>
     </template>
-    <div
-      class="w-800 gap-gap between-col start-col text-12 sm:text-14 md:text-15 lg:text-16 xls:text-20 xxl:text-22 xxxl:text-24"
-    >
+    <div class="full gap-24 between-col start-col relative">
       <ThemeSwitch />
       <ColorSwitch />
       <SizeSwitch />
-      <GapSwitch />
       <RoundSwitch />
-      <FontSizeSwitch />
+      <PaddingSwitch />
+      <FontSizeSwitchDesktop />
+      <LocalesSwitch />
     </div>
     <template #footer>
       <div class="flex items-center gap-2">
@@ -88,17 +115,16 @@ const handleLogout = () => {
     </template>
   </Drawer>
 
-  <!-- 弹出框 -->
+  <!-- 移动端 -->
   <Popover ref="op">
-    <div
-      class="w-400 gap-gap between-col start-col text-12 sm:text-14 md:text-15 lg:text-16 xls:text-20 xxl:text-22 xxxl:text-24"
-    >
+    <div class="w-400 gap-gap between-col start-col">
       <ThemeSwitch />
       <ColorSwitch />
       <SizeSwitch />
-      <GapSwitch />
+      <PaddingSwitch />
       <RoundSwitch />
-      <FontSizeSwitch />
+      <FontSizeSwitchMobile />
+      <LocalesSwitch />
     </div>
   </Popover>
 </template>

@@ -1,28 +1,32 @@
 <script setup lang="ts">
-import { useSizeStore } from '@/stores'
+import type { SupportedLocale } from '@/locales/types'
+import { useLocaleStore } from '@/stores'
 import { computed } from 'vue'
 
-const sizeStore = useSizeStore()
+const localeStore = useLocaleStore()
 
 /* 尺寸变量配置相关 rounded */
-const roundedOptions = computed(() => sizeStore.getRoundedOptions)
-const rounded = computed(() => sizeStore.getRounded)
+const localesOptions = computed(() => localeStore.availableLocales)
+const locale = computed(() => localeStore.currentLocale)
 
-const setRounded = (value: RoundedOptions['key']) => {
-  sizeStore.setRounded(value)
+const setLocale = (value: SupportedLocale) => {
+  localeStore.switchLocale(value)
 }
 </script>
 <template>
-  <ButtonGroup>
-    <template
-      v-for="item in roundedOptions"
-      :key="item.value"
-    >
-      <Button
-        :label="item.label"
-        :severity="rounded === item.key ? 'primary' : 'secondary'"
-        @click="setRounded(item.key)"
-      />
-    </template>
-  </ButtonGroup>
+  <div class="between-start gap-gap">
+    <span>语言</span>
+    <ButtonGroup>
+      <template
+        v-for="item in localesOptions"
+        :key="item.key"
+      >
+        <Button
+          :label="item.name"
+          :severity="locale === item.key ? 'help' : 'secondary'"
+          @click="setLocale(item.key)"
+        />
+      </template>
+    </ButtonGroup>
+  </div>
 </template>

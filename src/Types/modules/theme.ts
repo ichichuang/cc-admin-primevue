@@ -46,6 +46,7 @@ declare global {
     primary100: string // 主色深色调 - 用于主要按钮、导航栏、重要操作元素
     primary200: string // 主色中色调 - 用于悬停状态、次要强调、链接颜色
     primary300: string // 主色浅色调 - 用于背景渐变、轻微强调、选中状态背景
+    primary400: string // 主色文字色 - 用于主色作为背景色时的文字颜色
     // 强调色
     accent100: string // 强调色主色调 - 用于重要信息提示、数据突出显示
     accent200: string // 强调色深色调 - 用于强调元素的深色变体、阴影效果

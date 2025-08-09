@@ -23,15 +23,14 @@
       box-shadow 0.4s;
     transition-timing-function: ease-in-out;
   }
-  .c-card {
-    transition:
-      all 0.25s,
-      font-size 0s,
-      border 0.1s;
-    transition-timing-function: ease-in-out;
+}
+.c-card {
+  *,
+  *::before,
+  *::after {
+    transition: all 0.4s ease-in-out !important;
   }
 }
-
 /* 快捷样式 */
 // 宽度高度比例 1:1
 .size-1-1 {
@@ -64,5 +63,16 @@
       border-radius 0.4s,
       box-shadow 0.4s;
     transition-timing-function: ease-in-out;
+  }
+}
+// 抽屉
+.p-drawer {
+  box-shadow: -4px -6px 16px 0px var(--bg300);
+  .p-drawer-header {
+    border-bottom: 2px dotted var(--primary300);
+  }
+  .p-drawer-footer {
+    background-color: var(--bg200);
+    border: 2px dotted var(--primary300);
   }
 }

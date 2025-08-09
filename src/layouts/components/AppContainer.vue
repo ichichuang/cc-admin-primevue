@@ -14,7 +14,7 @@ const keepAliveNames = computed(() =>
 )
 </script>
 <template>
-  <div class="full">
+  <div class="full rounded-12px c-border border-2 border-dashed p-padding">
     <RouterView v-slot="{ Component }">
       <KeepAlive :include="keepAliveNames">
         <component :is="Component" />

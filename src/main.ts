@@ -13,6 +13,7 @@ import { createApp } from 'vue'
 // 导入全局样式
 import '@/assets/styles/custom.scss'
 import '@/assets/styles/reset.scss'
+import 'animate.css'
 
 import App from '@/App.vue'
 import { setupI18n } from '@/locales'

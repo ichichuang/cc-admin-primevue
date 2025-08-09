@@ -18,6 +18,9 @@ const handleLogin = async () => {
   } catch (error) {
     console.error('❌ 登录失败:', error)
     result.value = `登录失败: ${error instanceof Error ? error.message : String(error)}`
+    // 登录失败时清空用户状态
+    userStore.resetToken()
+    userStore.resetUserInfo()
   } finally {
     loading.value = false
   }

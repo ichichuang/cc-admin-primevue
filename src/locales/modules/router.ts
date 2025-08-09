@@ -20,6 +20,7 @@ export const routerZhCN: RouterLocaleMessages = {
   },
   example: {
     example: '示例',
+    animate: '动画组件',
   },
   error: {
     notFound: '页面未找到',
@@ -38,6 +39,7 @@ export const routerEnUS: RouterLocaleMessages = {
   },
   example: {
     example: 'Example',
+    animate: 'Animate Component',
   },
   error: {
     notFound: 'Page Not Found',
@@ -56,6 +58,7 @@ export const routerZhTW: RouterLocaleMessages = {
   },
   example: {
     example: '示例',
+    animate: '動畫組件',
   },
   error: {
     notFound: '頁面未找到',

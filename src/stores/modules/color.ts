@@ -130,7 +130,15 @@ export const useColorStore = defineStore('color', {
         return '#A3C7FF' // 默认更浅蓝色
       }
     },
-
+    getPrimary400: function () {
+      try {
+        const themeColors: ThemeColors = this.getThemeColors()
+        return themeColors.primary400
+      } catch (error) {
+        console.error('获取 primaryColor 失败:', error)
+        return '#ffffff' // 默认白色
+      }
+    },
     // 获取强调色
     getAccent100: function () {
       try {
@@ -202,92 +210,29 @@ export const useColorStore = defineStore('color', {
 
     // 获取功能色主色
     getFunctionalColors: function () {
-      try {
-        const themeColors: ThemeColors = this.getThemeColors()
-        // 设置当前色
-        themeColors.functionalColors.secondary.color = themeColors.bg100
-        themeColors.functionalColors.secondary.hover = themeColors.bg200
-        themeColors.functionalColors.secondary.active = themeColors.bg300
-        themeColors.functionalColors.secondary.disabled = themeColors.bg300
-        themeColors.functionalColors.secondary.text = themeColors.text100
-        themeColors.functionalColors.secondary.border = themeColors.bg300
-        // 设置对比色
-        themeColors.functionalColors.contrast.color = themeColors.text100
-        themeColors.functionalColors.contrast.hover = themeColors.text200
-        themeColors.functionalColors.contrast.active = themeColors.text100
-        themeColors.functionalColors.contrast.disabled = themeColors.text200
-        themeColors.functionalColors.contrast.text = themeColors.bg100
-        themeColors.functionalColors.contrast.border = themeColors.bg300
-        return themeColors.functionalColors
-      } catch (error) {
-        console.error('获取 functionalColors 失败:', error)
-        return {
-          primary: {
-            color: '#3B82F6',
-            hover: '#7AB2FF',
-            active: '#A3C7FF',
-            disabled: '#D1D5DB',
-            text: '#F3F4F6',
-            border: '#2A6EF7',
-          },
-          secondary: {
-            color: '#F9FAFB',
-            hover: '#E5E7EB',
-            active: '#D1D5DB',
-            disabled: '#D1D5DB',
-            text: '#1F2937',
-            border: '#D1D5DB',
-          },
-          success: {
-            color: '#52c41a',
-            hover: '#73d13d',
-            active: '#389e0d',
-            disabled: '#d9d9d9',
-            text: '#f6ffed',
-            border: '#52c41a',
-          },
-          info: {
-            color: '#1890ff',
-            hover: '#40a9ff',
-            active: '#096dd9',
-            disabled: '#d9d9d9',
-            text: '#e6f7ff',
-            border: '#1890ff',
-          },
-          warn: {
-            color: '#faad14',
-            hover: '#ffc53d',
-            active: '#d48806',
-            disabled: '#d9d9d9',
-            text: '#fffbe6',
-            border: '#faad14',
-          },
-          help: {
-            color: '#9c27b0',
-            hover: '#ba68c8',
-            active: '#7b1fa2',
-            disabled: '#d9d9d9',
-            text: '#f3e5f5',
-            border: '#9c27b0',
-          },
-          danger: {
-            color: '#f5222d',
-            hover: '#ff4d4f',
-            active: '#cf1322',
-            disabled: '#d9d9d9',
-            text: '#fff2f0',
-            border: '#f5222d',
-          },
-          contrast: {
-            color: '#1F2937',
-            hover: '#6B7280',
-            active: '#1F2937',
-            disabled: '#6B7280',
-            text: '#F9FAFB',
-            border: '#D1D5DB',
-          },
-        }
-      }
+      const themeColors: ThemeColors = this.getThemeColors()
+      // 设置当前色
+      themeColors.functionalColors.secondary.color = themeColors.bg100
+      themeColors.functionalColors.secondary.hover = themeColors.bg200
+      themeColors.functionalColors.secondary.active = themeColors.bg300
+      themeColors.functionalColors.secondary.disabled = themeColors.bg300
+      themeColors.functionalColors.secondary.text = themeColors.text100
+      themeColors.functionalColors.secondary.border = themeColors.bg300
+      // 设置对比色
+      themeColors.functionalColors.contrast.color = themeColors.text100
+      themeColors.functionalColors.contrast.hover = themeColors.text200
+      themeColors.functionalColors.contrast.active = themeColors.text100
+      themeColors.functionalColors.contrast.disabled = themeColors.text200
+      themeColors.functionalColors.contrast.text = themeColors.bg100
+      themeColors.functionalColors.contrast.border = themeColors.bg300
+      // 设置强调色（Help）
+      themeColors.functionalColors.help.color = themeColors.accent100
+      themeColors.functionalColors.help.hover = themeColors.accent200
+      themeColors.functionalColors.help.active = themeColors.accent100
+      themeColors.functionalColors.help.disabled = themeColors.bg300
+      themeColors.functionalColors.help.text = themeColors.primary400
+      themeColors.functionalColors.help.border = themeColors.accent100
+      return themeColors.functionalColors
     },
     getPrimaryColor: function () {
       try {
@@ -814,6 +759,7 @@ export const useColorStore = defineStore('color', {
           [toKebabCase('primary100', '--')]: this.getPrimary100,
           [toKebabCase('primary200', '--')]: this.getPrimary200,
           [toKebabCase('primary300', '--')]: this.getPrimary300,
+          [toKebabCase('primary400', '--')]: this.getPrimary400,
 
           [toKebabCase('accent100', '--')]: this.getAccent100,
           [toKebabCase('accent200', '--')]: this.getAccent200,

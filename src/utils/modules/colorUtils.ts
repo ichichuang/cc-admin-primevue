@@ -5,8 +5,6 @@
  * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
  */
 
-import type { ThemeColors } from '@/constants'
-
 /**
  * 颜色映射配置类型
  */
@@ -98,7 +96,15 @@ export function validateThemeColors(themeColors: ThemeColors): {
   const warnings: string[] = []
 
   // 检查必需的颜色属性
-  const requiredColors = ['primary100', 'primary200', 'primary300', 'bg100', 'bg200', 'bg300']
+  const requiredColors = [
+    'primary100',
+    'primary200',
+    'primary300',
+    'primary400',
+    'bg100',
+    'bg200',
+    'bg300',
+  ]
   requiredColors.forEach(colorKey => {
     if (!themeColors[colorKey as keyof ThemeColors]) {
       errors.push(`缺少必需的颜色: ${colorKey}`)

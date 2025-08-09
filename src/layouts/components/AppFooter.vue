@@ -7,5 +7,5 @@
 
 <script setup lang="ts"></script>
 <template>
-  <div class="full between gap-gap px-paddingl">底部</div>
+  <div class="full between gap-gap px-padding">底部</div>
 </template>

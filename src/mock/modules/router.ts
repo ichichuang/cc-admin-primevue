@@ -56,9 +56,11 @@ export default [
   {
     url: '/auth/routes',
     method: 'get',
-    response: ({ headers }: { headers: { authorization: string } }) => {
-      const auth = headers.authorization || ''
+    response: ({ headers }: { headers: Record<string, string> }) => {
+      // 处理不同大小写的Authorization请求头
+      const auth = headers.authorization || headers.Authorization || ''
       const token = auth.replace(/^Bearer\s+/i, '')
+
       if (token !== MOCK_TOKEN) {
         return {
           success: false,

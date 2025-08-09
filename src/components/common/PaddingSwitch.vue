@@ -13,16 +13,19 @@ const setPadding = (value: PaddingOptions['key']) => {
 }
 </script>
 <template>
-  <ButtonGroup>
-    <template
-      v-for="item in paddingOptions"
-      :key="item.value"
-    >
-      <Button
-        :label="item.label"
-        :severity="padding === item.key ? 'primary' : 'secondary'"
-        @click="setPadding(item.key)"
-      />
-    </template>
-  </ButtonGroup>
+  <div class="between-start gap-gap">
+    <span>间距</span>
+    <ButtonGroup>
+      <template
+        v-for="item in paddingOptions"
+        :key="item.value"
+      >
+        <Button
+          :label="item.label"
+          :severity="padding === item.key ? 'help' : 'secondary'"
+          @click="setPadding(item.key)"
+        />
+      </template>
+    </ButtonGroup>
+  </div>
 </template>

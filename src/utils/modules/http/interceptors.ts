@@ -137,8 +137,11 @@ export const beforeRequest = (method: Method) => {
   // 添加认证头
   const userStore = useUserStoreWithOut()
   const token = userStore.getToken
-  if (token) {
+
+  if (token && token.trim()) {
     method.config.headers['Authorization'] = `Bearer ${token}`
+  } else {
+    delete method.config.headers['Authorization']
   }
 
   // 数据脱敏处理

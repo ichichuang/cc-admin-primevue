@@ -9,8 +9,20 @@
  * 样式快捷方式
  */
 export const styleShortcuts = {
-  'c-border': 'border border-solid border-bg300',
-  'c-card':
-    'c-cp rounded-rounded bg-bg200 color-text100 hover:color-primary100 c-border border-bg200 hover:border-color-bg100 active:border-color-bg200',
   'c-cp': 'cursor-pointer',
+
+  'c-border': 'border border-solid border-bg300',
+  'c-border-primary': 'border border-solid border-primary200',
+  'c-border-accent': 'border border-solid border-accent200',
+
+  'c-shadow': 'shadow shadow-bg300',
+  'c-shadow-primary': 'shadow shadow-primary200',
+  'c-shadow-accent': 'shadow shadow-accent200',
+
+  'c-card':
+    'c-cp c-shadow gap-gap p-paddings rounded-rounded bg-bg200 color-text100 c-border border-tm hover:color-accent100 hover:c-shadow-accent  active:color-accent200 active:border-color-accent100 active:c-shadow-primary',
+  'c-card-hover':
+    'c-cp c-shadow-accent gap-gap p-paddings rounded-rounded bg-bg200 color-text100  color-accent100 ',
+  'c-card-active':
+    'c-cp  gap-gap p-paddings rounded-rounded bg-bg200 color-text100  color-accent100 c-border-accent',
 }

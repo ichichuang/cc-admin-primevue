@@ -30,5 +30,8 @@
       "@common/*": ["./src/common/*"],
       "@test/*": ["./src/views/test/*"]
     }
+  },
+  "vueCompilerOptions": {
+    "plugins": ["@vue/language-plugin-pug"]
   }
 }

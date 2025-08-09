@@ -56,12 +56,12 @@ export const createFunctionalColors: CreateFunctionalColors = primaryColor => {
     },
 
     help: {
-      color: '#9c27b0',
-      hover: '#ba68c8',
-      active: '#7b1fa2',
-      disabled: '#d9d9d9',
-      text: '#f3e5f5',
-      border: '#9c27b0',
+      color: '#000000',
+      hover: '#000000',
+      active: '#000000',
+      disabled: '#000000',
+      text: '#000000',
+      border: '#000000',
     },
 
     danger: {
@@ -104,6 +104,7 @@ export const lightThemeOptions: ThemeColor[] = [
       primary100: '#3B82F6', // Vibrant blue for button background
       primary200: '#7AB2FF', // Softer blue in same hue for hover text (contrast ~4.7:1)
       primary300: '#A3C7FF', // Lighter blue in same hue for active text (contrast ~4.9:1)
+      primary400: '#ffffff', // Near-white default text (contrast ~5.5:1)
       accent100: '#10B981', // Emerald green for highlights
       accent200: '#047857', // Darker green for contrast
       text100: '#1F2937', // Dark gray for primary text on bg100
@@ -128,6 +129,7 @@ export const lightThemeOptions: ThemeColor[] = [
       primary100: '#92400E', // Earthy brown for button background
       primary200: '#C06F3D', // Lighter brown in same hue for hover text (contrast ~4.6:1)
       primary300: '#A85A2F', // Slightly darker brown for active text (contrast ~4.8:1)
+      primary400: '#ffffff', // Near-white default text (contrast ~5.5:1)
       accent100: '#38B2AC', // Teal for highlights
       accent200: '#0D9488', // Darker teal for contrast
       text100: '#2D3748', // Dark gray for primary text on bg100
@@ -152,6 +154,7 @@ export const lightThemeOptions: ThemeColor[] = [
       primary100: '#15803D', // Deep green for button background
       primary200: '#2EC97A', // Lighter green in same hue for hover text (contrast ~4.7:1)
       primary300: '#1AA25D', // Slightly darker green for active text (contrast ~4.9:1)
+      primary400: '#ffffff', // Near-white default text (contrast ~5.5:1)
       accent100: '#F59E0B', // Amber for highlights
       accent200: '#B45309', // Darker amber for contrast
       text100: '#1F2937', // Dark gray for primary text on bg100
@@ -176,6 +179,7 @@ export const lightThemeOptions: ThemeColor[] = [
       primary100: '#0D9488', // Rich turquoise for button background
       primary200: '#34D1B6', // Lighter turquoise in same hue for hover text (contrast ~4.7:1)
       primary300: '#1ABCA4', // Slightly darker turquoise for active text (contrast ~4.9:1)
+      primary400: '#ffffff', // Near-white default text (contrast ~5.5:1)
       accent100: '#FBBF24', // Amber for highlights
       accent200: '#B45309', // Darker amber for contrast
       text100: '#1E3A8A', // Navy for primary text on bg100
@@ -206,6 +210,7 @@ export const darkThemeOptions: ThemeColor[] = [
       primary100: '#7C3AED', // Vibrant purple for button background
       primary200: '#A855F7', // Lighter purple in same hue for hover text (contrast ~4.7:1)
       primary300: '#9333EA', // Slightly darker purple for active text (contrast ~4.9:1)
+      primary400: '#F3E8FF', // Near-white default text (contrast ~5.1:1)
       accent100: '#22D3EE', // Cyan for highlights
       accent200: '#0E7490', // Darker cyan for contrast
       text100: '#EDE9FE', // Light purple for primary text on bg100
@@ -230,6 +235,7 @@ export const darkThemeOptions: ThemeColor[] = [
       primary100: '#2563EB', // Electric blue for button background
       primary200: '#4F8AFF', // Lighter blue in same hue for hover text (contrast ~4.8:1)
       primary300: '#3B7EFF', // Slightly lighter blue for active text (contrast ~5.0:1)
+      primary400: '#ffffff', // Near-white default text (contrast ~5.2:1)
       accent100: '#22D3EE', // Cyan for highlights
       accent200: '#0E7490', // Darker cyan for contrast
       text100: '#DBEAFE', // Light blue for primary text on bg100
@@ -254,6 +260,7 @@ export const darkThemeOptions: ThemeColor[] = [
       primary100: '#F59E0B', // Mustard yellow for button background
       primary200: '#FDBA5A', // Lighter yellow in same hue for hover text (contrast ~4.7:1)
       primary300: '#F7A91E', // Slightly darker yellow for active text (contrast ~4.9:1)
+      primary400: '#FFF7ED', // Near-white default text (contrast ~5.0:1)
       accent100: '#EF4444', // Red for highlights
       accent200: '#B91C1C', // Darker red for contrast
       text100: '#FEE2E2', // Light red for primary text on bg100
@@ -278,6 +285,7 @@ export const darkThemeOptions: ThemeColor[] = [
       primary100: '#4B6A31', // Olive green for button background
       primary200: '#6F8F5A', // Lighter olive in same hue for hover text (contrast ~4.7:1)
       primary300: '#577C40', // Slightly darker olive for active text (contrast ~4.9:1)
+      primary400: '#ffffff', // Near-white default text (contrast ~5.2:1)
       accent100: '#A3E635', // Lime for highlights
       accent200: '#4D7C0F', // Darker green for contrast
       text100: '#E7ECE6', // Light green for primary text on bg100
@@ -302,6 +310,7 @@ export const darkThemeOptions: ThemeColor[] = [
       primary100: '#15803D', // Deep green for button background
       primary200: '#3BBF70', // Lighter green in same hue for hover text (contrast ~4.7:1)
       primary300: '#1E9A5C', // Slightly darker green for active text (contrast ~4.9:1)
+      primary400: '#F0FFF4', // Near-white default text (contrast ~5.3:1)
       accent100: '#EAB308', // Gold for highlights
       accent200: '#A16207', // Darker gold for contrast
       text100: '#DCFCE7', // Light green for primary text on bg100
@@ -374,7 +383,7 @@ export const createCompactSizes = (): Layout => {
   const { width, height } = getCurrentWindowSize()
   return {
     sidebarWidth: Math.max(200, Math.min(width * 0.16, 400)),
-    sidebarCollapsedWidth: Math.max(60, Math.min(width * 0.04, 80)),
+    sidebarCollapsedWidth: Math.max(60, Math.min(width * 0.03, 60)),
     headerHeight: Math.max(40, Math.min(height * 0.04, 80)),
     breadcrumbHeight: Math.max(32, Math.min(height * 0.026, 48)),
     footerHeight: Math.max(32, Math.min(height * 0.026, 48)),
@@ -392,7 +401,7 @@ export const createComfortableSizes = (): Layout => {
   const { width, height } = getCurrentWindowSize()
   return {
     sidebarWidth: Math.max(240, Math.min(width * 0.18, 500)),
-    sidebarCollapsedWidth: Math.max(60, Math.min(width * 0.04, 80)),
+    sidebarCollapsedWidth: Math.max(70, Math.min(width * 0.03, 60)),
     headerHeight: Math.max(48, Math.min(height * 0.05, 96)),
     breadcrumbHeight: Math.max(36, Math.min(height * 0.03, 56)),
     footerHeight: Math.max(36, Math.min(height * 0.03, 56)),
@@ -410,7 +419,7 @@ export const createLooseSizes = (): Layout => {
   const { width, height } = getCurrentWindowSize()
   return {
     sidebarWidth: Math.max(280, Math.min(width * 0.2, 600)),
-    sidebarCollapsedWidth: Math.max(60, Math.min(width * 0.04, 80)),
+    sidebarCollapsedWidth: Math.max(80, Math.min(width * 0.03, 60)),
     headerHeight: Math.max(56, Math.min(height * 0.06, 112)),
     breadcrumbHeight: Math.max(40, Math.min(height * 0.04, 64)),
     footerHeight: Math.max(36, Math.min(height * 0.03, 56)),
@@ -449,7 +458,7 @@ export const roundedOptions: RoundedOptions[] = [
 export const paddingOptions: PaddingOptions[] = [
   { label: '小', key: 'sm', value: 8 },
   { label: '中', key: 'md', value: 12 },
-  { label: '大', key: 'lg', value: 15 },
+  { label: '大', key: 'lg', value: 16 },
 ]
 
 /**

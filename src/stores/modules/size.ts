@@ -356,10 +356,32 @@ export const useSizeStore = defineStore('size', {
         if (this.fontSize === fontSize) {
           return
         }
+
+        // 根据字体大小自动调整尺寸模式
+        this.adjustSizeModeByFontSize(fontSize)
+
         this.fontSize = fontSize
         this.setCssVariables()
       } catch (error) {
         console.error('设置字体尺寸失败:', error)
+      }
+    },
+
+    // 根据字体大小自动调整尺寸模式
+    adjustSizeModeByFontSize(fontSize: FontSizeOptions['key']) {
+      console.log('fontSize', fontSize)
+      switch (fontSize) {
+        case 'lg':
+          this.setSize('comfortable')
+          break
+        case 'xl':
+        case 'xls':
+        case 'xxl':
+        case 'xxxl':
+          this.setSize('loose')
+          break
+        default:
+          break
       }
     },
 

@@ -34,9 +34,11 @@ export const useUserStore = defineStore('user', {
   actions: {
     setToken(token: string) {
       this.token = token
-      getUserInfo().then(res => {
+      // 确保 token 设置完成后再获取用户信息
+      return getUserInfo().then(res => {
         this.userInfo = res
         router.push((router.currentRoute.value.query.redirect as string) || env.rootRedirect)
+        return res
       })
     },
     resetToken() {

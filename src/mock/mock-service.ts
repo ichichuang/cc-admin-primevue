@@ -167,7 +167,17 @@ class MockService {
               }
 
               // 解析请求头
-              const headers = init?.headers || {}
+              let headers = {}
+              if (init?.headers) {
+                if (init.headers instanceof Headers) {
+                  // 如果是 Headers 对象，转换为普通对象
+                  for (const [key, value] of init.headers.entries()) {
+                    headers[key] = value
+                  }
+                } else if (typeof init.headers === 'object') {
+                  headers = init.headers
+                }
+              }
 
               // 解析查询参数
               const query = this.parseQueryParams(url)

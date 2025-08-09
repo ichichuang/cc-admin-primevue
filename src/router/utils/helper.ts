@@ -41,6 +41,7 @@ export const initDynamicRoutes = async (
     permissionStore.setStaticRoutes(sortedStaticRoutes)
     const token = userStore.getToken
     const userId = userStore.getUserInfo.userId
+
     if (!token || !userId) {
       throw new Error('用户信息不存在，无法加载动态路由')
     }
@@ -72,21 +73,32 @@ export const initDynamicRoutes = async (
     }
     permissionStore.setIsRoutesLoaded(true)
   } catch (error) {
-    // 只在最终失败时设置标志
-    if (retryCount >= maxRetries) {
-      permissionStore.setIsRoutesLoaded(false)
-    }
-
     const errorMsg = error instanceof Error ? error.message : String(error)
     console.error(`动态路由初始化失败 (尝试 ${retryCount + 1}/${maxRetries + 1}):`, errorMsg)
-    if (retryCount < maxRetries && !errorMsg.includes('用户信息不存在')) {
+
+    // 如果是用户信息不存在的错误，直接抛出，不重试
+    if (errorMsg.includes('用户信息不存在')) {
+      permissionStore.setIsRoutesLoaded(false)
+      class InitDynamicRouteError extends Error {
+        constructor(msg: string) {
+          super(msg)
+          this.name = 'InitDynamicRouteError'
+        }
+      }
+      throw new InitDynamicRouteError(errorMsg || '动态路由初始化失败')
+    }
+
+    // 其他错误可以重试
+    if (retryCount < maxRetries) {
       const delay = (retryCount + 1) * 1000
       console.log(`${delay / 1000}s 后重试 …`)
       await new Promise(r => setTimeout(r, delay))
       permissionStore.setIsRoutesLoaded(false)
       return initDynamicRoutes(router, sortedStaticRoutes, isDebug, retryCount + 1)
     }
-    permissionStore.setIsRoutesLoaded(true)
+
+    // 重试次数用完，设置失败状态
+    permissionStore.setIsRoutesLoaded(false)
     class InitDynamicRouteError extends Error {
       constructor(msg: string) {
         super(msg)
