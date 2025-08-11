@@ -1,33 +1,9 @@
-/**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - route
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
-import router, {
-  dynamicRouteManager,
-  routeUtils,
-  staticRoutes as sortedStaticRoutes,
-} from '@/router'
-import {
-  createRouteUtils,
-  filterAuthorizedRoutes,
-  processAsyncRoutes,
-  sortRoutes,
-  transformToVueRoutes,
-} from '@/router/utils'
-import {
-  getCurrentRouteInfo,
-  initDynamicRoutes,
-  resetRouter,
-  routeHealthCheck,
-  validateRouteConfig,
-} from '@/router/utils/helper'
+import router, { routeUtils } from '@/router'
+import { env } from '@/utils'
 import type { LocationQueryRaw, RouteLocationNormalized, RouteRecordRaw } from 'vue-router'
 
 /**
- * 返回上一页
+ * @返回上一页
  *
  * @description 智能返回功能，如果有历史记录则返回上一页，否则跳转到首页
  * @returns void
@@ -139,14 +115,14 @@ export const getRouteByPath = (path: string): RouteRecordRaw | null => {
  * goToRoute('admin', {}, false, true)
  */
 export const goToRoute = (
-  name: string | null,
+  name?: string | null,
   query?: LocationQueryRaw,
   newWindow = false,
   checkPermission = false
 ): void => {
   // 如果目标路由名称为空，跳转到首页
   if (!name) {
-    router.push('/')
+    router.push(env.rootRedirect)
     return
   }
 
@@ -157,8 +133,14 @@ export const goToRoute = (
 
   const targetRoutes = getRouteByName(name)
   if (targetRoutes.length === 0) {
-    console.warn(`路由 "${name}" 未找到`)
-    return
+    // 尝试 path 跳转
+    console.log('name', name)
+    try {
+      router.push(name)
+    } catch {
+      console.warn(`路由 "${name}" 未找到`)
+      return
+    }
   }
 
   const targetRoute = targetRoutes[0]
@@ -535,336 +517,3 @@ export const isCurrentRoute = (name: string): boolean => {
   const currentRouteName = router.currentRoute.value.name as string
   return currentRouteName === name
 }
-
-// ==================== 动态路由管理相关 ====================
-
-/**
- * 初始化动态路由
- *
- * @description 从后端获取用户权限路由，处理后添加到 Vue Router 中
- * @param isDebug - 是否开启调试模式，默认 false
- * @param retryCount - 重试次数，默认 0
- * @returns Promise<void> - 初始化完成后的 Promise
- * @throws {InitDynamicRouteError} 当动态路由初始化失败时抛出错误
- * @example
- * // 初始化动态路由
- * try {
- *   await initDynamicRoutesAsync()
- *   console.log('动态路由初始化成功')
- * } catch (error) {
- *   console.error('动态路由初始化失败:', error)
- * }
- *
- * // 调试模式初始化
- * await initDynamicRoutesAsync(true)
- */
-export const initDynamicRoutesAsync = async (isDebug = false, retryCount = 0): Promise<void> => {
-  return initDynamicRoutes(router, sortedStaticRoutes, isDebug, retryCount)
-}
-
-/**
- * 重置路由器状态
- *
- * @description 清除权限存储中的路由信息，重置动态路由管理器，并标记路由为未加载状态
- * @returns void
- * @example
- * // 用户登出时重置路由
- * logout() {
- *   resetRouterState()
- *   // 其他登出逻辑...
- * }
- */
-export const resetRouterState = (): void => {
-  resetRouter(router, dynamicRouteManager)
-}
-
-/**
- * 验证路由配置
- *
- * @description 在开发环境下验证路由配置的完整性，输出详细的调试信息
- * @returns void
- * @example
- * // 在开发环境中验证路由配置
- * if (process.env.NODE_ENV === 'development') {
- *   validateRouteConfigState()
- * }
- */
-export const validateRouteConfigState = (): void => {
-  validateRouteConfig(sortedStaticRoutes, routeUtils)
-}
-
-/**
- * 获取当前路由详细信息
- *
- * @description 获取当前激活路由的详细信息，包括路径、名称、元信息、参数等
- * @returns 当前路由的详细信息对象
- * @example
- * // 获取当前路由详细信息
- * const routeInfo = getCurrentRouteInfoDetailed()
- * console.log('路由路径:', routeInfo.路径)
- * console.log('路由名称:', routeInfo.名称)
- * console.log('路由参数:', routeInfo.参数)
- */
-export const getCurrentRouteInfoDetailed = () => {
-  return getCurrentRouteInfo(router)
-}
-
-/**
- * 路由健康检查
- *
- * @description 检查路由系统的健康状态，检测潜在的问题和配置错误
- * @returns 健康检查结果对象
- * @example
- * // 检查路由系统健康状态
- * const health = checkRouteHealth()
- * if (!health.healthy) {
- *   console.warn('路由系统存在问题:', health.issues)
- * }
- */
-export const checkRouteHealth = () => {
-  return routeHealthCheck(router, sortedStaticRoutes, routeUtils)
-}
-
-// ==================== 路由工具函数 ====================
-
-/**
- * 创建路由工具集
- *
- * @description 为指定的路由配置创建路由工具集，包含扁平化路由、菜单树、面包屑映射等
- * @param routes - 路由配置数组
- * @returns 路由工具对象
- * @example
- * // 为自定义路由创建工具集
- * const customRoutes = [...]
- * const routeUtils = createRouteUtilsInstance(customRoutes)
- * console.log('扁平化路由:', routeUtils.flatRoutes)
- * console.log('菜单树:', routeUtils.menuTree)
- */
-export const createRouteUtilsInstance = (routes: RouteConfig[]) => {
-  return createRouteUtils(routes)
-}
-
-/**
- * 根据权限过滤路由
- *
- * @description 根据用户角色过滤路由配置，只保留用户有权限访问的路由
- * @param routes - 路由配置数组
- * @param userRoles - 用户角色数组
- * @returns 过滤后的路由数组
- * @example
- * // 根据用户权限过滤路由
- * const allRoutes = [...]
- * const userRoles = ['admin', 'user']
- * const authorizedRoutes = filterAuthorizedRoutesInstance(allRoutes, userRoles)
- */
-export const filterAuthorizedRoutesInstance = (routes: RouteConfig[], userRoles: string[]) => {
-  return filterAuthorizedRoutes(routes, userRoles)
-}
-
-/**
- * 处理异步路由
- *
- * @description 处理后端返回的异步路由配置，转换为前端可用的路由格式
- * @param routes - 后端路由配置数组
- * @returns 处理后的路由数组
- * @example
- * // 处理后端返回的路由数据
- * const backendRoutes = await getAuthRoutes()
- * const processedRoutes = processAsyncRoutesInstance(backendRoutes)
- */
-export const processAsyncRoutesInstance = (routes: BackendRouteConfig[]) => {
-  return processAsyncRoutes(routes)
-}
-
-/**
- * 排序路由
- *
- * @description 根据路由的 rank 属性对路由进行排序
- * @param routes - 路由配置数组
- * @returns 排序后的路由数组
- * @example
- * // 对路由进行排序
- * const unsortedRoutes = [...]
- * const sortedRoutes = sortRoutesInstance(unsortedRoutes)
- */
-export const sortRoutesInstance = (routes: RouteConfig[]) => {
-  return sortRoutes(routes)
-}
-
-/**
- * 转换为 Vue Router 格式
- *
- * @description 将自定义路由配置转换为 Vue Router 兼容的格式
- * @param routes - 路由配置数组
- * @returns Vue Router 格式的路由数组
- * @example
- * // 转换为 Vue Router 格式
- * const customRoutes = [...]
- * const vueRoutes = transformToVueRoutesInstance(customRoutes)
- * // 添加到路由器
- * vueRoutes.forEach(route => router.addRoute(route))
- */
-export const transformToVueRoutesInstance = (routes: RouteConfig[]) => {
-  return transformToVueRoutes(routes)
-}
-
-// ==================== 路由状态管理 ====================
-
-/**
- * 获取路由工具实例
- *
- * @description 获取系统当前的路由工具实例，包含扁平化路由、菜单树等信息
- * @returns 路由工具对象
- * @example
- * // 获取当前路由工具实例
- * const routeUtils = getRouteUtils()
- * console.log('菜单树:', routeUtils.menuTree)
- * console.log('面包屑映射:', routeUtils.breadcrumbMap)
- */
-export const getRouteUtils = () => {
-  return routeUtils
-}
-
-/**
- * 获取动态路由管理器
- *
- * @description 获取动态路由管理器实例，用于管理动态路由的添加、删除等操作
- * @returns 动态路由管理器实例
- * @example
- * // 获取动态路由管理器
- * const dynamicManager = getDynamicRouteManager()
- * // 添加动态路由
- * dynamicManager.addRoute(newRoute)
- * // 清空动态路由
- * dynamicManager.clearRoutes()
- */
-export const getDynamicRouteManager = () => {
-  return dynamicRouteManager
-}
-
-/**
- * 获取路由器实例
- *
- * @description 获取 Vue Router 实例，用于直接操作路由器
- * @returns Vue Router 实例
- * @example
- * // 获取路由器实例
- * const routerInstance = getRouterInstance()
- * // 直接使用路由器方法
- * routerInstance.push('/new-path')
- * routerInstance.replace('/replace-path')
- */
-export const getRouterInstance = () => {
-  return router
-}
-
-// 兼容性别名（保持与原有代码的兼容性）
-export const getRouter = getRouteByName
-export const goName = goToRoute
-export const getParentRoute = getBreadcrumbByRoute
-
-// 默认导出所有工具函数
-export default {
-  // 导航相关
-  goBack, // 返回上一页
-  goToRoute, // 跳转到指定路由
-  goName, // 跳转到指定路由（别名）
-  replaceRoute, // 替换当前路由
-  refreshCurrentRoute, // 刷新当前路由
-
-  // 路由查询
-  getRouteByName, // 根据名称获取路由信息
-  getRouteByPath, // 根据路径获取路由信息
-  getRouteConfig, // 获取路由完整配置
-  getCurrentRoute, // 获取当前路由信息
-  getCurrentRouteMeta, // 获取当前路由 Meta 信息
-  getFlatRouteList, // 获取扁平化路由列表
-
-  // 面包屑和菜单
-  getBreadcrumbByRoute, // 获取路由面包屑路径
-  getMenuTree, // 获取菜单树结构
-  getAuthorizedMenuTree, // 根据权限过滤菜单
-
-  // 权限相关
-  checkCurrentRoutePermission, // 检查当前路由权限
-
-  // 外链相关
-  isExternalLink, // 判断路由是否为外链
-  getExternalLinkUrl, // 获取外链地址
-
-  // 路由更新
-  updateRoute, // 动态更新路由信息
-
-  // 工具函数
-  getHistoryLength, // 获取路由历史记录数量
-  isCurrentRoute, // 检查当前是否在指定路由
-
-  // 动态路由管理
-  initDynamicRoutesAsync, // 初始化动态路由
-  resetRouterState, // 重置路由器状态
-  validateRouteConfigState, // 验证路由配置
-  getCurrentRouteInfoDetailed, // 获取当前路由详细信息
-  checkRouteHealth, // 路由健康检查
-
-  // 路由工具函数
-  createRouteUtilsInstance, // 创建路由工具集
-  filterAuthorizedRoutesInstance, // 根据权限过滤路由
-  processAsyncRoutesInstance, // 处理异步路由
-  sortRoutesInstance, // 排序路由
-  transformToVueRoutesInstance, // 转换为 Vue Router 格式
-
-  // 路由状态管理
-  getRouteUtils, // 获取路由工具实例
-  getDynamicRouteManager, // 获取动态路由管理器
-  getRouterInstance, // 获取路由器实例
-
-  // 兼容性别名
-  getRouter, // 根据名称获取路由（别名）
-  getParentRoute, // 获取路由面包屑（别名）
-}
-
-/**
- * 使用示例：
- *
- * // 1. 基础导航
- * import { goToRoute, goBack } from '@/common/modules/router'
- * goToRoute('dashboard') // 跳转到仪表板
- * goBack() // 返回上一页
- *
- * // 2. 动态路由管理
- * import { initDynamicRoutesAsync, resetRouterState } from '@/common/modules/router'
- * await initDynamicRoutesAsync(true) // 初始化动态路由（调试模式）
- * resetRouterState() // 重置路由状态
- *
- * // 3. 路由查询
- * import { getRouteByName, getCurrentRoute } from '@/common/modules/router'
- * const routes = getRouteByName('user') // 根据名称获取路由
- * const currentRoute = getCurrentRoute() // 获取当前路由
- *
- * // 4. 菜单和面包屑
- * import { getMenuTree, getBreadcrumbByRoute } from '@/common/modules/router'
- * const menuTree = getMenuTree() // 获取菜单树
- * const breadcrumbs = getBreadcrumbByRoute() // 获取面包屑
- *
- * // 5. 权限检查
- * import { checkCurrentRoutePermission } from '@/common/modules/router'
- * const hasPermission = checkCurrentRoutePermission(['admin']) // 检查权限
- *
- * // 6. 检查当前路由
- * import { isCurrentRoute } from '@/common/modules/router'
- * const isOnDashboard = isCurrentRoute('dashboard') // 检查是否在仪表板页面
- *
- * // 7. 路由健康检查
- * import { checkRouteHealth } from '@/common/modules/router'
- * const health = checkRouteHealth() // 检查路由系统健康状态
- *
- * // 7. 路由工具函数
- * import { createRouteUtilsInstance, sortRoutesInstance } from '@/common/modules/router'
- * const routeUtils = createRouteUtilsInstance(routes) // 创建路由工具
- * const sortedRoutes = sortRoutesInstance(routes) // 排序路由
- *
- * // 8. 获取路由实例
- * import { getRouterInstance, getRouteUtils } from '@/common/modules/router'
- * const router = getRouterInstance() // 获取 Vue Router 实例
- * const routeUtils = getRouteUtils() // 获取路由工具实例
- */

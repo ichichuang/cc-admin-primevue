@@ -1,16 +1,19 @@
-/**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - 连接管理模块
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
 import { HTTP_CONFIG } from '@/constants/modules/http'
 import type { ConnectionConfig, ConnectionState } from './types'
 
 /**
+ * 连接状态枚举
+ */
+export enum ConnectionStatus {
+  CONNECTED = 'connected',
+  DISCONNECTED = 'disconnected',
+  RECONNECTING = 'reconnecting',
+  ERROR = 'error',
+}
+
+/**
  * 连接管理器
- * 负责管理 HTTP 连接状态、自动重连和健康检查
+ * 负责管理网络连接状态、自动重连和健康检查
  */
 export class ConnectionManager {
   private state: ConnectionState
@@ -30,16 +33,17 @@ export class ConnectionManager {
     }
 
     this.state = {
-      isConnected: true,
+      isConnected: navigator.onLine,
       isReconnecting: false,
+      lastConnectedAt: navigator.onLine ? new Date() : undefined,
+      disconnectReason: navigator.onLine ? undefined : '网络不可用',
       reconnectAttempts: 0,
       maxReconnectAttempts: this.config.maxReconnectAttempts,
     }
 
     this.listeners = new Set()
-
-    // 监听网络状态变化
     this.setupNetworkListeners()
+    this.startHealthCheck()
   }
 
   /**
@@ -50,145 +54,168 @@ export class ConnectionManager {
   }
 
   /**
-   * 添加状态变化监听器
+   * 添加连接状态监听器
    */
   addListener(listener: (state: ConnectionState) => void): () => void {
-    if (this.isDestroyed) {
-      console.warn('⚠️ 连接管理器已销毁，无法添加监听器')
-      return () => {}
-    }
-
     this.listeners.add(listener)
-    return () => this.listeners.delete(listener)
+    // 立即通知当前状态
+    listener(this.getConnectionState())
+
+    // 返回移除监听器的函数
+    return () => {
+      this.listeners.delete(listener)
+    }
   }
 
   /**
-   * 手动断开连接
+   * 断开连接
    */
   disconnect(reason?: string): void {
-    if (this.state.isConnected) {
-      this.state.isConnected = false
-      this.state.disconnectReason = reason || '手动断开'
-      this.state.lastConnectedAt = new Date()
-
-      this.stopHealthCheck()
-      this.notifyListeners()
+    if (this.isDestroyed) {
+      return
     }
+
+    this.state.isConnected = false
+    this.state.disconnectReason = reason || '手动断开'
+    this.state.lastConnectedAt = undefined
+
+    this.stopHealthCheck()
+    this.notifyListeners()
   }
 
   /**
-   * 手动重连
+   * 重新连接
    */
   async reconnect(): Promise<boolean> {
-    if (this.state.isReconnecting || this.isDestroyed) {
+    if (this.isDestroyed || this.state.isReconnecting) {
+      return false
+    }
+
+    if (this.state.reconnectAttempts >= this.config.maxReconnectAttempts) {
+      this.state.disconnectReason = '重连次数已达上限'
+      this.notifyListeners()
       return false
     }
 
     this.state.isReconnecting = true
-    this.state.reconnectAttempts = 0
+    this.state.reconnectAttempts++
+    this.notifyListeners()
 
-    return this.attemptReconnect()
-  }
-
-  /**
-   * 尝试重连
-   */
-  private async attemptReconnect(): Promise<boolean> {
-    while (this.state.reconnectAttempts < this.config.maxReconnectAttempts && !this.isDestroyed) {
-      this.state.reconnectAttempts++
-
-      try {
-        // 执行健康检查
-        const isHealthy = await this.performHealthCheck()
-
-        if (isHealthy) {
-          this.onReconnectSuccess()
-          return true
-        }
-      } catch (error) {
-        console.error('❌ 重连失败:', error)
-      }
-
-      // 等待后重试，使用指数退避
-      const delay = this.config.reconnectDelay * Math.pow(2, this.state.reconnectAttempts - 1)
-      await this.delay(Math.min(delay, HTTP_CONFIG.healthCheckInterval)) // 最大延迟30秒
+    const success = await this.attemptReconnect()
+    if (success) {
+      this.onReconnectSuccess()
+    } else {
+      this.onReconnectFailed()
     }
 
-    this.onReconnectFailed()
-    return false
+    return success
   }
 
   /**
-   * 重连成功
+   * 尝试重新连接
+   */
+  private async attemptReconnect(): Promise<boolean> {
+    try {
+      // 等待重连延迟
+      await this.delay(this.config.reconnectDelay)
+
+      // 检查网络状态
+      if (!navigator.onLine) {
+        return false
+      }
+
+      // 执行健康检查
+      const isHealthy = await this.performHealthCheck()
+      if (isHealthy) {
+        return true
+      }
+
+      // 如果健康检查失败，等待一段时间后重试
+      await this.delay(1000)
+      return await this.performHealthCheck()
+    } catch (error) {
+      console.error('重连失败:', error)
+      return false
+    }
+  }
+
+  /**
+   * 重连成功处理
    */
   private onReconnectSuccess(): void {
     this.state.isConnected = true
     this.state.isReconnecting = false
-    this.state.reconnectAttempts = 0
-    this.state.disconnectReason = undefined
     this.state.lastConnectedAt = new Date()
+    this.state.disconnectReason = undefined
+    this.state.reconnectAttempts = 0
 
     this.startHealthCheck()
     this.notifyListeners()
+
+    console.log('✅ 网络连接已恢复')
   }
 
   /**
-   * 重连失败
+   * 重连失败处理
    */
   private onReconnectFailed(): void {
     this.state.isReconnecting = false
-    this.state.isConnected = false
+    this.state.disconnectReason = '重连失败'
+
     this.notifyListeners()
 
-    console.error('❌ 重连失败，已达到最大重试次数')
+    // 如果启用了自动重连，继续尝试
+    if (this.config.autoReconnect) {
+      this.reconnectTimer = setTimeout(() => {
+        this.reconnect()
+      }, this.config.reconnectDelay)
+    }
   }
 
   /**
    * 执行健康检查
    */
   private async performHealthCheck(): Promise<boolean> {
-    try {
-      const healthUrl = this.config.healthCheckUrl || '/api/health'
-      const response = await fetch(healthUrl, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        signal: AbortSignal.timeout(HTTP_CONFIG.timeout), // 使用配置的超时时间
-      })
+    if (!this.config.healthCheckUrl) {
+      // 如果没有配置健康检查 URL，使用网络状态作为判断依据
+      return navigator.onLine
+    }
 
+    try {
+      const response = await fetch(this.config.healthCheckUrl, {
+        method: 'HEAD',
+        mode: 'no-cors',
+        cache: 'no-cache',
+      })
       return response.ok
-    } catch (error) {
-      console.warn('⚠️ 健康检查失败:', error)
+    } catch {
       return false
     }
   }
 
   /**
-   * 开始健康检查
+   * 启动健康检查
    */
   private startHealthCheck(): void {
-    if (this.healthCheckTimer) {
-      clearInterval(this.healthCheckTimer)
+    if (this.healthCheckTimer || !this.config.healthCheckUrl) {
+      return
     }
 
     this.healthCheckTimer = setInterval(async () => {
-      if (!this.state.isConnected || this.isDestroyed) {
+      if (this.isDestroyed) {
+        this.stopHealthCheck()
         return
       }
 
       const isHealthy = await this.performHealthCheck()
       if (!isHealthy && this.state.isConnected) {
-        // 避免在重连过程中再次触发断开
-        if (!this.state.isReconnecting) {
-          this.disconnect('健康检查失败')
+        this.state.isConnected = false
+        this.state.disconnectReason = '健康检查失败'
+        this.notifyListeners()
 
-          // 延迟重连，避免立即重连
-          setTimeout(() => {
-            if (this.config.autoReconnect && !this.isDestroyed) {
-              this.reconnect()
-            }
-          }, HTTP_CONFIG.reconnectDelay)
+        // 如果启用了自动重连，尝试重连
+        if (this.config.autoReconnect) {
+          this.reconnect()
         }
       }
     }, this.config.healthCheckInterval)
@@ -205,31 +232,53 @@ export class ConnectionManager {
   }
 
   /**
-   * 设置网络状态监听
+   * 设置网络状态监听器
    */
   private setupNetworkListeners(): void {
-    // 监听在线/离线状态
-    window.addEventListener('online', () => {
-      if (!this.state.isConnected && this.config.autoReconnect && !this.isDestroyed) {
+    const handleOnline = () => {
+      if (this.isDestroyed) {
+        return
+      }
+
+      this.state.isConnected = true
+      this.state.lastConnectedAt = new Date()
+      this.state.disconnectReason = undefined
+      this.state.reconnectAttempts = 0
+
+      this.startHealthCheck()
+      this.notifyListeners()
+
+      console.log('✅ 网络已连接')
+    }
+
+    const handleOffline = () => {
+      if (this.isDestroyed) {
+        return
+      }
+
+      this.state.isConnected = false
+      this.state.disconnectReason = '网络断开'
+      this.state.lastConnectedAt = undefined
+
+      this.stopHealthCheck()
+      this.notifyListeners()
+
+      console.log('⚠️ 网络已断开')
+
+      // 如果启用了自动重连，尝试重连
+      if (this.config.autoReconnect) {
         this.reconnect()
       }
-    })
+    }
 
-    window.addEventListener('offline', () => {
-      this.disconnect('网络断开')
-    })
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
 
-    // 监听页面可见性变化
-    document.addEventListener('visibilitychange', () => {
-      if (
-        !document.hidden &&
-        !this.state.isConnected &&
-        this.config.autoReconnect &&
-        !this.isDestroyed
-      ) {
-        this.reconnect()
-      }
-    })
+    // 保存清理函数
+    this.cleanup = () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
   }
 
   /**
@@ -240,7 +289,7 @@ export class ConnectionManager {
   }
 
   /**
-   * 通知监听器
+   * 通知所有监听器
    */
   private notifyListeners(): void {
     this.listeners.forEach(listener => {
@@ -253,22 +302,35 @@ export class ConnectionManager {
   }
 
   /**
-   * 销毁连接管理器
+   * 清理资源
    */
   destroy(): void {
+    if (this.isDestroyed) {
+      return
+    }
+
     this.isDestroyed = true
     this.stopHealthCheck()
+
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer)
+      this.reconnectTimer = undefined
     }
+
+    if (this.cleanup) {
+      this.cleanup()
+    }
+
     this.listeners.clear()
   }
+
+  private cleanup?: () => void
 }
 
 // 创建全局连接管理器实例
 export const connectionManager = new ConnectionManager()
 
-// 导出连接状态
+// 导出便捷函数
 export const getConnectionState = () => connectionManager.getConnectionState()
 export const addConnectionListener = (listener: (state: ConnectionState) => void) =>
   connectionManager.addListener(listener)

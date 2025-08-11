@@ -1,10 +1,3 @@
-/**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - 路由类型声明
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
 import 'vue-router'
 
 // 扩展 Vue Router 的 RouteMeta 接口
@@ -118,6 +111,8 @@ declare global {
     breadcrumbMap: Map<string, string[]>
     /** 需要缓存的页面 name 列表 */
     keepAliveNames: string[]
+    /** 更新路由工具（用于动态路由加载后更新） */
+    updateRouteUtils: (routes: RouteConfig[]) => void
   }
 
   /** 动态路由管理器接口 */

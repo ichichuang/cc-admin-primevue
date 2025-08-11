@@ -1,10 +1,3 @@
-/**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - 状态管理
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
 import store from '@/stores'
 import { env } from '@/utils'
 import { defineStore } from 'pinia'
@@ -14,20 +7,24 @@ interface PermissionState {
   staticRoutes: RouteConfig[]
   // 动态路由
   dynamicRoutes: RouteConfig[]
-  // 是否已加载路由
-  isRoutesLoaded: boolean
+  // 动态路由是否已加载完成
+  isDynamicRoutesLoaded: boolean
 }
+
 export const usePermissionStore = defineStore('permission', {
   state: (): PermissionState => ({
     staticRoutes: [],
     dynamicRoutes: [],
-    isRoutesLoaded: false,
+    isDynamicRoutesLoaded: false,
   }),
 
   getters: {
     getStaticRoutes: (state: PermissionState) => state.staticRoutes,
     getDynamicRoutes: (state: PermissionState) => state.dynamicRoutes,
-    getIsRoutesLoaded: (state: PermissionState) => state.isRoutesLoaded,
+    // 获取动态路由加载状态
+    getIsDynamicRoutesLoaded: (state: PermissionState) => state.isDynamicRoutesLoaded,
+    // 获取所有路由（静态 + 动态）
+    getAllRoutes: (state: PermissionState) => [...state.staticRoutes, ...state.dynamicRoutes],
   },
 
   actions: {
@@ -39,21 +36,23 @@ export const usePermissionStore = defineStore('permission', {
     setDynamicRoutes(routes: RouteConfig[]) {
       this.dynamicRoutes = routes
     },
-    // 设置是否已加载路由
-    setIsRoutesLoaded(loaded: boolean) {
-      this.isRoutesLoaded = loaded
+    // 设置动态路由加载状态
+    setDynamicRoutesLoaded(loaded: boolean) {
+      this.isDynamicRoutesLoaded = loaded
     },
+
     // 重置
     reset() {
       this.staticRoutes = []
       this.dynamicRoutes = []
-      this.isRoutesLoaded = false
+      this.isDynamicRoutesLoaded = false
     },
   },
 
   persist: {
     key: `${env.piniaKeyPrefix}-permission`,
     storage: localStorage,
+    pick: ['staticRoutes', 'dynamicRoutes'],
   },
 })
 

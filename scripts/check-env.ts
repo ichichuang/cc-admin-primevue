@@ -1,10 +1,3 @@
-/**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - 构建脚本
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
 import { existsSync, readFileSync } from 'fs'
 import { join } from 'path'
 
@@ -70,7 +63,6 @@ const validationRules: ValidationRules = {
     VITE_PORT: 'number',
     VITE_LOADING_SIZE: 'number',
     VITE_DEV_TOOLS: 'boolean',
-    VITE_MOCK_ENABLE: 'boolean',
     VITE_CONSOLE_LOG: 'boolean',
     VITE_DEBUG: 'boolean',
     VITE_DROP_DEBUGGER: 'boolean',

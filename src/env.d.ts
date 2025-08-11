@@ -1,11 +1,4 @@
 /**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - env.d
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
-/**
  * Vite 环境变量类型定义
  *
  * 此文件为项目中使用的所有环境变量提供 TypeScript 类型支持
@@ -103,9 +96,6 @@ declare interface ImportMetaEnv {
 
   /** 是否启用开发者工具 - 控制 Vue DevTools 等开发工具的显示 */
   readonly VITE_DEV_TOOLS: BooleanString
-
-  /** 是否启用 Mock 数据 - 用于开发阶段模拟 API 响应 */
-  readonly VITE_MOCK_ENABLE: BooleanString
 
   /** 是否启用控制台日志 - 控制 console.log 等调试信息的输出 */
   readonly VITE_CONSOLE_LOG: BooleanString

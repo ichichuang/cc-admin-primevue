@@ -1,10 +1,3 @@
-/**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - HTTP 配置模块
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
 // HTTP 公共配置变量
 export const HTTP_CONFIG = {
   // 基础配置

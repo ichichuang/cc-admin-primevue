@@ -1,14 +1,16 @@
 /**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - text
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
-/**
  * 文本快捷方式
  */
 export const textShortcuts = {
   // 单行文本超出省略
   'text-ellipsis': 'text-ellipsis overflow-hidden whitespace-nowrap',
+
+  // 色系
+  'text-primary': 'text-primaryColor hover:text-primaryHoverColor active:text-primaryActiveColor',
+  'text-success': 'text-successColor hover:text-successHoverColor active:text-successActiveColor',
+  'text-warn': 'text-warnColor hover:text-warnHoverColor active:text-warnActiveColor',
+  'text-danger': 'text-dangerColor hover:text-dangerHoverColor active:text-dangerActiveColor',
+  'text-info': 'text-infoColor hover:text-infoHoverColor active:text-infoActiveColor',
+  'text-contrast':
+    'text-contrastColor hover:text-contrastHoverColor active:text-contrastActiveColor',
 }

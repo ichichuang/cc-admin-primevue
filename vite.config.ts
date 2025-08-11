@@ -1,10 +1,3 @@
-/**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin-primevue 企业级后台管理框架 - vite.config
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
 import postcssPxToRem from 'postcss-pxtorem'
 import { type ConfigEnv, defineConfig, loadEnv, type UserConfigExport } from 'vite'
 import { exclude, include } from './build/optimize'
@@ -28,7 +21,6 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
     VITE_ROOT_REDIRECT,
     VITE_LOADING_SIZE,
     VITE_DEV_TOOLS,
-    VITE_MOCK_ENABLE,
     VITE_CONSOLE_LOG,
     VITE_DEBUG,
     VITE_DROP_DEBUGGER,
@@ -62,14 +54,16 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
         // 优化HMR连接，减少扩展冲突
         timeout: 30000,
       },
-      proxy: {
-        ['/api']: {
-          target: VITE_API_BASE_URL,
-          changeOrigin: true,
-          rewrite: path => path.replace(/^\/api/, ''),
-          timeout: 10000,
-        },
-      },
+      proxy: isDev
+        ? {
+            ['/api']: {
+              target: VITE_API_BASE_URL,
+              changeOrigin: true,
+              rewrite: path => path.replace(/^\/api/, ''),
+              timeout: 10000,
+            },
+          }
+        : {},
     },
     plugins: getPluginsList({
       ...env,
@@ -112,7 +106,6 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
           },
         },
       },
-      // 确保不会 tree-shaking 掉 mock 相关代码
       commonjsOptions: {
         include: [/node_modules/],
       },
@@ -128,7 +121,6 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
       __VITE_ROOT_REDIRECT__: JSON.stringify(VITE_ROOT_REDIRECT),
       __VITE_LOADING_SIZE__: JSON.stringify(VITE_LOADING_SIZE),
       __VITE_DEV_TOOLS__: JSON.stringify(VITE_DEV_TOOLS),
-      __VITE_MOCK_ENABLE__: JSON.stringify(VITE_MOCK_ENABLE),
       __VITE_CONSOLE_LOG__: JSON.stringify(VITE_CONSOLE_LOG),
       __VITE_DEBUG__: JSON.stringify(VITE_DEBUG),
       __VITE_COMPRESSION__: JSON.stringify(VITE_COMPRESSION),

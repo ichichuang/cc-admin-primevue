@@ -1,17 +1,10 @@
 /**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - layout
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
-/**
  * 布局快捷方式
  */
 export const layoutShortcuts = {
   // 基础布局
   full: 'w-full h-full',
-  container: 'w-full h-full bg-bg100 color-text100',
+  container: 'full bg-bg100 color-text100',
   screen: 'min-h-screen',
 
   // Flex 布局

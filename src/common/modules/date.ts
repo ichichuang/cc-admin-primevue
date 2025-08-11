@@ -1,10 +1,3 @@
-/**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - 时间处理工具
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
 import dayjs from 'dayjs'
 
 // 导入插件

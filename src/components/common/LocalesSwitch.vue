@@ -13,20 +13,14 @@ const setLocale = (value: SupportedLocale) => {
   localeStore.switchLocale(value)
 }
 </script>
-<template>
-  <div class="between-start gap-gap">
-    <span>语言</span>
-    <ButtonGroup>
-      <template
-        v-for="item in localesOptions"
-        :key="item.key"
-      >
-        <Button
-          :label="item.name"
-          :severity="locale === item.key ? 'help' : 'secondary'"
-          @click="setLocale(item.key)"
-        />
-      </template>
-    </ButtonGroup>
-  </div>
+<template lang="pug">
+.between-start.gap-gap
+  span 语言
+  ButtonGroup
+    template(v-for='item in localesOptions', :key='item.key')
+      Button(
+        :label='item.name',
+        :severity='locale === item.key ? "help" : "secondary"',
+        @click='setLocale(item.key)'
+      )
 </template>

@@ -1,10 +1,3 @@
-/**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - 工具函数
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
 import { HTTP_CONFIG } from '@/constants/modules/http'
 import { useUserStoreWithOut } from '@/stores'
 import { env } from '@/utils'
@@ -145,15 +138,12 @@ export const beforeRequest = (method: Method) => {
   }
 
   // 数据脱敏处理
-  const isMockRequest = env.mockEnable && method.url.startsWith('/')
-  if (!isMockRequest) {
+  if (!method.url.startsWith('/')) {
     if (method.config.security?.sensitiveFields) {
       method.data = sanitizeData(method.data, method.config.security.sensitiveFields)
     } else {
       method.data = sanitizeData(method.data, [...HTTP_CONFIG.sensitiveFields])
     }
-  } else {
-    // For Mock requests, only sanitize for logging, keep original data for the request
   }
 }
 

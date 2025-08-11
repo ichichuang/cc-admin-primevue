@@ -1,10 +1,3 @@
-/**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - animate.css 全局默认配置
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
 import type { AnimateName, AnimateRepeat, AnimateSpeed } from '@/types/modules/animate'
 
 /**

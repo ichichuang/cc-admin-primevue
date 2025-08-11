@@ -20,36 +20,26 @@ const items = computed(() => {
   }))
 })
 </script>
-<template>
-  <SpeedDial
-    :model="items"
-    direction="up"
-    :transition-delay="80"
-    class="absolute b-gap r-gap flex items-end!"
-  >
-    <template #button="{ toggleCallback }">
-      <div
-        class="c-card size-1-1"
-        @click="toggleCallback"
-      >
-        <div class="icon-line-md:cookie-filled fs-appFontSizel"></div>
-      </div>
-    </template>
-    <template #item="{ item, toggleCallback }">
-      <div
-        class="w-160 between"
-        :class="item.value === themeValue ? 'c-card-active' : 'c-card shadow-tm'"
-        @click="toggleCallback"
-      >
-        <div
-          class="w-14 h-14 rounded-full"
-          :style="{ background: item.color }"
-        ></div>
-        <div class="flex-1 text-ellipsis">
-          {{ item.label }}
-        </div>
-      </div>
-    </template>
-  </SpeedDial>
-  <Toast />
+<template lang="pug">
+SpeedDial.absolute.b-gap.r-gap.flex(
+  :model='items',
+  direction='up',
+  :transition-delay='80',
+  class='items-end!'
+)
+  // 按钮插槽
+  template(#button='{ toggleCallback }')
+    .c-card-accent.size-1-1(@click='toggleCallback')
+      .fs-appFontSizel(class='icon-line-md:cookie-filled')
+
+  // 列表项插槽
+  template(#item='{ item, toggleCallback }')
+    .w-160.between(
+      :class='item.value === themeValue ? "c-card-accent-active" : "c-card-accent shadow-tm"',
+      @click='toggleCallback'
+    )
+      .w-14.h-14.rounded-full(:style='{ background: item.color }')
+      .flex-1.text-ellipsis {{ item.label }}
+
+  Toast
 </template>

@@ -1,10 +1,3 @@
-/**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - 状态管理
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
 import store from '@/stores'
 import { useLayoutStoreWithOut } from '@/stores/modules/layout'
 import { RemAdapter, type RemAdapterConfig, env, parseRemConfigFromConfig } from '@/utils'
@@ -18,7 +11,7 @@ export const usePostcssStore = defineStore(
     // State - 使用环境变量配置
     const remConfig = ref<RemAdapterConfig>(parseRemConfigFromConfig())
 
-    const currentRemBase = ref<number>(remConfig.value.baseFontSize)
+    const currentRemBase = ref<number>(remConfig.value.postcssRootValue)
     const remAdapter = ref<RemAdapter | null>(null)
     const remCleanupFn = ref<(() => void) | null>(null)
 
@@ -31,7 +24,7 @@ export const usePostcssStore = defineStore(
 
       // 根据策略计算当前设计稿信息
       let currentDesignInfo = {
-        width: remConfig.value.designWidth,
+        width: remConfig.value.postcssRootValue,
         description: '桌面端',
       }
 
@@ -60,7 +53,7 @@ export const usePostcssStore = defineStore(
             }
           } else {
             currentDesignInfo = {
-              width: remConfig.value.designWidth,
+              width: remConfig.value.postcssRootValue,
               description: '桌面端',
             }
           }
@@ -100,7 +93,7 @@ export const usePostcssStore = defineStore(
           break
         default:
           currentDesignInfo = {
-            width: remConfig.value.designWidth,
+            width: remConfig.value.postcssRootValue,
             description: '桌面端',
           }
       }

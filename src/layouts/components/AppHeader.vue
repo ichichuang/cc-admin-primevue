@@ -1,16 +1,14 @@
-<!--
-  @copyright Copyright (c) 2025 chichuang
-  @license MIT
-  @description cc-admin 企业级后台管理框架 - 布局组件
-  本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
--->
-
 <script setup lang="ts">
-import AppTopMenu from './AppTopMenu.vue'
+import { useLayoutStoreWithOut } from '@/stores'
+import { computed } from 'vue'
+
+const layoutStore = useLayoutStoreWithOut()
+
+const showBreadcrumb = computed(() => layoutStore.getShowBreadcrumb)
 </script>
-<template>
-  <div class="full between gap-gap px-padding">
-    <div></div>
-    <AppTopMenu />
-  </div>
+<template lang="pug">
+.full.between
+  .full
+    AppBreadcrumb(v-if='showBreadcrumb')
+  AppTopMenu
 </template>

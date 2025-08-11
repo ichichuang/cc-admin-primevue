@@ -1,11 +1,4 @@
 /**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - 主题配置模块
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
-/**
  * 创建功能颜色的函数 - 适配 PrimeVue 设计令牌系统
  */
 export const createFunctionalColors: CreateFunctionalColors = primaryColor => {
@@ -386,10 +379,14 @@ export const createCompactSizes = (): Layout => {
     sidebarCollapsedWidth: Math.max(60, Math.min(width * 0.03, 60)),
     headerHeight: Math.max(40, Math.min(height * 0.04, 80)),
     breadcrumbHeight: Math.max(32, Math.min(height * 0.026, 48)),
-    footerHeight: Math.max(32, Math.min(height * 0.026, 48)),
+    footerHeight: 20,
     tabsHeight: Math.max(36, Math.min(height * 0.03, 56)),
     contentHeight: 0,
     contentsHeight: 0,
+    contentsBreadcrumbHeight: 0,
+    contentsTabsHeight: 0,
+    contentBreadcrumbHeight: 0,
+    contentTabsHeight: 0,
     gap: 8,
   }
 }
@@ -404,10 +401,14 @@ export const createComfortableSizes = (): Layout => {
     sidebarCollapsedWidth: Math.max(70, Math.min(width * 0.03, 60)),
     headerHeight: Math.max(48, Math.min(height * 0.05, 96)),
     breadcrumbHeight: Math.max(36, Math.min(height * 0.03, 56)),
-    footerHeight: Math.max(36, Math.min(height * 0.03, 56)),
+    footerHeight: 24,
     tabsHeight: Math.max(40, Math.min(height * 0.04, 64)),
     contentHeight: 0,
     contentsHeight: 0,
+    contentsBreadcrumbHeight: 0,
+    contentsTabsHeight: 0,
+    contentBreadcrumbHeight: 0,
+    contentTabsHeight: 0,
     gap: 16,
   }
 }
@@ -422,10 +423,14 @@ export const createLooseSizes = (): Layout => {
     sidebarCollapsedWidth: Math.max(80, Math.min(width * 0.03, 60)),
     headerHeight: Math.max(56, Math.min(height * 0.06, 112)),
     breadcrumbHeight: Math.max(40, Math.min(height * 0.04, 64)),
-    footerHeight: Math.max(36, Math.min(height * 0.03, 56)),
+    footerHeight: 24,
     tabsHeight: Math.max(40, Math.min(height * 0.04, 64)),
     contentHeight: 0,
     contentsHeight: 0,
+    contentsBreadcrumbHeight: 0,
+    contentsTabsHeight: 0,
+    contentBreadcrumbHeight: 0,
+    contentTabsHeight: 0,
     gap: 24,
   }
 }

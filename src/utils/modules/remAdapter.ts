@@ -1,10 +1,3 @@
-/**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - 工具函数
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
 import {
   breakpoints,
   debugConfig,
@@ -251,10 +244,10 @@ export class RemAdapter {
       const fontSizeMap: Record<string, FontSizeOptions['key']> = {
         mobile: 'sm',
         tablet: 'md',
-        pc: 'lg',
-        largeScreen: 'xl',
-        ultraWide: 'xls',
-        fourK: 'xxl',
+        pc: 'md',
+        largeScreen: 'lg',
+        ultraWide: 'xl',
+        fourK: 'xls',
       }
 
       const fontSize = fontSizeMap[deviceType] || 'md'
@@ -386,8 +379,8 @@ export class RemAdapter {
 
                 // 更新尺寸状态
                 const sizeStore = useSizeStoreWithOut()
-                if (sizeStore && typeof sizeStore.updateContentHeight === 'function') {
-                  sizeStore.updateContentHeight()
+                if (sizeStore && typeof sizeStore.recalculateSizes === 'function') {
+                  sizeStore.recalculateSizes()
                 }
 
                 // 更新最后记录的尺寸

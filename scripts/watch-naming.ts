@@ -1,11 +1,4 @@
 /**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - 构建脚本
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
-/**
  * 实时监听文件命名规范检查脚本
  * 监听 src/ 目录下的文件变化，自动执行命名规范检查
  */

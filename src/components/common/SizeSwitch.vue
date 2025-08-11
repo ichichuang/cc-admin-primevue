@@ -11,20 +11,14 @@ const setSize = (value: SizeOptions['value']) => {
   sizeStore.setSize(value)
 }
 </script>
-<template>
-  <div class="between-start gap-gap">
-    <span>尺寸</span>
-    <ButtonGroup>
-      <template
-        v-for="item in sizeOptions"
-        :key="item.value"
-      >
-        <Button
-          :label="item.label"
-          :severity="size === item.value ? 'help' : 'secondary'"
-          @click="setSize(item.value)"
-        />
-      </template>
-    </ButtonGroup>
-  </div>
+<template lang="pug">
+.between-start.gap-gap
+  span 尺寸
+  ButtonGroup
+    template(v-for='item in sizeOptions', :key='item.value')
+      Button(
+        :label='item.label',
+        :severity='size === item.value ? "help" : "secondary"',
+        @click='setSize(item.value)'
+      )
 </template>

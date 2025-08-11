@@ -1,12 +1,4 @@
-/**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - 状态管理
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
 import store from '@/stores'
-import { useSizeStoreWithOut } from '@/stores/modules/size'
 import { env, getDeviceInfo } from '@/utils'
 import { debounce } from 'lodash-es'
 import { defineStore } from 'pinia'
@@ -16,8 +8,8 @@ const layoutConfig: LayoutConfig = {
   showHeader: true,
   showMenu: true,
   showSidebar: true,
-  showBreadcrumb: false,
-  showFooter: false,
+  showBreadcrumb: true,
+  showFooter: true,
   showTabs: false,
 }
 
@@ -29,7 +21,7 @@ export const useLayoutStore = defineStore('layout', {
     sidebarCollapsed: false,
     mobileSidebarVisible: false,
 
-    isLoading: false,
+    isLoading: true,
     isPageLoading: false,
 
     deviceInfo: getDeviceInfo(),
@@ -97,32 +89,26 @@ export const useLayoutStore = defineStore('layout', {
     // 设置头部显示状态
     setShowHeader(show: boolean) {
       this.layoutConfig.showHeader = show
-      this.notifySizeStoreUpdate()
     },
     // 设置菜单显示状态
     setShowMenu(show: boolean) {
       this.layoutConfig.showMenu = show
-      this.notifySizeStoreUpdate()
     },
     // 设置侧边栏显示状态
     setShowSidebar(show: boolean) {
       this.layoutConfig.showSidebar = show
-      this.notifySizeStoreUpdate()
     },
     // 设置面包屑显示状态
     setShowBreadcrumb(show: boolean) {
       this.layoutConfig.showBreadcrumb = show
-      this.notifySizeStoreUpdate()
     },
     // 设置底部显示状态
     setShowFooter(show: boolean) {
       this.layoutConfig.showFooter = show
-      this.notifySizeStoreUpdate()
     },
     // 设置标签页显示状态
     setShowTabs(show: boolean) {
       this.layoutConfig.showTabs = show
-      this.notifySizeStoreUpdate()
     },
 
     // 设置侧边栏折叠状态
@@ -146,21 +132,6 @@ export const useLayoutStore = defineStore('layout', {
     // 初始化设备信息
     initDeviceInfo() {
       this.deviceInfo = getDeviceInfo()
-      // 设备信息更新后，通知 size store 重新计算内容高度
-      this.notifySizeStoreUpdate()
-    },
-
-    // 通知 size store 更新内容高度
-    notifySizeStoreUpdate() {
-      // 使用 nextTick 确保在下一个事件循环中执行，避免循环依赖
-      setTimeout(async () => {
-        try {
-          const sizeStore = useSizeStoreWithOut()
-          sizeStore.updateContentHeight()
-        } catch (error) {
-          console.warn('Failed to update size store:', error)
-        }
-      }, 0)
     },
 
     init() {

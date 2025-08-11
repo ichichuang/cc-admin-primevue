@@ -1,14 +1,4 @@
 /**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - 模块自动加载工具
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- *
- * 模块自动加载工具
- * 用于自动导入 modules 目录下的所有模块
- */
-
-/**
  * 自动导入模块的通用函数
  * @param modules - import.meta.glob 返回的模块对象
  * @returns 导入的模块对象集合

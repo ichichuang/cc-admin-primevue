@@ -1,10 +1,4 @@
-/**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - index
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
+import extractorPug from '@unocss/extractor-pug'
 import { defineConfig } from 'unocss'
 import { contentConfig } from './config/content'
 import { presets } from './presets'
@@ -18,6 +12,9 @@ import { variants } from './variants'
 export default defineConfig({
   // 内容扫描配置 - 优化性能
   content: contentConfig,
+
+  // 使 UnoCSS 能正确从 Pug 模板中提取类名（支持 .class / #id 等简写）
+  extractors: [extractorPug()],
 
   // 预设配置
   presets,

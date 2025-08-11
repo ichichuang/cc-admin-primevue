@@ -57,7 +57,6 @@ export interface ViteEnv {
   VITE_ROOT_REDIRECT: string
   VITE_LOADING_SIZE: number
   VITE_DEV_TOOLS: boolean
-  VITE_MOCK_ENABLE: boolean
   VITE_CONSOLE_LOG: boolean
   VITE_DEBUG: boolean
   VITE_DROP_DEBUGGER: boolean
@@ -84,7 +83,6 @@ export const wrapperEnv = (envConf: Record<string, unknown>): ViteEnv => {
     VITE_ROOT_REDIRECT: '/dashboard',
     VITE_LOADING_SIZE: 5,
     VITE_DEV_TOOLS: true,
-    VITE_MOCK_ENABLE: true,
     VITE_CONSOLE_LOG: true,
     VITE_DEBUG: false,
     VITE_DROP_DEBUGGER: true,

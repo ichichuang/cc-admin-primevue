@@ -1,3 +1,6 @@
+@use './custom-color.scss';
+@use './custom-primevue.scss';
+
 /* 过渡动画 */
 #app {
   *,
@@ -24,7 +27,11 @@
     transition-timing-function: ease-in-out;
   }
 }
-.c-card {
+* {
+  font-size: var(--fontSize);
+}
+.c-card-accent,
+.c-card-primary {
   *,
   *::before,
   *::after {
@@ -45,34 +52,4 @@
 // 宽度高度比例 4:3
 .size-4-3 {
   aspect-ratio: 4/3;
-}
-
-/* PrimeVue UI 样式 */
-// 弹出框、抽屉
-.p-popover,
-.p-drawer {
-  *,
-  *::before,
-  *::after {
-    transition:
-      all 0.25s,
-      font-size 0s,
-      color 0s,
-      background-color 0.4s,
-      border 0.1s,
-      border-radius 0.4s,
-      box-shadow 0.4s;
-    transition-timing-function: ease-in-out;
-  }
-}
-// 抽屉
-.p-drawer {
-  box-shadow: -4px -6px 16px 0px var(--bg300);
-  .p-drawer-header {
-    border-bottom: 2px dotted var(--primary300);
-  }
-  .p-drawer-footer {
-    background-color: var(--bg200);
-    border: 2px dotted var(--primary300);
-  }
 }

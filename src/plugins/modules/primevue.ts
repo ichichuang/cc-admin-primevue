@@ -1,10 +1,3 @@
-/**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description PrimeVue 插件配置文件
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
 import { createCustomPreset, customPreset } from '@/constants'
 import { useColorStore, useSizeStore } from '@/stores'
 import { definePreset, usePreset } from '@primevue/themes'

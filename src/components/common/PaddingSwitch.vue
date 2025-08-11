@@ -12,20 +12,14 @@ const setPadding = (value: PaddingOptions['key']) => {
   sizeStore.setPadding(value)
 }
 </script>
-<template>
-  <div class="between-start gap-gap">
-    <span>间距</span>
-    <ButtonGroup>
-      <template
-        v-for="item in paddingOptions"
-        :key="item.value"
-      >
-        <Button
-          :label="item.label"
-          :severity="padding === item.key ? 'help' : 'secondary'"
-          @click="setPadding(item.key)"
-        />
-      </template>
-    </ButtonGroup>
-  </div>
+<template lang="pug">
+.between-start.gap-gap
+  span 间距
+  ButtonGroup
+    template(v-for='item in paddingOptions', :key='item.value')
+      Button(
+        :label='item.label',
+        :severity='padding === item.key ? "help" : "secondary"',
+        @click='setPadding(item.key)'
+      )
 </template>

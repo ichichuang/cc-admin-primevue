@@ -1,15 +1,14 @@
-/**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - 状态管理
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
 import { getUserInfo } from '@/api'
 import router from '@/router'
 import store from '@/stores'
 import { env } from '@/utils'
 import { defineStore } from 'pinia'
+
+interface UserState {
+  token: string
+  userInfo: UserInfo
+  isLogin: boolean
+}
 
 export const useUserStore = defineStore('user', {
   state: (): UserState => ({
@@ -20,6 +19,7 @@ export const useUserStore = defineStore('user', {
       roles: [], // 用户角色
       permissions: [], // 用户权限
     },
+    isLogin: false, // 是否登录
   }),
 
   getters: {
@@ -29,16 +29,15 @@ export const useUserStore = defineStore('user', {
     getUserRoles: (state: UserState) => state.userInfo.roles,
     // 获取按钮权限
     getUserPermissions: (state: UserState) => state.userInfo.permissions,
+    getIsLogin: (state: UserState) => state.isLogin,
   },
 
   actions: {
     setToken(token: string) {
       this.token = token
-      // 确保 token 设置完成后再获取用户信息
-      return getUserInfo().then(res => {
-        this.userInfo = res
+      getUserInfo().then(res => {
+        this.setUserInfo(res.data)
         router.push((router.currentRoute.value.query.redirect as string) || env.rootRedirect)
-        return res
       })
     },
     resetToken() {
@@ -46,6 +45,7 @@ export const useUserStore = defineStore('user', {
     },
     setUserInfo(userInfo: UserInfo) {
       this.userInfo = userInfo
+      this.isLogin = true
     },
     resetUserInfo() {
       this.userInfo = {
@@ -54,10 +54,20 @@ export const useUserStore = defineStore('user', {
         roles: [],
         permissions: [],
       }
+      this.isLogin = false
     },
-    logout() {
+    async logout() {
       this.resetToken()
       this.resetUserInfo()
+
+      // 重置动态路由初始化状态
+      try {
+        const { resetDynamicRoutesInitialized } = await import('@/router/utils/permission')
+        resetDynamicRoutesInitialized()
+      } catch (error) {
+        console.warn('重置动态路由状态失败:', error)
+      }
+
       const key = `${env.piniaKeyPrefix}-`
       Object.keys(localStorage).forEach(item => {
         if (item.startsWith(key)) {

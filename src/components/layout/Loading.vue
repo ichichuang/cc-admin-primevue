@@ -1,10 +1,3 @@
-<!--
-  @copyright Copyright (c) 2025 chichuang
-  @license MIT
-  @description cc-admin 企业级后台管理框架 - 组件
-  本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
--->
-
 <script setup lang="ts">
 import { toKebabCase } from '@/common'
 import { useLayoutStore } from '@/stores'
@@ -47,23 +40,14 @@ onMounted(() => {
 })
 </script>
 
-<template>
-  <div
-    ref="loadingRef"
-    class="full center"
-  >
-    <div
-      class="overflow-hidden atom-spinner"
-      :style="spinnerStyle"
-    >
-      <div class="spinner-inner">
-        <div class="spinner-line"></div>
-        <div class="spinner-line"></div>
-        <div class="spinner-line"></div>
-        <div class="spinner-circle">&#9679;</div>
-      </div>
-    </div>
-  </div>
+<template lang="pug">
+.full.center(ref='loadingRef')
+  .overflow-hidden.atom-spinner(:style='spinnerStyle')
+    .spinner-inner
+      .spinner-line
+      .spinner-line
+      .spinner-line
+      .spinner-circle ●
 </template>
 
 <style lang="scss" scoped>

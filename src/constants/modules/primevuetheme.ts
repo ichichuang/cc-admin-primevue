@@ -414,6 +414,7 @@ export const createCustomPreset = (preset: any, { colorStore, sizeStore }: Prime
       margin: `${sizeStore.getGap}px`, // 外边距（上下 左右）
       marginX: `${sizeStore.getGap}px`, // 左右外边距
       marginY: `${sizeStore.getGaps}px`, // 上下外边距
+      fontSize: `${sizeStore.getFontSizeValue}px`,
     }
 
     // 路径样式，用于深度匹配

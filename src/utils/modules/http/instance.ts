@@ -1,10 +1,3 @@
-/**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - 连接管理模块
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
 // src/utils/http/instance.ts
 import { HTTP_CONFIG } from '@/constants/modules/http'
 import { env } from '@/utils'
@@ -20,11 +13,6 @@ import { beforeRequest, responseHandler } from './interceptors'
 const validateAlovaConfig = () => {
   const errors: string[] = []
   const warnings: string[] = []
-
-  // 检查基础配置
-  if (!env.apiBaseUrl && !env.mockEnable) {
-    warnings.push('未设置 API 基础 URL，且未启用 Mock 模式')
-  }
 
   // 检查超时配置
   const timeout = HTTP_CONFIG.timeout
@@ -49,13 +37,8 @@ const validateAlovaConfig = () => {
 
   if (env.debug) {
     console.log('🔧 Alova 配置:', {
-      baseURL: env.mockEnable
-        ? 'Mock 模式'
-        : env.appEnv === 'development'
-          ? '/api'
-          : env.apiBaseUrl,
+      baseURL: env.appEnv === 'development' ? '/api' : env.apiBaseUrl,
       timeout,
-      mockEnable: env.mockEnable,
       appEnv: env.appEnv,
     })
   }
@@ -66,11 +49,7 @@ const validateAlovaConfig = () => {
  */
 export const alovaInstance = createAlova({
   // 连接到本地 cc-server
-  baseURL: env.mockEnable
-    ? '' // Mock 模式下不需要 baseURL 前缀
-    : env.appEnv === 'development'
-      ? '/api'
-      : env.apiBaseUrl,
+  baseURL: env.appEnv === 'development' ? '/api' : env.apiBaseUrl,
 
   // 使用 fetch 作为请求适配器
   requestAdapter: adapterFetch(),
@@ -93,10 +72,6 @@ validateAlovaConfig()
 
 // 监听连接状态变化
 addConnectionListener(state => {
-  if (env.debug) {
-    console.log('🔗 连接状态变化:', state)
-  }
-
   // 当连接断开时，可以在这里做一些清理工作
   if (!state.isConnected && !state.isReconnecting) {
     console.warn('⚠️ 网络连接已断开')

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import AnimateWrapper from '@/components/common/AnimateWrapper.vue'
 import type { AnimateName, AnimateRepeat, AnimateSpeed } from '@/types/modules/animate'
 import { ref } from 'vue'
 
@@ -79,289 +78,162 @@ const currentDuration = ref('800ms')
 const currentDelay = ref('0s')
 </script>
 
-<template>
-  <div class="p-6 space-y-8">
-    <h1 class="text-2xl font-bold mb-6">AnimateWrapper 动画组件示例</h1>
+<template lang="pug">
+.p-6.space-y-8
+  h1.text-2xl.font-bold.mb-6 AnimateWrapper 动画组件示例
+  // 单元素动画示例
+  .card.p-4
+    h2.text-xl.font-semibold.mb-4 单元素动画
+    .flex.gap-4.items-center
+      Button(@click='toggleVisible', :label='visible ? "隐藏" : "显示"')
+      AnimateWrapper(
+        :show='visible',
+        enter='zoomIn',
+        leave='zoomOut',
+        speed='fast',
+        duration='800ms',
+        delay='0.2s',
+        :repeat='2',
+        :appear='true'
+      )
+        .p-4.bg-primary.text-white.rounded-lg.shadow-lg 🎉 Animate.css 完美版组件
 
-    <!-- 单元素动画示例 -->
-    <div class="card p-4">
-      <h2 class="text-xl font-semibold mb-4">单元素动画</h2>
-      <div class="flex gap-4 items-center">
-        <Button
-          @click="toggleVisible"
-          :label="visible ? '隐藏' : '显示'"
-        />
+  // 列表队列动画示例
+  .card.p-4
+    h2.text-xl.font-semibold.mb-4 列表队列动画
+    .flex.gap-4.mb-4
+      Button(@click='addItem', label='添加项目')
+      Button(@click='items = [1, 2, 3, 4, 5]', label='重置', severity='secondary')
+    AnimateWrapper(
+      :show='true',
+      appear,
+      group,
+      enter='fadeInUp',
+      leave='fadeOutDown',
+      speed='faster',
+      duration='500ms',
+      :stagger='150'
+    )
+      .p-3.bg-secondary.text-white.rounded-lg.shadow-md.mb-2.cursor-pointer.transition-colors(
+        v-for='(item, index) in items',
+        :key='item',
+        @click='removeItem(index)',
+        class='hover:bg-secondary-dark'
+      ) 列表项 {{ item }} (点击删除)
 
-        <AnimateWrapper
-          :show="visible"
-          enter="zoomIn"
-          leave="zoomOut"
-          speed="fast"
-          duration="800ms"
-          delay="0.2s"
-          :repeat="2"
-          :appear="true"
-        >
-          <div class="p-4 bg-primary text-white rounded-lg shadow-lg">
-            🎉 Animate.css 完美版组件
-          </div>
-        </AnimateWrapper>
-      </div>
-    </div>
+  // 动画类型切换示例
+  .card.p-4
+    h2.text-xl.font-semibold.mb-4 动画类型切换
+    .flex.gap-2.mb-4.flex-wrap
+      Button(
+        v-for='anim in animations',
+        :key='anim.key',
+        :label='anim.label',
+        :severity='currentAnimation === anim.key ? "help" : "secondary"',
+        @click='currentAnimation = anim.key'
+      )
+    .flex.gap-4.items-center
+      Button(
+        @click='animationVisible = !animationVisible',
+        :label='animationVisible ? "隐藏" : "显示"'
+      )
+      AnimateWrapper(
+        :show='animationVisible',
+        :enter='animations.find(a => a.key === currentAnimation)?.enter',
+        :leave='animations.find(a => a.key === currentAnimation)?.leave',
+        duration='600ms',
+        appear
+      )
+        .p-4.bg-success.text-white.rounded-lg.shadow-lg 🎬 当前动画: {{ animations.find(a => a.key === currentAnimation)?.label }}
 
-    <!-- 列表队列动画示例 -->
-    <div class="card p-4">
-      <h2 class="text-xl font-semibold mb-4">列表队列动画</h2>
-      <div class="flex gap-4 mb-4">
-        <Button
-          @click="addItem"
-          label="添加项目"
-        />
-        <Button
-          @click="items = [1, 2, 3, 4, 5]"
-          label="重置"
-          severity="secondary"
-        />
-      </div>
+  // 动画参数控制示例
+  .card.p-4
+    h2.text-xl.font-semibold.mb-4 动画参数控制
+    .grid.grid-cols-1.gap-4.mb-4(class='md:grid-cols-2 lg:grid-cols-4')
+      div
+        label.block.text-sm.font-medium.mb-2 动画速度
+        Dropdown.w-full(
+          v-model='currentSpeed',
+          :options='speedOptions',
+          option-label='label',
+          option-value='value',
+          placeholder='选择速度'
+        )
+      div
+        label.block.text-sm.font-medium.mb-2 循环次数
+        Dropdown.w-full(
+          v-model='currentRepeat',
+          :options='repeatOptions',
+          option-label='label',
+          option-value='value',
+          placeholder='选择循环次数'
+        )
+      div
+        label.block.text-sm.font-medium.mb-2 动画时长
+        InputText.w-full(v-model='currentDuration', placeholder='例如: 800ms')
+      div
+        label.block.text-sm.font-medium.mb-2 动画延迟
+        InputText.w-full(v-model='currentDelay', placeholder='例如: 0.2s')
+    .flex.gap-4.items-center
+      Button(
+        @click='animationVisible = !animationVisible',
+        :label='animationVisible ? "隐藏" : "显示"'
+      )
+      AnimateWrapper(
+        :show='animationVisible',
+        enter='bounceIn',
+        leave='bounceOut',
+        :speed='currentSpeed',
+        :repeat='currentRepeat',
+        :duration='currentDuration',
+        :delay='currentDelay',
+        :appear='true'
+      )
+        .p-4.bg-warning.text-white.rounded-lg.shadow-lg ⚙️ 参数控制动画
 
-      <AnimateWrapper
-        :show="true"
-        group
-        enter="fadeInUp"
-        leave="fadeOutDown"
-        speed="faster"
-        duration="500ms"
-        :stagger="150"
-      >
-        <div
-          v-for="(item, index) in items"
-          :key="item"
-          class="p-3 bg-secondary text-white rounded-lg shadow-md mb-2 cursor-pointer hover:bg-secondary-dark transition-colors"
-          @click="removeItem(index)"
-        >
-          列表项 {{ item }} (点击删除)
-        </div>
-      </AnimateWrapper>
-    </div>
+  // 无限循环动画示例
+  .card.p-4
+    h2.text-xl.font-semibold.mb-4 无限循环动画
+    AnimateWrapper(:show='true', enter='pulse', duration='1s', repeat='infinite')
+      .p-4.bg-warning.text-white.rounded-lg.shadow-lg 🔄 无限循环动画
 
-    <!-- 动画类型切换示例 -->
-    <div class="card p-4">
-      <h2 class="text-xl font-semibold mb-4">动画类型切换</h2>
-      <div class="flex gap-2 mb-4 flex-wrap">
-        <Button
-          v-for="anim in animations"
-          :key="anim.key"
-          :label="anim.label"
-          :severity="currentAnimation === anim.key ? 'help' : 'secondary'"
-          @click="currentAnimation = anim.key"
-        />
-      </div>
+  // 默认配置示例
+  .card.p-4
+    h2.text-xl.font-semibold.mb-4 默认配置（零配置调用）
+    AnimateWrapper(:show='true')
+      .p-4.bg-info.text-white.rounded-lg.shadow-lg ✨ 使用全局默认配置的动画
 
-      <div class="flex gap-4 items-center">
-        <Button
-          @click="animationVisible = !animationVisible"
-          :label="animationVisible ? '隐藏' : '显示'"
-        />
+  // 多种动画效果展示
+  .card.p-4
+    h2.text-xl.font-semibold.mb-4 多种动画效果展示
+    .grid.grid-cols-1.gap-4(class='md:grid-cols-2 lg:grid-cols-3')
+      // 淡入淡出
+      AnimateWrapper(:show='true', enter='fadeIn', duration='1s')
+        .p-4.bg-primary.text-white.rounded-lg.shadow-lg.text-center 🌟 淡入淡出
+      // 缩放
+      AnimateWrapper(:show='true', enter='zoomIn', duration='1s')
+        .p-4.bg-secondary.text-white.rounded-lg.shadow-lg.text-center 🔍 缩放动画
+      // 滑动
+      AnimateWrapper(:show='true', enter='slideInUp', duration='1s')
+        .p-4.bg-success.text-white.rounded-lg.shadow-lg.text-center 📈 滑动动画
+      // 弹跳
+      AnimateWrapper(:show='true', enter='bounceIn', duration='1s')
+        .p-4.bg-warning.text-white.rounded-lg.shadow-lg.text-center 🏀 弹跳动画
+      // 翻转
+      AnimateWrapper(:show='true', enter='flipInX', duration='1s')
+        .p-4.bg-danger.text-white.rounded-lg.shadow-lg.text-center 🔄 翻转动画
+      // 旋转
+      AnimateWrapper(:show='true', enter='rotateIn', duration='1s')
+        .p-4.bg-info.text-white.rounded-lg.shadow-lg.text-center 🎯 旋转动画
 
-        <AnimateWrapper
-          :show="animationVisible"
-          :enter="animations.find(a => a.key === currentAnimation)?.enter"
-          :leave="animations.find(a => a.key === currentAnimation)?.leave"
-          duration="600ms"
-          :appear="true"
-        >
-          <div class="p-4 bg-success text-white rounded-lg shadow-lg">
-            🎬 当前动画: {{ animations.find(a => a.key === currentAnimation)?.label }}
-          </div>
-        </AnimateWrapper>
-      </div>
-    </div>
-
-    <!-- 动画参数控制示例 -->
-    <div class="card p-4">
-      <h2 class="text-xl font-semibold mb-4">动画参数控制</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        <div>
-          <label class="block text-sm font-medium mb-2">动画速度</label>
-          <Dropdown
-            v-model="currentSpeed"
-            :options="speedOptions"
-            option-label="label"
-            option-value="value"
-            placeholder="选择速度"
-            class="w-full"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-2">循环次数</label>
-          <Dropdown
-            v-model="currentRepeat"
-            :options="repeatOptions"
-            option-label="label"
-            option-value="value"
-            placeholder="选择循环次数"
-            class="w-full"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-2">动画时长</label>
-          <InputText
-            v-model="currentDuration"
-            placeholder="例如: 800ms"
-            class="w-full"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-2">动画延迟</label>
-          <InputText
-            v-model="currentDelay"
-            placeholder="例如: 0.2s"
-            class="w-full"
-          />
-        </div>
-      </div>
-
-      <div class="flex gap-4 items-center">
-        <Button
-          @click="animationVisible = !animationVisible"
-          :label="animationVisible ? '隐藏' : '显示'"
-        />
-
-        <AnimateWrapper
-          :show="animationVisible"
-          enter="bounceIn"
-          leave="bounceOut"
-          :speed="currentSpeed"
-          :repeat="currentRepeat"
-          :duration="currentDuration"
-          :delay="currentDelay"
-          :appear="true"
-        >
-          <div class="p-4 bg-warning text-white rounded-lg shadow-lg">⚙️ 参数控制动画</div>
-        </AnimateWrapper>
-      </div>
-    </div>
-
-    <!-- 无限循环动画示例 -->
-    <div class="card p-4">
-      <h2 class="text-xl font-semibold mb-4">无限循环动画</h2>
-      <AnimateWrapper
-        :show="true"
-        enter="pulse"
-        duration="1s"
-        repeat="infinite"
-      >
-        <div class="p-4 bg-warning text-white rounded-lg shadow-lg">🔄 无限循环动画</div>
-      </AnimateWrapper>
-    </div>
-
-    <!-- 默认配置示例 -->
-    <div class="card p-4">
-      <h2 class="text-xl font-semibold mb-4">默认配置（零配置调用）</h2>
-      <AnimateWrapper :show="true">
-        <div class="p-4 bg-info text-white rounded-lg shadow-lg">✨ 使用全局默认配置的动画</div>
-      </AnimateWrapper>
-    </div>
-
-    <!-- 多种动画效果展示 -->
-    <div class="card p-4">
-      <h2 class="text-xl font-semibold mb-4">多种动画效果展示</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- 淡入淡出 -->
-        <AnimateWrapper
-          :show="true"
-          enter="fadeIn"
-          duration="1s"
-        >
-          <div class="p-4 bg-primary text-white rounded-lg shadow-lg text-center">🌟 淡入淡出</div>
-        </AnimateWrapper>
-
-        <!-- 缩放 -->
-        <AnimateWrapper
-          :show="true"
-          enter="zoomIn"
-          duration="1s"
-        >
-          <div class="p-4 bg-secondary text-white rounded-lg shadow-lg text-center">
-            🔍 缩放动画
-          </div>
-        </AnimateWrapper>
-
-        <!-- 滑动 -->
-        <AnimateWrapper
-          :show="true"
-          enter="slideInUp"
-          duration="1s"
-        >
-          <div class="p-4 bg-success text-white rounded-lg shadow-lg text-center">📈 滑动动画</div>
-        </AnimateWrapper>
-
-        <!-- 弹跳 -->
-        <AnimateWrapper
-          :show="true"
-          enter="bounceIn"
-          duration="1s"
-        >
-          <div class="p-4 bg-warning text-white rounded-lg shadow-lg text-center">🏀 弹跳动画</div>
-        </AnimateWrapper>
-
-        <!-- 翻转 -->
-        <AnimateWrapper
-          :show="true"
-          enter="flipInX"
-          duration="1s"
-        >
-          <div class="p-4 bg-danger text-white rounded-lg shadow-lg text-center">🔄 翻转动画</div>
-        </AnimateWrapper>
-
-        <!-- 旋转 -->
-        <AnimateWrapper
-          :show="true"
-          enter="rotateIn"
-          duration="1s"
-        >
-          <div class="p-4 bg-info text-white rounded-lg shadow-lg text-center">🎯 旋转动画</div>
-        </AnimateWrapper>
-      </div>
-    </div>
-
-    <!-- 动画组合示例 -->
-    <div class="card p-4">
-      <h2 class="text-xl font-semibold mb-4">动画组合示例</h2>
-      <div class="space-y-4">
-        <AnimateWrapper
-          :show="true"
-          enter="fadeInDown"
-          duration="800ms"
-          delay="0.1s"
-        >
-          <div class="p-3 bg-primary text-white rounded-lg shadow-lg">
-            🎨 组合动画 1: 从上方淡入
-          </div>
-        </AnimateWrapper>
-
-        <AnimateWrapper
-          :show="true"
-          enter="fadeInDown"
-          duration="800ms"
-          delay="0.2s"
-        >
-          <div class="p-3 bg-secondary text-white rounded-lg shadow-lg">
-            🎨 组合动画 2: 从上方淡入（延迟0.2s）
-          </div>
-        </AnimateWrapper>
-
-        <AnimateWrapper
-          :show="true"
-          enter="fadeInDown"
-          duration="800ms"
-          delay="0.3s"
-        >
-          <div class="p-3 bg-success text-white rounded-lg shadow-lg">
-            🎨 组合动画 3: 从上方淡入（延迟0.3s）
-          </div>
-        </AnimateWrapper>
-      </div>
-    </div>
-  </div>
+  // 动画组合示例
+  .card.p-4
+    h2.text-xl.font-semibold.mb-4 动画组合示例
+    .space-y-4
+      AnimateWrapper(:show='true', enter='fadeInDown', duration='800ms', delay='0.1s')
+        .p-3.bg-primary.text-white.rounded-lg.shadow-lg 🎨 组合动画 1: 从上方淡入
+      AnimateWrapper(:show='true', enter='fadeInDown', duration='800ms', delay='0.2s')
+        .p-3.bg-secondary.text-white.rounded-lg.shadow-lg 🎨 组合动画 2: 从上方淡入（延迟0.2s）
+      AnimateWrapper(:show='true', enter='fadeInDown', duration='800ms', delay='0.3s')
+        .p-3.bg-success.text-white.rounded-lg.shadow-lg 🎨 组合动画 3: 从上方淡入（延迟0.3s）
 </template>

@@ -1,23 +1,26 @@
+import { useLoading } from '@/hooks'
+import type { App } from 'vue'
+import { nextTick } from 'vue'
+import { setupLocales } from './modules/locales'
+import { setupPrimeVue } from './modules/primevue'
+import { setupRouter } from './modules/router'
+import { setupStores } from './modules/stores'
+
 /**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description 插件配置文件索引
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
+ * 统一设置所有插件
+ * @param app Vue 应用实例
  */
-
-// Plugins 统一管理入口
-import { autoImportModulesSync } from '@/utils'
-
-// 自动导入所有插件模块
-const pluginModules = import.meta.glob('./modules/**/*.ts', { eager: true })
-const importedPlugins = autoImportModulesSync(pluginModules)
-
-// 导出所有插件模块
-export * from './modules/core'
-export * from './modules/primevue'
-
-// 导出所有插件
-export default importedPlugins
-
-// 类型定义
-export type PluginModules = typeof importedPlugins
+export const setupPlugins = (app: App) => {
+  const { loadingStart, loadingDone } = useLoading()
+  loadingStart()
+  // 1. 设置核心插件（路由、状态管理）
+  setupStores(app)
+  setupRouter(app)
+  setupLocales(app)
+  setupPrimeVue(app)
+  nextTick(() => {
+    setTimeout(() => {
+      loadingDone()
+    })
+  })
+}

@@ -12,20 +12,14 @@ const setRounded = (value: RoundedOptions['key']) => {
   sizeStore.setRounded(value)
 }
 </script>
-<template>
-  <div class="between-start gap-gap">
-    <span>棱角</span>
-    <ButtonGroup>
-      <template
-        v-for="item in roundedOptions"
-        :key="item.value"
-      >
-        <Button
-          :label="item.label"
-          :severity="rounded === item.key ? 'help' : 'secondary'"
-          @click="setRounded(item.key)"
-        />
-      </template>
-    </ButtonGroup>
-  </div>
+<template lang="pug">
+.between-start.gap-gap
+  span 棱角
+  ButtonGroup
+    template(v-for='item in roundedOptions', :key='item.value')
+      Button(
+        :label='item.label',
+        :severity='rounded === item.key ? "help" : "secondary"',
+        @click='setRounded(item.key)'
+      )
 </template>

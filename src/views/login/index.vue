@@ -5,20 +5,17 @@ import { ref } from 'vue'
 
 const userStore = useUserStoreWithOut()
 const loading = ref(false)
-const result = ref('')
 
 const handleLogin = async () => {
   loading.value = true
-  result.value = ''
 
   try {
-    const { token } = await login({ username: 'admin', password: '123456' })
-    // 登录成功，获取用户信息
-    await userStore.setToken(token)
+    const {
+      data: { token },
+    } = await login({ username: 'admin', password: '123456' })
+    userStore.setToken(token)
   } catch (error) {
     console.error('❌ 登录失败:', error)
-    result.value = `登录失败: ${error instanceof Error ? error.message : String(error)}`
-    // 登录失败时清空用户状态
     userStore.resetToken()
     userStore.resetUserInfo()
   } finally {
@@ -27,19 +24,22 @@ const handleLogin = async () => {
 }
 </script>
 
-<template>
-  <div class="container center">
-    <Button
-      :disabled="loading"
-      @click="handleLogin"
-    >
-      {{ loading ? '登录中...' : '登录' }}
-    </Button>
-    <div
-      v-if="result"
-      class="mt-4 text-red-500"
-    >
-      {{ result }}
-    </div>
-  </div>
+<template lang="pug">
+.full.center.bg-bg100
+  .center-col.gap-gap(class='w40% md:w36% lg:w28% xls:w26%')
+    .fs-appFontSizex.font-bold 登录
+    .fs-appFontSize 还没有账号？点我注册
+    .c-shadow.p-padding.rounded-xl.wfull.c-border.p-paddingl
+      .wfull.h-60.grid.grid-cols-3.gap-gap.fs-appFontSizes
+        .c-card-accent.center.bg-bg100 QQ
+        .c-card-accent.center.bg-bg100 微信
+        .c-card-accent.center.bg-bg100 支付宝
+      .full.center
+        Divider.w-full.p0.my2(align='center', type='dotted')
+          span.font-bold 账号密码登录
+
+      Button.full(:disabled='loading', severity='help', @click='handleLogin') {{ loading ? '登录中...' : '登录' }}
+    .full.between-end
+      .text-warn.c-cp(class='duration-200!') 忘记密码？
+      .text-danger.c-cp(class='duration-200!') 立即找回？
 </template>

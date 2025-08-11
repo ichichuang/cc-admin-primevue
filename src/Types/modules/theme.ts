@@ -1,10 +1,3 @@
-/**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - 主题类型声明
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
 // 声明全局类型
 declare global {
   /* ==================== 主题模式相关类型 ==================== */
@@ -175,16 +168,24 @@ declare global {
     sidebarCollapsedWidth: number
     // 头部高度
     headerHeight: number
-    // 面包屑高度
-    breadcrumbHeight: number
     // 底部高度
     footerHeight: number
+    // 面包屑高度
+    breadcrumbHeight: number
     // 标签页高度
     tabsHeight: number
-    // 内容区域高度(不包含头部、面包屑、标签页、底部)
+    // 内容区域高度(窗口高度 - 头部 - 底部 - 面包屑 - 标签页)
     contentHeight: number
-    // 内容区域高度(不包含头部、底部)
+    // 内容区域包含面包屑高度(窗口高度 - 头部 - 底部 - 标签页)
+    contentBreadcrumbHeight: number
+    // 内容区域包含标签页高度(窗口高度 - 头部 - 底部 - 面包屑)
+    contentTabsHeight: number
+    // 内容区域高度包含面包屑标签栏(窗口高度 - 头部 - 底部)
     contentsHeight: number
+    // 内容区域包含面包屑高度(窗口高度 - 头部 - 底部 - 标签页)
+    contentsBreadcrumbHeight: number
+    // 内容区域包含标签页高度(窗口高度 - 头部 - 底部 - 面包屑)
+    contentsTabsHeight: number
     // 间距
     gap: number
   }

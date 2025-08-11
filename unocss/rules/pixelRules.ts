@@ -1,11 +1,4 @@
 /**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - pixelRules
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
-/**
  * 创建通用的像素值规则生成器
  * 优化：减少代码重复，提高性能
  *
@@ -41,10 +34,10 @@ export function createPixelRules() {
     ['ml', 'margin-left'],
 
     // 位置 - 保持像素值（通过黑名单排除转换）
-    ['top', 'top'],
-    ['right', 'right'],
-    ['bottom', 'bottom'],
-    ['left', 'left'],
+    ['t', 'top'],
+    ['r', 'right'],
+    ['b', 'bottom'],
+    ['l', 'left'],
 
     // 间距 - 会被转换为 rem（适合响应式布局）
     ['gap', 'gap'],
@@ -62,10 +55,10 @@ export function createPixelRules() {
     ['gapx', ['gap-x']],
     ['gapy', ['gap-y']],
     ['gap', ['gap']],
-    ['top', ['top']],
-    ['right', ['right']],
-    ['bottom', ['bottom']],
-    ['left', ['left']],
+    ['t', ['top']],
+    ['r', ['right']],
+    ['b', ['bottom']],
+    ['l', ['left']],
   ] as const
 
   const rules: any[] = []

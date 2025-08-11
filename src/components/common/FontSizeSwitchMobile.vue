@@ -12,17 +12,12 @@ const setFontSize = (value: FontSizeOptions['key']) => {
   sizeStore.setFontSize(value)
 }
 </script>
-<template>
-  <ButtonGroup>
-    <template
-      v-for="item in fontSizeOptions"
-      :key="item.value"
-    >
-      <Button
-        :label="item.label"
-        :severity="fontSize === item.key ? 'help' : 'secondary'"
-        @click="setFontSize(item.key)"
-      />
-    </template>
-  </ButtonGroup>
+<template lang="pug">
+ButtonGroup
+  template(v-for='item in fontSizeOptions', :key='item.value')
+    Button(
+      :label='item.label',
+      :severity='fontSize === item.key ? "help" : "secondary"',
+      @click='setFontSize(item.key)'
+    )
 </template>

@@ -1,14 +1,7 @@
-<!--
-  @copyright Copyright (c) 2025 chichuang
-  @license MIT
-  @description cc-admin 企业级后台管理框架 - 布局组件
-  本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
--->
-
 <script setup lang="ts">
+import Loading from '@/components/layout/Loading.vue'
 import { useLayoutStore, useSizeStore } from '@/stores'
 import { computed } from 'vue'
-import AppBreadcrumb from './AppBreadcrumb.vue'
 import AppContainer from './AppContainer.vue'
 import AppFooter from './AppFooter.vue'
 import AppHeader from './AppHeader.vue'
@@ -17,9 +10,9 @@ import AppTabs from './AppTabs.vue'
 
 const layoutStore = useLayoutStore()
 const sizeStore = useSizeStore()
+const isPageLoading = computed(() => layoutStore.isPageLoading)
 const showHeader = computed(() => layoutStore.getShowHeader)
 const showSidebar = computed(() => layoutStore.getShowSidebar)
-const showBreadcrumb = computed(() => layoutStore.getShowBreadcrumb)
 const showFooter = computed(() => layoutStore.getShowFooter)
 const showTabs = computed(() => layoutStore.getShowTabs)
 
@@ -38,55 +31,41 @@ const sidebarClass = computed(() => ({
 }))
 </script>
 
-<template>
-  <div class="container between">
-    <!-- 菜单栏目 -->
+<template lang="pug">
+.full.between
+  // 菜单栏目
+  aside.full.between-col.color-primary400.c-border.border-y-none.border-l-none.bg-primary100(
+    :style='sidebarClass'
+  )
+    .h-headerHeight.p-paddings.center
+      span cc
+    .flex-1.p-paddings
+      .full
+        AppSidebar
 
-    <!-- <template v-if="showSidebar"> -->
-    <aside
-      aside
-      class="hfull bg-primary100 color-primary400"
-      :style="sidebarClass"
-    >
-      <AppSidebar />
-    </aside>
-    <!-- </template> -->
-    <!-- 主体 -->
-    <main class="full">
-      <!-- 头部 -->
-      <template v-if="showHeader">
-        <header class="h-headerHeight">
-          <AppHeader />
-        </header>
-      </template>
+  // 主体
+  main.full
+    // 头部
+    template(v-if='showHeader')
+      header.h-headerHeight.px-padding
+        AppHeader
 
-      <!-- 内容区域 -->
-      <div class="full h-contentsHeight">
-        <!-- 面包屑 -->
-        <template v-if="showBreadcrumb">
-          <section class="full h-breadcrumbHeight">
-            <AppBreadcrumb />
-          </section>
-        </template>
+    // 标签页
+    template(v-if='showTabs')
+      section.full.h-tabsHeight.px-paddingx.bg-bg200
+        AppTabs
 
-        <!-- 标签页 -->
-        <template v-if="showTabs">
-          <section class="full h-tabsHeight">
-            <AppTabs />
-          </section>
-        </template>
+    // 内容区域
+    .full.h-contentBreadcrumbHeight.c-border.border-x-none
+      .full.h-contentBreadcrumbHeight.p-paddingl
+        .container.rounded-xl.c-border.border-2.border-dashed.p-padding.relative
+          AppContainer
+          .absolute.t-0.r-0.l-0.b-0.z-1.full.center(v-if='isPageLoading')
+            Loading.z-2
+            .absolute.full.bg-bg200.opacity-50.z-0
 
-        <div class="full h-contentHeight p-paddingl bg-bg200">
-          <AppContainer />
-        </div>
-      </div>
-
-      <!-- 底部 -->
-      <template v-if="showFooter">
-        <footer class="h-footerHeight">
-          <AppFooter />
-        </footer>
-      </template>
-    </main>
-  </div>
+    // 底部
+    template(v-if='showFooter')
+      footer.h-footerHeight.bg-bg200
+        AppFooter
 </template>

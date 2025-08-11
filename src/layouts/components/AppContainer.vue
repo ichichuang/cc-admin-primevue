@@ -1,25 +1,26 @@
-<!--
-  @copyright Copyright (c) 2025 chichuang
-  @license MIT
-  @description cc-admin 企业级后台管理框架 - 布局组件
-  本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
--->
-
 <script setup lang="ts">
+import { routeWhiteList } from '@/constants'
 import { routeUtils } from '@/router'
 import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 
-const keepAliveNames = computed(() =>
-  routeUtils.flatRoutes.filter(r => r.meta?.keepAlive && r.name).map(r => r.name as string)
-)
+const route = useRoute()
+
+// 检查当前路由是否在白名单中
+const isWhiteListRoute = computed(() => routeWhiteList.includes(route.path as any))
+
+// 只有在非白名单路由时才计算 keepAliveNames
+const keepAliveNames = computed(() => {
+  if (isWhiteListRoute.value) {
+    return []
+  }
+  return routeUtils.flatRoutes.filter(r => r.meta?.keepAlive && r.name).map(r => r.name as string)
+})
 </script>
-<template>
-  <div class="full rounded-12px c-border border-2 border-dashed p-padding">
-    <RouterView v-slot="{ Component }">
-      <KeepAlive :include="keepAliveNames">
-        <component :is="Component" />
-      </KeepAlive>
-    </RouterView>
-  </div>
+<template lang="pug">
+.full
+  router-view(v-slot='{ Component }')
+    keep-alive(:include='keepAliveNames')
+      component(:is='Component')
 </template>
 <style lang="scss" scope></style>

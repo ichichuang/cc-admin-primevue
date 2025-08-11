@@ -1,11 +1,4 @@
 /**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - themeRules
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
-/**
  * 创建主题变量映射规则
  * 优化：支持动态主题变量
  *
@@ -47,10 +40,28 @@ export function createThemeVariableRules() {
     ([, name]: string[], { theme }: { theme: any }) => {
       // 首先检查主题配置中是否有对应的尺寸
       if (theme.sizes && theme.sizes[name]) {
+        // 对核心布局尺寸类默认添加 !important，避免被第三方样式覆盖
+        const layoutCritical = [
+          'headerHeight',
+          'breadcrumbHeight',
+          'footerHeight',
+          'tabsHeight',
+          'contentHeight',
+          'contentBreadcrumbHeight',
+          'contentTabsHeight',
+          'contentsHeight',
+          'contentsBreadcrumbHeight',
+          'contentsTabsHeight',
+        ]
+
+        const value = layoutCritical.includes(name)
+          ? `${theme.sizes[name]} !important`
+          : theme.sizes[name]
+
         if (Array.isArray(cssProperty)) {
-          return Object.fromEntries(cssProperty.map(prop => [prop as string, theme.sizes[name]]))
+          return Object.fromEntries(cssProperty.map(prop => [prop as string, value]))
         }
-        return { [cssProperty as string]: theme.sizes[name] }
+        return { [cssProperty as string]: value }
       }
 
       // 如果没有找到主题配置，检查是否是布局相关的动态变量
@@ -62,16 +73,35 @@ export function createThemeVariableRules() {
         'footerHeight',
         'tabsHeight',
         'contentHeight',
+        'contentBreadcrumbHeight',
+        'contentTabsHeight',
         'contentsHeight',
+        'contentsBreadcrumbHeight',
+        'contentsTabsHeight',
       ]
 
       if (layoutSizes.includes(name)) {
         // 使用与 toKebabCase 函数一致的命名规则
         const cssVarName = `var(--${name.replace(/([A-Z])/g, '-$1').toLowerCase()})`
+        // 同上：核心布局尺寸类默认添加 !important
+        const layoutCritical = [
+          'headerHeight',
+          'breadcrumbHeight',
+          'footerHeight',
+          'tabsHeight',
+          'contentHeight',
+          'contentBreadcrumbHeight',
+          'contentTabsHeight',
+          'contentsHeight',
+          'contentsBreadcrumbHeight',
+          'contentsTabsHeight',
+        ]
+        const value = layoutCritical.includes(name) ? `${cssVarName} !important` : cssVarName
+
         if (Array.isArray(cssProperty)) {
-          return Object.fromEntries(cssProperty.map(prop => [prop as string, cssVarName]))
+          return Object.fromEntries(cssProperty.map(prop => [prop as string, value]))
         }
-        return { [cssProperty as string]: cssVarName }
+        return { [cssProperty as string]: value }
       }
 
       return undefined

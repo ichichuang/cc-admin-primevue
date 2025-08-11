@@ -2,11 +2,10 @@
 const env = import.meta.env
 const title = env.VITE_APP_TITLE
 </script>
-<template>
-  <div>
-    <h1>403</h1>
-    <p>Forbidden</p>
-    <p>{{ title }}</p>
-  </div>
+<template lang="pug">
+div
+  h1 403
+  p Forbidden
+  p {{ title }}
 </template>
 <style lang="scss" scope></style>

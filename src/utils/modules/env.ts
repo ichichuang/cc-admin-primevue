@@ -1,11 +1,4 @@
 /**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - 工具函数
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
-/**
  * 环境变量工具函数
  * 提供类型安全的环境变量访问和转换
  */
@@ -96,10 +89,6 @@ export const env = {
     return toBool(import.meta.env.VITE_DEV_TOOLS)
   },
 
-  get mockEnable(): boolean {
-    return toBool(import.meta.env.VITE_MOCK_ENABLE)
-  },
-
   get consoleLog(): boolean {
     return toBool(import.meta.env.VITE_CONSOLE_LOG)
   },
@@ -146,7 +135,7 @@ export class EnvValidator {
    * 验证必需的环境变量是否已设置
    */
   static validateRequired(): void {
-    const required = ['VITE_APP_TITLE', 'VITE_API_BASE_URL', 'VITE_PINIA_PERSIST_KEY_PREFIX']
+    const required = ['VITE_APP_TITLE', 'VITE_PINIA_PERSIST_KEY_PREFIX']
 
     const missing = required.filter(key => !import.meta.env[key])
 
@@ -159,13 +148,6 @@ export class EnvValidator {
    * 验证环境变量值的格式
    */
   static validateFormats(): void {
-    // 验证 URL 格式
-    try {
-      new URL(env.apiBaseUrl)
-    } catch {
-      throw new Error(`VITE_API_BASE_URL 不是有效的 URL: ${env.apiBaseUrl}`)
-    }
-
     // 验证端口范围
     if (env.port < 1024 || env.port > 65535) {
       throw new Error(`VITE_PORT 超出有效范围 (1024-65535): ${env.port}`)

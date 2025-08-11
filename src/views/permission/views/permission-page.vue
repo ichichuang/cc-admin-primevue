@@ -1,7 +1,6 @@
 <script setup lang="ts"></script>
-<template>
-  <div>
-    <p>页面管理</p>
-  </div>
+<template lang="pug">
+div
+  p 页面管理
 </template>
 <style lang="scss" scope></style>

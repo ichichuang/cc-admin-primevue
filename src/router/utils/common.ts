@@ -1,10 +1,3 @@
-/**
- * @copyright Copyright (c) 2025 chichuang
- * @license MIT
- * @description cc-admin 企业级后台管理框架 - 路由管理
- * 本文件为 chichuang 原创，禁止擅自删除署名或用于商业用途。
- */
-
 import type { RouteRecordRaw } from 'vue-router'
 
 /**
@@ -98,7 +91,17 @@ export function processAsyncRoutes(backendRoutes: BackendRouteConfig[]): RouteCo
 
     // 处理组件
     if (route.component) {
-      processedRoute.component = loadView(route.component as string)
+      const component = loadView(route.component as string)
+      processedRoute.component = component
+
+      // 检查组件是否加载成功（不是 404 页面）
+      if (component === modules['/src/views/notfound/not-found-page.vue']) {
+        console.warn(`⚠️ 路由 ${route.path} 的组件 ${route.component} 未找到，已使用 404 页面替代`)
+        // 可以在这里设置一个标识，表示该路由使用了回退组件
+        if (processedRoute.meta) {
+          processedRoute.meta.useFallbackComponent = true
+        }
+      }
     }
 
     // 处理重定向：如果有子路由且没有设置重定向，默认重定向到第一个子路由
@@ -470,7 +473,7 @@ export function getKeepAliveNames(routes: RouteConfig[]): string[] {
   function traverse(routeList: RouteConfig[]) {
     routeList.forEach(route => {
       if (route.meta?.keepAlive && route.name) {
-        keepAliveNames.push(route.name)
+        keepAliveNames.push(route.name as string)
       }
       if (route.children && route.children.length > 0) {
         traverse(route.children)
@@ -493,6 +496,13 @@ export function createRouteUtils(routes: RouteConfig[]): RouteUtils {
     menuTree: generateMenuTree(sortedRoutes),
     breadcrumbMap: generateBreadcrumbMap(sortedRoutes),
     keepAliveNames: getKeepAliveNames(sortedRoutes),
+    updateRouteUtils(newRoutes: RouteConfig[]) {
+      const newSortedRoutes = sortRoutes([...newRoutes])
+      this.flatRoutes = flattenRoutes(newSortedRoutes)
+      this.menuTree = generateMenuTree(newSortedRoutes)
+      this.breadcrumbMap = generateBreadcrumbMap(newSortedRoutes)
+      this.keepAliveNames = getKeepAliveNames(newSortedRoutes)
+    },
   }
 }
 
@@ -598,40 +608,149 @@ const modules = import.meta.glob('@/views/**/*.{vue,tsx}')
  * @param componentName 例如 'login'、'permission-page'
  */
 export function loadView(componentName: string) {
-  // 将 componentName 以第一个 - 为分隔符，获取第一个字符串
-  const firstPart = componentName.split('-')[0]
-  // 可能路径集合
-  const possiblePaths = [
-    `/src/views/${componentName}/index.vue`, // 一级页面，例如 login -> /views/login/index.vue
-    `/src/views/${componentName}/index.tsx`, // 一级页面，例如 login -> /views/login/index.tsx
-    `/src/views/${firstPart}/views/${componentName}.vue`, // 子页面，例如 permission-page -> /views/permission/views/permission-page.vue
-    `/src/views/${firstPart}/views/${componentName}.tsx`, // 子页面，例如 permission-page -> /views/permission/views/permission-page.tsx
-  ]
+  // 支持的文件扩展名
+  const supportedExtensions = ['.vue', '.tsx', '.jsx']
 
-  // 找匹配路径
-  for (const path of Object.keys(modules)) {
-    if (possiblePaths.some(pattern => matchPath(path, pattern))) {
-      return modules[path]
-    }
+  // 解析组件名称，支持多种命名规范
+  const componentPath = parseComponentPath(componentName)
+
+  // 查找匹配的组件文件
+  const matchedComponent = findComponentFile(componentPath, supportedExtensions)
+
+  if (matchedComponent) {
+    return matchedComponent
   }
 
-  // fallback
+  // 如果没找到组件，记录错误并返回 404 页面
+  console.error(`❌ 组件未找到: ${componentName}`)
+  console.error(`🔍 尝试的路径: ${componentPath.join(', ')}`)
+  console.error(`📁 可用的模块:`, Object.keys(modules))
+
+  // 返回 404 页面作为回退
   return modules['/src/views/notfound/not-found-page.vue']
 }
 
 /**
- * 简单的路径匹配工具，支持 pattern 中的 ** 通配符
+ * 解析组件路径，支持多种命名规范
+ * @param componentName 组件名称
+ * @returns 可能的组件路径数组
  */
-function matchPath(actual: string, pattern: string) {
-  const regex = new RegExp(
-    '^' +
-      pattern
-        .replace(/\*\*/g, '.*') // ** -> 任意目录
-        .replace(/\./g, '\\.') // . -> \.
-        .replace(/\//g, '\\/') + // / -> \/
-      '$'
-  )
-  return regex.test(actual)
+function parseComponentPath(componentName: string): string[] {
+  const paths: string[] = []
+
+  // 规范 1: @permission/ -> src/views/permission/views/permission-*.vue
+  if (componentName.startsWith('@')) {
+    const [module, ...rest] = componentName.split('/')
+    const moduleName = module.substring(1) // 去掉 @ 符号
+
+    if (rest.length > 0) {
+      const componentFile = rest.join('/')
+      paths.push(`/src/views/${moduleName}/views/${componentFile}`)
+    } else {
+      // 如果没有子路径，尝试 index.vue
+      paths.push(`/src/views/${moduleName}/index`)
+    }
+  }
+  // 规范 2: permission/views/permission-page -> src/views/permission/views/permission-page.vue
+  else if (componentName.includes('/')) {
+    // 直接使用完整路径
+    paths.push(`/src/views/${componentName}`)
+  }
+  // 规范 3: permission-page -> src/views/permission/views/permission-page.vue
+  else if (componentName.includes('-')) {
+    const [firstPart] = componentName.split('-')
+    const componentFile = componentName
+    paths.push(`/src/views/${firstPart}/views/${componentFile}`)
+  }
+  // 规范 4: permission -> src/views/permission/index.vue
+  else {
+    paths.push(`/src/views/${componentName}/index`)
+  }
+
+  return paths
+}
+
+/**
+ * 查找组件文件
+ * @param possiblePaths 可能的路径数组
+ * @param extensions 支持的文件扩展名
+ * @returns 找到的组件或 null
+ */
+function findComponentFile(possiblePaths: string[], extensions: string[]): any | null {
+  // 遍历所有可能的路径
+  for (const basePath of possiblePaths) {
+    // 遍历所有支持的文件扩展名
+    for (const ext of extensions) {
+      const fullPath = `${basePath}${ext}`
+
+      // 检查是否存在完全匹配的路径
+      if (modules[fullPath]) {
+        return modules[fullPath]
+      }
+
+      // 使用模糊匹配查找最接近的路径
+      const matchedPath = findClosestPath(fullPath)
+      if (matchedPath) {
+        return modules[matchedPath]
+      }
+    }
+  }
+
+  return null
+}
+
+/**
+ * 查找最接近的路径
+ * @param targetPath 目标路径
+ * @returns 最接近的路径或 null
+ */
+function findClosestPath(targetPath: string): string | null {
+  const availablePaths = Object.keys(modules)
+
+  // 精确匹配
+  if (availablePaths.includes(targetPath)) {
+    return targetPath
+  }
+
+  // 模糊匹配：查找包含目标路径关键部分的文件
+  const targetParts = targetPath.split('/').filter(Boolean)
+
+  for (const availablePath of availablePaths) {
+    const availableParts = availablePath.split('/').filter(Boolean)
+
+    // 检查路径的相似度
+    if (isPathSimilar(targetParts, availableParts)) {
+      return availablePath
+    }
+  }
+
+  return null
+}
+
+/**
+ * 检查两个路径是否相似
+ * @param path1 路径1的部分
+ * @param path2 路径2的部分
+ * @returns 是否相似
+ */
+function isPathSimilar(path1: string[], path2: string[]): boolean {
+  // 如果长度差异太大，认为不相似
+  if (Math.abs(path1.length - path2.length) > 2) {
+    return false
+  }
+
+  // 检查关键部分是否匹配
+  const minLength = Math.min(path1.length, path2.length)
+  let matchCount = 0
+
+  for (let i = 0; i < minLength; i++) {
+    if (path1[i] === path2[i] || path1[i].includes(path2[i]) || path2[i].includes(path1[i])) {
+      matchCount++
+    }
+  }
+
+  // 如果匹配度超过 70%，认为相似
+  return matchCount / minLength >= 0.7
 }
 
 /**
@@ -641,4 +760,51 @@ function matchPath(actual: string, pattern: string) {
  */
 export function recordUnauthorizedAccess(path: string, userRoles: string[]) {
   console.warn(`未授权访问记录 - 路径: ${path}, 用户角色: ${userRoles.join(', ')}`)
+}
+
+/**
+ * 验证组件文件是否存在
+ * @param componentName 组件名称
+ * @returns 验证结果对象
+ */
+export function validateComponentFile(componentName: string): {
+  exists: boolean
+  foundPath: string | null
+  possiblePaths: string[]
+  availableModules: string[]
+} {
+  const supportedExtensions = ['.vue', '.tsx', '.jsx']
+  const componentPath = parseComponentPath(componentName)
+  const matchedComponent = findComponentFile(componentPath, supportedExtensions)
+
+  const availableModules = Object.keys(modules)
+  const foundPath = matchedComponent
+    ? availableModules.find(path => modules[path] === matchedComponent) || null
+    : null
+
+  return {
+    exists: !!matchedComponent,
+    foundPath,
+    possiblePaths: componentPath
+      .map(path => supportedExtensions.map(ext => `${path}${ext}`))
+      .flat(),
+    availableModules,
+  }
+}
+
+/**
+ * 获取所有可用的组件路径
+ * @returns 所有可用的组件路径数组
+ */
+export function getAvailableComponentPaths(): string[] {
+  return Object.keys(modules)
+}
+
+/**
+ * 检查组件是否使用了回退组件（404页面）
+ * @param component 组件对象
+ * @returns 是否使用了回退组件
+ */
+export function isUsingFallbackComponent(component: any): boolean {
+  return component === modules['/src/views/notfound/not-found-page.vue']
 }
