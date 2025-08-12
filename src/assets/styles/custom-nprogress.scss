@@ -1,0 +1,65 @@
+// nprogress.scss
+#nprogress {
+  pointer-events: none;
+
+  .bar {
+    background: linear-gradient(
+      90deg,
+      var(--primary100) 0%,
+      var(--accent200) 50%,
+      var(--accent100) 100%
+    ) !important;
+    position: fixed;
+    z-index: 1031;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 3px;
+
+    // 发光效果
+    box-shadow:
+      0 0 10px var(--primary100),
+      0 0 20px var(--accent100);
+
+    // 冲击波动画
+    animation: nprogressPulse 1.2s ease-in-out infinite;
+  }
+
+  // 滚动的小圆点
+  .peg {
+    display: block;
+    position: absolute;
+    right: 0px;
+    width: 100px;
+    height: 100%;
+    box-shadow:
+      0 0 10px var(--accent100),
+      0 0 5px var(--accent100);
+    opacity: 1;
+    transform: rotate(3deg) translate(0px, -4px);
+  }
+
+  .spinner {
+    display: none !important; // 如果需要可改为 block
+  }
+}
+
+// 冲击波动画
+@keyframes nprogressPulse {
+  0% {
+    box-shadow:
+      0 0 8px var(--primary100),
+      0 0 16px var(--accent100);
+  }
+  50% {
+    box-shadow:
+      0 0 16px var(--accent100),
+      0 0 32px var(--primary100);
+  }
+  100% {
+    box-shadow:
+      0 0 8px var(--primary100),
+      0 0 16px var(--accent100);
+  }
+}

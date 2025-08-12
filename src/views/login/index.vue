@@ -25,12 +25,12 @@ const handleLogin = async () => {
 </script>
 
 <template lang="pug">
-.full.center.bg-bg100
+.full.center.bg-bg200
   .center-col.gap-gap(class='w40% md:w36% lg:w28% xls:w26%')
     .fs-appFontSizex.font-bold 登录
     .fs-appFontSize 还没有账号？点我注册
-    .c-shadow.p-padding.rounded-xl.wfull.c-border.p-paddingl
-      .wfull.h-60.grid.grid-cols-3.gap-gap.fs-appFontSizes
+    .c-shadow.p-padding.rounded-xl.wfull.c-border.p-paddingl.bg-bg100
+      .wfull.h-60.grid.grid-cols-3.gap-gap
         .c-card-accent.center.bg-bg100 QQ
         .c-card-accent.center.bg-bg100 微信
         .c-card-accent.center.bg-bg100 支付宝

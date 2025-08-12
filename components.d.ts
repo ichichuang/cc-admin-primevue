@@ -8,7 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AnimateWrapper: typeof import('./src/components/common/AnimateWrapper.vue')['default']
+    AnimateWrapper: typeof import('./src/components/animate-wrapper/AnimateWrapper.vue')['default']
     AppBreadcrumb: typeof import('./src/layouts/components/AppBreadcrumb.vue')['default']
     AppContainer: typeof import('./src/layouts/components/AppContainer.vue')['default']
     AppFooter: typeof import('./src/layouts/components/AppFooter.vue')['default']

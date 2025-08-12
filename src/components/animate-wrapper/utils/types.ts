@@ -105,7 +105,7 @@ export type AnimateSpeed = '' | 'slower' | 'slow' | 'fast' | 'faster'
 export type AnimateRepeat = 1 | 2 | 3 | 'infinite'
 
 /** AnimateWrapper 组件 Props 类型 */
-export interface AnimateProps {
+export interface AnimateWrapperProps {
   /** 是否显示 */
   show: boolean
   /** 进入动画 */

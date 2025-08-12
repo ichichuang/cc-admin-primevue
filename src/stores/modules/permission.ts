@@ -6,7 +6,7 @@ interface PermissionState {
   // 静态路由
   staticRoutes: RouteConfig[]
   // 动态路由
-  dynamicRoutes: RouteConfig[]
+  dynamicRoutes: BackendRouteConfig[]
   // 动态路由是否已加载完成
   isDynamicRoutesLoaded: boolean
 }
@@ -33,7 +33,7 @@ export const usePermissionStore = defineStore('permission', {
       this.staticRoutes = routes
     },
     // 设置动态路由
-    setDynamicRoutes(routes: RouteConfig[]) {
+    setDynamicRoutes(routes: BackendRouteConfig[]) {
       this.dynamicRoutes = routes
     },
     // 设置动态路由加载状态

@@ -1,4 +1,15 @@
+import { env } from '@/utils'
 const coreRoutes: RouteConfig[] = [
+  {
+    path: '/',
+    name: 'Root',
+    redirect: env.rootRedirect,
+    meta: {
+      titleKey: 'router.core.root',
+      rank: 0,
+      showLink: false,
+    },
+  },
   {
     path: '/login',
     name: 'Login',

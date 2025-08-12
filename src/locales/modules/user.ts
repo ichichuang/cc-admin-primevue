@@ -1,7 +1,7 @@
 /**
  * 用户模块语言配置
  */
-import type { UserLocaleMessages } from '../types'
+import type { UserLocaleMessages } from '../types/user'
 
 /** 中文配置 */
 export const userZhCN: UserLocaleMessages = {

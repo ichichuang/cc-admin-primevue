@@ -40,18 +40,14 @@ const toggleMode = () => {
     class='transition-duration-200!',
     :class='[isDark ? "translate-x-[calc(100%+4px)]" : "translate-x-0 color-accent100! bg-bg200!"]'
   )
-    div(
-      :class='[isDark ? "icon-line-md:moon-twotone-alt-loop" : "icon-line-md:sunny-outline-twotone"]'
-    )
+    div(:class='["icon-line-md:sunny-outline-twotone"]')
 
   // 右侧图标容器（太阳/月亮）
   .center.rounded-full.p-paddings(
     class='transition-duration-200!',
     :class='[isDark ? "translate-x-[calc(-100%-4px)] color-accent100! bg-bg200!" : "translate-x-0"]'
   )
-    div(
-      :class='[isDark ? "icon-line-md:sunny-outline-twotone" : "icon-line-md:moon-twotone-alt-loop"]'
-    )
+    div(:class='["icon-line-md:moon-twotone-alt-loop"]')
 
 // 模式提示
 //- .mode-tooltip(:class='tooltipClasses')

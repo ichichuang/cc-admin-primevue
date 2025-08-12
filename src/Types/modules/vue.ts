@@ -3,7 +3,6 @@
  */
 
 // Vue I18n 全局类型声明
-import type { App } from 'vue'
 import type { ComposerTranslation } from 'vue-i18n'
 
 declare module '@vue/runtime-core' {

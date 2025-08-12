@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { routeWhiteList } from '@/constants'
+import { routeWhitePathList } from '@/constants'
 import { routeUtils } from '@/router'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
@@ -7,7 +7,7 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 
 // 检查当前路由是否在白名单中
-const isWhiteListRoute = computed(() => routeWhiteList.includes(route.path as any))
+const isWhiteListRoute = computed(() => routeWhitePathList.includes(route.path as any))
 
 // 只有在非白名单路由时才计算 keepAliveNames
 const keepAliveNames = computed(() => {

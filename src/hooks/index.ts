@@ -10,8 +10,9 @@ const importedHookLayouts = autoImportModulesSync(hookLayoutModules)
 
 // 导出所有 Hook 模块
 export * from './layout/useLoading'
+export * from './layout/useNprogress'
+export * from './layout/usePageTitle'
 export * from './modules/useLocale'
-export * from './modules/usePageTitle'
 
 // 导出所有 Hooks
 export default {

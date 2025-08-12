@@ -19,8 +19,6 @@ export const setupPlugins = (app: App) => {
   setupLocales(app)
   setupPrimeVue(app)
   nextTick(() => {
-    setTimeout(() => {
-      loadingDone()
-    })
+    loadingDone()
   })
 }

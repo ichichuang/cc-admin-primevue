@@ -40,17 +40,17 @@ template(v-if='!isLoggedIn')
   ThemeSwitch
 template(v-else)
   .between.gap-gap(class='h100%')
-    .c-card-primary.size-1-1.center.animate__animated.animate__bounceInLeft.animate__delay-2s(
+    .c-card-primary.size-1-1.center.animate__animated.animate__lightSpeedInRight.animate__delay-2s(
       @click='toggleSidebarCollapsed'
     )
       .fs-appFontSizex(v-if='layoutStore.getSidebarCollapsed', class='icon-line-md:arrow-open-right')
       .fs-appFontSizex(v-else, class='icon-line-md:arrow-open-left')
-    .c-card-primary.size-1-1.center.animate__animated.animate__bounceInLeft(
+    .c-card-primary.size-1-1.center.animate__animated.animate__lightSpeedInRight(
       class='md:hidden',
       @click='toggleSetting("op", $event)'
     )
       .fs-appFontSizex(class='icon-line-md:cog-filled')
-    .c-card-primary.size-1-1.center.hidden.animate__animated.animate__bounceInLeft(
+    .c-card-primary.size-1-1.center.hidden.animate__animated.animate__lightSpeedInRight(
       class='md:block',
       @click='toggleSetting("visible", $event)'
     )

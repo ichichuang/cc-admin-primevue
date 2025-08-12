@@ -1,11 +1,12 @@
 /**
  * 路由配置模块语言配置
  */
-import type { RouterLocaleMessages } from '../types'
+import type { RouterLocaleMessages } from '../types/router'
 
 /** 中文配置 */
 export const routerZhCN: RouterLocaleMessages = {
   core: {
+    root: '首页',
     login: '登录',
   },
   dashboard: {
@@ -25,6 +26,7 @@ export const routerZhCN: RouterLocaleMessages = {
 /** 英文配置 */
 export const routerEnUS: RouterLocaleMessages = {
   core: {
+    root: 'Home',
     login: 'Login',
   },
   dashboard: {
@@ -44,6 +46,7 @@ export const routerEnUS: RouterLocaleMessages = {
 /** 繁体中文配置 */
 export const routerZhTW: RouterLocaleMessages = {
   core: {
+    root: '首頁',
     login: '登錄',
   },
   dashboard: {

@@ -132,7 +132,6 @@ export function n(number: number, format?: string): string {
 
 // 导出所有国际化模块
 export * from './modules/auth'
-export * from './modules/common'
 export * from './modules/dashboard'
 export * from './modules/router'
 export * from './modules/user'

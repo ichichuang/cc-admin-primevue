@@ -18,19 +18,8 @@ const sortedStaticRoutes: RouteConfig[] = sortRoutes(staticRoutes)
 // 创建路由工具集（用于菜单渲染、面包屑等）
 export const routeUtils = createRouteUtils(sortedStaticRoutes)
 
-// 添加根路径重定向（使用条件函数避免与守卫冲突）
-// const rootRedirect: RouteConfig = {
-//   path: '/',
-//   name: 'RootRedirect',
-//   redirect: env.rootRedirect,
-// }
-
-// 合并所有静态路由（包括根重定向）
-// const allStaticRoutesWithRedirect = [rootRedirect, ...sortedStaticRoutes]
-
 // 转换为 Vue Router 兼容格式
 const initialRoutes: RouteRecordRaw[] = sortedStaticRoutes.map(route => route as RouteRecordRaw)
-console.log('🪒 加载静态路由', initialRoutes)
 
 // 创建路由实例
 const router = createRouter({
@@ -50,7 +39,7 @@ const router = createRouter({
 // 创建动态路由管理器
 export const dynamicRouteManager = createDynamicRouteManager(router)
 
-// 注册路由守卫
-registerRouterGuards(router)
+// 注册路由
+registerRouterGuards({ router, debug: env.debug })
 
 export default router

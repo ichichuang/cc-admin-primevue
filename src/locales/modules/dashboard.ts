@@ -1,7 +1,7 @@
 /**
  * 仪表盘模块语言配置
  */
-import type { DashboardLocaleMessages } from '../types'
+import type { DashboardLocaleMessages } from '../types/dashboard'
 
 /** 中文配置 */
 export const dashboardZhCN: DashboardLocaleMessages = {

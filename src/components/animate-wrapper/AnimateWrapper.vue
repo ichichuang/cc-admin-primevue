@@ -1,14 +1,9 @@
 <script setup lang="ts">
-import { defaultAnimateConfig } from '@/constants/modules/animate'
-import type { AnimateName, AnimateProps } from '@/types/modules/animate'
 import { computed } from 'vue'
+import { defaultAnimateConfig } from './utils/constants'
+import type { AnimateName, AnimateWrapperProps } from './utils/types'
 
-interface Props extends Partial<AnimateProps> {
-  /** 是否显示 */
-  show: boolean
-}
-
-const props = defineProps<Props>()
+const props = defineProps<AnimateWrapperProps>()
 
 /** 合并默认值 */
 const merged = computed(() => ({
@@ -66,7 +61,7 @@ Transition(
   :appear='merged.appear',
   @before-enter='handleBeforeEnter'
 )
-  .animate-wrapper.full.center(v-if='merged.show')
+  .full.center(v-if='merged.show')
     slot
 TransitionGroup(
   v-else,
@@ -84,10 +79,6 @@ TransitionGroup(
 .animate__animated {
   animation-duration: var(--animate-duration, 1s);
   animation-delay: var(--animate-delay, 0s);
-}
-
-.animate-wrapper {
-  display: inline-block; /* 避免 display: contents 导致动画类失效 */
 }
 </style>
 

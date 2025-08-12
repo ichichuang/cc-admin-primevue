@@ -37,7 +37,6 @@ export const useUserStore = defineStore('user', {
       this.token = token
       getUserInfo().then(res => {
         this.setUserInfo(res.data)
-        router.push((router.currentRoute.value.query.redirect as string) || env.rootRedirect)
       })
     },
     resetToken() {
@@ -46,6 +45,7 @@ export const useUserStore = defineStore('user', {
     setUserInfo(userInfo: UserInfo) {
       this.userInfo = userInfo
       this.isLogin = true
+      router.push((router.currentRoute.value.query.redirect as string) || env.rootRedirect)
     },
     resetUserInfo() {
       this.userInfo = {
@@ -57,17 +57,6 @@ export const useUserStore = defineStore('user', {
       this.isLogin = false
     },
     async logout() {
-      this.resetToken()
-      this.resetUserInfo()
-
-      // 重置动态路由初始化状态
-      try {
-        const { resetDynamicRoutesInitialized } = await import('@/router/utils/permission')
-        resetDynamicRoutesInitialized()
-      } catch (error) {
-        console.warn('重置动态路由状态失败:', error)
-      }
-
       const key = `${env.piniaKeyPrefix}-`
       Object.keys(localStorage).forEach(item => {
         if (item.startsWith(key)) {
