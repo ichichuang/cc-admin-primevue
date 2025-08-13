@@ -1,4 +1,4 @@
-import { HTTP_CONFIG } from '@/constants/modules/http'
+import { HTTP_CONFIG } from '@/constants'
 import { useUserStoreWithOut } from '@/stores'
 import { env } from '@/utils'
 import type { Method } from 'alova'

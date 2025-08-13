@@ -1,0 +1,9 @@
+// 导入所有类型声明模块
+import './modules/device'
+import './modules/layout'
+import './modules/locale'
+import './modules/router'
+import './modules/theme'
+import './modules/user'
+import './modules/utils'
+import './modules/vue'

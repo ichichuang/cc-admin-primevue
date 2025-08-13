@@ -40,6 +40,6 @@ const router = createRouter({
 export const dynamicRouteManager = createDynamicRouteManager(router)
 
 // 注册路由
-registerRouterGuards({ router, debug: env.debug })
+registerRouterGuards({ router, debug: env.debug, routeUtils })
 
 export default router

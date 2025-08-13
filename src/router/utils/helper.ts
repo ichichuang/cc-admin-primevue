@@ -10,9 +10,11 @@ import { usePermissionGuard } from './permission'
 export const registerRouterGuards = ({
   router,
   debug = false,
+  routeUtils,
 }: {
   router: Router
   debug?: boolean
+  routeUtils: RouteUtils
 }) => {
   const dynamicRouteManager = createDynamicRouteManager(router)
 
@@ -74,8 +76,18 @@ export const registerRouterGuards = ({
       // 同步处理，直接添加路由
       dynamicRouteManager.addRoutes([...asyncRoutes])
       dynamicRouteManager.addRoutes([...rootRedirect])
+
+      // 修复：获取完整的路由列表（静态 + 动态 + 错误页）
+      const completeRoutes = [
+        ...router.getRoutes().filter(route => route.name !== 'CatchAll'), // 排除动态添加的 catch-all 路由
+        ...asyncRoutes,
+        ...rootRedirect,
+      ]
+      routeUtils.updateRouteUtils(completeRoutes)
+
       if (debug) {
         console.log('🪒 添加动态路由成功', dynamicRouteManager.getRoutes())
+        console.log('🪒 更新 routeUtils 完成，总路由数:', completeRoutes.length)
       }
 
       return allRoutes.value
@@ -98,8 +110,17 @@ export const registerRouterGuards = ({
         dynamicRouteManager.addRoutes([...asyncRoutes])
         dynamicRouteManager.addRoutes([...rootRedirect])
 
+        // 修复：获取完整的路由列表（静态 + 动态 + 错误页）
+        const completeRoutes = [
+          ...router.getRoutes().filter(route => route.name !== 'CatchAll'), // 排除动态添加的 catch-all 路由
+          ...asyncRoutes,
+          ...rootRedirect,
+        ]
+        routeUtils.updateRouteUtils(completeRoutes)
+
         if (debug) {
           console.log('🪒 添加动态路由成功', dynamicRouteManager.getRoutes())
+          console.log('🪒 更新 routeUtils 完成，总路由数:', completeRoutes.length)
         }
       } catch (error) {
         console.error('🪒 获取动态路由失败:', error)

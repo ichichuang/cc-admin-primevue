@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import AnimateWrapper from '@/components/animate-wrapper'
 import { useLayoutStore, useUserStore } from '@/stores'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import AdminLayout from './components/LayoutAdmin.vue'
-import FullScreenLayout from './components/LayoutFullScreen.vue'
-import ScreenLayout from './components/LayoutScreen.vue'
+import AdminLayout from '@/layouts/components/LayoutAdmin.vue'
+import FullScreenLayout from '@/layouts/components/LayoutFullScreen.vue'
+import ScreenLayout from '@/layouts/components/LayoutScreen.vue'
 
 const route = useRoute()
 const layoutStore = useLayoutStore()

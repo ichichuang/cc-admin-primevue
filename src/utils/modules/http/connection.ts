@@ -1,4 +1,4 @@
-import { HTTP_CONFIG } from '@/constants/modules/http'
+import { HTTP_CONFIG } from '@/constants'
 import type { ConnectionConfig, ConnectionState } from './types'
 
 /**

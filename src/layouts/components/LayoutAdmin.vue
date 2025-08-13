@@ -1,12 +1,6 @@
 <script setup lang="ts">
-import Loading from '@/components/layout/Loading.vue'
 import { useLayoutStore, useSizeStore } from '@/stores'
 import { computed } from 'vue'
-import AppContainer from './AppContainer.vue'
-import AppFooter from './AppFooter.vue'
-import AppHeader from './AppHeader.vue'
-import AppSidebar from './AppSidebar.vue'
-import AppTabs from './AppTabs.vue'
 
 const layoutStore = useLayoutStore()
 const sizeStore = useSizeStore()

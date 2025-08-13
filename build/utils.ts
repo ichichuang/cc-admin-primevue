@@ -20,18 +20,8 @@ export const pathResolve = (dir = '.', metaUrl = import.meta.url) => {
 /** 设置别名 */
 export const alias: Record<string, string> = {
   '@': pathResolve('../src'),
-  '@build': pathResolve('../build'),
-  '@types': pathResolve('../types'),
-  '@assets': pathResolve('../src/assets'),
-  '@components': pathResolve('../src/components'),
-  '@views': pathResolve('../src/views'),
-  '@utils': pathResolve('../src/utils'),
-  '@stores': pathResolve('../src/stores'),
-  '@router': pathResolve('../src/router'),
-  '@api': pathResolve('../src/api'),
-  '@hooks': pathResolve('../src/hooks'),
-  '@common': pathResolve('../src/common'),
-  '@test': pathResolve('../src/views/test'),
+  '@!': pathResolve('../src/api'),
+  '@#': pathResolve('../src/common'),
 }
 
 /** 应用信息 */

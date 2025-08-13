@@ -11,18 +11,8 @@
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],
-      "@build/*": ["./build/*"],
-      "@types/*": ["./src/types/*"],
-      "@assets/*": ["./src/assets/*"],
-      "@components/*": ["./src/components/*"],
-      "@views/*": ["./src/views/*"],
-      "@utils/*": ["./src/utils/*"],
-      "@stores/*": ["./src/stores/*"],
-      "@router/*": ["./src/router/*"],
-      "@api/*": ["./src/api/*"],
-      "@hooks/*": ["./src/hooks/*"],
-      "@common/*": ["./src/common/*"],
-      "@test/*": ["./src/views/test/*"]
+      "@!/*": ["./src/api/*"],
+      "@#/*": ["./src/common/*"]
     }
   }
 }

@@ -8,7 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AnimateWrapper: typeof import('./src/components/animate-wrapper/AnimateWrapper.vue')['default']
+    AnimateWrapper: typeof import('./src/components/modules/animate-wrapper/AnimateWrapper.vue')['default']
     AppBreadcrumb: typeof import('./src/layouts/components/AppBreadcrumb.vue')['default']
     AppContainer: typeof import('./src/layouts/components/AppContainer.vue')['default']
     AppFooter: typeof import('./src/layouts/components/AppFooter.vue')['default']
@@ -35,6 +35,7 @@ declare module 'vue' {
     LocalesSwitch: typeof import('./src/components/common/LocalesSwitch.vue')['default']
     PaddingSwitch: typeof import('./src/components/common/PaddingSwitch.vue')['default']
     Popover: typeof import('primevue/popover')['default']
+    PrimeVueMenu: typeof import('./src/components/modules/primevue-menu/PrimeVueMenu.vue')['default']
     RoundSwitch: typeof import('./src/components/common/RoundSwitch.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

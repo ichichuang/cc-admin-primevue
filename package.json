@@ -49,7 +49,7 @@
     "pre-commit": "pnpm check",
     "commit": "git-cz",
     "prepare": "husky",
-    "init:project": "pnpm exec tsx scripts/init.ts"
+    "init:cc": "pnpm exec tsx scripts/init.ts"
   },
   "lint-staged": {
     "*.{ts,tsx,vue}": [

@@ -1,9 +1,9 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "include": [
-    "src/types.d.ts",
+    "src/types/types.d.ts",
     "src/types/**/*.ts",
-    "src/env.d.ts",
+    "env.d.ts",
     "src/**/*",
     "src/**/*.vue",
     "build/**/*",
@@ -17,18 +17,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@build/*": ["./build/*"],
-      "@types/*": ["./src/types/*"],
-      "@assets/*": ["./src/assets/*"],
-      "@components/*": ["./src/components/*"],
-      "@views/*": ["./src/views/*"],
-      "@utils/*": ["./src/utils/*"],
-      "@stores/*": ["./src/stores/*"],
-      "@router/*": ["./src/router/*"],
-      "@api/*": ["./src/api/*"],
-      "@hooks/*": ["./src/hooks/*"],
-      "@common/*": ["./src/common/*"],
-      "@test/*": ["./src/views/test/*"]
+      "@!/*": ["./src/api/*"],
+      "@#/*": ["./src/common/*"]
     }
   },
   "vueCompilerOptions": {

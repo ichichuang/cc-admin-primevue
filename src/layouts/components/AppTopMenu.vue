@@ -1,27 +1,19 @@
 <script setup lang="ts">
-import ColorSwitch from '@/components/common/ColorSwitch.vue'
-import FontSizeSwitchDesktop from '@/components/common/FontSizeSwitchDesktop.vue'
-import FontSizeSwitchMobile from '@/components/common/FontSizeSwitchMobile.vue'
-import LocalesSwitch from '@/components/common/LocalesSwitch.vue'
-import PaddingSwitch from '@/components/common/PaddingSwitch.vue'
-import RoundSwitch from '@/components/common/RoundSwitch.vue'
-import SizeSwitch from '@/components/common/SizeSwitch.vue'
-import ThemeSwitch from '@/components/common/ThemeSwitch.vue'
 import { useLayoutStore, useUserStore } from '@/stores'
 import { computed, ref } from 'vue'
 const userStore = useUserStore()
 const layoutStore = useLayoutStore()
 const isLoggedIn = computed(() => userStore.getIsLogin)
-// 抽屉
-const visible = ref(false)
-// 弹出框
-const op = ref<any>(null)
+
+/* 控制设置面板显示状态 */
+const desktopSettingVisible = ref(false)
+const mobileSettingVisible = ref<any>(null)
 // 打开/关闭弹出框
-const toggleSetting = (type: 'op' | 'visible', event?: any) => {
-  if (type === 'op') {
-    op.value?.toggle(event)
+const toggleSetting = (type: 'desktop' | 'mobile', event?: any) => {
+  if (type === 'desktop') {
+    desktopSettingVisible.value = !desktopSettingVisible.value
   } else {
-    visible.value = !visible.value
+    mobileSettingVisible.value?.toggle(event)
   }
 }
 
@@ -30,8 +22,9 @@ const handleLogout = () => {
 }
 
 /* 控制侧边栏折叠 */
+const sidebarCollapsed = computed(() => layoutStore.getSidebarCollapsed)
 const toggleSidebarCollapsed = () => {
-  layoutStore.setSidebarCollapsed(!layoutStore.getSidebarCollapsed)
+  layoutStore.setSidebarCollapsed(!sidebarCollapsed.value)
 }
 </script>
 
@@ -47,16 +40,16 @@ template(v-else)
       .fs-appFontSizex(v-else, class='icon-line-md:arrow-open-left')
     .c-card-primary.size-1-1.center.animate__animated.animate__lightSpeedInRight(
       class='md:hidden',
-      @click='toggleSetting("op", $event)'
+      @click='toggleSetting("mobile", $event)'
     )
       .fs-appFontSizex(class='icon-line-md:cog-filled')
     .c-card-primary.size-1-1.center.hidden.animate__animated.animate__lightSpeedInRight(
       class='md:block',
-      @click='toggleSetting("visible", $event)'
+      @click='toggleSetting("desktop", $event)'
     )
       .text-ellipsis.fs-appFontSizex(class='icon-line-md:cog-filled')
 
-Drawer(v-model:visible='visible', position='right', class='w32% lg:w28% xl:w24% xls:w22%')
+Drawer(v-model:visible='desktopSettingVisible', position='right', class='w32% lg:w28% xl:w24% xls:w22%')
   template(#header)
     .font-bold.fs-appFontSizex 设置
   .full.gap-24.between-col.start-col.relative
@@ -80,7 +73,7 @@ Drawer(v-model:visible='visible', position='right', class='w32% lg:w28% xl:w24% 
         @click='handleLogout'
       )
 
-Popover(ref='op')
+Popover(ref='mobileSettingVisible')
   .w-400.gap-gap.between-col.start-col
     ThemeSwitch
     ColorSwitch

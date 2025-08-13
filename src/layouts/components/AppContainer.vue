@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { routeWhitePathList } from '@/constants'
+import { routeWhitePathList } from '@/common'
 import { routeUtils } from '@/router'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'

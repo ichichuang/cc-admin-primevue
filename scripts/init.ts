@@ -41,13 +41,6 @@ interface InitStep {
 
 const INIT_STEPS: InitStep[] = [
   {
-    name: '版权保护',
-    command: 'pnpm copyright:add',
-    description: '为所有源代码文件添加版权声明',
-    required: true,
-    skipIfFailed: false,
-  },
-  {
     name: '环境检查',
     command: 'pnpm env-check',
     description: '检查环境变量配置是否正确',

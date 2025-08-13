@@ -1,5 +1,11 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { getMenuTree } from '@/common'
+
+const menuTree = getMenuTree()
+console.log('menuTree', menuTree)
+</script>
 <template lang="pug">
-.full
+.full.hidden(class='md:block') DesktopSidebar
+.full(class='md:hidden') MobileSidebar
 </template>
 <style lang="scss" scope></style>

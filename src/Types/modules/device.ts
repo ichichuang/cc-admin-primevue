@@ -24,6 +24,3 @@ declare global {
     system: string
   }
 }
-
-// 导出空对象使其成为外部模块
-export {}

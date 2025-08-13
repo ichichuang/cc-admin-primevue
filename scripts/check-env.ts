@@ -205,7 +205,7 @@ function checkEnvConfig(): void {
   const baseVars = parseEnvFile(join(root, '.env'))
   const devVars = parseEnvFile(join(root, '.env.development'))
   const prodVars = parseEnvFile(join(root, '.env.production'))
-  const typeVars = parseEnvTypes(join(root, 'src/env.d.ts'))
+  const typeVars = parseEnvTypes(join(root, 'src/types/env.d.ts'))
 
   /* 当前环境 */
   const currentEnv = process.env.NODE_ENV === 'production' ? 'production' : 'development'

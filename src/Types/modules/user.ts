@@ -14,6 +14,3 @@ declare global {
     [key: string]: any
   }
 }
-
-// 导出空对象使其成为外部模块
-export {}

@@ -30,6 +30,3 @@ declare global {
     deviceInfo: DeviceInfo
   }
 }
-
-// 导出空对象使其成为外部模块
-export {}

@@ -1,14 +1,6 @@
 import type { RouteRecordRaw } from 'vue-router'
 
 /**
- * 检查数组是否有交集
- * 用于权限检查
- */
-export function isOneOfArray(a: string[], b: string[]): boolean {
-  return Array.isArray(a) && Array.isArray(b) ? a.some(item => b.includes(item)) : false
-}
-
-/**
  * 过滤meta中showLink为false的菜单
  */
 export function filterShowLinkMenus(routes: RouteConfig[]): RouteConfig[] {
@@ -96,7 +88,9 @@ export function processAsyncRoutes(backendRoutes: BackendRouteConfig[]): RouteCo
 
       // 检查组件是否加载成功（不是 404 页面）
       if (component === modules['/src/views/notfound/not-found-page.vue']) {
-        console.warn(`⚠️ 路由 ${route.path} 的组件 ${route.component} 未找到，已使用 404 页面替代`)
+        console.warn(
+          `🪒-Router: 路由 ${route.path} 的组件 ${route.component} 未找到，已使用 404 页面替代`
+        )
         // 可以在这里设置一个标识，表示该路由使用了回退组件
         if (processedRoute.meta) {
           processedRoute.meta.useFallbackComponent = true
@@ -622,9 +616,9 @@ export function loadView(componentName: string) {
   }
 
   // 如果没找到组件，记录错误并返回 404 页面
-  console.error(`❌ 组件未找到: ${componentName}`)
-  console.error(`🔍 尝试的路径: ${componentPath.join(', ')}`)
-  console.error(`📁 可用的模块:`, Object.keys(modules))
+  console.error(`🪒-Router: ❌ 组件未找到: ${componentName}`)
+  console.error(`🪒-Router: 🔍 尝试的路径: ${componentPath.join(', ')}`)
+  console.error(`🪒-Router: 📁 可用的模块:`, Object.keys(modules))
 
   // 返回 404 页面作为回退
   return modules['/src/views/notfound/not-found-page.vue']
@@ -759,7 +753,7 @@ function isPathSimilar(path1: string[], path2: string[]): boolean {
  * @param userRoles 用户角色
  */
 export function recordUnauthorizedAccess(path: string, userRoles: string[]) {
-  console.warn(`未授权访问记录 - 路径: ${path}, 用户角色: ${userRoles.join(', ')}`)
+  console.warn(`🪒-Router: 未授权访问记录 - 路径: ${path}, 用户角色: ${userRoles.join(', ')}`)
 }
 
 /**
@@ -807,4 +801,12 @@ export function getAvailableComponentPaths(): string[] {
  */
 export function isUsingFallbackComponent(component: any): boolean {
   return component === modules['/src/views/notfound/not-found-page.vue']
+}
+
+/**
+ * 检查数组是否有交集
+ * 用于权限检查
+ */
+function isOneOfArray(a: string[], b: string[]): boolean {
+  return Array.isArray(a) && Array.isArray(b) ? a.some(item => b.includes(item)) : false
 }

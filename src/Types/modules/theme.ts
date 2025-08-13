@@ -243,6 +243,3 @@ declare global {
   /* 获取默认主题的函数类型 */
   type GetDefaultTheme = (isDark: boolean) => ThemeColor
 }
-
-// 导出空对象使其成为外部模块
-export {}

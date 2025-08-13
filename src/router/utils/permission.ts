@@ -1,10 +1,10 @@
 /* 守卫 */
 import { routeWhitePathList } from '@/constants/modules/router'
-import { useLoading, usePageTitle, useNprogress } from '@/hooks'
+import { useLoading, useNprogress, usePageTitle } from '@/hooks'
 import { usePermissionStore, useUserStoreWithOut } from '@/stores'
 import { computed } from 'vue'
 import type { Router } from 'vue-router'
-const { pageLoadingStart, pageLoadingDone } = useLoading()
+const { loadingStart, loadingDone, pageLoadingStart, pageLoadingDone } = useLoading()
 
 export const usePermissionGuard = ({
   router,
@@ -29,13 +29,17 @@ export const usePermissionGuard = ({
     const isDynamicRoutesLoaded = computed(() => permissionStore.isDynamicRoutesLoaded)
     if (isLogin.value) {
       if (to.path === '/login') {
+        loadingDone()
         next({ path: '/' })
       } else {
         if (isDynamicRoutesLoaded.value) {
+          loadingDone()
           next()
           return
         }
+        loadingStart()
         await initDynamicRoutes()
+        loadingDone()
         const redirectPath = from.query.redirect || to.path
         const redirect = decodeURIComponent(redirectPath as string)
         const nextData = to.path === redirect ? { ...to, replace: true } : { path: redirect }
@@ -44,17 +48,19 @@ export const usePermissionGuard = ({
       }
     } else {
       if (debug) {
-        console.log('🪒 未登录')
+        console.log('🪒-Router: 未登录')
       }
       if (whiteList.includes(to.path)) {
         if (debug) {
-          console.log('🪒 白名单页面，直接放行->', to.path)
+          console.log('🪒-Router: 白名单页面，直接放行->', to.path)
         }
+        loadingDone()
         next()
       } else {
         if (debug) {
-          console.log('🪒 跳转至登录页并重定向到目标->', to.path)
+          console.log('🪒-Router: 跳转至登录页并重定向到目标->', to.path)
         }
+        loadingDone()
         next(`/login?redirect=${to.path}`)
       }
     }
@@ -69,7 +75,7 @@ export const usePermissionGuard = ({
     pageLoadingDone()
     if (debug) {
       console.log(
-        '🪒 afterEach',
+        '🪒-Router: afterEach',
         'to:',
         to?.path,
         `(${to?.name?.toString() || ''}) `,
