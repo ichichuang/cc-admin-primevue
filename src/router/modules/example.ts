@@ -6,8 +6,29 @@ const exampleRoutes: RouteConfig[] = [
     meta: {
       titleKey: 'router.example.example',
       rank: 1,
-      parent: 'fullscreen',
     },
+    children: [
+      {
+        path: 'example-screen',
+        name: 'ExampleScreen',
+        component: () => import('@/views/example/views/example-screen.vue'),
+        meta: {
+          titleKey: 'router.example.screen',
+          rank: 1,
+          parent: 'screen',
+        },
+      },
+      {
+        path: 'example-fullscreen',
+        name: 'ExampleFullscreen',
+        component: () => import('@/views/example/views/example-fullscreen.vue'),
+        meta: {
+          titleKey: 'router.example.fullscreen',
+          rank: 1,
+          parent: 'fullscreen',
+        },
+      },
+    ],
   },
 ]
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/locales'
 import { useSizeStore } from '@/stores'
 import { computed } from 'vue'
 
@@ -13,7 +14,7 @@ const setSize = (value: SizeOptions['value']) => {
 </script>
 <template lang="pug">
 .between-start.gap-gap
-  span 尺寸
+  span {{ t('common.settings.size') }}
   ButtonGroup
     template(v-for='item in sizeOptions', :key='item.value')
       Button(

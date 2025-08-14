@@ -348,16 +348,12 @@ export const getDefaultTheme: GetDefaultTheme = isDark => {
 
 /**
  * 尺寸预设配置
+ * 注意：sizeOptions、fontSizeOptions、paddingOptions、roundedOptions
+ * 已迁移到 rem.ts 文件中统一管理
  */
 // 移除静态的 width 和 height 计算
 // const width = window.innerWidth
 // const height = window.innerHeight
-
-export const sizeOptions: SizeOptions[] = [
-  { label: '紧凑', value: 'compact' },
-  { label: '舒适', value: 'comfortable' },
-  { label: '宽松', value: 'loose' },
-]
 
 /**
  * 获取当前窗口尺寸
@@ -447,35 +443,8 @@ export const sizePresetsMap: Record<Size, () => Layout> = {
   loose: createLooseSizes,
 }
 
-/**
- * 圆角选项配置
- */
-export const roundedOptions: RoundedOptions[] = [
-  { label: '尖锐', key: 'sharp', value: 0 },
-  { label: '平滑', key: 'smooth', value: 6 },
-  { label: '圆滑', key: 'round', value: 12 },
-  { label: '圆润', key: 'soft', value: 24 },
-]
-
-/**
- * gap 选项配置
- */
-export const paddingOptions: PaddingOptions[] = [
-  { label: '小', key: 'sm', value: 8 },
-  { label: '中', key: 'md', value: 12 },
-  { label: '大', key: 'lg', value: 16 },
-]
-
-/**
- * 字体尺寸选项配置
- */
-export const fontSizeOptions: FontSizeOptions[] = [
-  { label: '迷你', key: 'xs', value: 10 },
-  { label: '小号', key: 'sm', value: 12 },
-  { label: '中号', key: 'md', value: 14 },
-  { label: '大号', key: 'lg', value: 16 },
-  { label: '特大号', key: 'xl', value: 18 },
-  { label: '超特大号', key: 'xls', value: 20 },
-  { label: '超超特大号', key: 'xxl', value: 22 },
-  { label: '超超超特大号', key: 'xxxl', value: 25 },
-]
+// 以下配置已迁移到 rem.ts 文件中统一管理：
+// - roundedOptions: 圆角选项配置
+// - paddingOptions: 间距选项配置
+// - fontSizeOptions: 字体尺寸选项配置
+// - sizeOptions: 尺寸选项配置

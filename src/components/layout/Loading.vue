@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toKebabCase } from '@/common'
+import { toKebabCase } from '@#/index'
 import { useLayoutStore } from '@/stores'
 import { env } from '@/utils'
 import { computed, onMounted, reactive, ref } from 'vue'

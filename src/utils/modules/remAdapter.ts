@@ -1,9 +1,11 @@
 import {
+  breakpointFontSizeMap,
   breakpoints,
   debugConfig,
   deviceConfigs,
   getDeviceConfig,
   getDeviceType,
+  getRecommendedFontSize,
   remConfig,
 } from '@/constants'
 import { useSizeStoreWithOut } from '@/stores'
@@ -84,14 +86,19 @@ export class RemAdapter {
       // 🎯 根据适配策略选择计算方法
       switch (this.config.strategy) {
         case 'mobile-first':
+          console.log('📐 适配策略: mobile-first-移动端优先')
           return this.calculateMobileFirstSize(viewportWidth)
         case 'desktop-first':
+          console.log('📐 适配策略: desktop-first-桌面端优先')
           return this.calculateDesktopFirstSize(viewportWidth)
         case 'large-screen-first':
+          console.log('📐 适配策略: large-screen-first-大屏优先')
           return this.calculateLargeScreenFirstSize(viewportWidth)
         case 'adaptive':
+          console.log('📐 适配策略: adaptive-自适应')
           return this.calculateAdaptiveSize(viewportWidth)
         default:
+          console.log('📐 适配策略: 默认自适应')
           // 兼容性：使用自适应策略
           return this.calculateAdaptiveSize(viewportWidth)
       }
@@ -233,36 +240,78 @@ export class RemAdapter {
   }
 
   /**
-   * 更新断点字体大小 - 根据设备类型自动设置字号
+   * 更新断点字体大小 - 根据设备类型智能设置字号
+   * 🎯 优化后的版本：使用统一的配置映射，确保与 rem.ts 配置一致
    */
   private updateBreakpointFontSize(width: number): void {
     try {
       const sizeStore = useSizeStoreWithOut()
       const deviceType = getDeviceType(width)
 
-      // 根据设备类型设置字体大小
-      const fontSizeMap: Record<string, FontSizeOptions['key']> = {
-        mobile: 'sm',
-        tablet: 'md',
-        pc: 'md',
-        largeScreen: 'lg',
-        ultraWide: 'xl',
-        fourK: 'xls',
-      }
+      // 🎯 使用统一的配置映射获取推荐字体大小
+      const recommendedFontSize = getRecommendedFontSize(deviceType) as FontSizeOptions['key']
 
-      const fontSize = fontSizeMap[deviceType] || 'md'
+      // 🎯 添加调试信息
+      if (debugConfig.enabled && debugConfig.showBreakpointInfo) {
+        console.log(`🔍 智能断点分析:`, {
+          screenWidth: width,
+          deviceType,
+          recommendedFontSize,
+          mappingConfig: breakpointFontSizeMap[deviceType],
+          fontSizeRange: this.getFontSizeRange(recommendedFontSize),
+          expectedSizeMode: this.getExpectedSizeMode(recommendedFontSize),
+        })
+      }
 
       // 更新尺寸状态中的字体大小
       if (sizeStore && typeof sizeStore.setFontSize === 'function') {
-        sizeStore.setFontSize(fontSize)
-      }
+        const currentFontSize = sizeStore.getFontSize
+        if (currentFontSize !== recommendedFontSize) {
+          sizeStore.setFontSize(recommendedFontSize)
 
-      if (debugConfig.enabled && debugConfig.showBreakpointInfo) {
-        console.log(`🎯 断点更新: ${deviceType} (宽度: ${width}px, 字体: ${fontSize})`)
+          if (debugConfig.enabled && debugConfig.showBreakpointInfo) {
+            console.log(
+              `🎯 智能断点更新: ${deviceType} (宽度: ${width}px, 字体: ${currentFontSize} → ${recommendedFontSize})`
+            )
+          }
+        }
       }
     } catch (error) {
       console.error('更新断点字体大小失败:', error)
     }
+  }
+
+  /**
+   * 🎯 获取字体大小对应的范围描述
+   */
+  private getFontSizeRange(fontSize: FontSizeOptions['key']): string {
+    const rangeMap: Record<FontSizeOptions['key'], string> = {
+      xs: '超小号 (8-10px)',
+      sm: '小号 (10-12px)',
+      md: '中号 (12-14px)',
+      lg: '大号 (14-16px)',
+      xl: '特大号 (16-18px)',
+      xls: '超特大号 (18-20px)',
+      xxl: '超超特大号 (20-24px)',
+      xxxl: '超超超特大号 (24-32px)',
+    }
+    return rangeMap[fontSize] || '未知'
+  }
+
+  /**
+   * 🎯 获取字体大小对应的预期尺寸模式
+   */
+  private getExpectedSizeMode(fontSize: FontSizeOptions['key']): string {
+    if (fontSize === 'xs') {
+      return 'compact (紧凑)'
+    }
+    if (['sm', 'md'].includes(fontSize)) {
+      return 'comfortable (舒适)'
+    }
+    if (['lg', 'xl', 'xls', 'xxl', 'xxxl'].includes(fontSize)) {
+      return 'loose (宽松)'
+    }
+    return 'unknown (未知)'
   }
 
   /**
@@ -330,16 +379,28 @@ export class RemAdapter {
 
       // 立即设置一次根字体大小和自动字号
       const deviceInfo = getDeviceInfo()
-      this.setRootFontSize(deviceInfo)
 
       // 🎯 初始化完成后打印设计稿信息
       const deviceConfig = getDeviceConfig(deviceInfo.screen.width)
       const _deviceType = getDeviceType(deviceInfo.screen.width)
 
       if (debugConfig.enabled) {
-        console.log(
-          `✅📐 rem 适配器初始化完成: 设计稿宽度=${deviceConfig.designWidth}px | 基准字体=${deviceConfig.baseFontSize}px | 当前字体=${this.currentFontSize.toFixed(2)}px | 策略=${this.config.strategy} | 设备=${deviceConfig.name}`
-        )
+        const initInfo = {
+          designWidth: deviceConfig.designWidth,
+          baseFontSize: deviceConfig.baseFontSize,
+          currentFontSize: this.currentFontSize.toFixed(2),
+          strategy: this.config.strategy,
+          deviceName: deviceConfig.name,
+          deviceType: _deviceType,
+          screenSize: `${deviceInfo.screen.width}x${deviceInfo.screen.height}`,
+          recommendedFontSize: getRecommendedFontSize(_deviceType),
+        }
+
+        console.log(`✅📐 rem 适配器初始化完成:`, initInfo)
+
+        if (debugConfig.showDeviceDetection) {
+          console.table(initInfo)
+        }
       }
 
       // 创建智能防抖函数

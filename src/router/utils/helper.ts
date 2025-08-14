@@ -68,7 +68,7 @@ export const registerRouterGuards = ({
     // 如果本地已有动态路由数据
     if (dynamicRoutes.value.length > 0) {
       if (debug) {
-        console.log('🪒 从本地获取的动态路由')
+        console.log('🪒 Router: 从本地获取的动态路由')
       }
       const cloneDynamicRoutes = cloneDeep(dynamicRoutes.value) as BackendRouteConfig[]
       asyncRoutes = processAsyncRoutes(cloneDynamicRoutes)
@@ -86,15 +86,15 @@ export const registerRouterGuards = ({
       routeUtils.updateRouteUtils(completeRoutes)
 
       if (debug) {
-        console.log('🪒 添加动态路由成功', dynamicRouteManager.getRoutes())
-        console.log('🪒 更新 routeUtils 完成，总路由数:', completeRoutes.length)
+        console.log('🪒 Router: 添加动态路由成功', dynamicRouteManager.getRoutes())
+        console.log('🪒 Router: 更新 routeUtils 完成，总路由数:', completeRoutes.length)
       }
 
       return allRoutes.value
     } else {
       // 需要从后端获取动态路由数据
       if (debug) {
-        console.log('🪒 从后端接口获取的动态路由')
+        console.log('🪒 Router: 从后端接口获取的动态路由')
       }
 
       try {
@@ -119,11 +119,11 @@ export const registerRouterGuards = ({
         routeUtils.updateRouteUtils(completeRoutes)
 
         if (debug) {
-          console.log('🪒 添加动态路由成功', dynamicRouteManager.getRoutes())
-          console.log('🪒 更新 routeUtils 完成，总路由数:', completeRoutes.length)
+          console.log('🪒 Router: 添加动态路由成功', dynamicRouteManager.getRoutes())
+          console.log('🪒 Router: 更新 routeUtils 完成，总路由数:', completeRoutes.length)
         }
       } catch (error) {
-        console.error('🪒 获取动态路由失败:', error)
+        console.error('🪒 Router: 获取动态路由失败:', error)
         throw error
       }
     }

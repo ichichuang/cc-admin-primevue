@@ -1,9 +1,9 @@
 import { useLoading } from '@/hooks'
 import type { App } from 'vue'
-import { setupLocales } from './modules/locales'
-import { setupPrimeVue } from './modules/primevue'
-import { setupRouter } from './modules/router'
-import { setupStores } from './modules/stores'
+import { setupLocales } from '@/plugins/modules/locales'
+import { setupPrimeVue } from '@/plugins/modules/primevue'
+import { setupRouter } from '@/plugins/modules/router'
+import { setupStores } from '@/plugins/modules/stores'
 
 /**
  * 统一设置所有插件

@@ -9,7 +9,8 @@ export interface RouterLocaleMessages {
   }
   example: {
     example: string
-    animate: string
+    screen: string
+    fullscreen: string
   }
   error: {
     notFound: string

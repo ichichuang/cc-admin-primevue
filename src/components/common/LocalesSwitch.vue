@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/locales'
 import type { SupportedLocale } from '@/locales/types'
 import { useLocaleStore } from '@/stores'
 import { computed } from 'vue'
@@ -15,7 +16,7 @@ const setLocale = (value: SupportedLocale) => {
 </script>
 <template lang="pug">
 .between-start.gap-gap
-  span 语言
+  span {{ t('common.settings.language') }}
   ButtonGroup
     template(v-for='item in localesOptions', :key='item.key')
       Button(

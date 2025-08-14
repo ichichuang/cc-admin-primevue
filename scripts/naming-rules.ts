@@ -1,13 +1,5 @@
 /**
- * @copyright Copyright (c) 2025 chichuang
- * @license 自定义商业限制许可证
- * @description cc-admin 企业级后台管理框架 - 构建脚本
- *
- * 本文件受版权保护，商业使用需要授权。
- * 联系方式: https://github.com/ichichuang/cc-admin/issues
- *
- * This file is protected by copyright. Commercial use requires authorization.
- * Contact: https://github.com/ichichuang/cc-admin/issues
+ * @description cc-admin 企业级后台管理框架 - 命名规范检查脚本
  */
 
 /* eslint-disable */
@@ -20,6 +12,7 @@
 import { readdir, readFile, stat } from 'node:fs/promises'
 import { basename, dirname, extname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { logError, logInfo, logSection, logSuccess, logTitle, logWarning } from './utils/logger.js'
 
 const _dirname = dirname(fileURLToPath(import.meta.url))
 const projectRoot = join(_dirname, '..')
@@ -373,11 +366,11 @@ function toPascalCase(str) {
  */
 function outputResults() {
   if (errors.length === 0) {
-    console.log('✅ \x1b[32m项目命名规范检查完成，一切正常\x1b[0m')
+    logSuccess('项目命名规范检查完成，一切正常')
     return true
   }
 
-  console.log(`❌ 发现 ${errors.length} 个命名规范问题：`)
+  logError(`发现 ${errors.length} 个命名规范问题：`)
 
   const groupedErrors = errors.reduce((groups: any, error: any) => {
     if (!groups[error.type]) groups[error.type] = []
@@ -393,10 +386,10 @@ function outputResults() {
       'function-naming': '⚙️ 函数命名',
     }
 
-    console.log(`${typeNames[type]} (${typeErrors.length}个问题):`)
+    logWarning(`${typeNames[type]} (${typeErrors.length}个问题):`)
     typeErrors.forEach(error => {
-      console.log(`  ${error.file}${error.line > 0 ? `:${error.line}` : ''}`)
-      console.log(`    ${error.message}`)
+      logError(`  ${error.file}${error.line > 0 ? `:${error.line}` : ''}`)
+      logError(`    ${error.message}`)
     })
   })
 
@@ -407,7 +400,7 @@ function outputResults() {
  * 主函数
  */
 async function main() {
-  console.log('\x1b[32m🔍 开始检查项目命名规范...\x1b[0m')
+  logTitle('开始检查项目命名规范')
 
   // 只扫描src目录
   const srcPath = join(projectRoot, 'src')
@@ -416,11 +409,12 @@ async function main() {
   try {
     await stat(srcPath)
   } catch (error) {
-    console.error('❌ src目录不存在')
+    logError('src目录不存在')
     process.exit(1)
   }
 
-  console.log('\x1b[32m📁 扫描目录:\x1b[0m', srcPath)
+  logSection('扫描目录')
+  logInfo(`📁 扫描目录: ${srcPath}`)
   await scanDirectory(srcPath)
 
   // 输出结果

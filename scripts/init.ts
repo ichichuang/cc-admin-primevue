@@ -1,8 +1,5 @@
 /**
- * @copyright Copyright (c) 2025 chichuang
- * @license 自定义商业限制许可证
  * @description cc-admin 企业级后台管理框架 - 初始化脚本
- * 本文件受版权保护，商业使用需要授权。
  */
 
 import { execSync } from 'child_process'
@@ -15,20 +12,8 @@ const filename = fileURLToPath(import.meta.url)
 const _dirname = join(filename, '..')
 const projectRoot = join(_dirname, '..')
 
-/* -------------------- 彩色输出 -------------------- */
-const colors = {
-  red: '\x1b[31m',
-  green: '\x1b[32m',
-  yellow: '\x1b[33m',
-  blue: '\x1b[34m',
-  magenta: '\x1b[35m',
-  cyan: '\x1b[36m',
-  reset: '\x1b[0m',
-}
-
-const log = (msg: string, color: keyof typeof colors = 'reset'): void => {
-  console.log(`${colors[color]}${msg}${colors.reset}`)
-}
+/* -------------------- 导入统一日志工具 -------------------- */
+import { logError, logInfo, logSection, logSuccess, logTitle, logWarning } from './utils/logger.js'
 
 /* -------------------- 初始化步骤配置 -------------------- */
 interface InitStep {
@@ -90,29 +75,29 @@ const INIT_STEPS: InitStep[] = [
  * 执行单个初始化步骤
  */
 function executeStep(step: InitStep): boolean {
-  log(`\n🔄 正在执行: ${step.name}`, 'cyan')
-  log(`📝 描述: ${step.description}`, 'blue')
+  logSection(`正在执行: ${step.name}`)
+  logInfo(`📝 描述: ${step.description}`)
 
   try {
-    log(`⚡ 执行命令: ${step.command}`, 'yellow')
+    logInfo(`⚡ 执行命令: ${step.command}`)
     execSync(step.command, {
       stdio: 'inherit',
       cwd: projectRoot,
       encoding: 'utf-8',
     })
-    log(`✅ ${step.name} 执行成功`, 'green')
+    logSuccess(`${step.name} 执行成功`)
     return true
   } catch (error) {
-    log(`❌ ${step.name} 执行失败`, 'red')
+    logError(`${step.name} 执行失败`)
     if (error instanceof Error) {
-      log(`错误信息: ${error.message}`, 'red')
+      logError(`错误信息: ${error.message}`)
     }
 
     if (step.required && !step.skipIfFailed) {
-      log(`⚠️  ${step.name} 是必需步骤，初始化终止`, 'yellow')
+      logWarning(`${step.name} 是必需步骤，初始化终止`)
       return false
     } else {
-      log(`⚠️  ${step.name} 执行失败，但将继续执行后续步骤`, 'yellow')
+      logWarning(`${step.name} 执行失败，但将继续执行后续步骤`)
       return true
     }
   }
@@ -122,17 +107,17 @@ function executeStep(step: InitStep): boolean {
  * 检查项目环境
  */
 function checkProjectEnvironment(): boolean {
-  log('\n🔍 检查项目环境...', 'cyan')
+  logSection('检查项目环境...')
 
   // 检查 package.json
   if (!existsSync(join(projectRoot, 'package.json'))) {
-    log('❌ 未找到 package.json 文件', 'red')
+    logError('未找到 package.json 文件')
     return false
   }
 
   // 检查 pnpm-lock.yaml
   if (!existsSync(join(projectRoot, 'pnpm-lock.yaml'))) {
-    log('⚠️  未找到 pnpm-lock.yaml 文件，可能需要安装依赖', 'yellow')
+    logWarning('未找到 pnpm-lock.yaml 文件，可能需要安装依赖')
   }
 
   // 检查 .env 文件
@@ -140,12 +125,12 @@ function checkProjectEnvironment(): boolean {
   const foundEnvFiles = envFiles.filter(file => existsSync(join(projectRoot, file)))
 
   if (foundEnvFiles.length === 0) {
-    log('⚠️  未找到环境变量文件，建议创建 .env 文件', 'yellow')
+    logWarning('未找到环境变量文件，建议创建 .env 文件')
   } else {
-    log(`✅ 找到环境变量文件: ${foundEnvFiles.join(', ')}`, 'green')
+    logSuccess(`找到环境变量文件: ${foundEnvFiles.join(', ')}`)
   }
 
-  log('✅ 项目环境检查完成', 'green')
+  logSuccess('项目环境检查完成')
   return true
 }
 
@@ -153,33 +138,32 @@ function checkProjectEnvironment(): boolean {
  * 显示初始化总结
  */
 function showSummary(successSteps: string[], failedSteps: string[]): void {
-  log('\n📊 初始化总结', 'cyan')
-  log('='.repeat(50), 'cyan')
+  logTitle('初始化总结')
 
   if (successSteps.length > 0) {
-    log('\n✅ 成功执行的步骤:', 'green')
+    logSuccess('\n成功执行的步骤:')
     successSteps.forEach((step, index) => {
-      log(`  ${index + 1}. ${step}`, 'green')
+      logSuccess(`  ${index + 1}. ${step}`)
     })
   }
 
   if (failedSteps.length > 0) {
-    log('\n❌ 失败的步骤:', 'red')
+    logError('\n失败的步骤:')
     failedSteps.forEach((step, index) => {
-      log(`  ${index + 1}. ${step}`, 'red')
+      logError(`  ${index + 1}. ${step}`)
     })
   }
 
-  log('\n📋 后续建议:', 'cyan')
-  log('1. 运行 pnpm dev 启动开发服务器', 'blue')
-  log('2. 运行 pnpm check 进行完整检查', 'blue')
-  log('3. 查看 docs/ 目录了解项目文档', 'blue')
-  log('4. 运行 pnpm monitor:setup 设置监控', 'blue')
+  logInfo('\n📋 后续建议:')
+  logInfo('1. 运行 pnpm dev 启动开发服务器')
+  logInfo('2. 运行 pnpm check 进行完整检查')
+  logInfo('3. 查看 docs/ 目录了解项目文档')
+  logInfo('4. 运行 pnpm monitor:setup 设置监控')
 
   if (failedSteps.length === 0) {
-    log('\n🎉 初始化完成！项目已准备就绪', 'green')
+    logSuccess('\n🎉 初始化完成！项目已准备就绪')
   } else {
-    log('\n⚠️  初始化部分完成，请检查失败的步骤', 'yellow')
+    logWarning('\n⚠️  初始化部分完成，请检查失败的步骤')
   }
 }
 
@@ -187,12 +171,11 @@ function showSummary(successSteps: string[], failedSteps: string[]): void {
  * 主函数
  */
 function main(): void {
-  log('🚀 cc-admin 项目初始化脚本', 'magenta')
-  log('='.repeat(50), 'magenta')
+  logTitle('cc-admin 项目初始化脚本')
 
   // 检查项目环境
   if (!checkProjectEnvironment()) {
-    log('❌ 项目环境检查失败，初始化终止', 'red')
+    logError('项目环境检查失败，初始化终止')
     process.exit(1)
   }
 

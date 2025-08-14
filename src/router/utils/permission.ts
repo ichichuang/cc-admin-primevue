@@ -27,19 +27,20 @@ export const usePermissionGuard = ({
     const userStore = useUserStoreWithOut()
     const isLogin = computed(() => userStore.isLogin)
     const isDynamicRoutesLoaded = computed(() => permissionStore.isDynamicRoutesLoaded)
+
     if (isLogin.value) {
       if (to.path === '/login') {
-        loadingDone()
+        // loadingDone()
         next({ path: '/' })
       } else {
         if (isDynamicRoutesLoaded.value) {
-          loadingDone()
+          // loadingDone()
           next()
           return
         }
         loadingStart()
         await initDynamicRoutes()
-        loadingDone()
+        // loadingDone()
         const redirectPath = from.query.redirect || to.path
         const redirect = decodeURIComponent(redirectPath as string)
         const nextData = to.path === redirect ? { ...to, replace: true } : { path: redirect }
@@ -48,41 +49,31 @@ export const usePermissionGuard = ({
       }
     } else {
       if (debug) {
-        console.log('🪒-Router: 未登录')
+        console.log('🪒 Router: 未登录')
       }
       if (whiteList.includes(to.path)) {
         if (debug) {
-          console.log('🪒-Router: 白名单页面，直接放行->', to.path)
+          console.log('🪒 Router: 白名单页面，直接放行->', to.path)
         }
-        loadingDone()
+        // loadingDone()
         next()
       } else {
         if (debug) {
-          console.log('🪒-Router: 跳转至登录页并重定向到目标->', to.path)
+          console.log('🪒 Router: 跳转至登录页并重定向到目标->', to.path)
         }
-        loadingDone()
+        // loadingDone()
         next(`/login?redirect=${to.path}`)
       }
     }
   })
 
   // 全局后置守卫
-  router.afterEach((to, from) => {
+  router.afterEach((_to, _from) => {
     const { doneProgress } = useNprogress()
     const { updatePageTitle } = usePageTitle()
     doneProgress()
     updatePageTitle()
+    loadingDone()
     pageLoadingDone()
-    if (debug) {
-      console.log(
-        '🪒-Router: afterEach',
-        'to:',
-        to?.path,
-        `(${to?.name?.toString() || ''}) `,
-        'from:',
-        from?.path,
-        `(${from?.name?.toString() || ''}) `
-      )
-    }
   })
 }

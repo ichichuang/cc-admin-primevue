@@ -7,9 +7,9 @@ const showMenu = computed(() => layoutStore.getShowMenu)
 </script>
 
 <template lang="pug">
-.full
+main.container
   template(v-if='showMenu')
-    .px-paddingx.py-padding.rounded-xl.center.gap-gap.fixed.t-gap.r-gapl
+    .between.gap-gap.fixed.t-gap.r-gap
       AppTopMenu
   AppContainer
 </template>

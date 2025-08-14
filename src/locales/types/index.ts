@@ -3,10 +3,12 @@
  * 定义项目中使用的所有语言配置类型
  */
 
-import type { AuthLocaleMessages } from './auth'
-import type { DashboardLocaleMessages } from './dashboard'
-import type { RouterLocaleMessages } from './router'
-import type { UserLocaleMessages } from './user'
+import type { AuthLocaleMessages } from '@/locales/types/modules/auth'
+import type { CommonLocaleMessages } from '@/locales/types/modules/common'
+import type { DashboardLocaleMessages } from '@/locales/types/modules/dashboard'
+import type { PermissionLocaleMessages } from '@/locales/types/modules/permission'
+import type { RouterLocaleMessages } from '@/locales/types/modules/router'
+import type { UserLocaleMessages } from '@/locales/types/modules/user'
 
 /** 支持的语言类型 */
 export type SupportedLocale = 'zh-CN' | 'en-US' | 'zh-TW'
@@ -21,7 +23,9 @@ export interface LocaleInfo {
 
 export interface LocaleMessages {
   auth: AuthLocaleMessages
+  common: CommonLocaleMessages
   user: UserLocaleMessages
   dashboard: DashboardLocaleMessages
+  permission: PermissionLocaleMessages
   router: RouterLocaleMessages
 }

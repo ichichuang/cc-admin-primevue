@@ -1,7 +1,7 @@
 /**
  * 认证模块语言配置
  */
-import type { AuthLocaleMessages } from '../types/auth'
+import type { AuthLocaleMessages } from '@/locales/types/modules/auth'
 
 /** 中文配置 */
 export const authZhCN: AuthLocaleMessages = {

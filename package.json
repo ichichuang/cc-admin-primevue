@@ -3,9 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "author": "chichuang",
-  "copyright": "Copyright (c) 2025 chichuang",
-  "license": "Custom (Non-Commercial Use Only)",
+  "author": "",
   "description": "cc-admin-primevue 企业级后台管理框架 - 基于 Vue 3.5+、TypeScript 5+ 和 PrimeVue 的现代化企业级后台管理框架",
   "keywords": [
     "vue3",
@@ -16,17 +14,8 @@
     "alova",
     "admin",
     "framework",
-    "cc-admin-primevue",
-    "chichuang"
+    "cc-admin-primevue"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ichichuang/cc-admin-homepage"
-  },
-  "homepage": "https://github.com/ichichuang/cc-admin-homepage#readme",
-  "bugs": {
-    "url": "https://github.com/ichichuang/cc-admin-homepage/issues"
-  },
   "engines": {
     "node": ">=22.x",
     "pnpm": ">=8.0.0"
@@ -43,12 +32,13 @@
     "format": "prettier --write src/",
     "naming-check": "pnpm exec tsx scripts/naming-rules.ts",
     "naming-watch": "pnpm exec tsx scripts/watch-naming.ts",
-    "check": "pnpm type-check && pnpm lint && pnpm naming-check && pnpm env-check",
+    "check": "pnpm exec tsx scripts/check.ts",
     "env-check": "pnpm exec tsx scripts/check-env.ts",
     "fix": "pnpm format && pnpm lint",
     "pre-commit": "pnpm check",
     "commit": "git-cz",
     "prepare": "husky",
+    "init": "pnpm exec tsx scripts/init.ts",
     "init:cc": "pnpm exec tsx scripts/init.ts"
   },
   "lint-staged": {

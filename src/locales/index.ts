@@ -1,13 +1,13 @@
 /**
  * 国际化配置入口文件
  */
+import enUS from '@/locales/lang/en-US'
+import zhCN from '@/locales/lang/zh-CN'
+import zhTW from '@/locales/lang/zh-TW'
+import type { LocaleInfo, LocaleMessages, SupportedLocale } from '@/locales/types'
 import { autoImportModulesSync, env } from '@/utils'
 import type { App } from 'vue'
 import { createI18n } from 'vue-i18n'
-import enUS from './lang/en-US'
-import zhCN from './lang/zh-CN'
-import zhTW from './lang/zh-TW'
-import type { LocaleInfo, LocaleMessages, SupportedLocale } from './types'
 
 // 自动导入所有国际化模块
 const localeModules = import.meta.glob('./modules/**/*.ts', { eager: true })
@@ -131,10 +131,12 @@ export function n(number: number, format?: string): string {
 }
 
 // 导出所有国际化模块
-export * from './modules/auth'
-export * from './modules/dashboard'
-export * from './modules/router'
-export * from './modules/user'
+export * from '@/locales/modules/auth'
+export * from '@/locales/modules/common'
+export * from '@/locales/modules/dashboard'
+export * from '@/locales/modules/permission'
+export * from '@/locales/modules/router'
+export * from '@/locales/modules/user'
 
 // 导出所有国际化
 export default importedLocales

@@ -7,10 +7,10 @@ const importedModules = autoImportModulesSync(modules)
 export default importedModules
 
 // 导出所有配置模块
-export * from './modules/app'
-export * from './modules/http'
-export * from './modules/primevuepreset'
-export * from './modules/primevuetheme'
-export * from './modules/rem'
-export * from './modules/router'
-export * from './modules/theme'
+export * from '@/constants/modules/app'
+export * from '@/constants/modules/http'
+export * from '@/constants/modules/primevuepreset'
+export * from '@/constants/modules/primevuetheme'
+export * from '@/constants/modules/rem'
+export * from '@/constants/modules/router'
+export * from '@/constants/modules/theme'

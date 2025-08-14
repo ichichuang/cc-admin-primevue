@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/locales'
 import { useSizeStore } from '@/stores'
 import { computed } from 'vue'
 
@@ -14,7 +15,7 @@ const setPadding = (value: PaddingOptions['key']) => {
 </script>
 <template lang="pug">
 .between-start.gap-gap
-  span 间距
+  span {{ t('common.settings.padding') }}
   ButtonGroup
     template(v-for='item in paddingOptions', :key='item.value')
       Button(

@@ -1,6 +1,8 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { t } from '@/locales'
+</script>
 <template lang="pug">
 div
-  p 按钮管理
+  p {{ t('permission.button.title') }}
 </template>
 <style lang="scss" scope></style>

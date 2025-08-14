@@ -8,6 +8,18 @@ import chokidar, { FSWatcher } from 'chokidar'
 import { basename, dirname, extname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'util'
+import {
+  formatDuration,
+  logError,
+  logFile,
+  logFolder,
+  logInfo,
+  logSection,
+  logSuccess,
+  logTime,
+  logTitle,
+  logWarning,
+} from './utils/logger.js'
 
 const _dirname = dirname(fileURLToPath(import.meta.url))
 const projectRoot = join(_dirname, '..')
@@ -47,9 +59,9 @@ async function runNamingCheck(triggerFile?: string) {
     const startTime = Date.now()
 
     if (CONFIG.verbose) {
-      console.log(`\n🔍 执行命名规范检查...`)
+      logSection('执行命名规范检查...')
       if (triggerFile) {
-        console.log(`📁 触发文件: ${triggerFile.replace(projectRoot, '')}`)
+        logFile(`触发文件: ${triggerFile.replace(projectRoot, '')}`)
       }
     }
 
@@ -58,7 +70,7 @@ async function runNamingCheck(triggerFile?: string) {
     const duration = Date.now() - startTime
 
     if (stderr) {
-      console.error(`❌ 检查过程中出现错误:\n${stderr}`)
+      logError(`检查过程中出现错误:\n${stderr}`)
       return false
     }
 
@@ -67,20 +79,20 @@ async function runNamingCheck(triggerFile?: string) {
 
     if (hasErrors) {
       console.log(`\n${stdout}`)
-      console.log(`⏱️  检查耗时: ${duration}ms`)
+      logTime(`检查耗时: ${formatDuration(duration)}`)
       return false
     } else {
       if (CONFIG.verbose) {
-        console.log(`✅ 命名规范检查通过`)
-        console.log(`⏱️  检查耗时: ${duration}ms`)
+        logSuccess('命名规范检查通过')
+        logTime(`检查耗时: ${formatDuration(duration)}`)
       } else {
-        console.log(`✅ 命名规范检查通过 (${duration}ms)`)
+        logSuccess(`命名规范检查通过 (${formatDuration(duration)})`)
       }
       return true
     }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    console.error(`❌ 执行检查失败: ${errorMessage}`)
+    logError(`执行检查失败: ${errorMessage}`)
     return false
   }
 }
@@ -140,11 +152,11 @@ function shouldWatchDirectory(dirPath: string): boolean {
  * 启动监听器
  */
 function startWatcher() {
-  console.log('🚀 启动文件命名规范实时监听...')
-  console.log(`📁 监听目录: ${CONFIG.watchDir.replace(projectRoot, '')}`)
-  console.log(`⚙️  防抖延迟: ${CONFIG.debounceDelay}ms`)
-  console.log(`🔍 详细模式: ${CONFIG.verbose ? '开启' : '关闭'}`)
-  console.log('💡 提示: 使用 --verbose 或 -v 参数开启详细日志')
+  logTitle('启动文件命名规范实时监听')
+  logInfo(`📁 监听目录: ${CONFIG.watchDir.replace(projectRoot, '')}`)
+  logInfo(`⚙️  防抖延迟: ${CONFIG.debounceDelay}ms`)
+  logInfo(`🔍 详细模式: ${CONFIG.verbose ? '开启' : '关闭'}`)
+  logInfo('💡 提示: 使用 --verbose 或 -v 参数开启详细日志')
 
   const watcher = chokidar.watch(CONFIG.watchDir, {
     ignored: CONFIG.ignored,
@@ -159,7 +171,7 @@ function startWatcher() {
   // 文件添加事件
   watcher.on('add', filePath => {
     if (shouldWatchFile(filePath)) {
-      console.log(`📄 新增文件: ${filePath.replace(projectRoot, '')}`)
+      logFile(`新增文件: ${filePath.replace(projectRoot, '')}`)
       debouncedCheck(filePath)
     }
   })
@@ -167,7 +179,7 @@ function startWatcher() {
   // 目录添加事件
   watcher.on('addDir', dirPath => {
     if (shouldWatchDirectory(dirPath)) {
-      console.log(`📂 新增目录: ${dirPath.replace(projectRoot, '')}`)
+      logFolder(`新增目录: ${dirPath.replace(projectRoot, '')}`)
       debouncedCheck(dirPath)
     }
   })
@@ -175,7 +187,7 @@ function startWatcher() {
   // 文件重命名事件
   watcher.on('unlink', filePath => {
     if (shouldWatchFile(filePath)) {
-      console.log(`🗑️  删除文件: ${filePath.replace(projectRoot, '')}`)
+      logFile(`删除文件: ${filePath.replace(projectRoot, '')}`)
       debouncedCheck()
     }
   })
@@ -183,7 +195,7 @@ function startWatcher() {
   // 目录删除事件
   watcher.on('unlinkDir', dirPath => {
     if (shouldWatchDirectory(dirPath)) {
-      console.log(`🗑️  删除目录: ${dirPath.replace(projectRoot, '')}`)
+      logFolder(`删除目录: ${dirPath.replace(projectRoot, '')}`)
       debouncedCheck()
     }
   })
@@ -191,7 +203,7 @@ function startWatcher() {
   // 文件修改事件
   watcher.on('change', filePath => {
     if (shouldWatchFile(filePath)) {
-      console.log(`✏️  修改文件: ${filePath.replace(projectRoot, '')}`)
+      logFile(`修改文件: ${filePath.replace(projectRoot, '')}`)
       debouncedCheck(filePath)
     }
   })
@@ -199,12 +211,12 @@ function startWatcher() {
   // 错误处理
   watcher.on('error', (error: unknown) => {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    console.error(`❌ 监听器错误: ${errorMessage}`)
+    logError(`监听器错误: ${errorMessage}`)
   })
 
   // 监听器就绪
   watcher.on('ready', () => {
-    console.log('✅ 监听器已就绪，开始监听文件变化...\n')
+    logSuccess('监听器已就绪，开始监听文件变化...\n')
 
     // 初始检查
     runNamingCheck()
@@ -217,7 +229,7 @@ function startWatcher() {
  * 优雅关闭
  */
 function gracefulShutdown(watcher: FSWatcher) {
-  console.log('\n🛑 正在停止监听器...')
+  logWarning('\n正在停止监听器...')
 
   if (debounceTimer) {
     clearTimeout(debounceTimer)
@@ -226,11 +238,11 @@ function gracefulShutdown(watcher: FSWatcher) {
   watcher
     .close()
     .then(() => {
-      console.log('✅ 监听器已停止')
+      logSuccess('监听器已停止')
       process.exit(0)
     })
     .catch(error => {
-      console.error(`❌ 停止监听器时出错: ${error.message}`)
+      logError(`停止监听器时出错: ${error.message}`)
       process.exit(1)
     })
 }
@@ -244,7 +256,7 @@ async function main() {
     try {
       await execAsync('pnpm --version')
     } catch {
-      console.error('❌ 未找到 pnpm，请确保已安装 pnpm')
+      logError('未找到 pnpm，请确保已安装 pnpm')
       process.exit(1)
     }
 
@@ -253,7 +265,7 @@ async function main() {
     try {
       await import('fs').then(fs => fs.promises.access(namingRulesPath))
     } catch {
-      console.error('❌ 未找到 scripts/naming-rules.ts 文件')
+      logError('未找到 scripts/naming-rules.ts 文件')
       process.exit(1)
     }
 
@@ -265,7 +277,7 @@ async function main() {
     process.on('SIGTERM', () => gracefulShutdown(watcher))
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    console.error(`❌ 启动失败: ${errorMessage}`)
+    logError(`启动失败: ${errorMessage}`)
     process.exit(1)
   }
 }

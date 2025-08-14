@@ -1,6 +1,6 @@
-@use './custom-color.scss';
-@use './custom-primevue.scss';
-@use './custom-nprogress.scss';
+@use '@/assets/styles/custom-color.scss';
+@use '@/assets/styles/custom-primevue.scss';
+@use '@/assets/styles/custom-nprogress.scss';
 
 /* 过渡动画 */
 #app {

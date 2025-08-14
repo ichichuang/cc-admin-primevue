@@ -39,6 +39,7 @@ const routes: BackendRouteConfig[] = [
     component: 'user/index',
     meta: {
       title: '用户管理',
+      parent: 'screen',
       icon: 'ep:user',
       rank: 1,
     },
@@ -58,6 +59,7 @@ const routes: BackendRouteConfig[] = [
         name: 'PermissionPage',
         component: 'permission/views/permission-page',
         meta: {
+          parent: 'fullscreen',
           title: '页面权限',
           roles: ['admin', 'common'],
         },
@@ -67,6 +69,7 @@ const routes: BackendRouteConfig[] = [
         name: 'PermissionButton',
         component: 'permission/views/permission-button',
         meta: {
+          parent: 'fullscreen',
           title: '按钮权限',
           roles: ['admin'],
           auths: ['permission:btn:add', 'permission:btn:edit', 'permission:btn:delete'],

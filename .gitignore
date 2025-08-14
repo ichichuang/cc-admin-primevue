@@ -51,6 +51,11 @@ coverage
 # TypeScript
 *.tsbuildinfo
 
+# Auto-generated type declaration files
+# 这些文件由 Vite 插件自动生成，不应提交到版本控制
+auto-imports.d.ts
+components.d.ts
+
 # Package manager lock files
 package-lock.json
 yarn.lock

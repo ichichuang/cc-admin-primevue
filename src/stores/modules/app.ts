@@ -4,6 +4,10 @@ import { defineStore } from 'pinia'
 
 const appTitle = env.appTitle
 
+interface AppState {
+  title: string
+}
+
 export const useAppStore = defineStore('app', {
   state: (): AppState => ({
     title: appTitle,

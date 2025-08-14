@@ -6,7 +6,7 @@ export const defaultAnimateConfig: AnimateWrapperProps = {
   /** 默认离开动画 */
   leave: 'fadeOut',
   /** 默认动画时长 */
-  duration: '800ms',
+  duration: '1s',
   /** 默认延迟 */
   delay: '0s',
   /** 默认动画速度 */

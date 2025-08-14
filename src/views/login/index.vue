@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { login } from '@/api'
+import { t } from '@/locales'
 import { useUserStoreWithOut } from '@/stores'
 import { ref } from 'vue'
 
@@ -15,7 +16,7 @@ const handleLogin = async () => {
     } = await login({ username: 'admin', password: '123456' })
     userStore.setToken(token)
   } catch (error) {
-    console.error('❌ 登录失败:', error)
+    console.error(`❌ ${t('common.messages.loginFailed')}:`, error)
     userStore.resetToken()
     userStore.resetUserInfo()
   } finally {
@@ -26,20 +27,20 @@ const handleLogin = async () => {
 
 <template lang="pug">
 .full.center.bg-bg200
-  .center-col.gap-gap(class='w40% md:w36% lg:w28% xls:w26%')
-    .fs-appFontSizex.font-bold 登录
-    .fs-appFontSize 还没有账号？点我注册
+  .center-col.gap-gap(class='w90% sm:w80% md:w46% lg:w28% xls:w26%')
+    .fs-appFontSizex.font-bold {{ t('auth.login.title') }}
+    .fs-appFontSize {{ t('common.actions.register') }}
     .c-shadow.p-padding.rounded-xl.wfull.c-border.p-paddingl.bg-bg100
       .wfull.h-60.grid.grid-cols-3.gap-gap
-        .c-card-accent.center.bg-bg100 QQ
-        .c-card-accent.center.bg-bg100 微信
-        .c-card-accent.center.bg-bg100 支付宝
+        .c-card-accent.center.bg-bg100 {{ t('common.social.qq') }}
+        .c-card-accent.center.bg-bg100 {{ t('common.social.wechat') }}
+        .c-card-accent.center.bg-bg100 {{ t('common.social.alipay') }}
       .full.center
         Divider.w-full.p0.my2(align='center', type='dotted')
-          span.font-bold 账号密码登录
+          span.font-bold {{ t('common.auth.accountPasswordLogin') }}
 
-      Button.full(:disabled='loading', severity='help', @click='handleLogin') {{ loading ? '登录中...' : '登录' }}
+      Button.full(:disabled='loading', severity='help', @click='handleLogin') {{ loading ? t('common.actions.loginInProgress') : t('auth.login.loginButton') }}
     .full.between-end
-      .text-warn.c-cp(class='duration-200!') 忘记密码？
-      .text-danger.c-cp(class='duration-200!') 立即找回？
+      .text-warn.c-cp(class='duration-200!') {{ t('common.actions.forgotPassword') }}
+      .text-danger.c-cp(class='duration-200!') {{ t('common.actions.recoverAccount') }}
 </template>

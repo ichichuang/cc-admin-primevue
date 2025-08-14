@@ -1,6 +1,8 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { t } from '@/locales'
+</script>
 <template lang="pug">
 div
-  p 页面管理
+  p {{ t('permission.page.title') }}
 </template>
 <style lang="scss" scope></style>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/locales'
 import { useSizeStore } from '@/stores'
 import { computed } from 'vue'
 
@@ -14,7 +15,7 @@ const setRounded = (value: RoundedOptions['key']) => {
 </script>
 <template lang="pug">
 .between-start.gap-gap
-  span 棱角
+  span {{ t('common.settings.rounded') }}
   ButtonGroup
     template(v-for='item in roundedOptions', :key='item.value')
       Button(

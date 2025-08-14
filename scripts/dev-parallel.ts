@@ -1,7 +1,8 @@
 import { spawn } from 'child_process'
+import { logFile, logInfo, logTitle, logWarning } from './utils/logger.js'
 
-console.log('🚀 启动 cc-admin 开发环境...')
-console.log('📝 启动命名规范监听...')
+logTitle('启动 cc-admin 开发环境')
+logInfo('启动命名规范监听...')
 
 // 启动 Vite 开发服务器
 const viteProcess = spawn('pnpm', ['exec', 'vite'], {
@@ -17,7 +18,7 @@ const namingWatchProcess = spawn('pnpm', ['naming-watch'], {
 
 // 处理进程退出
 process.on('SIGINT', () => {
-  console.log('\n🛑 正在停止开发环境...')
+  logWarning('\n正在停止开发环境...')
   viteProcess.kill('SIGINT')
   namingWatchProcess.kill('SIGINT')
   process.exit(0)
@@ -25,13 +26,13 @@ process.on('SIGINT', () => {
 
 // 处理子进程退出
 viteProcess.on('exit', code => {
-  console.log(`\n📝 Vite 开发服务器已退出 (代码: ${code})`)
+  logFile(`Vite 开发服务器已退出 (代码: ${code})`)
   namingWatchProcess.kill('SIGINT')
   process.exit(code || 0)
 })
 
 namingWatchProcess.on('exit', code => {
-  console.log(`\n🔍 命名规范监听已退出 (代码: ${code})`)
+  logInfo(`命名规范监听已退出 (代码: ${code})`)
   viteProcess.kill('SIGINT')
   process.exit(code || 0)
 })

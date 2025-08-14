@@ -28,7 +28,8 @@ const sidebarClass = computed(() => ({
 <template lang="pug">
 .full.between
   // 菜单栏目
-  aside.full.between-col.color-primary400.c-border.border-y-none.border-l-none.bg-primary100(
+  aside.hidden.full.between-col.color-primary400.c-border.border-y-none.border-l-none.bg-primary100(
+    class='md:block',
     :style='sidebarClass'
   )
     .h-headerHeight.p-paddings.center

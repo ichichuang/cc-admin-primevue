@@ -1,3 +1,5 @@
+import { breakpoints } from '../../src/constants/modules/rem'
+
 // 类型定义
 interface ThemeConfig {
   breakpoints: Record<string, string>
@@ -6,20 +8,22 @@ interface ThemeConfig {
 }
 
 /**
+ * 将 rem.ts 中的数字断点转换为 UnoCSS 需要的字符串格式
+ */
+const createUnoCSSBreakpoints = () => {
+  const result: Record<string, string> = {}
+  Object.entries(breakpoints).forEach(([key, value]) => {
+    result[key] = `${value}px`
+  })
+  return result
+}
+
+/**
  * 主题配置
- * 与 color.ts 和 size.ts 保持完全一致
+ * 与 rem.ts 保持完全一致，自动同步断点配置
  */
 export const themeConfig: ThemeConfig = {
-  breakpoints: {
-    xs: '375px',
-    sm: '768px',
-    md: '1024px',
-    lg: '1400px',
-    xl: '1660px',
-    xls: '1920px',
-    xxl: '2560px', // 超宽屏 (2560px+)
-    xxxl: '3840px', // 4K屏 (3840px+)
-  },
+  breakpoints: createUnoCSSBreakpoints(),
 
   colors: {
     // 透明色

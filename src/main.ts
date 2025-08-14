@@ -4,11 +4,19 @@ import '@/assets/styles/reset.scss'
 import 'animate.css'
 import 'uno.css'
 
-// 导入应用
+// 导入应用和错误处理
 import App from '@/App.vue'
+import { setupPlugins } from '@/plugins'
+import { setupErrorHandler } from '@/utils/modules/errorHandler'
 import { createApp } from 'vue'
-import { setupPlugins } from './plugins'
 
 const app = createApp(App)
+
+// 设置全局错误处理
+setupErrorHandler(app)
+
+// 设置插件
 setupPlugins(app)
+
+// 挂载应用
 app.mount('#app')

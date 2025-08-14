@@ -33,20 +33,8 @@ interface Validators {
   route: (value: string) => boolean
 }
 
-/* -------------------- 彩色输出 -------------------- */
-const colors: Colors = {
-  red: '\x1b[31m',
-  green: '\x1b[32m',
-  yellow: '\x1b[33m',
-  blue: '\x1b[34m',
-  magenta: '\x1b[35m',
-  cyan: '\x1b[36m',
-  reset: '\x1b[0m',
-}
-
-const log = (msg: string, color: keyof Colors = 'reset'): void => {
-  console.log(`${colors[color]}${msg}${colors.reset}`)
-}
+/* -------------------- 导入统一日志工具 -------------------- */
+import { logError, logSuccess, logWarning } from './utils/logger.js'
 
 /* -------------------- 环境变量验证规则 -------------------- */
 const validationRules: ValidationRules = {
@@ -229,16 +217,16 @@ function checkEnvConfig(): void {
 
   // 检查已废弃变量并给出警告
   if (deprecatedVarsFound.length > 0) {
-    log('\n⚠️  发现已废弃的环境变量:', 'yellow')
+    logWarning('\n发现已废弃的环境变量:')
     deprecatedVarsFound.forEach((name: string) => {
-      log(`   ${name} - 建议移除或使用新的替代变量`, 'yellow')
+      logWarning(`   ${name} - 建议移除或使用新的替代变量`)
     })
   }
 
   // 检查活跃变量的类型定义
   activeVarNames.forEach((name: string) => {
     if (!typeVars.includes(name)) {
-      log(`❌  缺少类型定义: ${name}`, 'red')
+      logError(`缺少类型定义: ${name}`)
       hasError = true
     }
   })
@@ -247,7 +235,7 @@ function checkEnvConfig(): void {
   validationRules.required.forEach((name: string) => {
     const val = currentVars[name] ?? baseVars[name]
     if (!val) {
-      log(`❌  缺少必需变量: ${name}`, 'red')
+      logError(`缺少必需变量: ${name}`)
       hasError = true
     }
   })
@@ -257,7 +245,7 @@ function checkEnvConfig(): void {
     // 按照环境变量读取优先级：当前环境文件 -> .env 文件
     const val = currentVars[name] ?? baseVars[name]
     if (val === undefined) {
-      log(`❌  运行时缺失变量: ${name}`, 'red')
+      logError(`运行时缺失变量: ${name}`)
       hasError = true
     }
   })
@@ -273,7 +261,7 @@ function checkEnvConfig(): void {
 
     const errors = validateValue(name, value)
     if (errors.length > 0) {
-      log(`❌  ${name}: ${errors.join(', ')}`, 'red')
+      logError(`${name}: ${errors.join(', ')}`)
       hasError = true
     }
   })
@@ -290,7 +278,7 @@ function checkEnvConfig(): void {
 
   if (extraTypes.length) {
     extraTypes.forEach((n: string) => {
-      log(`❌  类型定义但未在任何 .env* 中出现: ${n}`, 'red')
+      logError(`类型定义但未在任何 .env* 中出现: ${n}`)
       hasError = true
     })
   }
@@ -300,7 +288,7 @@ function checkEnvConfig(): void {
     (n: string) => (baseVars[n] && devVars[n]) || (baseVars[n] && prodVars[n])
   )
   if (duplicates.length) {
-    log(`⚠️   发现重复定义 ${duplicates.length} 个 (环境覆盖属正常)`, 'yellow')
+    logWarning(`发现重复定义 ${duplicates.length} 个 (环境覆盖属正常)`)
     duplicates.forEach((name: string) => {
       const sources: string[] = []
       if (baseVars[name]) {
@@ -312,7 +300,7 @@ function checkEnvConfig(): void {
       if (prodVars[name]) {
         sources.push('.env.production')
       }
-      log(`   ${name}: ${sources.join(' + ')}`, 'yellow')
+      logWarning(`   ${name}: ${sources.join(' + ')}`)
     })
     hasWarning = true
   }
@@ -339,7 +327,7 @@ function checkEnvConfig(): void {
   )
 
   if (securityIssues.length > 0) {
-    securityIssues.forEach((issue: string) => log(`⚠️   ${issue}`, 'yellow'))
+    securityIssues.forEach((issue: string) => logWarning(`  ${issue}`))
     hasWarning = true
   }
 
@@ -356,12 +344,12 @@ function checkEnvConfig(): void {
 
   /* ---------- 结束 ---------- */
   if (hasError) {
-    log('❌ 检查完成，发现错误，请修复后重试', 'red')
+    logError('检查完成，发现错误，请修复后重试')
     process.exit(1)
   } else if (hasWarning) {
-    log('⚠️ 检查完成，有警告但可以继续运行', 'yellow')
+    logWarning('检查完成，有警告但可以继续运行')
   } else {
-    log('✅ .env 环境变量检查完成，一切正常', 'green')
+    logSuccess('.env 环境变量检查完成，一切正常')
   }
 }
 

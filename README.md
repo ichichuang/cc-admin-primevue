@@ -1,13 +1,5 @@
 <!--
-  @copyright Copyright (c) 2025 chichuang
-  @license 自定义商业限制许可证
   @description cc-admin-primevue 企业级后台管理框架 - 项目说明文档
-
-  本文件受版权保护，商业使用需要授权。
-  联系方式: https://github.com/ichichuang/cc-admin-homepage/issues
-
-  This file is protected by copyright. Commercial use requires authorization.
-  Contact: https://github.com/ichichuang/cc-admin-homepage/issues
 -->
 
 # cc-admin-primevue
@@ -86,13 +78,8 @@ pnpm preview
 
 欢迎提交 Issue 和 Pull Request！
 
-## 📄 许可证
-
-本项目采用自定义商业限制许可证，仅供非商业用途使用。
-
 ## 🔗 相关链接
 
-- [GitHub 仓库](https://github.com/ichichuang/cc-admin-homepage)
 - [在线演示](https://www.cc-admin.wzdxcc.cloudns.org)
 
 ---

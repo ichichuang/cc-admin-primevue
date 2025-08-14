@@ -78,18 +78,35 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
       include,
       exclude,
       force: false,
+      // 开发环境性能优化
+      esbuildOptions: {
+        target: 'esnext',
+        // 保持类名用于调试
+        keepNames: isDev,
+      },
     },
     build: {
       target: 'es2015',
       sourcemap: VITE_BUILD_SOURCEMAP,
-      minify: 'terser',
-      chunkSizeWarningLimit: 4000,
+      minify: isDev ? false : 'terser',
+      chunkSizeWarningLimit: 2000, // 降低警告阈值以优化包大小
+      cssCodeSplit: true, // 启用 CSS 代码分割
+      assetsInlineLimit: 4096, // 小于 4kb 的资源内联
       terserOptions: {
         compress: {
           drop_console: VITE_DROP_CONSOLE,
           drop_debugger: VITE_DROP_DEBUGGER,
           // eslint-disable-next-line @typescript-eslint/naming-convention
           pure_funcs: VITE_DROP_CONSOLE ? ['console.log', 'console.info', 'console.debug'] : [],
+          // 移除无用代码
+          /* eslint-disable-next-line @typescript-eslint/naming-convention */
+          dead_code: true,
+          // 移除未使用的变量
+          unused: true,
+        },
+        mangle: {
+          // 保持 PrimeVue 组件名称
+          reserved: ['PrimeVue', 'ToastService', 'ConfirmationService'],
         },
       },
       rollupOptions: {
@@ -97,18 +114,43 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
           index: pathResolve('./index.html', import.meta.url),
         },
         output: {
-          chunkFileNames: 'static/ts/[name]-[hash].js',
-          entryFileNames: 'static/ts/[name]-[hash].js',
-          assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
+          entryFileNames: 'static/js/[name]-[hash:8].js',
+          assetFileNames: 'static/[ext]/[name]-[hash:8].[ext]',
+          // 优化代码分割策略
           manualChunks: {
-            vue: ['vue', 'vue-router', 'pinia'],
-            vendor: ['alova', 'lodash-es'],
+            // 核心库
+            'vue-core': ['vue', 'vue-router'],
+            'state-management': ['pinia', 'pinia-plugin-persistedstate'],
+            // UI 库 (primeicons 是纯 CSS 库，不需要在 JS 打包中处理)
+            'ui-library': ['primevue', '@primevue/themes'],
+            // 工具库
+            utilities: ['lodash-es', 'crypto-js', 'dayjs'],
+            // HTTP 库
+            'http-client': ['alova'],
+            // 国际化
+            i18n: ['vue-i18n'],
+            // 动画库
+            animations: ['animate.css'],
+          },
+          // 优化 chunk 分割 - 智能命名
+          chunkFileNames: chunkInfo => {
+            const { name } = chunkInfo
+            if (name.includes('node_modules')) {
+              return 'static/vendor/[name]-[hash:8].js'
+            }
+            return 'static/js/[name]-[hash:8].js'
           },
         },
+        // 外部依赖优化
+        external: isDev ? [] : undefined,
       },
       commonjsOptions: {
         include: [/node_modules/],
+        transformMixedEsModules: true, // 转换混合 ES 模块
       },
+      // 启用实验性功能提升构建性能
+      reportCompressedSize: !isDev, // 仅生产环境报告压缩大小
+      copyPublicDir: true,
     },
     define: {
       __APP_INFO__: JSON.stringify(__APP_INFO__),

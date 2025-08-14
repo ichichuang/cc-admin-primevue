@@ -3,14 +3,8 @@
  */
 
 import { cloneDeep, toKebabCase } from '@/common'
-import {
-  comfortableSizes,
-  fontSizeOptions,
-  paddingOptions,
-  roundedOptions,
-  sizeOptions,
-  sizePresetsMap,
-} from '@/constants'
+import { fontSizeOptions, paddingOptions, roundedOptions, sizeOptions } from '@/constants'
+import { comfortableSizes, sizePresetsMap } from '@/constants/modules/theme'
 import store, { useLayoutStoreWithOut } from '@/stores'
 import { env } from '@/utils'
 import { defineStore } from 'pinia'
@@ -18,18 +12,18 @@ import { defineStore } from 'pinia'
 export const useSizeStore = defineStore('size', {
   state: (): SizeState => ({
     size: 'comfortable',
-    sizeOptions,
+    sizeOptions: [...sizeOptions], // 创建可变副本
 
     sizes: cloneDeep(comfortableSizes),
 
     padding: 'md',
-    paddingOptions,
+    paddingOptions: [...paddingOptions], // 创建可变副本
 
     rounded: 'smooth',
-    roundedOptions,
+    roundedOptions: [...roundedOptions], // 创建可变副本
 
     fontSize: 'md',
-    fontSizeOptions,
+    fontSizeOptions: [...fontSizeOptions], // 创建可变副本
   }),
 
   getters: {

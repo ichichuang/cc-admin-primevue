@@ -1,7 +1,7 @@
 /**
  * 路由配置模块语言配置
  */
-import type { RouterLocaleMessages } from '../types/router'
+import type { RouterLocaleMessages } from '@/locales/types/modules/router'
 
 /** 中文配置 */
 export const routerZhCN: RouterLocaleMessages = {
@@ -14,7 +14,8 @@ export const routerZhCN: RouterLocaleMessages = {
   },
   example: {
     example: '示例',
-    animate: '动画组件',
+    screen: '屏幕',
+    fullscreen: '全屏',
   },
   error: {
     notFound: '页面未找到',
@@ -34,7 +35,8 @@ export const routerEnUS: RouterLocaleMessages = {
   },
   example: {
     example: 'Example',
-    animate: 'Animate Component',
+    fullscreen: 'Fullscreen',
+    screen: 'Screen',
   },
   error: {
     notFound: 'Page Not Found',
@@ -54,7 +56,8 @@ export const routerZhTW: RouterLocaleMessages = {
   },
   example: {
     example: '示例',
-    animate: '動畫組件',
+    fullscreen: '全屏',
+    screen: '屏幕',
   },
   error: {
     notFound: '頁面未找到',

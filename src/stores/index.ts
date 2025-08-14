@@ -12,14 +12,14 @@ const store = createPinia()
 store.use(piniaPluginPersistedstate)
 
 // 导出所有 Store 模块
-export * from './modules/app'
-export * from './modules/color'
-export * from './modules/layout'
-export * from './modules/locale'
-export * from './modules/permission'
-export * from './modules/postcss'
-export * from './modules/size'
-export * from './modules/user'
+export * from '@/stores/modules/app'
+export * from '@/stores/modules/color'
+export * from '@/stores/modules/layout'
+export * from '@/stores/modules/locale'
+export * from '@/stores/modules/permission'
+export * from '@/stores/modules/postcss'
+export * from '@/stores/modules/size'
+export * from '@/stores/modules/user'
 
 // 导出默认store实例
 export default store

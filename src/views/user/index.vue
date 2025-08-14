@@ -1,6 +1,8 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { t } from '@/locales'
+</script>
 <template lang="pug">
 div
-  p 用户管理
+  p {{ t('user.management.title') }}
 </template>
 <style lang="scss" scope></style>
