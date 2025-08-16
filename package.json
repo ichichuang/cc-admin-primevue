@@ -71,6 +71,7 @@
     "alova": "^3.3.3",
     "animate.css": "^4.1.1",
     "crypto-js": "^4.2.0",
+    "custom-vue-scrollbar": "^0.0.8",
     "lodash-es": "^4.17.21",
     "nprogress": "^0.2.0",
     "pinia": "^3.0.3",

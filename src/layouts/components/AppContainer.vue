@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { routeWhitePathList } from '@/common'
 import { routeUtils } from '@/router'
-import { computed } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -16,11 +16,25 @@ const keepAliveNames = computed(() => {
   }
   return routeUtils.flatRoutes.filter(r => r.meta?.keepAlive && r.name).map(r => r.name as string)
 })
+
+const containerRef = ref<HTMLElement>()
+const containerHeight = computed(() => containerRef.value?.clientHeight || 0)
+const isReady = ref(false)
+onMounted(async () => {
+  await nextTick()
+  setTimeout(() => {
+    requestAnimationFrame(() => {
+      isReady.value = true
+    })
+  }, 0)
+})
 </script>
 <template lang="pug">
-.full
-  router-view(v-slot='{ Component }')
-    keep-alive(:include='keepAliveNames')
-      component(:is='Component')
+.full(ref='containerRef')
+  template(v-if='isReady')
+    ScrollbarWrapper(:style='{ height: containerHeight + "px" }')
+      router-view(v-slot='{ Component }')
+        keep-alive(:include='keepAliveNames')
+          component(:is='Component')
 </template>
 <style lang="scss" scope></style>

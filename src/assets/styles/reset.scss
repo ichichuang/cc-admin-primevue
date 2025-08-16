@@ -5,18 +5,23 @@ html {
   padding: 0;
   background: var(--bg100);
 }
-*:after,
-*:before {
-  box-sizing: border-box;
-  outline: none;
-  font-size: 100%;
-  font: inherit;
-  vertical-align: baseline;
+
+p,
+span,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+a {
   margin: 0;
   padding: 0;
-  background: var(--bg100);
+  border: 0;
+  font-size: 100%;
+  font: inherit;
 }
-
 ul,
 ol {
   list-style: none;

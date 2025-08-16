@@ -54,3 +54,15 @@
 .size-4-3 {
   aspect-ratio: 4/3;
 }
+
+// 滚动容器
+.custom-scrollbar-wrapper {
+  .scrollbar__content {
+    min-height: 100%;
+  }
+  .scrollbar__thumbPlaceholder {
+    transition:
+      all 0.4s,
+      transform 0s !important;
+  }
+}

@@ -11,10 +11,12 @@ export const registerRouterGuards = ({
   router,
   debug = false,
   routeUtils,
+  staticRoutes,
 }: {
   router: Router
   debug?: boolean
   routeUtils: RouteUtils
+  staticRoutes: RouteConfig[]
 }) => {
   const dynamicRouteManager = createDynamicRouteManager(router)
 
@@ -78,11 +80,15 @@ export const registerRouterGuards = ({
       dynamicRouteManager.addRoutes([...rootRedirect])
 
       // 修复：获取完整的路由列表（静态 + 动态 + 错误页）
-      const completeRoutes = [
-        ...router.getRoutes().filter(route => route.name !== 'CatchAll'), // 排除动态添加的 catch-all 路由
-        ...asyncRoutes,
-        ...rootRedirect,
-      ]
+      // 注意：这里应该传递原始的路由配置，而不是 router.getRoutes() 的扁平化结果
+      const completeRoutes = [...staticRoutes, ...asyncRoutes, ...rootRedirect]
+
+      if (debug) {
+        console.log('🪒 Router: 静态路由数量:', staticRoutes.length)
+        console.log('🪒 Router: 动态路由数量:', asyncRoutes.length)
+        console.log('🪒 Router: 总路由数量:', completeRoutes.length)
+      }
+
       routeUtils.updateRouteUtils(completeRoutes)
 
       if (debug) {
@@ -111,11 +117,15 @@ export const registerRouterGuards = ({
         dynamicRouteManager.addRoutes([...rootRedirect])
 
         // 修复：获取完整的路由列表（静态 + 动态 + 错误页）
-        const completeRoutes = [
-          ...router.getRoutes().filter(route => route.name !== 'CatchAll'), // 排除动态添加的 catch-all 路由
-          ...asyncRoutes,
-          ...rootRedirect,
-        ]
+        // 注意：这里应该传递原始的路由配置，而不是 router.getRoutes() 的扁平化结果
+        const completeRoutes = [...staticRoutes, ...asyncRoutes, ...rootRedirect]
+
+        if (debug) {
+          console.log('🪒 Router: 静态路由数量:', staticRoutes.length)
+          console.log('🪒 Router: 动态路由数量:', asyncRoutes.length)
+          console.log('🪒 Router: 总路由数量:', completeRoutes.length)
+        }
+
         routeUtils.updateRouteUtils(completeRoutes)
 
         if (debug) {

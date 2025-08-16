@@ -304,15 +304,15 @@ export function generateMenuTree(routes: RouteConfig[]): MenuItem[] {
       return null
     }
 
-    // 如果没有 title，跳过该路由
-    if (!meta?.title) {
+    // 如果没有 title 或 titleKey，跳过该路由
+    if (!meta?.title && !meta?.titleKey) {
       return null
     }
 
     const menuItem: MenuItem = {
       path,
       name: name as string,
-      title: meta.title,
+      title: meta.title || meta.titleKey || 'Unknown',
       icon: meta.icon,
       showLink: meta.showLink === true,
       rank: typeof meta.rank === 'number' ? meta.rank : 999,
@@ -334,7 +334,13 @@ export function generateMenuTree(routes: RouteConfig[]): MenuItem[] {
     return menuItem
   }
 
-  const menuItems = routes.map(transformRoute).filter(Boolean) as MenuItem[]
+  // 过滤掉有父路径的路由，避免重复显示
+  const topLevelRoutes = routes.filter(route => {
+    // 如果路由有 parentPath 信息，说明它是子路由，应该被过滤掉
+    return !route.meta?.parentPath
+  })
+
+  const menuItems = topLevelRoutes.map(transformRoute).filter(Boolean) as MenuItem[]
 
   return sortMenuItems(menuItems)
 }
@@ -493,6 +499,7 @@ export function createRouteUtils(routes: RouteConfig[]): RouteUtils {
     updateRouteUtils(newRoutes: RouteConfig[]) {
       const newSortedRoutes = sortRoutes([...newRoutes])
       this.flatRoutes = flattenRoutes(newSortedRoutes)
+      // 修复：generateMenuTree 应该接收原始的路由结构，而不是扁平化的路由
       this.menuTree = generateMenuTree(newSortedRoutes)
       this.breadcrumbMap = generateBreadcrumbMap(newSortedRoutes)
       this.keepAliveNames = getKeepAliveNames(newSortedRoutes)
@@ -597,7 +604,8 @@ export function createDynamicRouteManager(router: any) {
 }
 
 const modules = import.meta.glob('@/views/**/*.{vue,tsx}')
-/**
+/**import { log } from '../../../scripts/utils/logger';
+
  * 根据后端 component 字符串获取实际组件
  * @param componentName 例如 'login'、'permission-page'
  */

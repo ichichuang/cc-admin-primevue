@@ -10,5 +10,6 @@ import { t } from '@/locales'
   Button(severity='primary', @click='goToRoute("Example")') {{ t('router.example.example') }}{{ t('common.actions.jump') }}
   Button(severity='primary', @click='goToRoute("ExampleScreen")') {{ t('router.example.screen') }} {{ t('common.actions.jump') }}
   Button(severity='primary', @click='goToRoute("ExampleFullscreen")') {{ t('router.example.fullscreen') }}{{ t('common.actions.jump') }}
+  Button(severity='primary', @click='goToRoute("ExampleTest")') {{ t('router.example.test') }}{{ t('common.actions.jump') }}
 </template>
 <style lang="scss" scope></style>

@@ -423,7 +423,7 @@ export const createCustomPreset = (preset: any, { colorStore, sizeStore }: Prime
       ['popover.padding']: `${sizeStore.getPaddingValue}px`,
       ['popover.content.padding']: `${sizeStore.getPaddingValue}px`,
       ['popover.root.borderRadius']: `6px`,
-      // 遮罩层
+      ['popover.root.arrowOffset']: `12px`,
       ['mask.background']: `${colorStore.getBg300}80`,
       // 抽屉
       ['drawer.root.borderColor']: `${colorStore.getBg300}`,

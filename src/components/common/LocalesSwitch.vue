@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import type { SupportedLocale } from '@/locales'
 import { t } from '@/locales'
-import type { SupportedLocale } from '@/locales/types'
 import { useLocaleStore } from '@/stores'
 import { computed } from 'vue'
 

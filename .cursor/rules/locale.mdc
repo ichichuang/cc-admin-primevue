@@ -4,7 +4,7 @@ alwaysApply: true
 
 # CC-Admin 项目国际化(i18n)智能规范配置
 
-此文件为 Cursor 编辑器提供智能的国际化(i18n)规范指导，能够自动识别和适应项目的多语言文件结构。
+此文件为 Cursor 编辑器提供智能的国际化(i18n)规范指导，基于简化的语言文件结构。
 
 ## 项目多语言架构
 
@@ -14,9 +14,8 @@ Cursor 应自动识别以下目录结构模式：
 
 ```
 src/locales/
-├── lang/           # 语言包文件 (自动扫描所有 *.ts 文件)
-├── modules/        # 模块配置文件 (自动扫描所有 *.ts 文件)
-└── types/modules/  # 类型定义文件 (自动扫描所有 *.ts 文件)
+├── lang/           # 语言包文件 (包含所有翻译内容)
+└── index.ts        # 国际化配置入口文件
 ```
 
 ### 智能文件扫描规则
@@ -25,16 +24,7 @@ src/locales/
    - 扫描所有匹配 `[a-z]{2}-[A-Z]{2}.ts` 格式的文件
    - 例如：`zh-CN.ts`, `en-US.ts`, `zh-TW.ts`, `ja-JP.ts`, `ko-KR.ts`
    - 支持未来添加任何新的语言代码文件
-
-2. **模块文件自动识别** (`/src/locales/modules/`)
-   - 扫描所有 `*.ts` 文件作为多语言模块
-   - 例如：`auth.ts`, `common.ts`, `user.ts`, `product.ts`, `order.ts`
-   - 新增模块文件会自动被识别和支持
-
-3. **类型定义自动识别** (`/src/locales/types/modules/`)
-   - 扫描所有 `*.ts` 文件作为模块类型定义
-   - 与 modules 目录保持一致的文件名映射
-   - 提供 TypeScript 智能提示支持
+   - 每个语言文件直接包含完整的翻译内容结构
 
 ## 动态键名智能提示
 
@@ -43,63 +33,59 @@ src/locales/
 Cursor 应基于实际文件内容提供智能补全：
 
 1. **顶级模块自动识别**
-   - 当输入 `t('` 时，自动扫描 `/src/locales/modules/` 下的所有文件
-   - 提示所有存在的模块名称，如：`auth.`, `common.`, `user.`, `product.`
+   - 当输入 `t('` 时，自动扫描 `/src/locales/lang/` 下的语言文件
+   - 提示所有存在的模块名称，如：`auth.`, `common.`, `user.`, `dashboard.`
 
 2. **嵌套键名智能解析**
-   - 当输入 `t('auth.` 时，读取 `auth.ts` 文件内容
+   - 当输入 `t('auth.` 时，读取语言文件中的 auth 对象内容
    - 解析并提示所有可用的子键名
    - 支持多层嵌套结构的智能提示
 
 3. **实时文件监听**
-   - 当模块文件被修改时，自动更新智能提示内容
+   - 当语言文件被修改时，自动更新智能提示内容
    - 新增或删除键名会立即反映在代码补全中
 
 ## 语言包结构模式
 
 ### 标准语言包结构
 
-每个语言文件应遵循以下导入模式：
+每个语言文件直接定义完整的翻译内容：
 
 ```typescript
-// 语言包文件模式 (如 en-US.ts)
-import { authEnUS } from '@/locales/modules/auth'
-import { commonEnUS } from '@/locales/modules/common'
-import { userEnUS } from '@/locales/modules/user'
-// ... 自动扫描并导入所有模块
-
-export const enUS = {
-  auth: authEnUS,
-  common: commonEnUS,
-  user: userEnUS,
-  // ... 自动匹配所有模块
-}
-
-export default enUS
-```
-
-### 模块文件结构模式
-
-每个模块文件应提供多语言导出：
-
-```typescript
-// 模块文件模式 (如 auth.ts)
-export const authZhCN = {
-  login: {
-    title: '用户登录',
+// 语言包文件模式 (如 zh-CN.ts)
+const zhCN = {
+  auth: {
+    login: {
+      title: '用户登录',
+      username: '用户名',
+      // ...
+    },
     // ...
   },
-}
-
-export const authEnUS = {
-  login: {
-    title: 'User Login',
+  common: {
+    settings: {
+      title: '设置',
+      // ...
+    },
     // ...
   },
+  user: {
+    management: {
+      title: '用户管理',
+    },
+  },
+  // ... 其他模块
 }
 
-// ... 支持所有语言的导出
+export { zhCN }
+export default zhCN
 ```
+
+### 语言文件特点
+
+- **直接定义**: 所有翻译内容直接在语言文件中定义
+- **结构清晰**: 按模块组织，便于维护
+- **i18n-ally 兼容**: 完全兼容 i18n-ally 插件识别
 
 ## 智能代码补全规则
 
@@ -128,44 +114,31 @@ export const authEnUS = {
 ### 类型安全智能提示
 
 1. **基于 TypeScript 类型的补全**
-   - 读取 `/src/locales/types/modules/` 下的类型定义
+   - 从 `/src/locales/index.ts` 导入类型定义
    - 提供强类型的键名补全
    - 参数类型检查和补全
 
-2. **模块导入智能提示**
+2. **Composable 智能提示**
    ```typescript
-   import { useLocale } from '@/composables/useLocale'
+   import { useLocale } from '@/hooks'
    const { t } = useLocale() // 自动提供类型化的 t 函数
    ```
 
-## 文件关联和同步
+## 文件管理和同步
 
-### 模块文件一致性检查
+### 语言文件一致性检查
 
-1. **三重文件同步检查**
-   - `modules/xxx.ts` (实现文件)
-   - `types/modules/xxx.ts` (类型定义)
-   - `lang/` 下的所有语言文件中的对应导入
+1. **结构同步检查**
+   - 所有语言文件应保持相同的键名结构
+   - 检测缺失的翻译键名
+   - 提示不一致的结构
 
-2. **缺失文件智能提示**
-   - 当创建新模块时，提示创建对应的类型文件
-   - 当添加新语言时，提示更新所有模块的对应语言导出
-
-### 自动文件生成建议
-
-1. **新模块创建时**
-
-   ```
-   创建 modules/product.ts 时，自动建议：
-   1. 创建 types/modules/product.ts
-   2. 在所有语言文件中添加 product 模块导入
-   ```
-
-2. **新语言添加时**
+2. **新语言添加指导**
    ```
    创建 lang/ja-JP.ts 时，自动建议：
-   1. 在所有 modules/*.ts 文件中添加对应的 jaJP 导出
-   2. 更新 types 定义以支持新语言
+   1. 复制现有语言文件的结构
+   2. 翻译所有文本内容
+   3. 保持键名结构一致
    ```
 
 ## 国际化最佳实践智能提示

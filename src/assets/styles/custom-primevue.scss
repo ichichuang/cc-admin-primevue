@@ -15,6 +15,12 @@
       box-shadow 0.4s;
     transition-timing-function: ease-in-out;
   }
+  &::after {
+    background: transparent !important;
+  }
+  &::before {
+    background: transparent !important;
+  }
 }
 // 抽屉
 .p-drawer {

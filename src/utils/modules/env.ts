@@ -63,6 +63,10 @@ export const env = {
     return import.meta.env.VITE_PUBLIC_PATH
   },
 
+  get routerMode(): 'history' | 'hash' {
+    return import.meta.env.VITE_ROUTER_MODE
+  },
+
   get port(): number {
     return toNumber(import.meta.env.VITE_PORT)
   },

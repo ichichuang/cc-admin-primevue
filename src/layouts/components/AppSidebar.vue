@@ -2,6 +2,7 @@
 import { getMenuTree } from '@/common'
 
 const menuTree = getMenuTree()
+console.log('=== 菜单树结构 ===')
 console.log('menuTree', menuTree)
 </script>
 <template lang="pug">

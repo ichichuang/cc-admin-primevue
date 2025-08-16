@@ -68,11 +68,15 @@ export const getRouteByPath = (path: string): any | null => {
 
 /**
  * 跳转到指定路由
+ * @param name - 路由名称
+ * @param query - 查询参数
+ * @param newWindow - 是否强制新窗口打开（可选，默认根据路由parent属性自动判断）
+ * @param checkPermission - 是否检查权限
  */
 export const goToRoute = (
   name?: string | null,
   query?: LocationQueryRaw,
-  newWindow = false,
+  newWindow?: boolean,
   checkPermission = false
 ): void => {
   if (!name) {
@@ -92,14 +96,34 @@ export const goToRoute = (
     }
   }
   const targetRoute = targetRoutes[0]
+
   // 权限检查（如需集成可在此处）
   if (checkPermission) {
     // ...
   }
-  if (newWindow) {
-    const location = window.location
-    const path = location.origin + '/#' + targetRoute.path
-    window.open(path, '_blank')
+
+  // 判断是否需要新窗口打开
+  // 1. 如果明确指定了 newWindow 参数，则按指定值执行
+  // 2. 如果未指定，则根据路由的 parent 属性自动判断
+  let shouldOpenNewWindow = newWindow
+
+  if (newWindow === undefined) {
+    // 获取路由的 parent 属性，默认为 'admin'
+    const parent = (targetRoute.meta?.parent as LayoutMode) || 'admin'
+
+    // screen 和 fullscreen 模式需要新窗口打开
+    shouldOpenNewWindow = parent === 'screen' || parent === 'fullscreen'
+  }
+
+  if (shouldOpenNewWindow) {
+    if (env.routerMode === 'hash') {
+      const location = window.location
+      const path = location.origin + '/#' + targetRoute.path
+      window.open(path, '_blank')
+    } else {
+      window.open(targetRoute.path, '_blank')
+    }
+    // window.open(path, '_blank')
   } else {
     router.push({ path: targetRoute.path, query })
   }

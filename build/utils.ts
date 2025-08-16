@@ -34,6 +34,7 @@ export const __APP_INFO__ = {
 export interface ViteEnv {
   VITE_PORT: number
   VITE_PUBLIC_PATH: string
+  VITE_ROUTER_MODE: 'history' | 'hash'
   VITE_CDN: boolean
   VITE_COMPRESSION: 'none' | 'gzip' | 'brotli' | 'both'
   VITE_BUILD_SOURCEMAP: boolean
@@ -60,6 +61,7 @@ export const wrapperEnv = (envConf: Record<string, unknown>): ViteEnv => {
   const ret: ViteEnv = {
     VITE_PORT: 8888,
     VITE_PUBLIC_PATH: '',
+    VITE_ROUTER_MODE: 'history',
     VITE_CDN: false,
     VITE_COMPRESSION: 'none',
     VITE_BUILD_SOURCEMAP: false,

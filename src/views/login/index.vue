@@ -26,7 +26,7 @@ const handleLogin = async () => {
 </script>
 
 <template lang="pug">
-.full.center.bg-bg200
+.full.h-100vh.center.bg-bg200
   .center-col.gap-gap(class='w90% sm:w80% md:w46% lg:w28% xls:w26%')
     .fs-appFontSizex.font-bold {{ t('auth.login.title') }}
     .fs-appFontSize {{ t('common.actions.register') }}

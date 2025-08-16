@@ -129,8 +129,6 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
             'http-client': ['alova'],
             // 国际化
             i18n: ['vue-i18n'],
-            // 动画库
-            animations: ['animate.css'],
           },
           // 优化 chunk 分割 - 智能命名
           chunkFileNames: chunkInfo => {

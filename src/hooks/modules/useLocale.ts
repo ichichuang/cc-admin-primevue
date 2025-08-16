@@ -1,8 +1,8 @@
 /**
  * 多语言切换的Composable函数
  */
+import type { SupportedLocale } from '@/locales'
 import { getCurrentLocale, setLocale, supportedLocales } from '@/locales'
-import type { SupportedLocale } from '@/locales/types'
 import router from '@/router'
 import { useAppStoreWithOut } from '@/stores'
 import { computed, watch } from 'vue'

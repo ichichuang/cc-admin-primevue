@@ -1,4 +1,4 @@
-import type { SupportedLocale } from '@/locales/types'
+import type { SupportedLocale } from '@/locales'
 
 // 声明全局类型
 declare global {

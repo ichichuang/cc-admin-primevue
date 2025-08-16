@@ -45,6 +45,11 @@ type UrlString = string
 type PathString = string
 
 /**
+ * 路由模式类型
+ */
+type RouterMode = 'history' | 'hash'
+
+/**
  * 扩展 Vite 的环境变量接口
  * 定义项目中使用的所有自定义环境变量及其类型
  */
@@ -69,6 +74,9 @@ declare interface ImportMetaEnv {
 
   /** 应用根路径 */
   readonly VITE_PUBLIC_PATH: PathString
+
+  /** 路由模式 history | hash */
+  readonly VITE_ROUTER_MODE: RouterMode
 
   /** 开发服务器端口 */
   readonly VITE_PORT: NumberString

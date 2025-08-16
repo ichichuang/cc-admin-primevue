@@ -1,5 +1,8 @@
 // 声明全局类型
 declare global {
+  /** 布局模式类型 */
+  type LayoutMode = 'admin' | 'screen' | 'fullscreen'
+
   /** 布局配置接口 */
   interface LayoutConfig {
     showHeader: boolean

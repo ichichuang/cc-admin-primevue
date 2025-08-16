@@ -4,14 +4,26 @@
 import enUS from '@/locales/lang/en-US'
 import zhCN from '@/locales/lang/zh-CN'
 import zhTW from '@/locales/lang/zh-TW'
-import type { LocaleInfo, LocaleMessages, SupportedLocale } from '@/locales/types'
-import { autoImportModulesSync, env } from '@/utils'
+import { env } from '@/utils'
 import type { App } from 'vue'
 import { createI18n } from 'vue-i18n'
 
-// 自动导入所有国际化模块
-const localeModules = import.meta.glob('./modules/**/*.ts', { eager: true })
-const importedLocales = autoImportModulesSync(localeModules)
+// 类型定义
+/** 支持的语言类型 */
+export type SupportedLocale = 'zh-CN' | 'en-US' | 'zh-TW'
+
+/** 语言配置信息 */
+export interface LocaleInfo {
+  key: SupportedLocale
+  name: string
+  flag: string
+  direction: 'ltr' | 'rtl'
+}
+
+/** 语言包类型 */
+export interface LocaleMessages {
+  [key: string]: any
+}
 
 // 支持的语言列表
 export const supportedLocales: LocaleInfo[] = [
@@ -130,20 +142,10 @@ export function n(number: number, format?: string): string {
   return format ? i18n.global.n(number, format) : i18n.global.n(number)
 }
 
-// 导出所有国际化模块
-export * from '@/locales/modules/auth'
-export * from '@/locales/modules/common'
-export * from '@/locales/modules/dashboard'
-export * from '@/locales/modules/permission'
-export * from '@/locales/modules/router'
-export * from '@/locales/modules/user'
-
-// 导出所有国际化
-export default importedLocales
-
-// 类型定义
-export type LocaleModules = typeof importedLocales
+// 导出语言包
+export { enUS } from '@/locales/lang/en-US'
+export { zhCN } from '@/locales/lang/zh-CN'
+export { zhTW } from '@/locales/lang/zh-TW'
 
 // 按需导出常用国际化函数，便于使用
 export { getDefaultLocale, messages }
-export type { LocaleInfo, LocaleMessages, SupportedLocale }

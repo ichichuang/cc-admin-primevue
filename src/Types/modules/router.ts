@@ -8,7 +8,7 @@ declare module 'vue-router' {
     /** 页面标题国际化 key */
     titleKey?: string
     /** 布局模式 */
-    parent?: 'admin' | 'screen' | 'fullscreen'
+    parent?: LayoutMode
     /** 菜单图标 */
     icon?: string
     /** 是否在菜单中显示（默认 true） */
@@ -59,9 +59,6 @@ declare module 'vue-router' {
 
 // 声明全局类型
 declare global {
-  /** 布局模式类型 */
-  type LayoutMode = 'admin' | 'screen' | 'fullscreen'
-
   /** 增强的路由配置接口 */
   interface RouteConfig extends Omit<import('vue-router').RouteRecordRaw, 'meta' | 'children'> {
     meta?: import('vue-router').RouteMeta

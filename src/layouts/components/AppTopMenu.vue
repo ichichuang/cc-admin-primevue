@@ -39,21 +39,12 @@ template(v-else)
     ColorSwitch.fixed.b-gapl.r-gapl
   template(v-else)
     .between.gap-gap(class='h100%')
-      .hidden.c-card-primary.size-1-1.center.animate__animated.animate__lightSpeedInRight.animate__delay-2s(
-        class='md:block',
-        @click='toggleSidebarCollapsed'
-      )
+      .hidden.c-card-primary.size-1-1.center(class='md:block', @click='toggleSidebarCollapsed')
         .fs-appFontSizex(v-if='layoutStore.getSidebarCollapsed', class='icon-line-md:arrow-open-right')
         .fs-appFontSizex(v-else, class='icon-line-md:arrow-open-left')
-      .c-card-primary.size-1-1.center.animate__animated.animate__lightSpeedInRight(
-        class='md:hidden',
-        @click='toggleSetting("mobile", $event)'
-      )
+      .c-card-primary.size-1-1.center(class='md:hidden', @click='toggleSetting("mobile", $event)')
         .fs-appFontSizex(class='icon-line-md:cog-filled')
-      .c-card-primary.size-1-1.center.hidden.animate__animated.animate__lightSpeedInRight(
-        class='md:block',
-        @click='toggleSetting("desktop", $event)'
-      )
+      .c-card-primary.size-1-1.center.hidden(class='md:block', @click='toggleSetting("desktop", $event)')
         .text-ellipsis.fs-appFontSizex(class='icon-line-md:cog-filled')
 
 Drawer(v-model:visible='desktopSettingVisible', position='right', class='w32% lg:w28% xl:w24% xls:w22%')
@@ -68,7 +59,7 @@ Drawer(v-model:visible='desktopSettingVisible', position='right', class='w32% lg
     RoundSwitch
     PaddingSwitch
     LocalesSwitch
-    FontSizeSwitchDesktop
+    //- FontSizeSwitchDesktop
   template(#footer)
     .flex.items-center.gap-gapl.px-paddingl
       Button.flex-auto(:label='t("common.settings.systemManagement")')
@@ -81,14 +72,16 @@ Drawer(v-model:visible='desktopSettingVisible', position='right', class='w32% lg
       )
 
 Popover(ref='mobileSettingVisible')
-  .w-400.gap-gap.between-col.start-col
-    ThemeSwitch
+  .gap-gap.between-col.start-col.w-80vw.w-400(class='sm:w-40vw')
+    .between-start.gap-gap
+      span {{ t('common.settings.theme') }}
+      ThemeSwitch
     //- ColorSwitch.absolute.b-gap.r-gap
     SizeSwitch
     PaddingSwitch
     RoundSwitch
     LocalesSwitch
-    FontSizeSwitchMobile
+    //- FontSizeSwitchMobile
     Button.flex-auto(
       :label='t("common.settings.logout")',
       severity='danger',

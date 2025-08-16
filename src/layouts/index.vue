@@ -56,14 +56,14 @@ watch(
 // 动画配置
 const layoutAnimations = {
   fullscreen: {
-    enter: 'fadeInDown',
-    leave: 'fadeOutUp',
+    enter: 'fadeIn',
+    leave: 'fadeOut',
     duration: '1s',
   },
   screen: {
-    enter: 'slideInRight',
-    leave: 'slideOutLeft',
-    duration: '0.8s',
+    enter: 'lightSpeedInRight',
+    leave: 'lightSpeedOutLeft',
+    duration: '1s',
   },
   admin: {
     enter: 'lightSpeedInLeft',
