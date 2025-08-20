@@ -91,19 +91,24 @@ const enUS = {
     },
   },
   user: {
-    management: {
-      title: 'User Management',
+    title: 'User Management',
+    list: {
+      title: 'User List',
+    },
+    permission: {
+      title: 'User Permission',
     },
   },
   dashboard: {
     title: 'Dashboard',
   },
   permission: {
+    title: 'Permission Management',
     page: {
-      title: 'Page Management',
+      title: 'Page Permission',
     },
     button: {
-      title: 'Button Management',
+      title: 'Button Permission',
     },
   },
   router: {
@@ -115,10 +120,17 @@ const enUS = {
       dashboard: 'Dashboard',
     },
     example: {
-      example: 'Example',
-      fullscreen: 'Fullscreen',
-      screen: 'Screen',
-      test: 'Test',
+      title: 'Example',
+      layout: {
+        title: 'Layout',
+        screen: 'Screen',
+        fullscreen: 'Fullscreen',
+        test: 'Test',
+      },
+      components: {
+        title: 'Components',
+        menu: 'Menu',
+      },
     },
     error: {
       notFound: 'Page Not Found',

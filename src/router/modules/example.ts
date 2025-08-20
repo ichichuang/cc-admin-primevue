@@ -4,39 +4,75 @@ const exampleRoutes: RouteConfig[] = [
     name: 'Example',
     component: () => import('@/views/example/index.vue'),
     meta: {
-      titleKey: 'router.example.example',
+      titleKey: 'router.example.title',
       rank: 1,
+      icon: 'icon-line-md:marker-filled',
     },
     children: [
       {
-        path: 'screen',
-        name: 'ExampleScreen',
-        component: () => import('@/views/example/views/example-screen.vue'),
+        path: 'layout',
+        name: 'ExampleLayout',
         meta: {
-          titleKey: 'router.example.screen',
-          rank: 1,
-          parent: 'screen',
+          titleKey: 'router.example.layout.title',
+          rank: 2,
+          icon: 'icon-line-md:folder-filled',
         },
+        children: [
+          {
+            path: 'screen',
+            name: 'ExampleLayoutScreen',
+            component: () => import('@/views/example/layout/example-screen.vue'),
+            meta: {
+              titleKey: 'router.example.layout.screen',
+              rank: 1,
+              parent: 'screen',
+              icon: 'icon-line-md:monitor-screenshot-twotone',
+            },
+          },
+          {
+            path: 'fullscreen',
+            name: 'ExampleLayoutFullscreen',
+            component: () => import('@/views/example/layout/example-fullscreen.vue'),
+            meta: {
+              titleKey: 'router.example.layout.fullscreen',
+              rank: 1,
+              parent: 'fullscreen',
+              icon: 'icon-line-md:monitor-twotone',
+            },
+          },
+          {
+            path: 'test',
+            name: 'ExampleLayoutTest',
+            component: () => import('@/views/example/layout/example-test.vue'),
+            meta: {
+              titleKey: 'router.example.layout.test',
+              rank: 3,
+              parent: 'fullscreen',
+              icon: 'icon-line-md:clipboard-check-twotone-to-clipboard-twotone-transition',
+            },
+          },
+        ],
       },
       {
-        path: 'fullscreen',
-        name: 'ExampleFullscreen',
-        component: () => import('@/views/example/views/example-fullscreen.vue'),
+        path: 'components',
+        name: 'ExampleComponents',
         meta: {
-          titleKey: 'router.example.fullscreen',
+          titleKey: 'router.example.components.title',
           rank: 1,
-          parent: 'fullscreen',
+          icon: 'icon-line-md:beer-alt-filled-loop',
         },
-      },
-      {
-        path: 'test',
-        name: 'ExampleTest',
-        component: () => import('@/views/example/views/example-test.vue'),
-        meta: {
-          titleKey: 'router.example.test',
-          rank: 3,
-          parent: 'fullscreen',
-        },
+        children: [
+          {
+            path: 'menu',
+            name: 'ExampleComponentsMenu',
+            component: () => import('@/views/example/views/example-menu.vue'),
+            meta: {
+              titleKey: 'router.example.components.menu',
+              rank: 1,
+              icon: 'icon-line-md:list',
+            },
+          },
+        ],
       },
     ],
   },

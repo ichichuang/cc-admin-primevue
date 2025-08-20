@@ -9,6 +9,10 @@ export const defaultAnimateConfig: AnimateWrapperProps = {
   duration: '1s',
   /** 默认延迟 */
   delay: '0s',
+  /** 默认进入动画延迟 */
+  enterDelay: '0s',
+  /** 默认离开动画延迟 */
+  leaveDelay: '0s',
   /** 默认动画速度 */
   speed: 'fast',
   /** 默认循环次数 */

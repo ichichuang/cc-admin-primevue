@@ -54,6 +54,15 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
         // 优化HMR连接，减少扩展冲突
         timeout: 30000,
       },
+      // 🔥 新增：增强文件监听配置
+      watch: {
+        // 监听所有相关文件类型
+        ignored: ['**/node_modules/**', '**/.git/**', '**/dist/**'],
+        // 增加轮询间隔，提高响应速度
+        usePolling: false,
+        // 监听深度
+        depth: 10,
+      },
       proxy: isDev
         ? {
             ['/api']: {

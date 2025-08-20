@@ -9,7 +9,7 @@ const showMenu = computed(() => layoutStore.getShowMenu)
 <template lang="pug">
 main.full
   template(v-if='showMenu')
-    .fixed.t-gap.r-gap.between.gap-gap.z-2
+    .fixed.t-gapl.r-gapl.between.gap-gap.z-2
       AppTopMenu
   AppContainer
 </template>

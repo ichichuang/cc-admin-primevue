@@ -3,6 +3,41 @@ import { env, getDeviceInfo } from '@/utils'
 import { debounce } from 'lodash-es'
 import { defineStore } from 'pinia'
 
+/** 布局配置接口 */
+interface LayoutConfig {
+  showHeader: boolean
+  showMenu: boolean
+  showSidebar: boolean
+  showBreadcrumb: boolean
+  showFooter: boolean
+  showTabs: boolean
+}
+
+/** 布局状态接口 */
+interface LayoutState {
+  // 当前布局模式
+  currentLayout: LayoutMode
+  // 布局配置
+  layoutConfig: LayoutConfig
+  // 侧边栏折叠状态
+  sidebarCollapsed: boolean
+  // 移动端侧边栏可见状态
+  mobileSidebarVisible: boolean
+  // 展开的菜单项 key 映射，便于持久化
+  expandedMenuKeys: Record<string, boolean>
+
+  // 框架加载状态
+  isLoading: boolean
+  // 页面加载状态
+  isPageLoading: boolean
+
+  // 设备信息
+  deviceInfo: DeviceInfo
+
+  // 当前断点
+  currentBreakpoint: Breakpoint
+}
+
 /* 布局配置 */
 const layoutConfig: LayoutConfig = {
   showHeader: true,
@@ -10,7 +45,7 @@ const layoutConfig: LayoutConfig = {
   showSidebar: true,
   showBreadcrumb: true,
   showFooter: true,
-  showTabs: false,
+  showTabs: true,
 }
 
 export const useLayoutStore = defineStore('layout', {
@@ -20,11 +55,13 @@ export const useLayoutStore = defineStore('layout', {
     layoutConfig: layoutConfig,
     sidebarCollapsed: false,
     mobileSidebarVisible: false,
+    expandedMenuKeys: {},
 
     isLoading: true,
     isPageLoading: false,
 
     deviceInfo: getDeviceInfo(),
+    currentBreakpoint: 'md',
   }),
 
   getters: {
@@ -48,6 +85,8 @@ export const useLayoutStore = defineStore('layout', {
     getSidebarCollapsed: (state: LayoutState) => state.sidebarCollapsed,
     // 是否移动端侧边栏可见
     getMobileSidebarVisible: (state: LayoutState) => state.mobileSidebarVisible,
+    // 获取展开的菜单项 key 对象
+    getExpandedMenuKeys: (state: LayoutState) => state.expandedMenuKeys,
 
     // 框架加载状态
     getIsLoading: (state: LayoutState) => state.isLoading,
@@ -77,6 +116,8 @@ export const useLayoutStore = defineStore('layout', {
     getTabHeight: (state: LayoutState) => state.deviceInfo.screen.tabHeight,
     // 系统
     getSystem: (state: LayoutState) => state.deviceInfo.system,
+    // 当前断点
+    getCurrentBreakpoint: (state: LayoutState) => state.currentBreakpoint,
   },
 
   actions: {
@@ -120,6 +161,11 @@ export const useLayoutStore = defineStore('layout', {
       this.mobileSidebarVisible = visible
     },
 
+    // 设置展开的菜单项 key 对象（持久化）
+    setExpandedMenuKeys(keys: Record<string, boolean>) {
+      this.expandedMenuKeys = keys
+    },
+
     // 设置框架加载状态
     setIsLoading(loading: boolean) {
       this.isLoading = loading
@@ -132,6 +178,24 @@ export const useLayoutStore = defineStore('layout', {
     // 初始化设备信息
     initDeviceInfo() {
       this.deviceInfo = getDeviceInfo()
+      // 根据屏幕宽度更新当前断点
+      const width = this.deviceInfo.screen.width
+      this.currentBreakpoint =
+        width >= 3840
+          ? 'xxxl'
+          : width >= 2560
+            ? 'xxl'
+            : width >= 1920
+              ? 'xls'
+              : width >= 1660
+                ? 'xl'
+                : width >= 1400
+                  ? 'lg'
+                  : width >= 1024
+                    ? 'md'
+                    : width >= 768
+                      ? 'sm'
+                      : 'xs'
     },
 
     init() {

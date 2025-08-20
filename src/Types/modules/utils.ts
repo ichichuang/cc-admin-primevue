@@ -1,3 +1,5 @@
+import type { SupportedLocale } from '@/locales'
+import type { ComposerTranslation } from 'vue-i18n'
 // 声明全局类型
 declare global {
   /** 工具类型 */
@@ -17,5 +19,29 @@ declare global {
 
   interface IdleDeadline {
     timeRemaining: () => number
+  }
+
+  interface LocaleState {
+    locale: SupportedLocale
+    loading: boolean
+  }
+
+  interface Window {
+    $message: any
+    /** 全局路由工具 */
+    $routeUtils?: RouteUtils
+    /** 全局权限检查函数 */
+    $hasAuth?: (value: string | string[]) => boolean
+  }
+}
+
+declare module '@vue/runtime-core' {
+  interface ComponentCustomProperties {
+    $t: ComposerTranslation
+    $te: (key: string) => boolean
+    $d: (value: number | Date, key?: string, locale?: string) => string
+    $n: (value: number, key?: string, locale?: string) => string
+    $tm: (key: string) => any
+    $rt: (message: string) => string
   }
 }

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { AppSidebar } from '@/layouts/components/app-sidebar'
 import { useLayoutStore, useSizeStore } from '@/stores'
 import { computed } from 'vue'
 
@@ -11,6 +12,7 @@ const showFooter = computed(() => layoutStore.getShowFooter)
 const showTabs = computed(() => layoutStore.getShowTabs)
 
 // 侧边栏折叠
+
 const sidebarCollapsed = computed(() => layoutStore.getSidebarCollapsed)
 // 移动端侧边栏可见
 // const mobileSidebarVisible = computed(() => layoutStore.mobileSidebarVisible)
@@ -28,13 +30,13 @@ const sidebarClass = computed(() => ({
 <template lang="pug">
 .full.between
   // 菜单栏目
-  aside.hidden.full.between-col.color-primary400.c-border.border-y-none.border-l-none.bg-primary100(
-    class='md:block',
+  aside.fixed.z-4.full.between-col.color-primary400.c-border.border-y-none.border-l-none.bg-primary100.c-transition(
+    class='left--100% md:relative md:left-0',
     :style='sidebarClass'
   )
-    .h-headerHeight.p-paddings.center
+    .h-headerHeight.center
       span cc
-    .flex-1.p-paddings
+    div(class='h-[calc(100%-var(--header-height))]')
       .full
         AppSidebar
 

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { SupportedLocale } from '@/locales'
-import { t } from '@/locales'
 import { useLocaleStore } from '@/stores'
 import { computed } from 'vue'
 
@@ -15,13 +14,11 @@ const setLocale = (value: SupportedLocale) => {
 }
 </script>
 <template lang="pug">
-.between-start.gap-gap
-  span {{ t('common.settings.language') }}
-  ButtonGroup
-    template(v-for='item in localesOptions', :key='item.key')
-      Button(
-        :label='item.name',
-        :severity='locale === item.key ? "help" : "secondary"',
-        @click='setLocale(item.key)'
-      )
+ButtonGroup
+  template(v-for='item in localesOptions', :key='item.key')
+    Button(
+      :label='item.name',
+      :severity='locale === item.key ? "help" : "secondary"',
+      @click='setLocale(item.key)'
+    )
 </template>

@@ -1,5 +1,6 @@
 // Router 统一管理入口
 import {
+  addParentPathsToLeafRoutes,
   createDynamicRouteManager,
   createRouteUtils,
   sortRoutes,
@@ -50,9 +51,11 @@ function processRouteModules(modules: Record<string, RouteModule>): RouteConfig[
 // 将所有路由模块合并为一个数组并排序
 const staticRoutes: RouteConfig[] = processRouteModules(importedRoutes)
 const sortedStaticRoutes: RouteConfig[] = sortRoutes(staticRoutes)
+// 添加 parentPaths
+const routesWithParentPaths = addParentPathsToLeafRoutes(sortedStaticRoutes)
 
 // 创建路由工具集（用于菜单渲染、面包屑等）
-export const routeUtils = createRouteUtils(sortedStaticRoutes)
+export const routeUtils = createRouteUtils(routesWithParentPaths)
 
 // 类型安全的路由转换函数
 function createInitialRoutes(routes: RouteConfig[]): RouteRecordRaw[] {
@@ -60,7 +63,7 @@ function createInitialRoutes(routes: RouteConfig[]): RouteRecordRaw[] {
 }
 
 // 转换为 Vue Router 兼容格式
-const initialRoutes: RouteRecordRaw[] = createInitialRoutes(sortedStaticRoutes)
+const initialRoutes: RouteRecordRaw[] = createInitialRoutes(routesWithParentPaths)
 
 // 创建路由实例
 const router = createRouter({
@@ -83,6 +86,6 @@ const router = createRouter({
 export const dynamicRouteManager = createDynamicRouteManager(router)
 
 // 注册路由
-registerRouterGuards({ router, debug: env.debug, routeUtils, staticRoutes: sortedStaticRoutes })
+registerRouterGuards({ router, debug: env.debug, routeUtils, staticRoutes: initialRoutes })
 
 export default router

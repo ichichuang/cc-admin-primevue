@@ -38,19 +38,40 @@ const routes: BackendRouteConfig[] = [
     name: 'User',
     component: 'user/index',
     meta: {
-      title: '用户管理',
-      parent: 'screen',
-      icon: 'ep:user',
+      titleKey: 'user.title',
+      icon: 'icon-line-md:account',
       rank: 1,
     },
+    children: [
+      {
+        path: 'list',
+        name: 'UserList',
+        component: 'user/views/user-list',
+        meta: {
+          titleKey: 'user.list.title',
+          icon: 'icon-line-md:account',
+          rank: 1,
+        },
+      },
+      {
+        path: 'permission',
+        name: 'UserPermission',
+        component: 'user/views/user-permission',
+        meta: {
+          titleKey: 'user.permission.title',
+          icon: 'icon-line-md:account',
+          rank: 2,
+        },
+      },
+    ],
   },
   {
     path: '/permission',
     name: 'Permission',
     component: 'permission/index',
     meta: {
-      title: '权限管理',
-      icon: 'ep:lock',
+      titleKey: 'permission.title',
+      icon: 'icon-line-md:construction',
       rank: 2,
     },
     children: [
@@ -59,9 +80,9 @@ const routes: BackendRouteConfig[] = [
         name: 'PermissionPage',
         component: 'permission/views/permission-page',
         meta: {
-          parent: 'fullscreen',
-          title: '页面权限',
+          titleKey: 'permission.page.title',
           roles: ['admin', 'common'],
+          icon: 'icon-line-md:construction',
         },
       },
       {
@@ -69,10 +90,10 @@ const routes: BackendRouteConfig[] = [
         name: 'PermissionButton',
         component: 'permission/views/permission-button',
         meta: {
-          parent: 'fullscreen',
-          title: '按钮权限',
+          titleKey: 'permission.button.title',
           roles: ['admin'],
           auths: ['permission:btn:add', 'permission:btn:edit', 'permission:btn:delete'],
+          icon: 'icon-line-md:construction',
         },
       },
     ],

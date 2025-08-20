@@ -72,7 +72,7 @@ function getSvgFiles(dir: string): string[] {
  */
 export function getRouteMetaIcons(): string[] {
   const icons = new Set<string>()
-  const files = getTsFiles('src/router/modules')
+  const files = [...getTsFiles('src/router/modules'), ...getTsFiles('src/api/modules')]
 
   // 更精确的正则表达式匹配图标
   const iconPatterns = [

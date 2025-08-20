@@ -116,6 +116,10 @@ export interface AnimateWrapperProps {
   duration?: string
   /** 动画延迟，例如 '0.5s' | '200ms' */
   delay?: string
+  /** 进入动画延迟，例如 '0.5s' | '200ms' */
+  enterDelay?: string
+  /** 离开动画延迟，例如 '0.5s' | '200ms' */
+  leaveDelay?: string
   /** 动画速度 */
   speed?: AnimateSpeed
   /** 循环次数 */

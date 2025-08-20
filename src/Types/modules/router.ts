@@ -9,6 +9,8 @@ declare module 'vue-router' {
     titleKey?: string
     /** 布局模式 */
     parent?: LayoutMode
+    /** 父级菜单路径 */
+    parentPaths?: string[]
     /** 菜单图标 */
     icon?: string
     /** 是否在菜单中显示（默认 true） */
@@ -86,16 +88,17 @@ declare global {
 
   /** 菜单项类型（用于菜单渲染） */
   interface MenuItem {
-    path: string
-    name?: string
-    title: string
-    icon?: string
-    showLink: boolean
-    rank: number
-    roles?: string[]
-    auths?: string[]
-    children?: MenuItem[]
-    meta?: import('vue-router').RouteMeta
+    path: string // 菜单路径
+    name?: string // 菜单名称
+    titleKey?: string // 菜单标题国际化 key
+    title: string // 菜单标题
+    icon?: string // 菜单图标
+    showLink: boolean // 是否显示菜单
+    rank: number // 菜单排序
+    roles?: string[] // 菜单角色
+    auths?: string[] // 菜单权限
+    children?: MenuItem[] // 子菜单
+    meta?: import('vue-router').RouteMeta // 菜单元信息
   }
 
   /** 路由工具类型 */

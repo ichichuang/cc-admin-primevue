@@ -3,13 +3,9 @@ import { computed } from 'vue'
 import { defaultAnimateConfig } from './utils/constants'
 import type { AnimateName, AnimateWrapperProps } from './utils/types'
 
-const props = defineProps<AnimateWrapperProps>()
-
-/** 合并默认值 */
-const merged = computed(() => ({
+const props = withDefaults(defineProps<AnimateWrapperProps>(), {
   ...defaultAnimateConfig,
-  ...props,
-}))
+})
 
 /** 构造动画类 */
 const buildClass = (name?: AnimateName) => {
@@ -19,33 +15,31 @@ const buildClass = (name?: AnimateName) => {
   return [
     'animate__animated',
     `animate__${name}`,
-    merged.value.speed ? `animate__${merged.value.speed}` : '',
-    merged.value.repeat && merged.value.repeat !== 1
-      ? `animate__repeat-${merged.value.repeat}`
-      : '',
-    merged.value.repeat === 'infinite' ? 'animate__infinite' : '',
+    props.speed ? `animate__${props.speed}` : '',
+    props.repeat && props.repeat !== 1 ? `animate__repeat-${props.repeat}` : '',
+    props.repeat === 'infinite' ? 'animate__infinite' : '',
   ]
     .filter(Boolean)
     .join(' ')
 }
 
-const enterClass = computed(() => buildClass(merged.value.enter))
-const leaveClass = computed(() => buildClass(merged.value.leave))
+const enterClass = computed(() => buildClass(props.enter))
+const leaveClass = computed(() => buildClass(props.leave))
 
 /** CSS 变量 */
 const styleVars = computed(() => ({
-  '--animate-duration': merged.value.duration,
-  '--animate-delay': merged.value.delay,
+  '--animate-duration': props.duration,
+  '--animate-delay': props.enterDelay || props.delay,
 }))
 
 /** 队列延迟 */
 const handleBeforeEnter = (el: Element) => {
-  if (merged.value.group && merged.value.stagger) {
+  if (props.group && props.stagger) {
     const parent = el.parentNode
     if (parent) {
       const children = Array.from(parent.children)
       const index = children.indexOf(el)
-      const delay = index * merged.value.stagger
+      const delay = index * props.stagger
       ;(el as HTMLElement).style.setProperty('--animate-delay', `${delay}ms`)
     }
   }
@@ -54,14 +48,14 @@ const handleBeforeEnter = (el: Element) => {
 
 <template lang="pug">
 Transition(
-  v-if='!merged.group',
+  v-if='!group',
   :enter-active-class='enterClass',
   :leave-active-class='leaveClass',
   :style='styleVars',
-  :appear='merged.appear',
+  :appear='appear',
   @before-enter='handleBeforeEnter'
 )
-  .full.center(v-if='merged.show')
+  .full.center(v-if='show')
     slot
 TransitionGroup(
   v-else,
@@ -69,7 +63,7 @@ TransitionGroup(
   :enter-active-class='enterClass',
   :leave-active-class='leaveClass',
   :style='styleVars',
-  :appear='merged.appear',
+  :appear='appear',
   @before-enter='handleBeforeEnter'
 )
   slot

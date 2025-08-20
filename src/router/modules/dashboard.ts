@@ -7,6 +7,7 @@ const homeRoutes: RouteConfig[] = [
       titleKey: 'router.dashboard.dashboard',
       rank: 1,
       roles: ['admin', 'user'],
+      icon: 'icon-line-md:speed-twotone',
     },
   },
 ]

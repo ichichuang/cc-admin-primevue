@@ -1,6 +1,6 @@
 import store from '@/stores'
 import { useLayoutStoreWithOut } from '@/stores/modules/layout'
-import { RemAdapter, type RemAdapterConfig, env, parseRemConfigFromConfig } from '@/utils'
+import { RemAdapter, type RemAdapterConfig, env } from '@/utils'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
@@ -8,8 +8,22 @@ import { computed, ref } from 'vue'
 export const usePostcssStore = defineStore(
   'postcss',
   () => {
-    // State - 使用环境变量配置
-    const remConfig = ref<RemAdapterConfig>(parseRemConfigFromConfig())
+    // State - 使用默认配置
+    const remConfig = ref<RemAdapterConfig>({
+      strategy: 'adaptive',
+      mobileFirst: false,
+      postcssRootValue: 16,
+      breakpoints: {
+        xs: 375,
+        sm: 768,
+        md: 1024,
+        lg: 1400,
+        xl: 1660,
+        xls: 1920,
+        xxl: 2560,
+        xxxl: 3840,
+      },
+    })
 
     const currentRemBase = ref<number>(remConfig.value.postcssRootValue)
     const remAdapter = ref<RemAdapter | null>(null)

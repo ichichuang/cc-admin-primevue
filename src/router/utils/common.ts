@@ -60,15 +60,78 @@ export function filterNoPermissionTree(
 }
 
 /**
- * 处理动态路由（后端返回的路由）
- * 将后端路由数据转换为框架可用的路由格式
+ * 为最底层路由添加 parentPaths 字段
+ * 递归遍历路由树，为没有子路由的路由添加其所有父级路径
+ */
+export function addParentPathsToLeafRoutes(
+  routes: RouteConfig[],
+  parentPaths: string[] = []
+): RouteConfig[] {
+  return routes.map(route => {
+    const currentRoute = { ...route }
+
+    // 如果有子路由，递归处理
+    if (route.children && route.children.length > 0) {
+      // 将当前路由的path添加到父级路径中
+      const newParentPaths = [...parentPaths, route.path]
+      currentRoute.children = addParentPathsToLeafRoutes(route.children, newParentPaths)
+    } else {
+      // 如果没有子路由（叶子节点），添加parentPaths字段
+      if (parentPaths.length > 0) {
+        currentRoute.meta = {
+          ...currentRoute.meta,
+          parentPaths: [...parentPaths],
+        }
+      }
+    }
+
+    return currentRoute
+  })
+}
+
+/**
+ * 为后端路由添加 parentPaths 字段
+ * 专门处理后端返回的路由数据格式
+ */
+export function addParentPathsToBackendRoutes(
+  routes: BackendRouteConfig[],
+  parentPaths: string[] = []
+): BackendRouteConfig[] {
+  return routes.map(route => {
+    const currentRoute = { ...route }
+
+    // 如果有子路由，递归处理
+    if (route.children && route.children.length > 0) {
+      // 将当前路由的path添加到父级路径中
+      const newParentPaths = [...parentPaths, route.path]
+      currentRoute.children = addParentPathsToBackendRoutes(route.children, newParentPaths)
+    } else {
+      // 如果没有子路由（叶子节点），添加parentPaths字段
+      if (parentPaths.length > 0) {
+        currentRoute.meta = {
+          ...currentRoute.meta,
+          parentPaths: [...parentPaths],
+        }
+      }
+    }
+
+    return currentRoute
+  })
+}
+
+/**
+ * 修改后的处理动态路由函数，自动添加parentPaths
  */
 export function processAsyncRoutes(backendRoutes: BackendRouteConfig[]): RouteConfig[] {
   if (!backendRoutes || backendRoutes.length === 0) {
     return []
   }
 
-  return backendRoutes.map(route => {
+  // 先添加parentPaths字段
+  const routesWithParentPaths = addParentPathsToBackendRoutes(backendRoutes)
+
+  // 然后使用原有的处理逻辑
+  return routesWithParentPaths.map(route => {
     const processedRoute: RouteConfig = {
       path: route.path,
       name: route.name,
@@ -305,16 +368,17 @@ export function generateMenuTree(routes: RouteConfig[]): MenuItem[] {
     }
 
     // 如果没有 title 或 titleKey，跳过该路由
-    if (!meta?.title && !meta?.titleKey) {
+    if (!meta?.titleKey && !meta?.title) {
       return null
     }
 
     const menuItem: MenuItem = {
       path,
       name: name as string,
-      title: meta.title || meta.titleKey || 'Unknown',
+      titleKey: meta.titleKey,
+      title: meta.title || (name as string),
       icon: meta.icon,
-      showLink: meta.showLink === true,
+      showLink: meta.showLink ?? true,
       rank: typeof meta.rank === 'number' ? meta.rank : 999,
       roles: meta.roles,
       auths: meta.auths,
@@ -334,13 +398,7 @@ export function generateMenuTree(routes: RouteConfig[]): MenuItem[] {
     return menuItem
   }
 
-  // 过滤掉有父路径的路由，避免重复显示
-  const topLevelRoutes = routes.filter(route => {
-    // 如果路由有 parentPath 信息，说明它是子路由，应该被过滤掉
-    return !route.meta?.parentPath
-  })
-
-  const menuItems = topLevelRoutes.map(transformRoute).filter(Boolean) as MenuItem[]
+  const menuItems = routes.map(transformRoute).filter(Boolean) as MenuItem[]
 
   return sortMenuItems(menuItems)
 }

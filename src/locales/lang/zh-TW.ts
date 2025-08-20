@@ -91,19 +91,24 @@ const zhTW = {
     },
   },
   user: {
-    management: {
-      title: '用戶管理',
+    title: '用戶管理',
+    list: {
+      title: '用戶列表',
+    },
+    permission: {
+      title: '用戶權限',
     },
   },
   dashboard: {
     title: '儀表板',
   },
   permission: {
+    title: '權限管理',
     page: {
-      title: '頁面管理',
+      title: '頁面權限',
     },
     button: {
-      title: '按鈕管理',
+      title: '按鈕權限',
     },
   },
   router: {
@@ -115,10 +120,17 @@ const zhTW = {
       dashboard: '儀表板',
     },
     example: {
-      example: '示例',
-      fullscreen: '全屏',
-      screen: '屏幕',
-      test: '測試',
+      title: '示例',
+      layout: {
+        title: '布局',
+        screen: '屏幕',
+        fullscreen: '全屏',
+        test: '測試',
+      },
+      components: {
+        title: '组件',
+        menu: '菜单',
+      },
     },
     error: {
       notFound: '頁面未找到',

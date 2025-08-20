@@ -91,19 +91,24 @@ const zhCN = {
     },
   },
   user: {
-    management: {
-      title: '用户管理',
+    title: '用户管理',
+    list: {
+      title: '用户列表',
+    },
+    permission: {
+      title: '用户权限',
     },
   },
   dashboard: {
     title: '仪表盘',
   },
   permission: {
+    title: '权限管理',
     page: {
-      title: '页面管理',
+      title: '页面权限',
     },
     button: {
-      title: '按钮管理',
+      title: '按钮权限',
     },
   },
   router: {
@@ -115,10 +120,17 @@ const zhCN = {
       dashboard: '仪表盘',
     },
     example: {
-      example: '示例',
-      screen: '屏幕',
-      fullscreen: '全屏',
-      test: '测试',
+      title: '示例',
+      layout: {
+        title: '布局',
+        screen: '屏幕',
+        fullscreen: '全屏',
+        test: '测试',
+      },
+      components: {
+        title: '组件',
+        menu: '菜单',
+      },
     },
     error: {
       notFound: '页面未找到',

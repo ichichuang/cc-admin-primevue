@@ -2,19 +2,6 @@
 // 弹出框、抽屉
 .p-popover,
 .p-drawer {
-  *,
-  *::before,
-  *::after {
-    transition:
-      all 0.25s,
-      font-size 0s,
-      color 0s,
-      background-color 0.4s,
-      border 0.1s,
-      border-radius 0.4s,
-      box-shadow 0.4s;
-    transition-timing-function: ease-in-out;
-  }
   &::after {
     background: transparent !important;
   }
@@ -29,5 +16,175 @@
     // 渐变色
     background: linear-gradient(to right, var(--accent200), var(--accent100), transparent);
     color: var(--primary400);
+  }
+}
+// menu 菜单
+.p-menu {
+  min-width: 100%;
+  .p-menu-list {
+    .p-menu-submenu-label {
+      font-size: var(--app-font-sizex);
+    }
+    .p-menu-item {
+      .p-menu-item-link {
+        .p-menu-item-icon {
+          font-size: var(--app-font-sizex);
+        }
+        .p-menu-item-label {
+        }
+      }
+    }
+  }
+}
+// panelmenu 菜单
+.p-panelmenu {
+  min-width: 100%;
+  * {
+    border-radius: var(--rounded);
+  }
+  .p-panelmenu-panel {
+    .p-panelmenu-header {
+      .p-panelmenu-header-content {
+        .p-panelmenu-header-link {
+          .p-panelmenu-header-icon {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            width: var(--app-font-sizex);
+            height: var(--app-font-sizex);
+            font-size: var(--app-font-sizex);
+          }
+          .p-panelmenu-header-label {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+      }
+    }
+    .p-panelmenu-content-container {
+      .p-panelmenu-submenu {
+        padding-top: calc(var(--gaps) / 2);
+        padding-bottom: calc(var(--gaps) / 2);
+        gap: calc(var(--gaps) / 2);
+        display: flex;
+        flex-direction: column;
+      }
+    }
+  }
+  a {
+    svg {
+      position: absolute;
+      right: var(--padding);
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      width: var(--app-font-size);
+      height: var(--app-font-size);
+      font-size: var(--app-font-size);
+    }
+  }
+  .selecteds {
+    .p-panelmenu-header {
+      a {
+        &,
+        * {
+          color: var(--accent100);
+        }
+      }
+    }
+    li.selecteds a {
+      &,
+      * {
+        color: var(--accent100);
+      }
+    }
+  }
+  .selected {
+    a {
+      &,
+      * {
+        color: var(--accent100);
+        background: var(--bg200);
+      }
+      span:first-child {
+        background: var(--accent100);
+      }
+    }
+  }
+}
+// tier 菜单
+.p-tieredmenu {
+  min-width: 100%;
+  * {
+    border-radius: var(--rounded);
+  }
+  .p-tieredmenu-root-list {
+    .p-tieredmenu-item {
+      .p-tieredmenu-item-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        .p-tieredmenu-item-link {
+          .p-tieredmenu-item-icon {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            width: var(--app-font-sizex);
+            height: var(--app-font-sizex);
+            font-size: var(--app-font-sizex);
+          }
+          .p-tieredmenu-item-label {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .p-tieredmenu-submenu-icon {
+            position: absolute;
+            right: 0;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            width: var(--app-font-sizes);
+            height: var(--app-font-sizes);
+            font-size: var(--app-font-sizes);
+          }
+        }
+      }
+      .p-tieredmenu-submenu {
+        padding: var(--paddings);
+        gap: calc(var(--gaps) / 2);
+        display: flex;
+        flex-direction: column;
+      }
+    }
+  }
+  .selecteds {
+    & > .p-tieredmenu-item-content {
+      a {
+        &,
+        * {
+          color: var(--accent100);
+        }
+      }
+    }
+    li.selecteds a {
+      &,
+      * {
+        color: var(--accent100);
+      }
+    }
+  }
+  .selected {
+    .p-tieredmenu-item-content {
+      &,
+      * {
+        color: var(--accent100);
+        background: var(--bg200);
+      }
+      span:first-child {
+        background: var(--accent100);
+      }
+    }
   }
 }

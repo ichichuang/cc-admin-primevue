@@ -22,11 +22,7 @@ const containerHeight = computed(() => containerRef.value?.clientHeight || 0)
 const isReady = ref(false)
 onMounted(async () => {
   await nextTick()
-  setTimeout(() => {
-    requestAnimationFrame(() => {
-      isReady.value = true
-    })
-  }, 0)
+  isReady.value = true
 })
 </script>
 <template lang="pug">

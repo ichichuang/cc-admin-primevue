@@ -1,16 +1,15 @@
 <script setup lang="ts">
+import type { AnimateName } from '@/components/modules/animate-wrapper/utils/types'
 import AdminLayout from '@/layouts/components/LayoutAdmin.vue'
 import FullScreenLayout from '@/layouts/components/LayoutFullScreen.vue'
 import ScreenLayout from '@/layouts/components/LayoutScreen.vue'
-import { useLayoutStore, useUserStore } from '@/stores'
+import { useLayoutStore } from '@/stores'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const layoutStore = useLayoutStore()
-const userStore = useUserStore()
 const isLoading = computed(() => layoutStore.getIsLoading)
-const isLoggedIn = computed(() => userStore.getIsLogin)
 
 // 根据路由meta获取布局模式，默认为admin
 const currentLayoutMode = ref<LayoutMode>('fullscreen')
@@ -38,6 +37,7 @@ const isLoadingRef = ref(true)
 watch(
   () => isLoading.value,
   loading => {
+    console.log('loading: ', loading, ' ******************************')
     if (loading) {
       nextTick(() => {
         isLoadingRef.value = true
@@ -74,14 +74,14 @@ const layoutAnimations = {
 
 // 根据布局类型获取进入动画
 const getLayoutEnterAnimation = (layoutMode: LayoutMode) => {
-  return layoutAnimations[layoutMode]?.enter || 'fadeIn'
+  return (layoutAnimations[layoutMode]?.enter || 'fadeIn') as AnimateName
 }
 
 // 根据切换方向获取离开动画
 const getLayoutLeaveAnimation = (fromLayout: string, toLayout: string) => {
   // 如果是相同布局，使用默认离开动画
   if (fromLayout === toLayout) {
-    return layoutAnimations[fromLayout as LayoutMode]?.leave || 'fadeOut'
+    return (layoutAnimations[fromLayout as LayoutMode]?.leave || 'fadeOut') as AnimateName
   }
 
   // 根据布局层级决定动画方向
@@ -98,7 +98,7 @@ const getLayoutLeaveAnimation = (fromLayout: string, toLayout: string) => {
     return 'fadeOutDown'
   }
 
-  return layoutAnimations[fromLayout as LayoutMode]?.leave || 'fadeOut'
+  return (layoutAnimations[fromLayout as LayoutMode]?.leave || 'fadeOut') as AnimateName
 }
 
 // 获取动画时长
@@ -123,11 +123,14 @@ AnimateWrapper(:show='isLoadingRef', enter='fadeIn', leave='fadeOut', duration='
     delay='0s'
   )
     //- 全屏布局
-    component(:is='FullScreenLayout', v-if='currentLayoutMode === "fullscreen"')
+    template(v-if='currentLayoutMode === "fullscreen"')
+      component(:is='FullScreenLayout')
 
-    //- 屏幕布局（需要登录）
-    component(:is='ScreenLayout', v-if='currentLayoutMode === "screen" && isLoggedIn')
+    //- 屏幕布局
+    template(v-if='currentLayoutMode === "screen"')
+      component(:is='ScreenLayout')
 
-    //- 管理布局（需要登录）
-    component(:is='AdminLayout', v-if='currentLayoutMode === "admin" && isLoggedIn')
+    //- 管理布局
+    template(v-if='currentLayoutMode === "admin"')
+      component(:is='AdminLayout')
 </template>

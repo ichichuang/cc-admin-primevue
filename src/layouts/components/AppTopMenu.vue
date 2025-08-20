@@ -28,6 +28,12 @@ const sidebarCollapsed = computed(() => layoutStore.getSidebarCollapsed)
 const toggleSidebarCollapsed = () => {
   layoutStore.setSidebarCollapsed(!sidebarCollapsed.value)
 }
+
+/* 控制移动端菜单显示 */
+const mobileSidebarVisible = computed(() => layoutStore.getMobileSidebarVisible)
+const toggleMobileMenu = () => {
+  layoutStore.setMobileSidebarVisible(!mobileSidebarVisible.value)
+}
 </script>
 
 <template lang="pug">
@@ -36,17 +42,23 @@ template(v-if='!isLoggedIn')
 template(v-else)
   template(v-if='currentLayoutMode === "fullscreen"')
     ThemeSwitch
+    LocalesSwitch
     ColorSwitch.fixed.b-gapl.r-gapl
   template(v-else)
     .between.gap-gap(class='h100%')
+      //- 桌面端
       .hidden.c-card-primary.size-1-1.center(class='md:block', @click='toggleSidebarCollapsed')
         .fs-appFontSizex(v-if='layoutStore.getSidebarCollapsed', class='icon-line-md:arrow-open-right')
         .fs-appFontSizex(v-else, class='icon-line-md:arrow-open-left')
-      .c-card-primary.size-1-1.center(class='md:hidden', @click='toggleSetting("mobile", $event)')
-        .fs-appFontSizex(class='icon-line-md:cog-filled')
       .c-card-primary.size-1-1.center.hidden(class='md:block', @click='toggleSetting("desktop", $event)')
         .text-ellipsis.fs-appFontSizex(class='icon-line-md:cog-filled')
+      //- 移动端
+      .c-card-primary.size-1-1.center(class='md:hidden', @click='toggleMobileMenu')
+        .fs-appFontSizex(class='icon-line-md:grid-3-filled')
+      .c-card-primary.size-1-1.center(class='md:hidden', @click='toggleSetting("mobile", $event)')
+        .fs-appFontSizex(class='icon-line-md:cog-filled')
 
+//- 桌面端设置面板抽屉
 Drawer(v-model:visible='desktopSettingVisible', position='right', class='w32% lg:w28% xl:w24% xls:w22%')
   template(#header)
     .font-bold.fs-appFontSizex {{ t('common.settings.title') }}
@@ -54,11 +66,19 @@ Drawer(v-model:visible='desktopSettingVisible', position='right', class='w32% lg
     .between-start.gap-gap
       span {{ t('common.settings.theme') }}
       ThemeSwitch
+    .between-start.gap-gap
+      span {{ t('common.settings.size') }}
+      SizeSwitch
+    .between-start.gap-gap
+      span {{ t('common.settings.rounded') }}
+      RoundSwitch
+    .between-start.gap-gap
+      span {{ t('common.settings.padding') }}
+      PaddingSwitch
+    .between-start.gap-gap
+      span {{ t('common.settings.language') }}
+      LocalesSwitch
     ColorSwitch.absolute.b-gap.r-gap
-    SizeSwitch
-    RoundSwitch
-    PaddingSwitch
-    LocalesSwitch
     //- FontSizeSwitchDesktop
   template(#footer)
     .flex.items-center.gap-gapl.px-paddingl
@@ -71,8 +91,9 @@ Drawer(v-model:visible='desktopSettingVisible', position='right', class='w32% lg
         @click='handleLogout'
       )
 
+//- 移动端设置面板弹出框
 Popover(ref='mobileSettingVisible')
-  .gap-gap.between-col.start-col.w-80vw.w-400(class='sm:w-40vw')
+  .gap-gap.between-col.start-col.w-60vw(class='sm:w-40vw')
     .between-start.gap-gap
       span {{ t('common.settings.theme') }}
       ThemeSwitch

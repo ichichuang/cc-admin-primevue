@@ -4,6 +4,7 @@
     "src/types/types.d.ts",
     "src/types/**/*.ts",
     "env.d.ts",
+    "components.d.ts",
     "src/**/*",
     "src/**/*.vue",
     "build/**/*",
@@ -22,6 +23,9 @@
     }
   },
   "vueCompilerOptions": {
-    "plugins": ["@vue/language-plugin-pug"]
+    "plugins": ["@vue/language-plugin-pug"],
+    "strictTemplates": true,
+    "target": 3.3,
+    "strict": true
   }
 }

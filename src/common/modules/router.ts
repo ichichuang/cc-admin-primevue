@@ -308,3 +308,49 @@ export const isCurrentRoute = (name: string): boolean => {
   const currentRouteName = router.currentRoute.value.name as string
   return currentRouteName === name
 }
+
+/**
+ * 获取路由的完整路径（包含父级路径）
+ * @param route 路由配置
+ * @returns 完整的路径字符串
+ */
+export function getFullRoutePath(route: RouteConfig): string {
+  if (!route.meta?.parentPaths || route.meta.parentPaths.length === 0) {
+    return route.path
+  }
+
+  // 拼接父级路径和当前路径
+  const parentPath = route.meta.parentPaths.join('')
+  return `${parentPath}${route.path}`.replace(/\/+/g, '/')
+}
+
+/**
+ * 检查路由是否为叶子节点（最底层路由）
+ * @param route 路由配置
+ * @returns 是否为叶子节点
+ */
+export function isLeafRoute(route: RouteConfig): boolean {
+  return !route.children || route.children.length === 0
+}
+
+/**
+ * 获取所有叶子节点路由
+ * @param routes 路由配置数组
+ * @returns 所有叶子节点路由数组
+ */
+export function getLeafRoutes(routes: RouteConfig[]): RouteConfig[] {
+  const leafRoutes: RouteConfig[] = []
+
+  function collectLeafRoutes(routeList: RouteConfig[]) {
+    routeList.forEach(route => {
+      if (isLeafRoute(route)) {
+        leafRoutes.push(route)
+      } else if (route.children) {
+        collectLeafRoutes(route.children)
+      }
+    })
+  }
+
+  collectLeafRoutes(routes)
+  return leafRoutes
+}

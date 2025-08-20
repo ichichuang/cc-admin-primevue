@@ -2,7 +2,7 @@
 import { useLayoutStore } from '@/stores'
 import CustomScrollbar from 'custom-vue-scrollbar'
 import type { ComponentPublicInstance } from 'vue'
-import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { defaultColorScheme, defaultProps } from './utils/constants'
 import type { Rect, ScrollbarProps } from './utils/types'
 
@@ -11,12 +11,8 @@ const layoutStore = useLayoutStore()
 // 定义属性和默认值
 const props = withDefaults(defineProps<ScrollbarProps>(), defaultProps)
 
-// 控制滚动条显示的标志
-const isReady = ref(false)
-
 // 组件引用
 const scrollbarRef = ref<ComponentPublicInstance>()
-const nativeScrollRef = ref<HTMLElement>()
 
 // 动态计算滚动条宽度（thumbWidth）
 const computedThumbWidth = computed(() => {
@@ -64,11 +60,7 @@ const handleContentResize = (rect: Rect) => {
 
 // 暴露滚动元素的引用，方便外部调用原生滚动API
 const getScrollEl = () => {
-  if (isReady.value) {
-    return scrollbarRef.value?.$el?.querySelector('[data-scrollbar-wrapper]') || null
-  } else {
-    return nativeScrollRef.value || null
-  }
+  return scrollbarRef.value?.$el?.querySelector('[data-scrollbar-wrapper]') || null
 }
 
 // 暴露一些常用的滚动方法
@@ -90,31 +82,6 @@ const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
   }
 }
 
-// 监听设备信息变化，重新计算滚动条尺寸
-let removeDeviceListener: (() => void) | null = null
-
-onMounted(async () => {
-  // 初始化设备信息监听
-  removeDeviceListener = layoutStore.init()
-
-  // 等待下一个 tick 确保样式已经应用
-  await nextTick()
-
-  // 延迟更长时间确保所有样式和布局都完全加载
-  setTimeout(() => {
-    requestAnimationFrame(() => {
-      isReady.value = true
-    })
-  }, 0)
-})
-
-onUnmounted(() => {
-  // 清理设备信息监听
-  if (removeDeviceListener) {
-    removeDeviceListener()
-  }
-})
-
 // 暴露给父组件的方法和属性
 defineExpose({
   scrollbarRef,
@@ -127,8 +94,7 @@ defineExpose({
 
 <template>
   <div
-    class="custom-scrollbar-wrapper container"
-    :class="{ 'scrollbar-ready': isReady }"
+    class="custom-scrollbar-wrapper container rounded-rounded"
     :style="{
       '--thumb-color': mergedColorScheme.thumbColor,
       '--thumb-hover-color': mergedColorScheme.thumbHoverColor,
@@ -136,33 +102,8 @@ defineExpose({
       '--thumb-placeholder-color': mergedColorScheme.thumbPlaceholderColor,
     }"
   >
-    <!-- 初始状态：使用原生滚动条 -->
-    <div
-      v-if="!isReady"
-      ref="nativeScrollRef"
-      :class="props.class"
-      :style="[
-        props.style,
-        {
-          height: '100%',
-          width: '100%',
-          overflow: 'auto',
-          'scrollbar-width': 'none',
-          '-ms-overflow-style': 'none',
-        },
-      ]"
-    >
-      <div
-        :class="props.contentClass"
-        :style="props.contentStyle"
-      >
-        <slot />
-      </div>
-    </div>
-
     <!-- 准备就绪后：使用自定义滚动条 -->
     <CustomScrollbar
-      v-else
       ref="scrollbarRef"
       :class="props.class"
       :style="props.style"
@@ -190,10 +131,8 @@ defineExpose({
 
 <style scoped>
 .custom-scrollbar-wrapper {
-  height: 100%;
-  width: 100%;
+  background: transparent;
 }
-
 /* 隐藏原生滚动条 */
 .custom-scrollbar-wrapper div::-webkit-scrollbar {
   display: none;
@@ -203,7 +142,6 @@ defineExpose({
 .custom-scrollbar-wrapper :deep(.scrollbar__thumb) {
   background-color: var(--thumb-color) !important;
   border-radius: 24px;
-  transition: background-color 0.2s ease;
 }
 
 .custom-scrollbar-wrapper :deep(.scrollbar__thumb:hover) {

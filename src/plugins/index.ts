@@ -11,9 +11,10 @@ import type { App } from 'vue'
  * @param app Vue 应用实例
  */
 export const setupPlugins = (app: App) => {
+  // 先安装并初始化 Pinia Stores，确保持久化状态已就绪，再使用依赖 Store 的逻辑
+  setupStores(app)
   const { loadingStart } = useLoading()
   loadingStart()
-  setupStores(app)
   setupRouter(app)
   setupLocales(app)
   setupPrimeVue(app)

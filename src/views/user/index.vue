@@ -1,8 +1,6 @@
-<script setup lang="ts">
-import { t } from '@/locales'
-</script>
+<script setup lang="ts"></script>
 <template lang="pug">
-div
-  p {{ t('user.management.title') }}
+.full
+  router-view
 </template>
 <style lang="scss" scope></style>

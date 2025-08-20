@@ -111,7 +111,18 @@ export function getPluginsList(env: ViteEnv): PluginOption[] {
       // 优化性能：缓存组件解析结果
       transformer: 'vue3',
       version: 3,
+      // 🔥 新增：实时更新配置
+      include: [/\.vue$/, /\.vue\?vue/],
+      exclude: [/[\\/]node_modules[\\/]/, /[\\/]\.git[\\/]/],
+      // 开发环境优化
+      ...(isDev && {
+        // 调试模式
+        debug: env.VITE_DEBUG,
+      }),
     }),
+
+    // 🔥 注释掉：避免与自定义监听器重复
+    // isDev && createFileWatcherPlugin(),
   ].filter(Boolean) as PluginOption[]
 
   // 生产环境优化插件

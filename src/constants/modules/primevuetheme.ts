@@ -1,5 +1,5 @@
 import { useColorStore, useSizeStore } from '@/stores'
-
+import { env } from '@/utils'
 /**
  * 主题配置缓存
  */
@@ -450,18 +450,44 @@ export const createCustomPreset = (preset: any, { colorStore, sizeStore }: Prime
     })
 
     // 单独处理组件
-    const customComponentsStyle = {
+    const customComponentsStyle1 = {
       padding: `6px 8px`,
       margin: `6px`,
       gap: `4px`,
     }
+    const customComponentsStyle2 = {
+      padding: `${sizeStore.getPaddingsValue / 1.2}px ${sizeStore.getPaddingsValue}px`,
+      margin: `${sizeStore.getGaps}px`,
+      gap: `${sizeStore.getGaps}px`,
+    }
     // select 组件单独处理
     deepMergeStylesAdvancedInPlace(newPreset.components.select, {
       ['list.padding']: `10px 12px`,
-      ...customComponentsStyle,
+      ...customComponentsStyle1,
     })
+    // speeddial 组件单独处理
     deepMergeStylesAdvancedInPlace(newPreset.components.speeddial, {
-      ...customComponentsStyle,
+      ...customComponentsStyle1,
+    })
+    // menu 组件单独处理
+    deepMergeStylesAdvancedInPlace(newPreset.components.menu, {
+      ...customComponentsStyle2,
+    })
+    // megamenu 组件单独处理
+    deepMergeStylesAdvancedInPlace(newPreset.components.megamenu, {
+      ...customComponentsStyle2,
+    })
+    // menubar 组件单独处理
+    deepMergeStylesAdvancedInPlace(newPreset.components.menubar, {
+      ...customComponentsStyle2,
+    })
+    // panelmenu 组件单独处理
+    deepMergeStylesAdvancedInPlace(newPreset.components.panelmenu, {
+      ...customComponentsStyle2,
+    })
+    // tieredmenu 组件单独处理
+    deepMergeStylesAdvancedInPlace(newPreset.components.tieredmenu, {
+      ...customComponentsStyle2,
     })
 
     // 缓存结果
@@ -477,8 +503,8 @@ export const createCustomPreset = (preset: any, { colorStore, sizeStore }: Prime
       }
     }
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🎨 注入自定义主题配置:', newPreset)
+    if (env.debug) {
+      console.log('🎨 注入自定义主题配置 ✅:', newPreset)
     }
 
     return newPreset
@@ -493,7 +519,7 @@ export const createCustomPreset = (preset: any, { colorStore, sizeStore }: Prime
  */
 export const clearThemeCache = () => {
   themeCache.clear()
-  if (process.env.NODE_ENV === 'development') {
+  if (env.debug) {
     console.log('🧹 主题缓存已清理')
   }
 }

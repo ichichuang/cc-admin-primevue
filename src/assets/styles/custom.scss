@@ -1,44 +1,11 @@
 @use '@/assets/styles/custom-color.scss';
-@use '@/assets/styles/custom-primevue.scss';
 @use '@/assets/styles/custom-nprogress.scss';
+@use '@/assets/styles/custom-primevue.scss';
 
-/* 过渡动画 */
-#app {
-  *,
-  *::before,
-  *::after {
-    transition:
-      all 0.25s,
-      font-size 0s,
-      color 0s,
-      background-color 0.4s,
-      border 0.1s,
-      border-radius 0.4s,
-      box-shadow 0.4s;
-    transition-timing-function: ease-in-out;
-  }
-  button {
-    transition:
-      all 0.25s,
-      font-size 0s,
-      background-color 0.3s,
-      border 0.1s,
-      border-radius 0.4s,
-      box-shadow 0.4s;
-    transition-timing-function: ease-in-out;
-  }
-}
 * {
   font-size: var(--fontSize);
 }
-.c-card-accent,
-.c-card-primary {
-  *,
-  *::before,
-  *::after {
-    transition: all 0.4s ease-in-out !important;
-  }
-}
+
 /* 快捷样式 */
 // 宽度高度比例 1:1
 .size-1-1 {
@@ -57,12 +24,20 @@
 
 // 滚动容器
 .custom-scrollbar-wrapper {
-  .scrollbar__content {
-    min-height: 100%;
-  }
-  .scrollbar__thumbPlaceholder {
-    transition:
-      all 0.4s,
-      transform 0s !important;
+  .scrollbar__wrapper {
+    .scrollbar__scroller {
+      // overflow: visible;
+      .scrollbar__content {
+        min-height: 100%;
+      }
+    }
+    .scrollbar__thumbPlaceholder {
+      &,
+      * {
+        transition:
+          all 0.6s,
+          transform 0.1s !important;
+      }
+    }
   }
 }
