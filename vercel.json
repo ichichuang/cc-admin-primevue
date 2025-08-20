@@ -1,6 +1,7 @@
 {
-  "buildCommand": "init:cc && pnpm build",
+  "buildCommand": "pnpm build",
   "installCommand": "pnpm install --no-frozen-lockfile",
+  "framework": "vite",
   "rewrites": [
     {
       "source": "/(.*)",
