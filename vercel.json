@@ -1,6 +1,6 @@
 {
-  "buildCommand": "pnpm build",
-  "installCommand": "pnpm install",
+  "buildCommand": "init:cc && pnpm build",
+  "installCommand": "pnpm install --no-frozen-lockfile",
   "rewrites": [
     {
       "source": "/(.*)",
