@@ -68,8 +68,8 @@ const mainClass = computed(() => ({
 
     // 内容区域
     .full.h-contentBreadcrumbHeight.c-border.border-x-none
-      .full.h-contentBreadcrumbHeight.p-paddingx
-        .container.rounded-xl.c-border.border-2.border-dashed.relative
+      .full.h-contentBreadcrumbHeight
+        .container.relative.py-padding(class='md:py-paddingx xxl:py-paddingl')
           AppContainer
           .absolute.t-0.r-0.l-0.b-0.z-1.full.center(v-if='isPageLoading')
             Loading.z-2

@@ -48,7 +48,11 @@ template(v-else)
   template(v-else)
     .between.gap-gap(class='h100%')
       //- 桌面端
-      .hidden.c-card-primary.size-1-1.center(class='md:block', @click='toggleSidebarCollapsed')
+      .hidden.c-card-primary.size-1-1.center(
+        class='md:block',
+        @click='toggleSidebarCollapsed',
+        v-if='currentLayoutMode === "admin"'
+      )
         .fs-appFontSizex(v-if='layoutStore.getSidebarCollapsed', class='icon-line-md:arrow-open-right')
         .fs-appFontSizex(v-else, class='icon-line-md:arrow-open-left')
       .c-card-primary.size-1-1.center.hidden(class='md:block', @click='toggleSetting("desktop", $event)')

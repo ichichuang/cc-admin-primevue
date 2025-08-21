@@ -28,10 +28,12 @@ const computedThumbWidth = computed(() => {
   const horizontalSize = isMobile
     ? Math.max(deviceHeight * 0.01, 8)
     : Math.max(deviceHeight * 0.01, 10)
+  const newVerticalSize = verticalSize > 10 ? 10 : verticalSize
+  const newHorizontalSize = horizontalSize > 10 ? 10 : horizontalSize
   if (props.direction === 'vertical') {
-    return verticalSize
+    return newVerticalSize
   } else {
-    return horizontalSize
+    return newHorizontalSize
   }
 })
 

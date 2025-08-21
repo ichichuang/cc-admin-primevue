@@ -6,7 +6,6 @@ const layoutStore = useLayoutStore()
 
 const showHeader = computed(() => layoutStore.getShowHeader)
 const showFooter = computed(() => layoutStore.getShowFooter)
-const showTabs = computed(() => layoutStore.getShowTabs)
 const isPageLoading = computed(() => layoutStore.getIsPageLoading)
 </script>
 
@@ -17,19 +16,13 @@ main.container
     header.h-headerHeight.px-padding
       AppHeader
 
-  // 标签页
-  template(v-if='showTabs')
-    section.full.h-tabsHeight.px-paddingx.bg-bg200
-      AppTabs
-
   // 内容区域
-  .full.h-contentBreadcrumbHeight.c-border.border-x-none
-    .full.h-contentBreadcrumbHeight.p-paddingx
-      .container.rounded-xl.c-border.border-2.border-dashed.relative
-        AppContainer
-        .absolute.t-0.r-0.l-0.b-0.z-1.full.center(v-if='isPageLoading')
-          Loading.z-2
-          .absolute.full.bg-bg200.opacity-50.z-0
+  .full.h-contentsHeight.c-border.border-x-none
+    .container.relative.py-padding(class='md:py-paddingx xxl:py-paddingl')
+      AppContainer
+      .absolute.t-0.r-0.l-0.b-0.z-1.full.center(v-if='isPageLoading')
+        Loading.z-2
+        .absolute.full.bg-bg200.opacity-50.z-0
 
   // 底部
   template(v-if='showFooter')

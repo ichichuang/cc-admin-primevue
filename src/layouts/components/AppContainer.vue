@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { useSizeStore } from '@/stores'
+import { useLayoutStore, useSizeStore } from '@/stores'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 const sizeStore = useSizeStore()
-
+const layoutStore = useLayoutStore()
+const currentLayoutMode = computed(() => layoutStore.getCurrentLayout)
 const containerRef = ref<HTMLElement>()
 const containerHeight = computed(() => containerRef.value?.clientHeight || 0)
 const isReady = ref(false)
@@ -31,6 +32,12 @@ onMounted(async () => {
 <template lang="pug">
 .full(ref='containerRef')
   template(v-if='isReady')
-    ScrollbarWrapper(:style='{ height: containerHeight + "px" }')
-      AminateRouterView
+    ScrollbarWrapper(
+      :class='currentLayoutMode !== "fullscreen" ? "px-padding md:px-paddingx xxl:px-paddingl" : ""',
+      :style='{ height: containerHeight + "px" }'
+    )
+      AminateRouterView.container(
+        :class='currentLayoutMode !== "fullscreen" ? "rounded-xl c-border border-2 border-dashed" : ""',
+        :style='{ minHeight: containerHeight + "px" }'
+      )
 </template>
