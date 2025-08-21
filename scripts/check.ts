@@ -80,7 +80,7 @@ function executeCommand(command: string, args: string[]): Promise<CheckResult> {
     const child = spawn(command, args, {
       cwd: projectRoot,
       stdio: 'pipe',
-      shell: true,
+      shell: false,
     })
 
     let stdout = ''
