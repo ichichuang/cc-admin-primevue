@@ -29,15 +29,16 @@ router.beforeEach(() => {
     leave='fadeOutLeft',
     duration='400ms'
   )
-    ScrollbarWrapper.h-contentHeight(
-      :color-scheme='{ thumbColor: "var(--primary100)", thumbHoverColor: "var(--primary200)" }'
-    )
-      .bg-primary200.c-border.rounded-rounded.max-w-60vw.min-w-44vw.py-paddingl.px-padding
-        PrimeVueMenu(
-          :type='"panel"',
-          :items='props.items',
-          :components-props='props.componentsProps'
-        )
+    .bg-primary200.py-paddingl.px-padding.rounded-rounded
+      ScrollbarWrapper(
+        :color-scheme='{ thumbColor: "var(--primary100)", thumbHoverColor: "var(--primary200)" }'
+      )
+        .rounded-rounded.max-w-60vw.min-w-44vw.h-contentHeight
+          PrimeVueMenu(
+            :type='"panel"',
+            :items='props.items',
+            :components-props='props.componentsProps'
+          )
   //- 遮罩
   AnimateWrapper.fixed.t-0.l-0.z-3(:show='mobileSidebarVisible', enter='fadeIn', leave='fadeOut')
     .full.opacity-50(@click='layoutStore.setMobileSidebarVisible(false)')

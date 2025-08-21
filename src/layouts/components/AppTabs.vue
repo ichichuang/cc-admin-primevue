@@ -299,7 +299,7 @@ const scrollToActiveTabCenter = async (maxRetries = 10) => {
     :direction='"horizontal"',
     @scroll-horizontal='handleScrollHorizontal'
   )
-    .py-3.center(class='sm:py-4 lg:py-5 xxl:py-6')
+    .py-4.center(class='sm:py-6 md:py-paddings')
       .full.between-start(ref='trackRef')
         //- 活动背景 - 只有在确认有合理尺寸时才渲染
         Transition(name='indicator', mode='out-in')

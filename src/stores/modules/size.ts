@@ -46,6 +46,13 @@ export const useSizeStore = defineStore('size', {
     getContentHeight: (state: SizeState) => {
       const layoutStore = useLayoutStoreWithOut()
       const screenHeight = layoutStore.getHeight
+
+      // 安全检查：确保设备信息已初始化
+      if (!screenHeight || screenHeight <= 0) {
+        console.warn('设备高度未初始化，使用默认值')
+        return window.innerHeight - 120 // 默认减去一些固定高度
+      }
+
       const showHeader = layoutStore.getShowHeader
       const showFooter = layoutStore.getShowFooter
       const showBreadcrumb = layoutStore.getShowBreadcrumb
@@ -69,6 +76,13 @@ export const useSizeStore = defineStore('size', {
     getContentBreadcrumbHeight: (state: SizeState) => {
       const layoutStore = useLayoutStoreWithOut()
       const screenHeight = layoutStore.getHeight
+
+      // 安全检查：确保设备信息已初始化
+      if (!screenHeight || screenHeight <= 0) {
+        console.warn('设备高度未初始化，使用默认值')
+        return window.innerHeight - 100 // 默认减去一些固定高度
+      }
+
       const showHeader = layoutStore.getShowHeader
       const showFooter = layoutStore.getShowFooter
       const showTabs = layoutStore.getShowTabs
@@ -88,6 +102,13 @@ export const useSizeStore = defineStore('size', {
     getContentTabsHeight: (state: SizeState) => {
       const layoutStore = useLayoutStoreWithOut()
       const screenHeight = layoutStore.getHeight
+
+      // 安全检查：确保设备信息已初始化
+      if (!screenHeight || screenHeight <= 0) {
+        console.warn('设备高度未初始化，使用默认值')
+        return window.innerHeight - 100 // 默认减去一些固定高度
+      }
+
       const showHeader = layoutStore.getShowHeader
       const showFooter = layoutStore.getShowFooter
       const showBreadcrumb = layoutStore.getShowBreadcrumb
@@ -107,6 +128,13 @@ export const useSizeStore = defineStore('size', {
     getContentsHeight: (state: SizeState) => {
       const layoutStore = useLayoutStoreWithOut()
       const screenHeight = layoutStore.getHeight
+
+      // 安全检查：确保设备信息已初始化
+      if (!screenHeight || screenHeight <= 0) {
+        console.warn('设备高度未初始化，使用默认值')
+        return window.innerHeight - 80 // 默认减去一些固定高度
+      }
+
       const showBreadcrumb = layoutStore.getShowBreadcrumb
       const showTabs = layoutStore.getShowTabs
       let height: number = 0
@@ -122,6 +150,13 @@ export const useSizeStore = defineStore('size', {
     getContentsBreadcrumbHeight: (state: SizeState) => {
       const layoutStore = useLayoutStoreWithOut()
       const screenHeight = layoutStore.getHeight
+
+      // 安全检查：确保设备信息已初始化
+      if (!screenHeight || screenHeight <= 0) {
+        console.warn('设备高度未初始化，使用默认值')
+        return window.innerHeight - 60 // 默认减去一些固定高度
+      }
+
       const showTabs = layoutStore.getShowTabs
       let height: number = 0
       if (showTabs) {
@@ -133,6 +168,13 @@ export const useSizeStore = defineStore('size', {
     getContentsTabsHeight: (state: SizeState) => {
       const layoutStore = useLayoutStoreWithOut()
       const screenHeight = layoutStore.getHeight
+
+      // 安全检查：确保设备信息已初始化
+      if (!screenHeight || screenHeight <= 0) {
+        console.warn('设备高度未初始化，使用默认值')
+        return window.innerHeight - 60 // 默认减去一些固定高度
+      }
+
       const showBreadcrumb = layoutStore.getShowBreadcrumb
       let height: number = 0
       if (showBreadcrumb) {
@@ -325,6 +367,11 @@ export const useSizeStore = defineStore('size', {
         const targetSizePreset = targetSizePresetFn()
         this.sizes = cloneDeep(targetSizePreset)
         this.setCssVariables()
+
+        // 确保在下一个 tick 再次更新 CSS 变量，以防设备信息有变化
+        requestAnimationFrame(() => {
+          this.setCssVariables()
+        })
       } catch (error) {
         console.error('重新计算尺寸失败:', error)
       }
@@ -432,7 +479,17 @@ export const useSizeStore = defineStore('size', {
 
     init(this: any) {
       this.setSize(this.size)
-      this.setCssVariables()
+
+      // 延迟设置 CSS 变量，确保设备信息已初始化
+      requestAnimationFrame(() => {
+        this.setCssVariables()
+
+        // 再次延迟重新计算，确保所有状态都已就绪
+        setTimeout(() => {
+          this.recalculateSizes()
+        }, 100)
+      })
+
       return this.setupResizeListener()
     },
 

@@ -199,10 +199,8 @@ export const useLayoutStore = defineStore('layout', {
     },
 
     init() {
-      // 延迟第一次初始化，确保拿到准确尺寸
-      requestAnimationFrame(() => {
-        this.initDeviceInfo()
-      })
+      // 立即初始化设备信息，确保能快速获取到正确的尺寸
+      this.initDeviceInfo()
 
       // resize 等事件触发频繁，建议加防抖（debounce）避免连续高频触发影响性能。
       const handler = debounce(this.initDeviceInfo.bind(this), 200)
