@@ -179,9 +179,7 @@ onBeforeUnmount(() => {
 // 初始化与路由变化
 const currentRoute = getCurrentRoute()
 permissionStore.addTab(currentRoute.name || currentRoute.path)
-router.afterEach((to, from) => {
-  console.log(to, from)
-  console.log(to.name)
+router.afterEach(to => {
   permissionStore.addTab(to.name || to.path)
   // 路由变化后滚动到选中tab项中心
   nextTick(() => {
@@ -195,11 +193,6 @@ router.afterEach((to, from) => {
 const scrollLeft = ref(0)
 // 处理水平滚动事件
 const handleScrollHorizontal = (event: ScrollEvent) => {
-  console.log('水平滚动:', {
-    scrollLeft: event.scrollLeft,
-    deltaX: event.deltaX,
-    progress: (event.scrollLeft / (event.scrollWidth - event.clientWidth)) * 100,
-  })
   scrollLeft.value = event.scrollLeft
 }
 
@@ -258,19 +251,6 @@ const scrollToActiveTabCenter = async (maxRetries = 10) => {
   const maxScrollLeft = scrollWidth - containerWidth
   const clampedScrollLeft = Math.max(0, Math.min(targetScrollLeft, maxScrollLeft))
 
-  // 调试信息
-  console.log('滚动计算（针对ScrollbarWrapper）:', {
-    itemOffsetLeft,
-    itemWidth,
-    itemCenter,
-    containerWidth,
-    scrollWidth,
-    targetScrollLeft,
-    maxScrollLeft,
-    clampedScrollLeft,
-    currentScrollLeft: scrollEl.scrollLeft,
-  })
-
   // 使用 ScrollbarWrapper 的 scrollTo 方法（这是正确的方法）
   scrollbar.scrollTo({
     left: clampedScrollLeft,
@@ -309,7 +289,7 @@ const scrollToActiveTabCenter = async (maxRetries = 10) => {
           )
         //- 标签列表
         template(v-for='(tab, index) in tabList', :key='tab.name || tab.path')
-          .center.relative.z-2.h-full.mx-gaps.px-padding.bg-tm.border-none.color-text200.cursor-pointer(
+          .center.relative.z-2.h-full.mx-gaps.px-padding.bg-tm.border-none.color-text200.cursor-pointer.select-none(
             :ref='createItemRef(tab)',
             :class='tab.active ? "active color-accent200" : "color-text200 hover:color-text100  tab-item"',
             @click='goToRoute(String(tab?.name))'

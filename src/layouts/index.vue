@@ -25,8 +25,6 @@ router.beforeEach((_to, form) => {
 router.afterEach(to => {
   toPath.value = to.path
   toLayout.value = to.meta?.parent || 'admin'
-  console.log('path: ', formPath.value, '->', toPath.value)
-  console.log('layout: ', formLayout.value, '->', toLayout.value)
   const routeLayout = to.meta?.parent || 'admin'
   currentLayoutMode.value = routeLayout
   layoutStore.setCurrentLayout(currentLayoutMode.value)

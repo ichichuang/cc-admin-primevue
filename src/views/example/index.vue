@@ -1,6 +1,5 @@
 <script setup lang="ts"></script>
 <template lang="pug">
-.full
-  router-view
+AminateRouterView
 </template>
 <style lang="scss" scope></style>

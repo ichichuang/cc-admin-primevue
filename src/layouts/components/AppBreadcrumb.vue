@@ -63,7 +63,7 @@ Breadcrumb(:home='home', :model='items')
       )
     template(v-else)
       template(v-if='item.label === currentRouteTitle')
-        span {{ item.label }}
+        span.select-none {{ item.label }}
       template(v-else)
-        span.color-text200 {{ item.label }}
+        span.color-text200.select-none {{ item.label }}
 </template>

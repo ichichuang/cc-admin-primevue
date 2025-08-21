@@ -2,7 +2,7 @@
 import { t } from '@/locales'
 </script>
 <template lang="pug">
-.full
+.full.bg-blue
   p {{ t('user.list.title') }}
 </template>
 <style lang="scss" scope></style>

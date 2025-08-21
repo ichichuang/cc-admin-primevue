@@ -14,6 +14,28 @@ export const utilityRules = [
     }),
   ],
 
+  // 禁止文字选中规则
+  [
+    /^select-none$/,
+    () => ({
+      'user-select': 'none',
+      '-webkit-user-select': 'none',
+      '-moz-user-select': 'none',
+      '-ms-user-select': 'none',
+    }),
+  ],
+
+  // 允许文字选中规则
+  [
+    /^select-text$/,
+    () => ({
+      'user-select': 'text',
+      '-webkit-user-select': 'text',
+      '-moz-user-select': 'text',
+      '-ms-user-select': 'text',
+    }),
+  ],
+
   // 自定义透明度规则
   [
     /^bg-theme-(\d+)$/,

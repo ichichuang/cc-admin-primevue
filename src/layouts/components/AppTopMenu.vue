@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { t } from '@/locales'
 import { useLayoutStore, useUserStore } from '@/stores'
+import { throttle } from '@/common'
 import { computed, ref } from 'vue'
 const userStore = useUserStore()
 const layoutStore = useLayoutStore()
@@ -25,9 +26,9 @@ const handleLogout = () => {
 
 /* 控制侧边栏折叠 */
 const sidebarCollapsed = computed(() => layoutStore.getSidebarCollapsed)
-const toggleSidebarCollapsed = () => {
+const toggleSidebarCollapsed = throttle(() => {
   layoutStore.setSidebarCollapsed(!sidebarCollapsed.value)
-}
+}, 800)
 
 /* 控制移动端菜单显示 */
 const mobileSidebarVisible = computed(() => layoutStore.getMobileSidebarVisible)

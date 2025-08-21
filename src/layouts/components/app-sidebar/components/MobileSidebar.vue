@@ -33,7 +33,7 @@ router.beforeEach(() => {
       ScrollbarWrapper(
         :color-scheme='{ thumbColor: "var(--primary100)", thumbHoverColor: "var(--primary200)" }'
       )
-        .rounded-rounded.max-w-60vw.min-w-44vw.h-contentHeight
+        .rounded-rounded.max-w-60vw.min-w-44vw.h-contentHeight.select-none
           PrimeVueMenu(
             :type='"panel"',
             :items='props.items',
