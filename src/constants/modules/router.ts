@@ -2,8 +2,20 @@
  * 路由白名单配置
  * 不需要登录验证的页面路径
  */
-export const routeWhitePathList: string[] = ['/login', '/register', '/example', '/exampleAnimate']
-export const routeWhiteNameList: string[] = ['Login', 'Register', 'Example', 'ExampleAnimate']
+export const routeWhitePathList: string[] = [
+  '/login',
+  '/register',
+  '/example',
+  '/exampleAnimate',
+  '/example/layout/ratio',
+]
+export const routeWhiteNameList: string[] = [
+  'Login',
+  'Register',
+  'Example',
+  'ExampleAnimate',
+  'ExampleRatio',
+]
 
 /**
  * 错误页面配置

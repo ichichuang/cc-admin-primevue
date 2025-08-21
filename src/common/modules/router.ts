@@ -113,7 +113,7 @@ export const goToRoute = (
     const parent = (targetRoute.meta?.parent as LayoutMode) || 'admin'
 
     // screen 和 fullscreen 模式需要新窗口打开
-    shouldOpenNewWindow = parent === 'screen' || parent === 'fullscreen'
+    shouldOpenNewWindow = parent === 'screen' || parent === 'fullscreen' || parent === 'ratio'
   }
 
   if (shouldOpenNewWindow) {

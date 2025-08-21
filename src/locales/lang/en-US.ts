@@ -126,6 +126,7 @@ const enUS = {
         screen: 'Screen',
         fullscreen: 'Fullscreen',
         test: 'Test',
+        ratio: 'Ratio',
       },
       components: {
         title: 'Components',

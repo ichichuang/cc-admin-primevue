@@ -3,6 +3,7 @@ import {
   addParentPathsToLeafRoutes,
   createDynamicRouteManager,
   createRouteUtils,
+  normalizeRatioMetaOnRoutes,
   sortRoutes,
   transformToVueRoutes,
 } from '@/router/utils/common'
@@ -51,11 +52,12 @@ function processRouteModules(modules: Record<string, RouteModule>): RouteConfig[
 // 将所有路由模块合并为一个数组并排序
 const staticRoutes: RouteConfig[] = processRouteModules(importedRoutes)
 const sortedStaticRoutes: RouteConfig[] = sortRoutes(staticRoutes)
-// 添加 parentPaths
+// 添加 parentPaths 并归一化 ratio 默认值
 const routesWithParentPaths = addParentPathsToLeafRoutes(sortedStaticRoutes)
+const normalizedStaticRoutes = normalizeRatioMetaOnRoutes(routesWithParentPaths)
 
 // 创建路由工具集（用于菜单渲染、面包屑等）
-export const routeUtils = createRouteUtils(routesWithParentPaths)
+export const routeUtils = createRouteUtils(normalizedStaticRoutes)
 
 // 类型安全的路由转换函数
 function createInitialRoutes(routes: RouteConfig[]): RouteRecordRaw[] {
@@ -63,7 +65,7 @@ function createInitialRoutes(routes: RouteConfig[]): RouteRecordRaw[] {
 }
 
 // 转换为 Vue Router 兼容格式
-const initialRoutes: RouteRecordRaw[] = createInitialRoutes(routesWithParentPaths)
+const initialRoutes: RouteRecordRaw[] = createInitialRoutes(normalizedStaticRoutes)
 
 console.log('路由模式： ', env.routerMode)
 

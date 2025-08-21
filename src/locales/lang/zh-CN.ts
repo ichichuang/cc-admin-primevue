@@ -126,6 +126,7 @@ const zhCN = {
         screen: '屏幕',
         fullscreen: '全屏',
         test: '测试',
+        ratio: '比例',
       },
       components: {
         title: '组件',

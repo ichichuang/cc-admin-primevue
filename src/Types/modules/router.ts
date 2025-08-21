@@ -9,6 +9,8 @@ declare module 'vue-router' {
     titleKey?: string
     /** 布局模式 */
     parent?: LayoutMode
+    /** 固定比例（只有ratio布局模式下有效：16:9） */
+    ratio?: '16:9' | '4:3' | '1:1' | string
     /** 父级菜单路径 */
     parentPaths?: string[]
     /** 菜单图标 */

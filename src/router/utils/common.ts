@@ -144,6 +144,11 @@ export function processAsyncRoutes(backendRoutes: BackendRouteConfig[]): RouteCo
       },
     }
 
+    // ratio 默认值：当 parent 为 'ratio' 且未设置 ratio 时，设置为 '16:9'
+    if (processedRoute.meta?.parent === 'ratio' && !processedRoute.meta.ratio) {
+      processedRoute.meta.ratio = '16:9'
+    }
+
     // 处理组件
     if (route.component) {
       const component = loadView(route.component as string)
@@ -502,7 +507,8 @@ export function findRouteByPath(routes: RouteConfig[], targetPath: string): Rout
  * 转换路由配置为 Vue Router 格式
  */
 export function transformToVueRoutes(routes: RouteConfig[]): RouteRecordRaw[] {
-  return routes.map(route => {
+  const normalizedRoutes = normalizeRatioMetaOnRoutes(routes)
+  return normalizedRoutes.map(route => {
     // 构建基础路由对象
     const vueRoute: any = {
       path: route.path,
@@ -524,6 +530,28 @@ export function transformToVueRoutes(routes: RouteConfig[]): RouteRecordRaw[] {
     }
 
     return vueRoute as RouteRecordRaw
+  })
+}
+
+/**
+ * 归一化 routes：当 meta.parent 为 'ratio' 且未设置 meta.ratio 时，设置默认值为 '16:9'
+ */
+export function normalizeRatioMetaOnRoutes(routes: RouteConfig[]): RouteConfig[] {
+  return routes.map(route => {
+    const normalized: RouteConfig = {
+      ...route,
+      meta: route.meta ? { ...route.meta } : undefined,
+    }
+
+    if (normalized.meta?.parent === 'ratio' && !normalized.meta.ratio) {
+      normalized.meta.ratio = '16:9'
+    }
+
+    if (route.children && route.children.length > 0) {
+      normalized.children = normalizeRatioMetaOnRoutes(route.children)
+    }
+
+    return normalized
   })
 }
 
@@ -551,7 +579,8 @@ export function getKeepAliveNames(routes: RouteConfig[]): string[] {
  * 提供完整的路由处理工具
  */
 export function createRouteUtils(routes: RouteConfig[]): RouteUtils {
-  const sortedRoutes = sortRoutes([...routes])
+  const normalizedRoutes = normalizeRatioMetaOnRoutes(routes)
+  const sortedRoutes = sortRoutes([...normalizedRoutes])
 
   return {
     flatRoutes: flattenRoutes(sortedRoutes),
@@ -559,7 +588,8 @@ export function createRouteUtils(routes: RouteConfig[]): RouteUtils {
     breadcrumbMap: generateBreadcrumbMap(sortedRoutes),
     keepAliveNames: getKeepAliveNames(sortedRoutes),
     updateRouteUtils(newRoutes: RouteConfig[]) {
-      const newSortedRoutes = sortRoutes([...newRoutes])
+      const normalized = normalizeRatioMetaOnRoutes(newRoutes)
+      const newSortedRoutes = sortRoutes([...normalized])
       this.flatRoutes = flattenRoutes(newSortedRoutes)
       // 修复：generateMenuTree 应该接收原始的路由结构，而不是扁平化的路由
       this.menuTree = generateMenuTree(newSortedRoutes)

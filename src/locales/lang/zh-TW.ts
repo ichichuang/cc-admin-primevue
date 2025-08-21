@@ -126,6 +126,7 @@ const zhTW = {
         screen: '屏幕',
         fullscreen: '全屏',
         test: '測試',
+        ratio: '比例',
       },
       components: {
         title: '组件',

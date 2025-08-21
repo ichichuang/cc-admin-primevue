@@ -2,6 +2,7 @@
 import type { AnimateName } from '@/components/modules/animate-wrapper/utils/types'
 import AdminLayout from '@/layouts/components/LayoutAdmin.vue'
 import FullScreenLayout from '@/layouts/components/LayoutFullScreen.vue'
+import RatioLayout from '@/layouts/components/LayoutRatio.vue'
 import ScreenLayout from '@/layouts/components/LayoutScreen.vue'
 import { useLayoutStore } from '@/stores'
 import { computed, nextTick, ref, watch } from 'vue'
@@ -68,6 +69,11 @@ const layoutAnimations = {
     leave: 'lightSpeedOutRight',
     duration: '1s',
   },
+  ratio: {
+    enter: 'fadeIn',
+    leave: 'fadeOut',
+    duration: '1s',
+  },
 }
 
 // 根据布局类型获取进入动画
@@ -83,7 +89,7 @@ const getLayoutLeaveAnimation = (fromLayout: string, toLayout: string) => {
   }
 
   // 根据布局层级决定动画方向
-  const layoutLevels = { fullscreen: 0, screen: 1, admin: 2 }
+  const layoutLevels = { fullscreen: 0, screen: 1, admin: 2, ratio: 3 }
   const fromLevel = layoutLevels[fromLayout as LayoutMode] || 1
   const toLevel = layoutLevels[toLayout as LayoutMode] || 1
 
@@ -131,4 +137,8 @@ AnimateWrapper(:show='isLoadingRef', enter='fadeIn', leave='fadeOut', duration='
     //- 管理布局
     template(v-if='currentLayoutMode === "admin"')
       component(:is='AdminLayout')
+
+    //- 比例布局
+    template(v-if='currentLayoutMode === "ratio"')
+      component(:is='RatioLayout')
 </template>

@@ -51,6 +51,18 @@ const exampleRoutes: RouteConfig[] = [
               icon: 'icon-line-md:clipboard-check-twotone-to-clipboard-twotone-transition',
             },
           },
+          {
+            path: 'ratio',
+            name: 'ExampleLayoutRatio',
+            component: () => import('@/views/example/layout/example-ratio.vue'),
+            meta: {
+              titleKey: 'router.example.layout.ratio',
+              rank: 4,
+              parent: 'ratio',
+              icon: 'icon-line-md:monitor-twotone',
+              ratio: '16:9',
+            },
+          },
         ],
       },
       {

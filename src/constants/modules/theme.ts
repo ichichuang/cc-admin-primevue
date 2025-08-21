@@ -373,7 +373,7 @@ export const createCompactSizes = (): Layout => {
   return {
     sidebarWidth: Math.max(200, Math.min(width * 0.16, 400)),
     sidebarCollapsedWidth: Math.max(60, Math.min(width * 0.03, 60)),
-    headerHeight: Math.max(40, Math.min(height * 0.04, 80)),
+    headerHeight: Math.max(44, Math.min(height * 0.05, 96)),
     breadcrumbHeight: Math.max(32, Math.min(height * 0.026, 48)),
     footerHeight: 20,
     tabsHeight: Math.max(36, Math.min(height * 0.03, 56)),

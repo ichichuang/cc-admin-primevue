@@ -58,7 +58,7 @@ export const deviceConfigs: Record<string, DeviceConfig> = {
     maxWidth: breakpoints.sm, // 768
     designWidth: 375, // 基于iPhone设计稿
     baseFontSize: 14,
-    minFontSize: 12,
+    minFontSize: 14,
     maxFontSize: 18,
     name: '移动端',
   },
@@ -243,9 +243,9 @@ export const roundedOptions = [
  * 与设备配置的 baseFontSize 保持一致
  */
 export const fontSizeOptions = [
-  { label: '迷你', key: 'xs', value: 10 }, // 适用于紧凑模式
-  { label: '小号', key: 'sm', value: 12 },
-  { label: '中号', key: 'md', value: 14 }, // 移动端默认
+  { label: '迷你', key: 'xs', value: 14 }, // 适用于紧凑模式
+  { label: '小号', key: 'sm', value: 14 },
+  { label: '中号', key: 'md', value: 15 }, // 移动端默认
   { label: '大号', key: 'lg', value: 16 }, // 桌面端默认
   { label: '特大号', key: 'xl', value: 18 }, // 大屏默认
   { label: '超特大号', key: 'xls', value: 20 }, // 超宽屏默认
