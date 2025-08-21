@@ -77,10 +77,10 @@ const CHECKS = [
 function executeCommand(command: string, args: string[]): Promise<CheckResult> {
   return new Promise(resolve => {
     const startTime = Date.now()
-    const child = spawn(command, args, {
+    const child = spawn(`${command} ${args.join(' ')}`, {
       cwd: projectRoot,
       stdio: 'pipe',
-      shell: false,
+      shell: true,
     })
 
     let stdout = ''
