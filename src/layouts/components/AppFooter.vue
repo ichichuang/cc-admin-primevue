@@ -1,4 +1,7 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { env } from '@/utils'
+const version = env.appVersion
+</script>
 <template lang="pug">
-.full.between.gap-gap.px-padding 底部
+.full.between-end.px-padding.fs-appFontSizes 版本号：{{ version }}
 </template>

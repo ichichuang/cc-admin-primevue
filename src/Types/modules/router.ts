@@ -3,9 +3,9 @@ import 'vue-router'
 // 扩展 Vue Router 的 RouteMeta 接口
 declare module 'vue-router' {
   interface RouteMeta {
-    /** 页面标题（支持国际化 key） */
+    /** 页面标题（优先使用 titleKey） */
     title?: string
-    /** 页面标题国际化 key */
+    /** 页面标题国际化 key（首选） */
     titleKey?: string
     /** 布局模式 */
     parent?: LayoutMode

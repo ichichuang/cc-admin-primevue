@@ -30,7 +30,6 @@ const childProps = computed(() => ({
   items: props.items,
   componentsProps: props.componentsProps,
 }))
-console.log('props.items: ', props.items)
 </script>
 
 <template lang="pug">

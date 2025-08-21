@@ -13,16 +13,6 @@ export * from '@/utils/modules/http'
 export * from '@/utils/modules/moduleLoader'
 export * from '@/utils/modules/remAdapter'
 
-// 显式导出错误处理模块以避免命名冲突
-export {
-  createErrorBoundary,
-  ErrorType,
-  getErrorStats,
-  recoverFromError,
-  reportError,
-  setupErrorHandler,
-} from '@/utils/modules/errorHandler'
-
 // 导出所有工具
 export default importedUtils
 

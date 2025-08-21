@@ -50,7 +50,7 @@ const processMenuTree = (menuItems: any[]): MenuItem[] => {
           : ''
       const hasChildren = item.children && item.children.length > 0
       // 是否是叶子节点
-      const isLeaf = !hasChildren && !item.path.includes('/')
+      const isLeaf = !item.path.includes('/')
       // 是否是外链（如果是外链，则显示链接图标）
       const currentIcon = item.meta?.parent && item.meta?.parent !== 'admin' ? '（🔗）' : ''
       // 路由标题

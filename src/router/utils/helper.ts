@@ -62,6 +62,7 @@ export const registerRouterGuards = ({
     ]
 
     const permissionStore = usePermissionStore()
+    permissionStore.setStaticRoutes([...staticRoutes, ...rootRedirect])
     const dynamicRoutes = computed(() => permissionStore.getDynamicRoutes)
     const allRoutes = computed(() => permissionStore.getAllRoutes)
 

@@ -14,7 +14,8 @@
   box-shadow: 0px 0px 24px 0px var(--bg300);
   .p-drawer-header {
     // 渐变色
-    background: linear-gradient(to right, var(--accent200), var(--accent100), transparent);
+    // background: linear-gradient(to right, var(--accent200), var(--accent100), transparent);
+    background: var(--primary200);
     color: var(--primary400);
   }
 }
@@ -107,7 +108,7 @@
         color: var(--accent100);
         background: var(--bg200);
       }
-      span:first-child {
+      span.p-panelmenu-item-icon {
         background: var(--accent100);
       }
     }
@@ -182,7 +183,7 @@
         color: var(--accent100);
         background: var(--bg200);
       }
-      span:first-child {
+      span.p-tieredmenu-item-icon {
         background: var(--accent100);
       }
     }

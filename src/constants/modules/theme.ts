@@ -197,31 +197,6 @@ export const lightThemeOptions: ThemeColor[] = [
  */
 export const darkThemeOptions: ThemeColor[] = [
   {
-    label: '紫色深邃',
-    value: 'purple',
-    themeColors: {
-      primary100: '#7C3AED', // Vibrant purple for button background
-      primary200: '#A855F7', // Lighter purple in same hue for hover text (contrast ~4.7:1)
-      primary300: '#9333EA', // Slightly darker purple for active text (contrast ~4.9:1)
-      primary400: '#F3E8FF', // Near-white default text (contrast ~5.1:1)
-      accent100: '#22D3EE', // Cyan for highlights
-      accent200: '#0E7490', // Darker cyan for contrast
-      text100: '#EDE9FE', // Light purple for primary text on bg100
-      text200: '#C4B5FD', // Softer purple for secondary text
-      bg100: '#1E1B4B', // Dark indigo background
-      bg200: '#2E2A66', // Slightly lighter for panels
-      bg300: '#4C4680', // Gray-indigo for borders
-      functionalColors: createFunctionalColors({
-        color: '#7C3AED',
-        hover: '#A855F7',
-        active: '#9333EA',
-        disabled: '#4C4680', // Disabled text (contrast ~4.5:1)
-        text: '#F3E8FF', // Near-white default text (contrast ~5.1:1)
-        border: '#6B21A8', // Darker purple for border
-      }),
-    },
-  },
-  {
     label: '电动城市之夜',
     value: 'electric',
     themeColors: {
@@ -243,6 +218,31 @@ export const darkThemeOptions: ThemeColor[] = [
         disabled: '#475569', // Disabled text (contrast ~4.5:1)
         text: '#E0F2FE', // Near-white default text (contrast ~5.2:1)
         border: '#1E40AF', // Darker blue for border
+      }),
+    },
+  },
+  {
+    label: '紫色深邃',
+    value: 'purple',
+    themeColors: {
+      primary100: '#7C3AED', // Vibrant purple for button background
+      primary200: '#A855F7', // Lighter purple in same hue for hover text (contrast ~4.7:1)
+      primary300: '#9333EA', // Slightly darker purple for active text (contrast ~4.9:1)
+      primary400: '#F3E8FF', // Near-white default text (contrast ~5.1:1)
+      accent100: '#22D3EE', // Cyan for highlights
+      accent200: '#0E7490', // Darker cyan for contrast
+      text100: '#EDE9FE', // Light purple for primary text on bg100
+      text200: '#C4B5FD', // Softer purple for secondary text
+      bg100: '#1E1B4B', // Dark indigo background
+      bg200: '#2E2A66', // Slightly lighter for panels
+      bg300: '#4C4680', // Gray-indigo for borders
+      functionalColors: createFunctionalColors({
+        color: '#7C3AED',
+        hover: '#A855F7',
+        active: '#9333EA',
+        disabled: '#4C4680', // Disabled text (contrast ~4.5:1)
+        text: '#F3E8FF', // Near-white default text (contrast ~5.1:1)
+        border: '#6B21A8', // Darker purple for border
       }),
     },
   },

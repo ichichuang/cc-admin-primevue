@@ -1,4 +1,76 @@
-// types/scrollbar.ts
+import type { ComponentPublicInstance, Ref } from 'vue'
+
+// 滚动事件数据接口
+export interface ScrollEvent {
+  /** 水平滚动距离 */
+  scrollLeft: number
+  /** 垂直滚动距离 */
+  scrollTop: number
+  /** 内容总宽度 */
+  scrollWidth: number
+  /** 内容总高度 */
+  scrollHeight: number
+  /** 可视区域宽度 */
+  clientWidth: number
+  /** 可视区域高度 */
+  clientHeight: number
+  /** 主要滚动方向 */
+  direction: 'horizontal' | 'vertical' | 'both'
+  /** 水平滚动增量 */
+  deltaX?: number
+  /** 垂直滚动增量 */
+  deltaY?: number
+}
+
+// 滚动组件事件接口
+export interface ScrollbarEmits {
+  /** 包装器大小改变事件 */
+  wrapperResize: (rect: Rect) => void
+  /** 内容大小改变事件 */
+  contentResize: (rect: Rect) => void
+  /** 通用滚动事件 */
+  scroll: (event: ScrollEvent) => void
+  /** 水平滚动事件 */
+  scrollHorizontal: (event: ScrollEvent) => void
+  /** 垂直滚动事件 */
+  scrollVertical: (event: ScrollEvent) => void
+  /** 滚动开始事件 */
+  scrollStart: () => void
+  /** 滚动结束事件 */
+  scrollEnd: () => void
+}
+
+// 滚动组件暴露的方法接口
+export interface ScrollbarExposed {
+  /** 滚动条组件引用 */
+  scrollbarRef: Ref<ComponentPublicInstance<any> | undefined>
+  /** 获取滚动元素 */
+  getScrollEl: () => HTMLElement | null
+  /** 滚动到指定位置 */
+  scrollTo: (options: ScrollToOptions) => void
+  /** 滚动到顶部 */
+  scrollToTop: (behavior?: ScrollBehavior) => void
+  /** 滚动到底部 */
+  scrollToBottom: (behavior?: ScrollBehavior) => void
+  /** 滚动到左侧 */
+  scrollToLeft: (behavior?: ScrollBehavior) => void
+  /** 滚动到右侧 */
+  scrollToRight: (behavior?: ScrollBehavior) => void
+  /** 添加滚动监听器 */
+  addScrollListener: () => void
+  /** 移除滚动监听器 */
+  removeScrollListener: () => void
+}
+
+// 使用示例类型
+export interface ScrollbarUsageExample {
+  // 父组件中的事件处理函数示例
+  onScroll: (event: ScrollEvent) => void
+  onScrollHorizontal: (event: ScrollEvent) => void
+  onScrollVertical: (event: ScrollEvent) => void
+  onScrollStart: () => void
+  onScrollEnd: () => void
+}
 
 export interface Rect {
   left: number
@@ -57,14 +129,9 @@ export interface ScrollbarProps {
   colorScheme?: ColorScheme
 }
 
-export interface ScrollbarEmits {
-  (e: 'wrapper-resize', rect: Rect): void
-  (e: 'content-resize', rect: Rect): void
-}
-
 export interface ScrollbarExposed {
   /** 滚动条组件引用 */
-  scrollbarRef: any
+  scrollbarRef: Ref<ComponentPublicInstance<any> | undefined>
   /** 获取滚动元素 */
   getScrollEl: () => HTMLElement | null
   /** 滚动到指定位置 */

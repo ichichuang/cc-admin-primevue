@@ -422,13 +422,17 @@ export function generateBreadcrumbMap(routes: RouteConfig[]): Map<string, string
       const { path, meta, children } = route
 
       // 如果设置了隐藏面包屑，则不加入面包屑
-      if (!meta?.hideBreadcrumb && meta?.title) {
-        const currentBreadcrumb = [...breadcrumb, meta.title]
-        breadcrumbMap.set(path, currentBreadcrumb)
+      if (!meta?.hideBreadcrumb) {
+        // 优先使用 titleKey，如果没有则使用 title
+        const title = meta?.titleKey ? meta.titleKey : meta?.title
+        if (title) {
+          const currentBreadcrumb = [...breadcrumb, title]
+          breadcrumbMap.set(path, currentBreadcrumb)
 
-        // 递归处理子路由
-        if (children && children.length > 0) {
-          traverse(children, currentBreadcrumb)
+          // 递归处理子路由
+          if (children && children.length > 0) {
+            traverse(children, currentBreadcrumb)
+          }
         }
       }
     })

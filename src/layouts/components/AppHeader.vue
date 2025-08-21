@@ -8,7 +8,8 @@ const showBreadcrumb = computed(() => layoutStore.getShowBreadcrumb)
 </script>
 <template lang="pug">
 .full.between
-  .full
+  .center.hidden(class='sm:block')
     AppBreadcrumb(v-if='showBreadcrumb')
+  AppTitle(class='sm:hidden')
   AppTopMenu
 </template>

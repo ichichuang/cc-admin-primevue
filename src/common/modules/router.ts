@@ -5,6 +5,7 @@ import {
   routeWhitePathList,
 } from '@/constants'
 import router, { routeUtils } from '@/router'
+import { usePermissionStore } from '@/stores'
 import { env } from '@/utils'
 import type { LocationQueryRaw, RouteLocationNormalized } from 'vue-router'
 
@@ -157,43 +158,6 @@ export const updateRoute = (name: string, keyPath: string, value: unknown): void
       Object.assign(route, targetRoute)
     }
   })
-}
-
-/**
- * 获取路由面包屑路径
- */
-export const getBreadcrumbByRoute = (name?: string): string[] => {
-  const currentRouteName = name || (router.currentRoute.value.name as string)
-  if (!currentRouteName) {
-    return []
-  }
-  const currentPath = router.currentRoute.value.path
-  const breadcrumbMap = routeUtils.breadcrumbMap
-  if (breadcrumbMap.has(currentPath)) {
-    return breadcrumbMap.get(currentPath) || []
-  }
-  // fallback
-  const allRoutes = router.getRoutes()
-  const breadcrumbPaths: string[] = []
-  if (currentRouteName.includes('-')) {
-    const parts = currentRouteName.split('-')
-    let currentRouteNameBuilder = ''
-    parts.forEach(part => {
-      currentRouteNameBuilder = currentRouteNameBuilder
-        ? `${currentRouteNameBuilder}-${part}`
-        : part
-      const matchedRoute = allRoutes.find(r => r.name === currentRouteNameBuilder)
-      if (matchedRoute && matchedRoute.meta?.title) {
-        breadcrumbPaths.push(matchedRoute.meta.title as string)
-      }
-    })
-    return breadcrumbPaths.length > 0 ? breadcrumbPaths : [currentRouteName]
-  }
-  const currentRoute = allRoutes.find(r => r.name === currentRouteName)
-  if (currentRoute && currentRoute.meta?.title) {
-    return [currentRoute.meta.title as string]
-  }
-  return [currentRouteName]
 }
 
 /**
@@ -353,4 +317,12 @@ export function getLeafRoutes(routes: RouteConfig[]): RouteConfig[] {
 
   collectLeafRoutes(routes)
   return leafRoutes
+}
+
+/**
+ * 获取全部路由列表
+ */
+export function getAllRoutes(): RouteConfig[] {
+  const permissionStore = usePermissionStore()
+  return permissionStore.getAllRoutes as RouteConfig[]
 }

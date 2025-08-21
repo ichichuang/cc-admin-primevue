@@ -10,6 +10,8 @@ const showHeader = computed(() => layoutStore.getShowHeader)
 const showSidebar = computed(() => layoutStore.getShowSidebar)
 const showFooter = computed(() => layoutStore.getShowFooter)
 const showTabs = computed(() => layoutStore.getShowTabs)
+// 当前断点
+const currentBreakpoint = computed(() => layoutStore.getCurrentBreakpoint)
 
 // 侧边栏折叠
 
@@ -17,13 +19,25 @@ const sidebarCollapsed = computed(() => layoutStore.getSidebarCollapsed)
 // 移动端侧边栏可见
 // const mobileSidebarVisible = computed(() => layoutStore.mobileSidebarVisible)
 
-// 主容器类名
+// 侧边栏类名
 const sidebarClass = computed(() => ({
   width: showSidebar.value
     ? sidebarCollapsed.value
       ? `${sizeStore.getSidebarCollapsedWidth}px`
       : `${sizeStore.getSidebarWidth}px`
     : 0,
+}))
+
+// 主容器类名
+const mainClass = computed(() => ({
+  width:
+    currentBreakpoint.value === 'xs' || currentBreakpoint.value === 'sm'
+      ? '100%'
+      : showSidebar.value
+        ? sidebarCollapsed.value
+          ? 'calc(100% - var(--sidebar-collapsed-width))'
+          : 'calc(100% - var(--sidebar-width))'
+        : '100%',
 }))
 </script>
 
@@ -41,7 +55,7 @@ const sidebarClass = computed(() => ({
         AppSidebar
 
   // 主体
-  main.full
+  main.full(:style='mainClass')
     // 头部
     template(v-if='showHeader')
       header.h-headerHeight.px-padding
@@ -49,7 +63,7 @@ const sidebarClass = computed(() => ({
 
     // 标签页
     template(v-if='showTabs')
-      section.full.h-tabsHeight.px-paddingx.bg-bg200
+      section.full.h-tabsHeight.bg-bg200
         AppTabs
 
     // 内容区域
@@ -59,7 +73,7 @@ const sidebarClass = computed(() => ({
           AppContainer
           .absolute.t-0.r-0.l-0.b-0.z-1.full.center(v-if='isPageLoading')
             Loading.z-2
-            .absolute.full.bg-bg200.opacity-50.z-0
+            .absolute.full.bg-bg100.opacity-50.z-0
 
     // 底部
     template(v-if='showFooter')
