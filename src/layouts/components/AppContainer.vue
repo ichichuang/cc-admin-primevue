@@ -30,14 +30,11 @@ onMounted(async () => {
 })
 </script>
 <template lang="pug">
-.full(ref='containerRef')
+.full.c-transition(ref='containerRef')
   template(v-if='isReady')
     ScrollbarWrapper(
-      :class='currentLayoutMode !== "fullscreen" ? "px-padding md:px-paddingx xxl:px-paddingl" : ""',
+      :class='currentLayoutMode !== "fullscreen" ? "px-padding lg:px-paddingx xxl:px-paddingl" : ""',
       :style='{ height: containerHeight + "px" }'
     )
-      AminateRouterView.container(
-        :class='currentLayoutMode !== "fullscreen" ? "rounded-xl c-border border-2 border-dashed" : ""',
-        :style='{ minHeight: containerHeight + "px" }'
-      )
+      AminateRouterView.container(:style='{ minHeight: containerHeight + "px" }')
 </template>

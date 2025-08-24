@@ -131,12 +131,24 @@ const zhTW = {
       components: {
         title: '组件',
         menu: '菜单',
+        dialog: '对话框',
       },
     },
     error: {
       notFound: '頁面未找到',
       forbidden: '訪問被拒絕',
       serverError: '服務器錯誤',
+    },
+  },
+  layout: {
+    tabs: {
+      close: '關閉',
+      closeAll: '關閉所有',
+      closeOther: '關閉其他',
+      closeLeft: '關閉左側',
+      closeRight: '關閉右側',
+      fixed: '固定',
+      unFixed: '取消固定',
     },
   },
 }

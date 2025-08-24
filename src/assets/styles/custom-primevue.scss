@@ -94,7 +94,7 @@
         }
       }
     }
-    li.selecteds a {
+    li.selecteds > .p-panelmenu-item-content a {
       &,
       * {
         color: var(--accent100);
@@ -157,6 +157,7 @@
         gap: calc(var(--gaps) / 2);
         display: flex;
         flex-direction: column;
+        align-items: flex-start;
       }
     }
   }
@@ -169,7 +170,7 @@
         }
       }
     }
-    li.selecteds a {
+    li.selecteds > .p-tieredmenu-item-content a {
       &,
       * {
         color: var(--accent100);
@@ -188,4 +189,9 @@
       }
     }
   }
+}
+
+// contextmenu 右键菜单
+.p-contextmenu {
+  transition: all 0.4s ease-in-out !important;
 }

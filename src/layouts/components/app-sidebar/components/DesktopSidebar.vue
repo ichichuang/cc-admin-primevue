@@ -53,7 +53,7 @@ onMounted(async () => {
   )
     .w-full(:style='{ height: containerHeight + "px" }')
       //- 折叠状态
-      PrimeVueMenu(:type='"tier"', :items='props.items', :components-props='props.componentsProps')
+      PrimeMenu(:type='"tier"', :items='props.items', :components-props='props.componentsProps')
 
   AnimateWrapper(
     :show='!expandedDelay',
@@ -63,9 +63,5 @@ onMounted(async () => {
   )
     ScrollbarWrapper(:style='{ height: containerHeight + "px" }')
       //- 展开状态
-      PrimeVueMenu(
-        :type='"panel"',
-        :items='props.items',
-        :components-props='props.componentsProps'
-      )
+      PrimeMenu(:type='"panel"', :items='props.items', :components-props='props.componentsProps')
 </template>

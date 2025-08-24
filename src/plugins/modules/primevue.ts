@@ -3,6 +3,8 @@ import { useColorStore, useSizeStore } from '@/stores'
 import { definePreset, usePreset } from '@primevue/themes'
 import Aura from '@primevue/themes/aura'
 import PrimeVue from 'primevue/config'
+import ConfirmationService from 'primevue/confirmationservice'
+import DialogService from 'primevue/dialogservice'
 import { watch, type App } from 'vue'
 
 /**
@@ -98,6 +100,10 @@ export function setupPrimeVue(app: App, config: Partial<PrimeVueConfig> = {}) {
       },
     },
   })
+
+  // 注册 PrimeVue 服务
+  app.use(ConfirmationService)
+  app.use(DialogService)
 
   watch([colorStore, sizeStore], () => {
     updatePrimeVueTheme(colorStore, sizeStore)

@@ -84,6 +84,16 @@ const exampleRoutes: RouteConfig[] = [
               icon: 'icon-line-md:list',
             },
           },
+          {
+            path: 'dialog',
+            name: 'ExampleComponentsDialog',
+            component: () => import('@/views/example/views/example-dialog.vue'),
+            meta: {
+              titleKey: 'router.example.components.dialog',
+              rank: 2,
+              icon: 'icon-line-md:chevron-up-square-twotone',
+            },
+          },
         ],
       },
     ],

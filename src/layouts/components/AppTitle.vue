@@ -25,11 +25,11 @@ watch(
 <template lang="pug">
 .select-none
   template(v-if='isCollapsed')
-    AnimateWrapper(:show='flag')
-      .p-padding.center
+    AnimateWrapper(:show='flag', enter='fadeInLeft', leave='fadeOutLeft', duration='3s')
+      .h-full.w-auto.p-padding.center
         Image(src='/face.png')
   template(v-else)
-    AnimateWrapper(:show='flag')
+    AnimateWrapper(:show='flag', enter='fadeInLeft', leave='fadeOutLeft', duration='1s')
       span {{ title }}
 </template>
 <style lang="scss" scope></style>

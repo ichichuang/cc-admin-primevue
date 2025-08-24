@@ -17,8 +17,8 @@ main.container
       AppHeader
 
   // 内容区域
-  .full.h-contentsHeight.c-border.border-x-none
-    .container.relative.py-padding(class='md:py-paddingx xxl:py-paddingl')
+  .full.h-contentsHeight
+    .container.relative.py-padding(class='lg:py-paddingx xxl:py-paddingl')
       AppContainer
       .absolute.t-0.r-0.l-0.b-0.z-1.full.center(v-if='isPageLoading')
         Loading.z-2

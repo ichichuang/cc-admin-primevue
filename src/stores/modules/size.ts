@@ -293,10 +293,10 @@ export const useSizeStore = defineStore('size', {
       try {
         const current = state.fontSizeOptions.find(option => option.key === state.fontSize)
           ?.value as FontSizeOptions['value']
-        return current / 2
+        return current / 1.2
       } catch (error) {
         console.error('获取 fontSizesValue 失败:', error)
-        return 7
+        return 14
       }
     },
     getFontSizexValue: (state: SizeState) => {

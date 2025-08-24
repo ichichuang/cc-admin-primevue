@@ -55,7 +55,7 @@ const mainClass = computed(() => ({
         AppSidebar
 
   // 主体
-  main.full(:style='mainClass')
+  main.full.c-transitionx(:style='mainClass')
     // 头部
     template(v-if='showHeader')
       header.h-headerHeight.px-padding
@@ -67,9 +67,9 @@ const mainClass = computed(() => ({
         AppTabs
 
     // 内容区域
-    .full.h-contentBreadcrumbHeight.c-border.border-x-none
+    .full.h-contentBreadcrumbHeight
       .full.h-contentBreadcrumbHeight
-        .container.relative.py-padding(class='md:py-paddingx xxl:py-paddingl')
+        .container.relative.py-padding(class='lg:py-paddingx xxl:py-paddingl')
           AppContainer
           .absolute.t-0.r-0.l-0.b-0.z-1.full.center(v-if='isPageLoading')
             Loading.z-2

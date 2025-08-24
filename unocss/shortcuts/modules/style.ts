@@ -8,9 +8,9 @@ export const styleShortcuts = {
   'c-border-primary': 'border border-solid border-primary200',
   'c-border-accent': 'border border-solid border-accent200',
 
-  'c-shadow': 'shadow-md shadow-bg300',
-  'c-shadow-primary': 'shadow-md shadow-primary200',
-  'c-shadow-accent': 'shadow-md shadow-accent200',
+  'c-shadow': 'shadow-[0_2px_6px_-1px_var(--bg300),0_4px_12px_-2px_var(--bg300)]',
+  'c-shadow-primary': 'shadow-[0_2px_6px_-1px_var(--primary200),0_4px_12px_-2px_var(--primary200)]',
+  'c-shadow-accent': 'shadow-[0_2px_6px_-1px_var(--accent200),0_4px_12px_-2px_var(--accent200)]',
 
   /* 过渡动画 */
   'c-transitions': 'transition-all duration-200',
@@ -19,6 +19,8 @@ export const styleShortcuts = {
   'c-transitionl': 'transition-all duration-800',
 
   /* 卡片组 */
+  'c-card':
+    'c-cp center c-shadow gap-gap p-paddings rounded-rounded bg-bg200 color-text100 c-border border-tm hover:color-accent100 hover:c-shadow-accent  active:color-accent200 active:border-color-accent100 active:c-shadow-primary c-transition',
   // 强调色
   'c-card-accent':
     'c-cp center c-shadow gap-gap p-paddings rounded-rounded bg-bg200 color-text100 c-border border-tm hover:color-accent100 hover:c-shadow-accent  active:color-accent200 active:border-color-accent100 active:c-shadow-primary c-transition',

@@ -35,12 +35,31 @@ export const getFlatRouteList = (menuList?: any[]): any[] => {
   if (!Array.isArray(routes)) {
     return []
   }
-  const addPath = (parent: any, children: any[]): any[] =>
-    children.map(child => ({ ...child, path: `${parent.path}/${child.path}`.replace(/\/+/g, '/') }))
-  return routes.flatMap(item => [
-    item,
-    ...(item.children ? getFlatRouteList(addPath(item, item.children as any[])) : []),
-  ])
+
+  const result: any[] = []
+
+  const flattenRoutes = (routeList: any[], parentPath = '') => {
+    routeList.forEach(route => {
+      // 创建当前路由的副本
+      const currentRoute = { ...route }
+
+      // 如果有父路径，则拼接路径
+      if (parentPath) {
+        currentRoute.path = `${parentPath}/${route.path}`.replace(/\/+/g, '/')
+      }
+
+      // 添加到结果数组
+      result.push(currentRoute)
+
+      // 如果有子路由，递归处理
+      if (route.children && route.children.length > 0) {
+        flattenRoutes(route.children, currentRoute.path)
+      }
+    })
+  }
+
+  flattenRoutes(routes)
+  return result
 }
 
 /**
@@ -165,6 +184,13 @@ export const updateRoute = (name: string, keyPath: string, value: unknown): void
  */
 export const getMenuTree = (): MenuItem[] => {
   return routeUtils.menuTree
+}
+
+/**
+ * 获取扁平化菜单树结构
+ */
+export const getFlatMenuTree = (): any[] => {
+  return getFlatRouteList().filter(route => route.meta?.showLink !== false)
 }
 
 /**

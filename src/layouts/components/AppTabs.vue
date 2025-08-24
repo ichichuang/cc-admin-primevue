@@ -3,23 +3,34 @@ import { getCurrentRoute, goToRoute } from '@/common'
 import ScrollbarWrapper from '@/components/modules/scrollbar-wrapper/ScrollbarWrapper.vue'
 import type { ScrollEvent } from '@/components/modules/scrollbar-wrapper/utils/types'
 import { useLocale } from '@/hooks'
-import { useLayoutStore, usePermissionStore } from '@/stores'
+import { useLayoutStore, usePermissionStore, type TabItem } from '@/stores'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+// import draggable from 'vuedraggable'
 
 const { $t } = useLocale()
 
 const layoutStore = useLayoutStore()
 const permissionStore = usePermissionStore()
 const router = useRouter()
+
 // 侧边栏收缩状态
 const isSidebarCollapsed = computed(() => layoutStore.getSidebarCollapsed)
+
+// 使用 store 的 tabs 计算属性
 const tabs = computed(() => permissionStore.getTabs)
+
+// 当前激活的标签页
+const activeTab = computed(() => tabs.value.find(tab => tab.active))
 
 // DOM refs
 const containerRef = ref<HTMLElement>()
 const trackRef = ref<HTMLElement>()
 const scrollbarRef = ref<InstanceType<typeof ScrollbarWrapper>>()
+
+// 右键菜单相关
+const contextMenuRef = ref()
+const contextMenuTarget = ref<TabItem | null>(null)
 
 // 用于测量单个 tab 的元素集合
 const itemRefs = new Map<string, HTMLElement>()
@@ -27,6 +38,7 @@ const setItemRef = (key: string | undefined, el: HTMLElement | null) => {
   if (!key) {
     return
   }
+
   if (el) {
     itemRefs.set(key, el)
   } else {
@@ -34,11 +46,11 @@ const setItemRef = (key: string | undefined, el: HTMLElement | null) => {
   }
 }
 
-const getKey = (obj: any) => String(obj?.name ?? obj?.path ?? '')
+const getKey = (tab: TabItem) => String(tab?.name ?? tab?.path ?? '')
 
-// 供模板使用的 ref 回调工厂，避免在模板里写 TS 断言
-const createItemRef = (tab: any) => (el: any) => {
-  setItemRef(getKey(tab), el as any as HTMLElement | null)
+// 供模板使用的 ref 回调工厂
+const createItemRef = (tab: TabItem) => (el: any) => {
+  setItemRef(getKey(tab), el as HTMLElement | null)
   // 当元素被设置时，延迟更新指示器
   if (el) {
     nextTick(() => {
@@ -52,27 +64,181 @@ const indicatorLeft = ref(0)
 const indicatorWidth = ref(0)
 const indicatorHeight = ref(0)
 const containerHeight = ref(0)
-
-// 是否显示指示器
 const showIndicator = ref(false)
 
-/* 设置 tab 渲染数据 */
-const tabList = computed(() => {
-  const currentRoute = getCurrentRoute()
-  return tabs.value.map(tab => ({
-    name: tab.name,
-    path: tab.path,
-    label: tab.meta?.titleKey ? $t(tab.meta?.titleKey) : tab.meta?.title || tab.name,
-    active: tab.name === currentRoute.name || tab.path === currentRoute.path,
-    route: tab,
-  }))
+// 水平滚动距离
+const scrollLeft = ref(0)
+
+// 右键菜单处理函数
+const handleContextMenu = (event: MouseEvent, tab: TabItem) => {
+  event.preventDefault()
+  contextMenuTarget.value = tab
+  contextMenuRef.value?.show(event)
+}
+
+// 右键菜单项配置
+const contextMenuItems = computed(() => {
+  const target = contextMenuTarget.value
+  if (!target) {
+    return []
+  }
+
+  const currentIndex = tabs.value.findIndex(tab => tab.name === target.name)
+  const hasOtherTabs = tabs.value.length > 1
+  const canCloseLeft = currentIndex > 0
+  const canCloseRight = currentIndex < tabs.value.length - 1
+
+  return [
+    {
+      label: $t('layout.tabs.close'),
+      icon: 'pi pi-times',
+      command: () => closeTab(target),
+      disabled: target.fixed, // 固定的标签不可删除
+    },
+    {
+      label: $t('layout.tabs.closeAll'),
+      icon: 'pi pi-times-circle',
+      command: () => closeAllTabs(),
+      disabled: !hasOtherTabs,
+    },
+    {
+      label: $t('layout.tabs.closeOther'),
+      icon: 'pi pi-minus-circle',
+      command: () => closeOtherTabs(target),
+      disabled: !hasOtherTabs,
+    },
+    {
+      label: $t('layout.tabs.closeLeft'),
+      icon: 'pi pi-chevron-left',
+      command: () => closeLeftTabs(target),
+      disabled: !canCloseLeft,
+    },
+    {
+      label: $t('layout.tabs.closeRight'),
+      icon: 'pi pi-chevron-right',
+      command: () => closeRightTabs(target),
+      disabled: !canCloseRight,
+    },
+    {
+      separator: true,
+    },
+    {
+      label: target.fixed ? $t('layout.tabs.unFixed') : $t('layout.tabs.fixed'),
+      icon: target.fixed ? 'pi pi-unlock' : 'pi pi-lock',
+      command: () => toggleFixedTab(target),
+    },
+  ]
 })
 
-const activeItem = computed(() => tabList.value.find(t => t.active))
+// 标签页操作方法
 
-// 优化的 updateIndicator 函数
+// 关闭指定标签
+const closeTab = (tab: TabItem) => {
+  if (tab.fixed) {
+    return // 固定的标签不可删除
+  }
+
+  const isClosingActiveTab = tab.active
+
+  // 如果关闭的是当前激活的标签，需要跳转到其他标签
+  if (isClosingActiveTab) {
+    const currentIndex = tabs.value.findIndex(t => t.name === tab.name)
+    const nextTab = tabs.value[currentIndex + 1] || tabs.value[currentIndex - 1]
+
+    if (nextTab) {
+      goToRoute(String(nextTab.name))
+    } else {
+      // 如果没有其他标签，跳转到首页
+      router.push('/')
+    }
+  }
+
+  // 使用 store 方法移除标签
+  permissionStore.removeTab(tab.name || tab.path)
+}
+
+// 关闭所有标签
+const closeAllTabs = () => {
+  const currentRoute = getCurrentRoute()
+
+  // 移除所有非固定标签页
+  const nonFixedTabs = tabs.value.filter(tab => !tab.fixed)
+  nonFixedTabs.forEach(tab => {
+    permissionStore.removeTab(tab.name || tab.path)
+  })
+
+  // 如果当前路由不在固定标签中，跳转到第一个固定标签或首页
+  const fixedTabs = tabs.value.filter(tab => tab.fixed)
+  const isCurrentRouteFixed = fixedTabs.some(tab => tab.name === currentRoute.name)
+  if (!isCurrentRouteFixed) {
+    const firstFixedTab = fixedTabs[0]
+    if (firstFixedTab) {
+      goToRoute(String(firstFixedTab.name))
+    } else {
+      router.push('/')
+    }
+  }
+}
+
+// 关闭其他标签
+const closeOtherTabs = (targetTab: TabItem) => {
+  const tabsToKeep = tabs.value.filter(tab => tab.name === targetTab.name || tab.fixed)
+  const namesToKeep = tabsToKeep.map(tab => tab.name || tab.path)
+
+  // 保留指定的标签页，移除其他标签页
+  permissionStore.removeTabsExcept(namesToKeep)
+
+  // 如果目标标签不是当前激活的，跳转到目标标签
+  if (!targetTab.active) {
+    goToRoute(String(targetTab.name))
+  }
+}
+
+// 关闭左侧标签
+const closeLeftTabs = (targetTab: TabItem) => {
+  const currentIndex = tabs.value.findIndex(tab => tab.name === targetTab.name)
+
+  // 移除当前索引之前的标签页（保留固定标签页）
+  const tabsToRemove = tabs.value.filter((tab, index) => index < currentIndex && !tab.fixed)
+
+  // 逐个移除要删除的标签页
+  tabsToRemove.forEach(tab => {
+    permissionStore.removeTab(tab.name || tab.path)
+  })
+
+  if (!targetTab.active) {
+    goToRoute(String(targetTab.name))
+  }
+}
+
+// 关闭右侧标签
+const closeRightTabs = (targetTab: TabItem) => {
+  const currentIndex = tabs.value.findIndex(tab => tab.name === targetTab.name)
+
+  // 移除当前索引之后的标签页（保留固定标签页）
+  const tabsToRemove = tabs.value.filter((tab, index) => index > currentIndex && !tab.fixed)
+
+  // 逐个移除要删除的标签页
+  tabsToRemove.forEach(tab => {
+    permissionStore.removeTab(tab.name || tab.path)
+  })
+
+  if (!targetTab.active) {
+    goToRoute(String(targetTab.name))
+  }
+}
+
+// 切换标签固定状态
+const toggleFixedTab = (tab: TabItem) => {
+  // 使用 store 方法更新标签的 meta 属性
+  permissionStore.updateTabMeta(tab.name || tab.path, {
+    fixed: !tab.fixed,
+  })
+}
+
+// 指示器更新逻辑
 const updateIndicator = async (maxRetries = 10) => {
-  const active = activeItem.value
+  const active = activeTab.value
   const track = trackRef.value
 
   if (!active || !track) {
@@ -109,11 +275,66 @@ const updateIndicator = async (maxRetries = 10) => {
   indicatorHeight.value = elRect.height
   containerHeight.value = containerRef.value?.clientHeight ?? elRect.height
 
-  // 只有获取到合理尺寸才显示指示器
   showIndicator.value = true
 }
 
-// 使用 MutationObserver 监听DOM变化
+// 自动滚动到选中tab项的中心
+const scrollToActiveTabCenter = async (maxRetries = 10) => {
+  const active = activeTab.value
+  const scrollbar = scrollbarRef.value
+  const track = trackRef.value
+
+  if (!active || !scrollbar || !track) {
+    return
+  }
+
+  const el = itemRefs.get(getKey(active))
+  if (!el) {
+    if (maxRetries > 0) {
+      setTimeout(() => scrollToActiveTabCenter(maxRetries - 1), 50)
+    }
+    return
+  }
+
+  await new Promise(resolve => requestAnimationFrame(resolve))
+
+  const scrollEl = scrollbar.getScrollEl()
+  if (!scrollEl) {
+    return
+  }
+
+  const itemOffsetLeft = el.offsetLeft
+  const itemWidth = el.offsetWidth
+  const containerWidth = scrollEl.clientWidth
+  const scrollWidth = scrollEl.scrollWidth
+
+  if (itemWidth === 0 && maxRetries > 0) {
+    setTimeout(() => scrollToActiveTabCenter(maxRetries - 1), 50)
+    return
+  }
+
+  if (itemWidth === 0) {
+    return
+  }
+
+  // 计算目标滚动位置：使选中项居中
+  const itemCenter = itemOffsetLeft + itemWidth / 2
+  const targetScrollLeft = itemCenter - containerWidth / 2
+  const maxScrollLeft = scrollWidth - containerWidth
+  const clampedScrollLeft = Math.max(0, Math.min(targetScrollLeft, maxScrollLeft))
+
+  scrollbar.scrollTo({
+    left: clampedScrollLeft,
+    behavior: 'smooth',
+  })
+}
+
+// 处理水平滚动事件
+const handleScrollHorizontal = (event: ScrollEvent) => {
+  scrollLeft.value = event.scrollLeft
+}
+
+// Observer 相关
 let mutationObserver: MutationObserver | null = null
 let resizeObserver: ResizeObserver | null = null
 
@@ -155,14 +376,15 @@ const cleanupObservers = () => {
   }
 }
 
+// 生命周期
 onMounted(() => {
   nextTick(async () => {
-    // 等待多个渲染帧确保DOM完全准备好
     await new Promise(resolve => requestAnimationFrame(resolve))
     setupObservers()
     updateIndicator()
-    // 初始化后滚动到选中tab项中心
     scrollToActiveTabCenter()
+
+    // 监听侧边栏收缩状态变化
     watch(
       () => isSidebarCollapsed.value,
       () => {
@@ -176,88 +398,43 @@ onBeforeUnmount(() => {
   cleanupObservers()
 })
 
-// 初始化与路由变化
+// 路由初始化和监听
 const currentRoute = getCurrentRoute()
 permissionStore.addTab(currentRoute.name || currentRoute.path)
+permissionStore.updateTabActive(currentRoute.name || currentRoute.path)
+
 router.afterEach(to => {
   permissionStore.addTab(to.name || to.path)
-  // 路由变化后滚动到选中tab项中心
+  permissionStore.updateTabActive(to.name || to.path)
   nextTick(() => {
     setTimeout(() => {
       scrollToActiveTabCenter()
-    }, 100) // 延迟确保DOM更新完成
+    }, 100)
   })
 })
 
-// 水平滚动距离
-const scrollLeft = ref(0)
-// 处理水平滚动事件
-const handleScrollHorizontal = (event: ScrollEvent) => {
-  scrollLeft.value = event.scrollLeft
-}
+// 监听标签页变化，更新指示器
+watch(
+  () => tabs.value,
+  () => {
+    nextTick(() => {
+      updateIndicator()
+    })
+  },
+  { deep: true }
+)
 
-// 自动滚动到选中tab项的中心 - 针对您的ScrollbarWrapper组件的正确实现
-const scrollToActiveTabCenter = async (maxRetries = 10) => {
-  const active = activeItem.value
-  const scrollbar = scrollbarRef.value
-  const track = trackRef.value
-
-  if (!active || !scrollbar || !track) {
-    return
+// 监听激活标签变化，滚动到中心
+watch(
+  () => activeTab.value,
+  () => {
+    nextTick(() => {
+      scrollToActiveTabCenter()
+    })
   }
-
-  const el = itemRefs.get(getKey(active))
-  if (!el) {
-    // 如果元素还没准备好，重试
-    if (maxRetries > 0) {
-      setTimeout(() => scrollToActiveTabCenter(maxRetries - 1), 50)
-    }
-    return
-  }
-
-  // 等待样式计算完成
-  await new Promise(resolve => requestAnimationFrame(resolve))
-
-  // 获取当前滚动容器的信息
-  const scrollEl = scrollbar.getScrollEl()
-  if (!scrollEl) {
-    return
-  }
-
-  // 使用 offsetLeft 获取元素在滚动内容中的绝对位置
-  const itemOffsetLeft = el.offsetLeft
-  const itemWidth = el.offsetWidth
-
-  const containerWidth = scrollEl.clientWidth
-  const scrollWidth = scrollEl.scrollWidth
-
-  // 如果尺寸不合理且还有重试次数
-  if (itemWidth === 0 && maxRetries > 0) {
-    setTimeout(() => scrollToActiveTabCenter(maxRetries - 1), 50)
-    return
-  }
-
-  // 如果仍然获取不到合理尺寸，放弃滚动
-  if (itemWidth === 0) {
-    return
-  }
-
-  // 计算目标滚动位置：使选中项居中
-  // 选中项的中心位置 - 容器的一半宽度 = 目标滚动位置
-  const itemCenter = itemOffsetLeft + itemWidth / 2
-  const targetScrollLeft = itemCenter - containerWidth / 2
-
-  // 确保滚动位置在有效范围内
-  const maxScrollLeft = scrollWidth - containerWidth
-  const clampedScrollLeft = Math.max(0, Math.min(targetScrollLeft, maxScrollLeft))
-
-  // 使用 ScrollbarWrapper 的 scrollTo 方法（这是正确的方法）
-  scrollbar.scrollTo({
-    left: clampedScrollLeft,
-    behavior: 'smooth',
-  })
-}
+)
 </script>
+
 <template lang="pug">
 .full(ref='containerRef')
   //- SVG goo filter（仅一次定义在本组件范围内）
@@ -272,6 +449,7 @@ const scrollToActiveTabCenter = async (maxRetries = 10) => {
           result='goo'
         )
         feBlend(in='SourceGraphic', in2='goo')
+
   ScrollbarWrapper(
     ref='scrollbarRef',
     :style='{ height: containerHeight + "px" }',
@@ -287,17 +465,36 @@ const scrollToActiveTabCenter = async (maxRetries = 10) => {
             v-if='showIndicator && indicatorWidth > 0 && indicatorHeight > 0',
             :style='{ "--left": indicatorLeft - scrollLeft + "px", "--width": indicatorWidth + "px", "--height": indicatorHeight + "px" }'
           )
-        //- 标签列表
-        template(v-for='(tab, index) in tabList', :key='tab.name || tab.path')
+
+        //- 标签列表 - 直接使用 store 中的 tabs
+        template(v-for='(tab, index) in tabs', :key='tab.name || tab.path')
           .center.relative.z-2.h-full.mx-gaps.px-padding.bg-tm.border-none.color-text200.cursor-pointer.select-none(
             :ref='createItemRef(tab)',
-            :class='tab.active ? "active color-accent200" : "color-text200 hover:color-text100  tab-item"',
-            @click='goToRoute(String(tab?.name))'
+            :class='tab.active ? "active color-accent200" : "color-text200 hover:color-text100 tab-item"',
+            @click='goToRoute(String(tab?.name))',
+            @contextmenu='handleContextMenu($event, tab)',
+            :aria-haspopup='true'
           )
-            p.truncate {{ tab.label }}
-          .w-1.h-full.py-paddings(v-if='index !== tabList.length - 1')
+            .between.gap-gaps
+              .bg-text200.fs-appFontSizes(class='icon-line-md:hash-small', v-if='tab.fixed')
+              p.truncate.c-transition {{ tab.label }}
+              .bg-text200.fs-appFontSizes.c-transition(
+                class='icon-line-md:remove hover:bg-dangerColor',
+                v-if='tab.deletable && !tab.fixed',
+                @click.stop='closeTab(tab)'
+              )
+
+          //- 分隔线
+          .w-1.h-full.py-paddings(v-if='index !== tabs.length - 1')
             .full.bg-text200
+
+      //- draggable(v-model='tabs', item-key='name')
+      //-   template(#item='{ element }')
+      //-     div {{ element.label }}
+  //- 右键菜单
+  ContextMenu(ref='contextMenuRef', :model='contextMenuItems', @hide='contextMenuTarget = null')
 </template>
+
 <style lang="scss" scoped>
 /* 使用主题色变量的玻璃背景效果 Active Blob 样式 */
 .active-blob {
@@ -366,6 +563,7 @@ const scrollToActiveTabCenter = async (maxRetries = 10) => {
     0 4px 16px color-mix(in srgb, var(--primary200) 6%, transparent),
     inset 0 1px 0 color-mix(in srgb, var(--primary200) 40%, transparent);
 }
+
 .dark .tab-item {
   background:
     linear-gradient(

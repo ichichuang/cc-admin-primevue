@@ -131,12 +131,24 @@ const enUS = {
       components: {
         title: 'Components',
         menu: 'Menu',
+        dialog: 'Dialog',
       },
     },
     error: {
       notFound: 'Page Not Found',
       forbidden: 'Forbidden',
       serverError: 'Server Error',
+    },
+  },
+  layout: {
+    tabs: {
+      close: 'Close',
+      closeAll: 'Close All',
+      closeOther: 'Close Other',
+      closeLeft: 'Close Left',
+      closeRight: 'Close Right',
+      fixed: 'Fixed',
+      unFixed: 'UnFixed',
     },
   },
 }

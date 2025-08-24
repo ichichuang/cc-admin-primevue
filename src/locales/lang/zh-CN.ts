@@ -131,12 +131,24 @@ const zhCN = {
       components: {
         title: '组件',
         menu: '菜单',
+        dialog: '对话框',
       },
     },
     error: {
       notFound: '页面未找到',
       forbidden: '访问被拒绝',
       serverError: '服务器错误',
+    },
+  },
+  layout: {
+    tabs: {
+      close: '关闭',
+      closeAll: '关闭所有',
+      closeOther: '关闭其他',
+      closeLeft: '关闭左侧',
+      closeRight: '关闭右侧',
+      fixed: '固定',
+      unFixed: '取消固定',
     },
   },
 }

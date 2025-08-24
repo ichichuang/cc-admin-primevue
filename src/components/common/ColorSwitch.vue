@@ -30,7 +30,7 @@ SpeedDial.flex(:model='items', direction='up', :transition-delay='80', class='it
   // 列表项插槽
   template(#item='{ item, toggleCallback }')
     .w-160.between(
-      :class='item.value === themeValue ? "c-card-accent-active" : "c-card-accent shadow-tm"',
+      :class='item.value === themeValue ? "c-card-accent-active" : "c-card"',
       @click='toggleCallback'
     )
       .w-14.h-14.rounded-full(:style='{ background: item.color }')

@@ -493,6 +493,10 @@ export const createCustomPreset = (preset: any, { colorStore, sizeStore }: Prime
     deepMergeStylesAdvancedInPlace(newPreset.components.breadcrumb, {
       ...customComponentsStyle1,
     })
+    // contextmenu 右键菜单
+    deepMergeStylesAdvancedInPlace(newPreset.components.contextmenu, {
+      ...customComponentsStyle1,
+    })
     // 缓存结果
     if (cacheKey) {
       themeCache.set(cacheKey, newPreset)

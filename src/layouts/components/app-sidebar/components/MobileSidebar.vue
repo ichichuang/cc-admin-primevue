@@ -34,7 +34,7 @@ router.beforeEach(() => {
         :color-scheme='{ thumbColor: "var(--primary100)", thumbHoverColor: "var(--primary200)" }'
       )
         .rounded-rounded.max-w-60vw.min-w-44vw.h-contentHeight.select-none
-          PrimeVueMenu(
+          PrimeMenu(
             :type='"panel"',
             :items='props.items',
             :components-props='props.componentsProps'
