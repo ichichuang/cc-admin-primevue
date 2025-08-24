@@ -1,4 +1,3 @@
-import { useTimeoutFn } from '@vueuse/core'
 import { ref } from 'vue'
 import PrimeVueDialog from './PrimeVueDialog.vue'
 import { defaultDialogProps } from './utils/constants'
@@ -20,7 +19,7 @@ function addDialog(options: DialogOptions) {
   dialogStore.value.push(mergedOptions)
 
   if (options?.openDelay) {
-    useTimeoutFn(() => {
+    setTimeout(() => {
       const index = dialogStore.value.findIndex((item: any) => item === mergedOptions)
       if (index !== -1) {
         dialogStore.value[index].visible = true
@@ -39,7 +38,7 @@ function closeDialog(options: DialogOptions, index: number, _args?: ArgsType) {
 
     // 延时移除对话框，等待动画完成
     const delay = options?.closeDelay || 200
-    useTimeoutFn(() => {
+    setTimeout(() => {
       dialogStore.value.splice(index, 1)
     }, delay)
   }
