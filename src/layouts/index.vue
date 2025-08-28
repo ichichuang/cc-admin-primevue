@@ -1,12 +1,17 @@
 <script setup lang="ts">
+import { debounce, throttle } from '@/common'
 import type { AnimateName } from '@/components/modules/animate-wrapper/utils/types'
+import { INTERVAL, STRATEGY } from '@/constants/modules/layout'
 import AdminLayout from '@/layouts/components/LayoutAdmin.vue'
 import FullScreenLayout from '@/layouts/components/LayoutFullScreen.vue'
 import RatioLayout from '@/layouts/components/LayoutRatio.vue'
 import ScreenLayout from '@/layouts/components/LayoutScreen.vue'
 import { useLayoutStore } from '@/stores'
-import { computed, nextTick, ref, watch } from 'vue'
+import { useMitt } from '@/utils'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+
+const { emit, off } = useMitt()
 
 const router = useRouter()
 const layoutStore = useLayoutStore()
@@ -60,13 +65,13 @@ const layoutAnimations = {
     duration: '1s',
   },
   screen: {
-    enter: 'lightSpeedInRight',
-    leave: 'lightSpeedOutLeft',
+    enter: 'fadeIn',
+    leave: 'fadeOut',
     duration: '1s',
   },
   admin: {
-    enter: 'lightSpeedInLeft',
-    leave: 'lightSpeedOutRight',
+    enter: 'fadeIn',
+    leave: 'fadeOut',
     duration: '1s',
   },
   ratio: {
@@ -109,6 +114,23 @@ const getLayoutLeaveAnimation = (fromLayout: string, toLayout: string) => {
 const getAnimationDuration = () => {
   return layoutAnimations[currentLayoutMode.value]?.duration || '1s'
 }
+
+const handleWindowResize = () => {
+  emit('windowResize')
+}
+
+onMounted(() => {
+  // 监听窗口大小变化事件
+  if (STRATEGY === 'debounce') {
+    window.addEventListener('resize', debounce(handleWindowResize, INTERVAL))
+  } else {
+    window.addEventListener('resize', throttle(handleWindowResize, INTERVAL))
+  }
+})
+
+onUnmounted(() => {
+  off('windowResize')
+})
 </script>
 
 <template lang="pug">

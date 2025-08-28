@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { throttle } from '@/common'
 import { t } from '@/locales'
 import { useLayoutStore, useUserStore } from '@/stores'
-import { throttle } from '@/common'
 import { computed, ref } from 'vue'
 const userStore = useUserStore()
 const layoutStore = useLayoutStore()
@@ -28,7 +28,7 @@ const handleLogout = () => {
 const sidebarCollapsed = computed(() => layoutStore.getSidebarCollapsed)
 const toggleSidebarCollapsed = throttle(() => {
   layoutStore.setSidebarCollapsed(!sidebarCollapsed.value)
-}, 800)
+}, 100)
 
 /* 控制移动端菜单显示 */
 const mobileSidebarVisible = computed(() => layoutStore.getMobileSidebarVisible)
@@ -48,19 +48,25 @@ template(v-else)
   template(v-else)
     .between.gap-gap(class='h100%')
       //- 桌面端
-      .hidden.c-card-primary.size-1-1.center(
+      .hidden.c-card-primary.shadow-none.size-1-1.center(
         class='md:block',
         @click='toggleSidebarCollapsed',
         v-if='currentLayoutMode === "admin"'
       )
         .fs-appFontSizex(v-if='layoutStore.getSidebarCollapsed', class='icon-line-md:arrow-open-right')
         .fs-appFontSizex(v-else, class='icon-line-md:arrow-open-left')
-      .c-card-primary.size-1-1.center.hidden(class='md:block', @click='toggleSetting("desktop", $event)')
+      .c-card-primary.shadow-none.size-1-1.center.hidden(
+        class='md:block',
+        @click='toggleSetting("desktop", $event)'
+      )
         .text-ellipsis.fs-appFontSizex(class='icon-line-md:cog-filled')
       //- 移动端
-      .c-card-primary.size-1-1.center(class='md:hidden', @click='toggleMobileMenu')
+      .c-card-primary.shadow-none.size-1-1.center(class='md:hidden', @click='toggleMobileMenu')
         .fs-appFontSizex(class='icon-line-md:grid-3-filled')
-      .c-card-primary.size-1-1.center(class='md:hidden', @click='toggleSetting("mobile", $event)')
+      .c-card-primary.shadow-none.size-1-1.center(
+        class='md:hidden',
+        @click='toggleSetting("mobile", $event)'
+      )
         .fs-appFontSizex(class='icon-line-md:cog-filled')
 
 //- 桌面端设置面板抽屉

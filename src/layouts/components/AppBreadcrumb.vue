@@ -58,7 +58,7 @@ Breadcrumb(:home='home', :model='items')
   template(#item='{ item }')
     template(v-if='item.route')
       div(
-        :class='[item.icon, "cursor-pointer w-appFontSizex h-appFontSizex"]',
+        :class='[item.icon, "c-cp w-appFontSizex h-appFontSizex"]',
         @click='goToRoute(item.route)'
       )
     template(v-else)

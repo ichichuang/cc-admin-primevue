@@ -94,6 +94,66 @@ const exampleRoutes: RouteConfig[] = [
               icon: 'icon-line-md:chevron-up-square-twotone',
             },
           },
+          {
+            path: 'schema-form',
+            name: 'ExampleComponentsSchemaForm',
+            meta: {
+              titleKey: 'router.example.components.schemaForm.title',
+              rank: 3,
+              icon: 'icon-line-md:text-box',
+            },
+            children: [
+              {
+                path: 'basic',
+                name: 'ExampleComponentsSchemaFormBasic',
+                component: () =>
+                  import('@/views/example/views/example-shema-form/example-schema-form-basic.vue'),
+                meta: {
+                  titleKey: 'router.example.components.schemaForm.basic',
+                  rank: 1,
+                  icon: 'icon-line-md:text-box',
+                  keepAlive: true,
+                },
+              },
+              {
+                path: 'step',
+                name: 'ExampleComponentsSchemaFormStep',
+                component: () =>
+                  import('@/views/example/views/example-shema-form/example-schema-form-step.vue'),
+                meta: {
+                  titleKey: 'router.example.components.schemaForm.step',
+                  rank: 2,
+                  icon: 'icon-line-md:text-box',
+                },
+              },
+              {
+                path: 'section',
+                name: 'ExampleComponentsSchemaFormSection',
+                component: () =>
+                  import(
+                    '@/views/example/views/example-shema-form/example-schema-form-section.vue'
+                  ),
+                meta: {
+                  titleKey: 'router.example.components.schemaForm.section',
+                  rank: 3,
+                  icon: 'icon-line-md:text-box',
+                },
+              },
+              {
+                path: 'dynamic',
+                name: 'ExampleComponentsSchemaFormDynamic',
+                component: () =>
+                  import(
+                    '@/views/example/views/example-shema-form/example-schema-form-dynamic.vue'
+                  ),
+                meta: {
+                  titleKey: 'router.example.components.schemaForm.dynamic',
+                  rank: 4,
+                  icon: 'icon-line-md:text-box',
+                },
+              },
+            ],
+          },
         ],
       },
     ],

@@ -1,6 +1,5 @@
 <script setup lang="ts"></script>
 <template lang="pug">
-.full
-  p(v-for='i in 1000', :key='i') {{ i }}
+.full step
 </template>
 <style lang="scss" scope></style>

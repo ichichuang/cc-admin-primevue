@@ -8,7 +8,9 @@ import { toRaw } from 'vue'
 export interface TabItem {
   name: string // 路由名称（索引）
   path: string // 路由路径
-  label: string // 标签文本（展示）
+  titleKey?: string // 国际化标题键（首选）
+  title?: string // 静态标题（备选）
+  label: string // 标签文本（展示）- 动态计算
   active: boolean // 是否为当前路由（高亮显示）
   icon?: string // 图标
   fixed: boolean // 是否固定(固定标签不可删除)
@@ -41,8 +43,10 @@ export const usePermissionStore = defineStore('permission', {
     // 获取所有路由（静态 + 动态）
     getAllRoutes: (state: PermissionState) =>
       [...toRaw(state.staticRoutes), ...toRaw(state.dynamicRoutes)] as RouteConfig[],
-    // 获取标签页
-    getTabs: (state: PermissionState) => state.tabs,
+    // 获取标签页 - 动态计算label
+    getTabs: (state: PermissionState) => {
+      return state.tabs
+    },
   },
 
   actions: {
@@ -73,10 +77,12 @@ export const usePermissionStore = defineStore('permission', {
           const tabItem: TabItem = {
             name: route.name || '',
             path: route.path || '',
-            label: route.meta?.title || route.name || '',
+            titleKey: route.meta?.titleKey,
+            title: route.meta?.title,
+            label: '', // 初始为空，由getter动态计算
             active: false,
             icon: route.meta?.icon,
-            fixed: route.meta?.fixed || false,
+            fixed: route.meta?.fixedTag || false,
             deletable: route.meta?.deletable !== false,
           }
           this.tabs.push(tabItem)
@@ -133,6 +139,13 @@ export const usePermissionStore = defineStore('permission', {
       if (targetTab) {
         targetTab.active = true
       }
+    },
+    // 重新排序标签页
+    reorderTabs(fromIndex: number, toIndex: number) {
+      const newTabs = [...this.tabs]
+      const [movedTab] = newTabs.splice(fromIndex, 1)
+      newTabs.splice(toIndex, 0, movedTab)
+      this.tabs = newTabs
     },
     // 重置
     reset() {

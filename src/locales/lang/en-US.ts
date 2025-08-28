@@ -132,6 +132,13 @@ const enUS = {
         title: 'Components',
         menu: 'Menu',
         dialog: 'Dialog',
+        schemaForm: {
+          title: 'Form',
+          basic: 'Basic',
+          step: 'Step',
+          section: 'Section',
+          dynamic: 'Dynamic',
+        },
       },
     },
     error: {

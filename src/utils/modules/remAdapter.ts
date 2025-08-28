@@ -442,11 +442,6 @@ export class RemAdapter {
                 this.setRootFontSize(currentDeviceInfo)
                 this.updateBreakpointFontSize(width)
 
-                const sizeStore = useSizeStoreWithOut()
-                if (sizeStore && typeof sizeStore.recalculateSizes === 'function') {
-                  sizeStore.recalculateSizes()
-                }
-
                 lastWidth = width
                 lastHeight = height
               } catch (error) {

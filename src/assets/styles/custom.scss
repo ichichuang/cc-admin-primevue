@@ -41,3 +41,22 @@
     }
   }
 }
+
+/* 禁用 input 标签的全部默认样式 */
+/* input {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  &:hover,
+  &:focus,
+  &:active,
+  &:disabled,
+  &:read-only,
+  &:focus-visible,
+  &:focus-within,
+  &:invalid {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+} */

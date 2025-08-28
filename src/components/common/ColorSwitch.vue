@@ -21,7 +21,7 @@ const items = computed(() => {
 })
 </script>
 <template lang="pug">
-SpeedDial.flex(:model='items', direction='up', :transition-delay='80', class='items-end!')
+SpeedDial.flex.select-none(:model='items', direction='up', :transition-delay='80', class='items-end!')
   // 按钮插槽
   template(#button='{ toggleCallback }')
     .c-card-accent.size-1-1(@click='toggleCallback')
@@ -29,8 +29,8 @@ SpeedDial.flex(:model='items', direction='up', :transition-delay='80', class='it
 
   // 列表项插槽
   template(#item='{ item, toggleCallback }')
-    .w-160.between(
-      :class='item.value === themeValue ? "c-card-accent-active" : "c-card"',
+    .w-160.between.c-card.c-cp(
+      :class='item.value === themeValue ? "c-border-accent" : ""',
       @click='toggleCallback'
     )
       .w-14.h-14.rounded-full(:style='{ background: item.color }')

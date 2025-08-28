@@ -1,0 +1,30 @@
+<!-- @/components/schema-form/components/DefaultRenderer.vue -->
+<template>
+  <template
+    v-for="column in columns"
+    :key="column.field"
+  >
+    <SchemaFormItem
+      :column="column"
+      :form="form"
+      :disabled="disabled"
+      :options-cache-t-t-l="optionsCacheTTL"
+      :global-layout="globalLayout"
+      :style="colStyle(column.layout)"
+    />
+  </template>
+</template>
+
+<script setup lang="ts">
+import type { LayoutConfig, SchemaColumnsItem } from '../utils/types'
+import SchemaFormItem from './FormItems'
+
+defineProps<{
+  columns: SchemaColumnsItem[]
+  form: any
+  disabled: boolean
+  optionsCacheTTL: number
+  globalLayout: LayoutConfig
+  colStyle: (layout?: LayoutConfig) => Record<string, string>
+}>()
+</script>

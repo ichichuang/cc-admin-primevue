@@ -132,6 +132,13 @@ const zhCN = {
         title: '组件',
         menu: '菜单',
         dialog: '对话框',
+        schemaForm: {
+          title: '表单',
+          basic: '基础',
+          step: '步骤',
+          section: '分组',
+          dynamic: '动态',
+        },
       },
     },
     error: {

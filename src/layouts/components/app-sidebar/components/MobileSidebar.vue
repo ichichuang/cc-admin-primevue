@@ -31,7 +31,8 @@ router.beforeEach(() => {
   )
     .bg-primary200.py-paddingl.px-padding.rounded-rounded
       ScrollbarWrapper(
-        :color-scheme='{ thumbColor: "var(--primary100)", thumbHoverColor: "var(--primary200)" }'
+        :color-scheme='{ thumbColor: "var(--primary100)", thumbHoverColor: "var(--primary200)" }',
+        :thumb-width='6'
       )
         .rounded-rounded.max-w-60vw.min-w-44vw.h-contentHeight.select-none
           PrimeMenu(

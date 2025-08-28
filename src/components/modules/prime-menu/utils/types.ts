@@ -12,7 +12,7 @@ export interface MenuProps {
 
 // 类型安全的菜单属性接口 - 重载版本
 export interface TypedMenuProps<T extends MenuType> {
-  type: T
+  type?: T
   items: MenuItem[] // 直接使用 PrimeVue 的 MenuItem 类型
   componentsProps?: Record<string, any>
 }

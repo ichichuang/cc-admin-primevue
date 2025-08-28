@@ -452,42 +452,46 @@ export const createCustomPreset = (preset: any, { colorStore, sizeStore }: Prime
     // 单独处理组件
     const customComponentsStyle1 = {
       padding: `6px 8px`,
+      paddingY: `6px`,
+      paddingX: `8px`,
       margin: `6px`,
-      gap: `4px`,
+      marginY: `6px`,
+      marginX: `6px`,
+      gap: `6px`,
     }
     const customComponentsStyle2 = {
-      padding: `${sizeStore.getPaddingsValue / 1.2}px ${sizeStore.getPaddingsValue}px`,
+      padding: `${sizeStore.getPaddingsValue}px ${sizeStore.getPaddingValue}px`,
+      paddingY: `${sizeStore.getPaddingsValue}px`,
+      paddingX: `${sizeStore.getPaddingValue}px`,
       margin: `${sizeStore.getGaps}px`,
-      gap: `${sizeStore.getGaps}px`,
+      marginY: `${sizeStore.getGaps}px`,
+      marginX: `${sizeStore.getGaps}px`,
+      gap: `${sizeStore.getGap}px`,
     }
-    // select 组件单独处理
-    deepMergeStylesAdvancedInPlace(newPreset.components.select, {
-      ['list.padding']: `10px 12px`,
-      ...customComponentsStyle1,
-    })
+
     // speeddial 组件单独处理
     deepMergeStylesAdvancedInPlace(newPreset.components.speeddial, {
       ...customComponentsStyle1,
     })
     // menu 组件单独处理
     deepMergeStylesAdvancedInPlace(newPreset.components.menu, {
-      ...customComponentsStyle2,
+      ...customComponentsStyle1,
     })
     // megamenu 组件单独处理
     deepMergeStylesAdvancedInPlace(newPreset.components.megamenu, {
-      ...customComponentsStyle2,
+      ...customComponentsStyle1,
     })
     // menubar 组件单独处理
     deepMergeStylesAdvancedInPlace(newPreset.components.menubar, {
-      ...customComponentsStyle2,
+      ...customComponentsStyle1,
     })
     // panelmenu 组件单独处理
     deepMergeStylesAdvancedInPlace(newPreset.components.panelmenu, {
-      ...customComponentsStyle2,
+      ...customComponentsStyle1,
     })
     // tieredmenu 组件单独处理
     deepMergeStylesAdvancedInPlace(newPreset.components.tieredmenu, {
-      ...customComponentsStyle2,
+      ...customComponentsStyle1,
     })
     // 面包屑
     deepMergeStylesAdvancedInPlace(newPreset.components.breadcrumb, {
@@ -496,6 +500,14 @@ export const createCustomPreset = (preset: any, { colorStore, sizeStore }: Prime
     // contextmenu 右键菜单
     deepMergeStylesAdvancedInPlace(newPreset.components.contextmenu, {
       ...customComponentsStyle1,
+    })
+    // 表单 && 表单项
+    deepMergeStylesAdvancedInPlace(newPreset.components.inputtext, {
+      ...customComponentsStyle2,
+    })
+    // select 组件单独处理
+    deepMergeStylesAdvancedInPlace(newPreset.components.select, {
+      ...customComponentsStyle2,
     })
     // 缓存结果
     if (cacheKey) {

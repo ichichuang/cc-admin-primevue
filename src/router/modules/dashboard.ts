@@ -8,6 +8,7 @@ const homeRoutes: RouteConfig[] = [
       rank: 1,
       roles: ['admin', 'user'],
       icon: 'icon-line-md:speed-twotone',
+      fixedTag: true, // 固定标签，不可拖拽和删除
     },
   },
   {

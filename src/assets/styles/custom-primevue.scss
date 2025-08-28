@@ -11,11 +11,8 @@
 }
 // 抽屉
 .p-drawer {
-  box-shadow: 0px 0px 24px 0px var(--bg300);
   .p-drawer-header {
-    // 渐变色
-    // background: linear-gradient(to right, var(--accent200), var(--accent100), transparent);
-    background: var(--primary200);
+    background: var(--primary100);
     color: var(--primary400);
   }
 }
@@ -108,7 +105,8 @@
         color: var(--accent100);
         background: var(--bg200);
       }
-      span.p-panelmenu-item-icon {
+      span.p-panelmenu-item-icon,
+      .p-panelmenu-header-icon {
         background: var(--accent100);
       }
     }
@@ -122,11 +120,13 @@
   }
   .p-tieredmenu-root-list {
     .p-tieredmenu-item {
+      min-width: 100%;
       .p-tieredmenu-item-content {
         display: flex;
         align-items: center;
         justify-content: center;
         .p-tieredmenu-item-link {
+          width: 100%;
           .p-tieredmenu-item-icon {
             display: inline-flex !important;
             align-items: center;
@@ -194,4 +194,83 @@
 // contextmenu 右键菜单
 .p-contextmenu {
   transition: all 0.4s ease-in-out !important;
+}
+
+// input 输入框
+.p-textarea {
+  transition:
+    all 0.4s,
+    width 0s,
+    height 0s !important;
+}
+
+// icon
+.p-icon {
+  width: var(--app-font-size);
+  height: var(--app-font-size);
+  font-size: var(--app-font-size);
+}
+
+// form
+.p-form {
+  .form-item {
+    .form-item-label {
+    }
+    .form-item-content,
+    .form-item-content > input {
+      width: 100%;
+      transition: all 0.4s ease-in-out !important;
+      border-radius: var(--rounded);
+      border-color: var(--bg300);
+      // 鼠标悬停
+      &:hover {
+        border-color: var(--primary100) !important;
+      }
+      // 聚焦
+      &:focus {
+        border-color: var(--accent100) !important;
+      }
+      // 激活
+      &:active {
+        border-color: var(--primary200) !important;
+      }
+      // 选中
+      &:checked {
+        border-color: red;
+      }
+      // 聚焦可见
+      &:focus-visible {
+        border-color: orange;
+      }
+      // 禁用
+      &:disabled {
+        border-color: yellow;
+      }
+      // 无效
+      &:invalid {
+        border-color: green;
+      }
+      // 有效
+      &:valid {
+        border-color: var(--bg300);
+      }
+      // 只读
+      &:read-only {
+        border-color: var(--bg300);
+      }
+      // 校验失败
+      &.form-item-content-invalid, // 校验失败
+      &.form-item-content-invalid>input {
+        border-color: var(--danger-color);
+        &:hover,
+        &:active,
+        &:focus {
+          border-color: var(--danger-color) !important;
+        }
+        &::placeholder {
+          color: var(--text200) !important;
+        }
+      }
+    }
+  }
 }

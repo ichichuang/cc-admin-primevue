@@ -4,10 +4,12 @@
 
 import { cloneDeep, toKebabCase } from '@/common'
 import { fontSizeOptions, paddingOptions, roundedOptions, sizeOptions } from '@/constants'
-import { comfortableSizes, sizePresetsMap } from '@/constants/modules/theme'
+import { comfortableSizes } from '@/constants/modules/theme'
 import store, { useLayoutStoreWithOut } from '@/stores'
-import { env } from '@/utils'
+import { env, useMitt } from '@/utils'
 import { defineStore } from 'pinia'
+import { nextTick } from 'vue'
+const { on } = useMitt()
 
 export const useSizeStore = defineStore('size', {
   state: (): SizeState => ({
@@ -27,22 +29,35 @@ export const useSizeStore = defineStore('size', {
   }),
 
   getters: {
+    // 验证当前是否为【紧凑模式】
     isCompact: (state: SizeState) => state.size === 'compact',
+    // 验证当前是否为【舒适模式】
     isComfortable: (state: SizeState) => state.size === 'comfortable',
+    // 验证当前是否为【宽松模式】
     isLoose: (state: SizeState) => state.size === 'loose',
+
+    // 获取尺寸选择选项列表
     getSizeOptions: (state: SizeState) => state.sizeOptions,
+    // 获取当前尺寸
     getSize: (state: SizeState) => state.size,
+    // 获取当前尺寸标签
     getSizeLabel: (state: SizeState) =>
       state.sizeOptions.find(option => option.value === state.size)?.label,
 
-    // layout
+    // 获取侧边栏宽度
     getSidebarWidth: (state: SizeState) => state.sizes.sidebarWidth as number,
+    // 获取侧边栏折叠宽度
     getSidebarCollapsedWidth: (state: SizeState) => state.sizes.sidebarCollapsedWidth as number,
+    // 获取头部高度
     getHeaderHeight: (state: SizeState) => state.sizes.headerHeight as number,
+    // 获取面包屑高度
     getBreadcrumbHeight: (state: SizeState) => state.sizes.breadcrumbHeight as number,
+    // 获取底部高度
     getFooterHeight: (state: SizeState) => state.sizes.footerHeight as number,
+    // 获取标签页高度
     getTabsHeight: (state: SizeState) => state.sizes.tabsHeight as number,
-    // getContentHeight = 窗口高度 - 头部 - 底部 - 面包屑 - 标签页
+
+    // 获取内容容器高度 = 窗口高度 - 头部 - 底部 - 面包屑 - 标签页
     getContentHeight: (state: SizeState) => {
       const layoutStore = useLayoutStoreWithOut()
       const screenHeight = layoutStore.getHeight
@@ -72,7 +87,7 @@ export const useSizeStore = defineStore('size', {
       }
       return (screenHeight - height) as number
     },
-    // getContentBreadcrumbHeight = 窗口高度 - 头部 - 底部 - 标签页
+    // 获取包含面包屑内容容器高度 = 窗口高度 - 头部 - 底部 - 标签页
     getContentBreadcrumbHeight: (state: SizeState) => {
       const layoutStore = useLayoutStoreWithOut()
       const screenHeight = layoutStore.getHeight
@@ -98,7 +113,7 @@ export const useSizeStore = defineStore('size', {
       }
       return (screenHeight - height) as number
     },
-    // getContentTabsHeight = 窗口高度 - 头部 - 底部 - 面包屑
+    // 获取包含标签页内容容器高度 = 窗口高度 - 头部 - 底部 - 面包屑
     getContentTabsHeight: (state: SizeState) => {
       const layoutStore = useLayoutStoreWithOut()
       const screenHeight = layoutStore.getHeight
@@ -124,7 +139,7 @@ export const useSizeStore = defineStore('size', {
       }
       return (screenHeight - height) as number
     },
-    // getContentsHeight = 窗口高度 - 头部 - 底部
+    // 获取包含面包屑和标签页内容容器高度 = 窗口高度 - 头部 - 底部
     getContentsHeight: (state: SizeState) => {
       const layoutStore = useLayoutStoreWithOut()
       const screenHeight = layoutStore.getHeight
@@ -146,7 +161,7 @@ export const useSizeStore = defineStore('size', {
       }
       return (screenHeight - height) as number
     },
-    // getContentsBreadcrumbHeight = 窗口高度 - 头部 - 底部 - 标签页
+    // 获取包含面包屑内容容器高度 = 窗口高度 - 头部 - 底部 - 标签页
     getContentsBreadcrumbHeight: (state: SizeState) => {
       const layoutStore = useLayoutStoreWithOut()
       const screenHeight = layoutStore.getHeight
@@ -164,7 +179,7 @@ export const useSizeStore = defineStore('size', {
       }
       return (screenHeight - height) as number
     },
-    // getContentsTabsHeight = 窗口高度 - 头部 - 底部 - 面包屑
+    // 获取包含标签页内容容器高度 = 窗口高度 - 头部 - 底部 - 面包屑
     getContentsTabsHeight: (state: SizeState) => {
       const layoutStore = useLayoutStoreWithOut()
       const screenHeight = layoutStore.getHeight
@@ -182,9 +197,14 @@ export const useSizeStore = defineStore('size', {
       }
       return (screenHeight - height) as number
     },
+
+    // 获取间距
     getGap: (state: SizeState) => state.sizes.gap as number,
+    // 获取间距的一半 = 间距 / 2
     getGaps: (state: SizeState) => (state.sizes.gap / 2) as number,
+    // 获取间距的一半多 = 间距 + 间距 / 2
     getGapx: (state: SizeState) => (state.sizes.gap + state.sizes.gap / 2) as number,
+    // 获取间距的两倍
     getGapl: (state: SizeState) => (state.sizes.gap * 2) as number,
 
     // padding
@@ -324,196 +344,105 @@ export const useSizeStore = defineStore('size', {
   actions: {
     // 内容高度按定义公式由 getters 动态计算，无需 actions 干预
     setSize(this: any, size: SizeOptions['value']) {
-      try {
-        if (this.size === size) {
-          return
-        }
-        this.size = size
-
-        const targetSizePresetFn = sizePresetsMap[size]
-        if (!targetSizePresetFn) {
-          console.error(`Invalid size preset: ${size}`)
-          return
-        }
-        const targetSizePreset = targetSizePresetFn()
-        this.sizes = cloneDeep(targetSizePreset)
-        this.setCssVariables()
-
-        // 尺寸模式与字号联动
-        try {
-          if (size === 'loose') {
-            this.setFontSize('xl')
-          } else if (size === 'comfortable') {
-            this.setFontSize('md')
-          } else if (size === 'compact') {
-            this.setFontSize('xs')
-          }
-          // compact 无需处理
-        } catch (error) {
-          console.error('尺寸模式联动字号失败:', error)
-        }
-      } catch (error) {
-        console.error('设置尺寸模式失败:', error)
-      }
-    },
-
-    recalculateSizes(this: any) {
-      try {
-        const targetSizePresetFn = sizePresetsMap[this.size as Size]
-        if (!targetSizePresetFn) {
-          console.error(`Invalid size preset: ${this.size}`)
-          return
-        }
-        const targetSizePreset = targetSizePresetFn()
-        this.sizes = cloneDeep(targetSizePreset)
-        this.setCssVariables()
-
-        // 确保在下一个 tick 再次更新 CSS 变量，以防设备信息有变化
-        requestAnimationFrame(() => {
-          this.setCssVariables()
-        })
-      } catch (error) {
-        console.error('重新计算尺寸失败:', error)
+      this.size = size
+      this.setCssVariables()
+      // 兼容字体大小
+      if (size === 'loose') {
+        this.setFontSize('xl')
+      } else if (size === 'comfortable') {
+        this.setFontSize('md')
+      } else if (size === 'compact') {
+        this.setFontSize('xs')
       }
     },
 
     setPadding(this: any, padding: PaddingOptions['key']) {
-      try {
-        if (this.padding === padding) {
-          return
-        }
-        this.padding = padding
-        this.setCssVariables()
-      } catch (error) {
-        console.error('设置间距尺寸失败:', error)
+      if (this.padding === padding) {
+        return
       }
+      this.padding = padding
+      this.setCssVariables()
     },
 
     setRounded(this: any, rounded: RoundedOptions['key']) {
-      try {
-        if (this.rounded === rounded) {
-          return
-        }
-        this.rounded = rounded
-        this.setCssVariables()
-      } catch (error) {
-        console.error('设置圆角尺寸失败:', error)
+      if (this.rounded === rounded) {
+        return
       }
+      this.rounded = rounded
+      this.setCssVariables()
     },
 
     setFontSize(this: any, fontSize: FontSizeOptions['key']) {
-      try {
-        if (this.fontSize === fontSize) {
-          return
-        }
-        this.adjustSizeModeByFontSize(fontSize)
-        this.fontSize = fontSize
-        this.setCssVariables()
-      } catch (error) {
-        console.error('设置字体尺寸失败:', error)
+      if (this.fontSize === fontSize) {
+        return
       }
+      this.fontSize = fontSize
+      this.setCssVariables()
+      // switch (fontSize) {
+      //   case 'xs':
+      //     this.setSize('compact')
+      //     break
+      //   case 'sm':
+      //   case 'md':
+      //     this.setSize('comfortable')
+      //     break
+      //   case 'lg':
+      //   case 'xl':
+      //   case 'xls':
+      //   case 'xxl':
+      //   case 'xxxl':
+      //     this.setSize('loose')
+      //     break
+      //   default:
+      //     break
+      // }
     },
 
-    adjustSizeModeByFontSize(this: any, fontSize: FontSizeOptions['key']) {
-      switch (fontSize) {
-        case 'xs':
-          this.setSize('compact')
-          break
-        case 'sm':
-        case 'md':
-          this.setSize('comfortable')
-          break
-        case 'lg':
-        case 'xl':
-        case 'xls':
-        case 'xxl':
-        case 'xxxl':
-          this.setSize('loose')
-          break
-        default:
-          break
-      }
-    },
-
+    /* 更新 size css 变量 */
     setCssVariables(this: any) {
-      try {
-        const cssVariables: Record<string, string> = {
-          [toKebabCase('sidebarWidth', '--')]: this.getSidebarWidth + 'px',
-          [toKebabCase('sidebarCollapsedWidth', '--')]: this.getSidebarCollapsedWidth + 'px',
-          [toKebabCase('headerHeight', '--')]: this.getHeaderHeight + 'px',
-          [toKebabCase('breadcrumbHeight', '--')]: this.getBreadcrumbHeight + 'px',
-          [toKebabCase('footerHeight', '--')]: this.getFooterHeight + 'px',
-          [toKebabCase('tabsHeight', '--')]: this.getTabsHeight + 'px',
-          [toKebabCase('contentHeight', '--')]: this.getContentHeight + 'px',
-          [toKebabCase('contentBreadcrumbHeight', '--')]: this.getContentBreadcrumbHeight + 'px',
-          [toKebabCase('contentTabsHeight', '--')]: this.getContentTabsHeight + 'px',
-          [toKebabCase('contentsHeight', '--')]: this.getContentsHeight + 'px',
-          [toKebabCase('contentsBreadcrumbHeight', '--')]: this.getContentsBreadcrumbHeight + 'px',
-          [toKebabCase('contentsTabsHeight', '--')]: this.getContentsTabsHeight + 'px',
+      console.log('更新 size css 变量')
+      const cssVariables: Record<string, string> = {
+        [toKebabCase('sidebarWidth', '--')]: this.getSidebarWidth + 'px',
+        [toKebabCase('sidebarCollapsedWidth', '--')]: this.getSidebarCollapsedWidth + 'px',
+        [toKebabCase('headerHeight', '--')]: this.getHeaderHeight + 'px',
+        [toKebabCase('breadcrumbHeight', '--')]: this.getBreadcrumbHeight + 'px',
+        [toKebabCase('footerHeight', '--')]: this.getFooterHeight + 'px',
+        [toKebabCase('tabsHeight', '--')]: this.getTabsHeight + 'px',
+        [toKebabCase('contentHeight', '--')]: this.getContentHeight + 'px',
+        [toKebabCase('contentBreadcrumbHeight', '--')]: this.getContentBreadcrumbHeight + 'px',
+        [toKebabCase('contentTabsHeight', '--')]: this.getContentTabsHeight + 'px',
+        [toKebabCase('contentsHeight', '--')]: this.getContentsHeight + 'px',
+        [toKebabCase('contentsBreadcrumbHeight', '--')]: this.getContentsBreadcrumbHeight + 'px',
+        [toKebabCase('contentsTabsHeight', '--')]: this.getContentsTabsHeight + 'px',
 
-          [toKebabCase('gap', '--')]: this.getGap + 'px',
-          [toKebabCase('gaps', '--')]: this.getGaps + 'px',
-          [toKebabCase('gapx', '--')]: this.getGapx + 'px',
-          [toKebabCase('gapl', '--')]: this.getGapl + 'px',
+        [toKebabCase('gap', '--')]: this.getGap + 'px',
+        [toKebabCase('gaps', '--')]: this.getGaps + 'px',
+        [toKebabCase('gapx', '--')]: this.getGapx + 'px',
+        [toKebabCase('gapl', '--')]: this.getGapl + 'px',
 
-          [toKebabCase('padding', '--')]: (this.getPaddingValue || 0) + 'px',
-          [toKebabCase('paddings', '--')]: (this.getPaddingsValue || 0) + 'px',
-          [toKebabCase('paddingx', '--')]: (this.getPaddingxValue || 0) + 'px',
-          [toKebabCase('paddingl', '--')]: (this.getPaddinglValue || 0) + 'px',
+        [toKebabCase('padding', '--')]: (this.getPaddingValue || 0) + 'px',
+        [toKebabCase('paddings', '--')]: (this.getPaddingsValue || 0) + 'px',
+        [toKebabCase('paddingx', '--')]: (this.getPaddingxValue || 0) + 'px',
+        [toKebabCase('paddingl', '--')]: (this.getPaddinglValue || 0) + 'px',
 
-          [toKebabCase('rounded', '--')]: (this.getRoundedValue || 0) + 'px',
+        [toKebabCase('rounded', '--')]: (this.getRoundedValue || 0) + 'px',
 
-          [toKebabCase('appFontSize', '--')]: (this.getFontSizeValue || 0) + 'px',
-          [toKebabCase('appFontSizes', '--')]: (this.getFontSizesValue || 0) + 'px',
-          [toKebabCase('appFontSizex', '--')]: (this.getFontSizexValue || 0) + 'px',
-          [toKebabCase('appFontSizel', '--')]: (this.getFontSizelValue || 0) + 'px',
-        }
-
-        Object.entries(cssVariables).forEach(([key, value]) => {
-          document.documentElement.style.setProperty(key, value)
-        })
-      } catch (error) {
-        console.error('设置CSS变量失败:', error)
+        [toKebabCase('appFontSize', '--')]: (this.getFontSizeValue || 0) + 'px',
+        [toKebabCase('appFontSizes', '--')]: (this.getFontSizesValue || 0) + 'px',
+        [toKebabCase('appFontSizex', '--')]: (this.getFontSizexValue || 0) + 'px',
+        [toKebabCase('appFontSizel', '--')]: (this.getFontSizelValue || 0) + 'px',
       }
+      Object.entries(cssVariables).forEach(([key, value]) => {
+        document.documentElement.style.setProperty(key, value)
+      })
     },
 
     init(this: any) {
       this.setSize(this.size)
-
-      // 延迟设置 CSS 变量，确保设备信息已初始化
-      requestAnimationFrame(() => {
+      on('windowResize', async () => {
+        await nextTick()
         this.setCssVariables()
-
-        // 再次延迟重新计算，确保所有状态都已就绪
-        setTimeout(() => {
-          this.recalculateSizes()
-        }, 100)
       })
-
-      return this.setupResizeListener()
-    },
-
-    setupResizeListener(this: any) {
-      let resizeTimeout: number | null = null
-      const handleResize = () => {
-        if (resizeTimeout !== null) {
-          clearTimeout(resizeTimeout)
-        }
-        resizeTimeout = window.setTimeout(() => {
-          this.recalculateSizes()
-          resizeTimeout = null
-        }, 200)
-      }
-      window.addEventListener('resize', handleResize)
-      window.addEventListener('orientationchange', handleResize)
-      return () => {
-        if (resizeTimeout !== null) {
-          clearTimeout(resizeTimeout)
-          resizeTimeout = null
-        }
-        window.removeEventListener('resize', handleResize)
-        window.removeEventListener('orientationchange', handleResize)
-      }
     },
 
     reset(this: any) {

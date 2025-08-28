@@ -69,6 +69,8 @@
     ]
   },
   "dependencies": {
+    "@atlaskit/pragmatic-drag-and-drop": "^1.7.4",
+    "@primevue/forms": "^4.3.7",
     "@primevue/themes": "^4.3.7",
     "@unocss/preset-rem-to-px": "^66.3.3",
     "alova": "^3.3.3",
@@ -76,15 +78,17 @@
     "crypto-js": "^4.2.0",
     "custom-vue-scrollbar": "^0.0.8",
     "lodash-es": "^4.17.21",
+    "mitt": "^3.0.1",
     "nprogress": "^0.2.0",
     "pinia": "^3.0.3",
     "pinia-plugin-persistedstate": "^4.4.0",
     "primeicons": "^7.0.0",
     "primevue": "^4.3.7",
+    "quill": "^2.0.3",
     "vue": "^3.5.12",
     "vue-i18n": "^10.0.8",
     "vue-router": "^4.4.5",
-    "vuedraggable": "^4.1.0"
+    "yup": "^1.7.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.0",

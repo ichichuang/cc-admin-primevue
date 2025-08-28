@@ -63,6 +63,7 @@ export const useUserStore = defineStore('user', {
           localStorage.removeItem(item)
         }
       })
+      // 重置语言
       window.location.reload()
     },
   },

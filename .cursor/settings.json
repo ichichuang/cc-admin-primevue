@@ -84,6 +84,25 @@
     "uno.config.ts": "typescript"
   },
 
+  // === Pug 语法和 UnoCSS 配置 ===
+  "pug.unocss": {
+    "enableAutoComplete": true,
+    "enableSyntaxCheck": true,
+    "enableAutoFix": true,
+    "preferDotSyntax": true,
+    "specialChars": [":", "%", "!", "/", "[", "]"],
+    "responsivePrefixes": ["sm:", "md:", "lg:", "xl:", "2xl:"],
+    "stateVariants": ["hover:", "focus:", "active:", "disabled:"],
+    "darkModePrefix": "dark:"
+  },
+  "pug.format.enable": true,
+  "pug.format.semi": false,
+  "pug.format.singleQuote": true,
+  "pug.format.tabWidth": 2,
+  "pug.format.useTabs": false,
+  "editor.snippetSuggestions": "top",
+  "editor.tabCompletion": "on",
+
   // === 性能优化配置 ===
   "typescript.preferences.includePackageJsonAutoImports": "auto",
   "search.useIgnoreFiles": true,

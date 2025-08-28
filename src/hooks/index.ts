@@ -13,9 +13,11 @@ const importedHookComponents = autoImportModulesSync(hookComponentsModules)
 
 // 导出所有 Hook 模块
 export * from '@/hooks/components/useDialog'
+export * from '@/hooks/components/useSchemaForm'
 export * from '@/hooks/layout/useLoading'
 export * from '@/hooks/layout/useNprogress'
 export * from '@/hooks/layout/usePageTitle'
+export * from '@/hooks/modules/useElementSize'
 export * from '@/hooks/modules/useLocale'
 
 // 导出所有 Hooks

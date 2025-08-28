@@ -4,9 +4,9 @@ import ScrollbarWrapper from '@/components/modules/scrollbar-wrapper/ScrollbarWr
 import type { ScrollEvent } from '@/components/modules/scrollbar-wrapper/utils/types'
 import { useLocale } from '@/hooks'
 import { useLayoutStore, usePermissionStore, type TabItem } from '@/stores'
+import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-// import draggable from 'vuedraggable'
 
 const { $t } = useLocale()
 
@@ -20,8 +20,16 @@ const isSidebarCollapsed = computed(() => layoutStore.getSidebarCollapsed)
 // 使用 store 的 tabs 计算属性
 const tabs = computed(() => permissionStore.getTabs)
 
+// 动态计算标签文本的计算属性
+const dynamicTabs = computed(() => {
+  return tabs.value.map(tab => ({
+    ...tab,
+    label: tab.titleKey ? $t(tab.titleKey) : tab.title || tab.name || '',
+  }))
+})
+
 // 当前激活的标签页
-const activeTab = computed(() => tabs.value.find(tab => tab.active))
+const activeTab = computed(() => dynamicTabs.value.find(tab => tab.active))
 
 // DOM refs
 const containerRef = ref<HTMLElement>()
@@ -32,25 +40,119 @@ const scrollbarRef = ref<InstanceType<typeof ScrollbarWrapper>>()
 const contextMenuRef = ref()
 const contextMenuTarget = ref<TabItem | null>(null)
 
+// 拖拽相关状态
+const dragCleanupMap = new Map<string, () => void>()
+const dropCleanupMap = new Map<string, () => void>()
+const isDragging = ref(false)
+const dragOverIndex = ref(-1)
+
 // 用于测量单个 tab 的元素集合
 const itemRefs = new Map<string, HTMLElement>()
-const setItemRef = (key: string | undefined, el: HTMLElement | null) => {
+
+// 设置拖拽功能
+const setupDragAndDrop = (key: string, el: HTMLElement, tab: TabItem, index: number) => {
+  // 清理旧的拖拽监听器
+  const oldDragCleanup = dragCleanupMap.get(key)
+  if (oldDragCleanup) {
+    oldDragCleanup()
+    dragCleanupMap.delete(key)
+  }
+
+  const oldDropCleanup = dropCleanupMap.get(key)
+  if (oldDropCleanup) {
+    oldDropCleanup()
+    dropCleanupMap.delete(key)
+  }
+
+  // 固定标签不可拖拽
+  if (tab.fixed) {
+    return
+  }
+
+  // 设置可拖拽
+  const dragCleanup = draggable({
+    element: el,
+    getInitialData: () => ({
+      type: 'tab',
+      tabKey: key,
+      index,
+      tab,
+    }),
+    onDragStart: () => {
+      isDragging.value = true
+    },
+  })
+
+  // 设置放置目标
+  const dropCleanup = dropTargetForElements({
+    element: el,
+    getData: ({ input: _input, element: _element }) => ({
+      type: 'tab-drop-target',
+      index,
+    }),
+    onDragEnter: () => {
+      dragOverIndex.value = index
+    },
+    onDragLeave: () => {
+      dragOverIndex.value = -1
+    },
+    onDrop: ({ source, location: _location }) => {
+      isDragging.value = false
+      dragOverIndex.value = -1
+
+      if (source.data.type === 'tab') {
+        const sourceIndex = source.data.index as number
+        const targetIndex = index
+
+        if (sourceIndex !== targetIndex) {
+          // 调用 store 方法重新排序标签
+          permissionStore.reorderTabs(sourceIndex, targetIndex)
+        }
+      }
+    },
+  })
+
+  dragCleanupMap.set(key, dragCleanup)
+  dropCleanupMap.set(key, dropCleanup)
+}
+
+const setItemRef = (
+  key: string | undefined,
+  el: HTMLElement | null,
+  tab: TabItem,
+  index: number
+) => {
   if (!key) {
     return
   }
 
   if (el) {
     itemRefs.set(key, el)
+    // 设置拖拽功能
+    nextTick(() => {
+      setupDragAndDrop(key, el, tab, index)
+    })
   } else {
     itemRefs.delete(key)
+    // 清理拖拽监听器
+    const dragCleanup = dragCleanupMap.get(key)
+    if (dragCleanup) {
+      dragCleanup()
+      dragCleanupMap.delete(key)
+    }
+    const dropCleanup = dropCleanupMap.get(key)
+    if (dropCleanup) {
+      dropCleanup()
+      dropCleanupMap.delete(key)
+    }
   }
 }
 
 const getKey = (tab: TabItem) => String(tab?.name ?? tab?.path ?? '')
 
 // 供模板使用的 ref 回调工厂
-const createItemRef = (tab: TabItem) => (el: any) => {
-  setItemRef(getKey(tab), el as HTMLElement | null)
+const createItemRef = (tab: TabItem, index: number) => (el: any) => {
+  setItemRef(getKey(tab), el as HTMLElement | null, tab, index)
   // 当元素被设置时，延迟更新指示器
   if (el) {
     nextTick(() => {
@@ -64,6 +166,7 @@ const indicatorLeft = ref(0)
 const indicatorWidth = ref(0)
 const indicatorHeight = ref(0)
 const containerHeight = ref(0)
+const observedHeight = ref(0)
 const showIndicator = ref(false)
 
 // 水平滚动距离
@@ -83,10 +186,10 @@ const contextMenuItems = computed(() => {
     return []
   }
 
-  const currentIndex = tabs.value.findIndex(tab => tab.name === target.name)
-  const hasOtherTabs = tabs.value.length > 1
+  const currentIndex = dynamicTabs.value.findIndex(tab => tab.name === target.name)
+  const hasOtherTabs = dynamicTabs.value.length > 1
   const canCloseLeft = currentIndex > 0
-  const canCloseRight = currentIndex < tabs.value.length - 1
+  const canCloseRight = currentIndex < dynamicTabs.value.length - 1
 
   return [
     {
@@ -142,8 +245,8 @@ const closeTab = (tab: TabItem) => {
 
   // 如果关闭的是当前激活的标签，需要跳转到其他标签
   if (isClosingActiveTab) {
-    const currentIndex = tabs.value.findIndex(t => t.name === tab.name)
-    const nextTab = tabs.value[currentIndex + 1] || tabs.value[currentIndex - 1]
+    const currentIndex = dynamicTabs.value.findIndex(t => t.name === tab.name)
+    const nextTab = dynamicTabs.value[currentIndex + 1] || dynamicTabs.value[currentIndex - 1]
 
     if (nextTab) {
       goToRoute(String(nextTab.name))
@@ -162,13 +265,13 @@ const closeAllTabs = () => {
   const currentRoute = getCurrentRoute()
 
   // 移除所有非固定标签页
-  const nonFixedTabs = tabs.value.filter(tab => !tab.fixed)
+  const nonFixedTabs = dynamicTabs.value.filter(tab => !tab.fixed)
   nonFixedTabs.forEach(tab => {
     permissionStore.removeTab(tab.name || tab.path)
   })
 
   // 如果当前路由不在固定标签中，跳转到第一个固定标签或首页
-  const fixedTabs = tabs.value.filter(tab => tab.fixed)
+  const fixedTabs = dynamicTabs.value.filter(tab => tab.fixed)
   const isCurrentRouteFixed = fixedTabs.some(tab => tab.name === currentRoute.name)
   if (!isCurrentRouteFixed) {
     const firstFixedTab = fixedTabs[0]
@@ -182,7 +285,7 @@ const closeAllTabs = () => {
 
 // 关闭其他标签
 const closeOtherTabs = (targetTab: TabItem) => {
-  const tabsToKeep = tabs.value.filter(tab => tab.name === targetTab.name || tab.fixed)
+  const tabsToKeep = dynamicTabs.value.filter(tab => tab.name === targetTab.name || tab.fixed)
   const namesToKeep = tabsToKeep.map(tab => tab.name || tab.path)
 
   // 保留指定的标签页，移除其他标签页
@@ -196,10 +299,10 @@ const closeOtherTabs = (targetTab: TabItem) => {
 
 // 关闭左侧标签
 const closeLeftTabs = (targetTab: TabItem) => {
-  const currentIndex = tabs.value.findIndex(tab => tab.name === targetTab.name)
+  const currentIndex = dynamicTabs.value.findIndex(tab => tab.name === targetTab.name)
 
   // 移除当前索引之前的标签页（保留固定标签页）
-  const tabsToRemove = tabs.value.filter((tab, index) => index < currentIndex && !tab.fixed)
+  const tabsToRemove = dynamicTabs.value.filter((tab, index) => index < currentIndex && !tab.fixed)
 
   // 逐个移除要删除的标签页
   tabsToRemove.forEach(tab => {
@@ -213,10 +316,10 @@ const closeLeftTabs = (targetTab: TabItem) => {
 
 // 关闭右侧标签
 const closeRightTabs = (targetTab: TabItem) => {
-  const currentIndex = tabs.value.findIndex(tab => tab.name === targetTab.name)
+  const currentIndex = dynamicTabs.value.findIndex(tab => tab.name === targetTab.name)
 
   // 移除当前索引之后的标签页（保留固定标签页）
-  const tabsToRemove = tabs.value.filter((tab, index) => index > currentIndex && !tab.fixed)
+  const tabsToRemove = dynamicTabs.value.filter((tab, index) => index > currentIndex && !tab.fixed)
 
   // 逐个移除要删除的标签页
   tabsToRemove.forEach(tab => {
@@ -257,6 +360,10 @@ const updateIndicator = async (maxRetries = 10) => {
 
   const trackRect = track.getBoundingClientRect()
   const elRect = el.getBoundingClientRect()
+
+  if (!elRect.width || !elRect.height) {
+    return
+  }
 
   // 如果尺寸不合理且还有重试次数
   if ((elRect.width === 0 || elRect.height === 0) && maxRetries > 0) {
@@ -358,8 +465,21 @@ const setupObservers = () => {
 
   // 监听尺寸变化
   if ('ResizeObserver' in window) {
-    resizeObserver = new ResizeObserver(() => {
-      updateIndicator()
+    resizeObserver = new ResizeObserver(entries => {
+      const entry = entries[0]
+      if (!entry) {
+        return
+      }
+      const height = Math.round(entry.contentRect.height)
+      if (height !== observedHeight.value) {
+        observedHeight.value = height
+        containerHeight.value = height
+        nextTick(() => {
+          updateIndicator()
+          // 尽量保持活动项居中
+          scrollToActiveTabCenter()
+        })
+      }
     })
     resizeObserver.observe(containerRef.value)
   }
@@ -396,6 +516,12 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   cleanupObservers()
+
+  // 清理所有拖拽监听器
+  dragCleanupMap.forEach(cleanup => cleanup())
+  dropCleanupMap.forEach(cleanup => cleanup())
+  dragCleanupMap.clear()
+  dropCleanupMap.clear()
 })
 
 // 路由初始化和监听
@@ -415,7 +541,7 @@ router.afterEach(to => {
 
 // 监听标签页变化，更新指示器
 watch(
-  () => tabs.value,
+  () => dynamicTabs.value,
   () => {
     nextTick(() => {
       updateIndicator()
@@ -450,7 +576,7 @@ watch(
         )
         feBlend(in='SourceGraphic', in2='goo')
 
-  ScrollbarWrapper(
+  ScrollbarWrapper.c-transitions(
     ref='scrollbarRef',
     :style='{ height: containerHeight + "px" }',
     :thumb-width='2',
@@ -467,30 +593,25 @@ watch(
           )
 
         //- 标签列表 - 直接使用 store 中的 tabs
-        template(v-for='(tab, index) in tabs', :key='tab.name || tab.path')
-          .center.relative.z-2.h-full.mx-gaps.px-padding.bg-tm.border-none.color-text200.cursor-pointer.select-none(
-            :ref='createItemRef(tab)',
-            :class='tab.active ? "active color-accent200" : "color-text200 hover:color-text100 tab-item"',
+        template(v-for='(tab, index) in dynamicTabs', :key='tab.name || tab.path')
+          .center.relative.z-2.h-full.mx-gaps.px-padding.bg-tm.border-none.color-text200.select-none(
+            :ref='createItemRef(tab, index)',
+            :class='[tab.active ? "active color-accent200" : "color-text200 hover:color-text100 tab-item", { "cursor-move": !tab.fixed, "c-cp": tab.fixed, dragging: isDragging && dragOverIndex === index, "drag-over": dragOverIndex === index && !isDragging }]',
             @click='goToRoute(String(tab?.name))',
             @contextmenu='handleContextMenu($event, tab)',
             :aria-haspopup='true'
           )
             .between.gap-gaps
               .bg-text200.fs-appFontSizes(class='icon-line-md:hash-small', v-if='tab.fixed')
-              p.truncate.c-transition {{ tab.label }}
-              .bg-text200.fs-appFontSizes.c-transition(
+              p.truncate.c-transition.c-cp {{ tab.label }}
+              .bg-text200.fs-appFontSizes.c-transition.c-cp(
                 class='icon-line-md:remove hover:bg-dangerColor',
                 v-if='tab.deletable && !tab.fixed',
                 @click.stop='closeTab(tab)'
               )
-
           //- 分隔线
-          .w-1.h-full.py-paddings(v-if='index !== tabs.length - 1')
-            .full.bg-text200
-
-      //- draggable(v-model='tabs', item-key='name')
-      //-   template(#item='{ element }')
-      //-     div {{ element.label }}
+          .w-1.h-full.py-paddings(v-if='index !== dynamicTabs.length - 1')
+            .full.bg-bg300
   //- 右键菜单
   ContextMenu(ref='contextMenuRef', :model='contextMenuItems', @hide='contextMenuTarget = null')
 </template>
@@ -583,5 +704,34 @@ watch(
 .indicator-enter-from,
 .indicator-leave-to {
   opacity: 0;
+}
+
+/* 拖拽相关样式 */
+.cursor-move {
+  cursor: move;
+}
+
+.dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+  transition: all 0.2s ease;
+}
+
+.drag-over {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent100) 20%, transparent);
+  transition: all 0.2s ease;
+}
+
+/* 拖拽时的指示器 */
+.drag-over::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent100);
+  border-radius: 1px;
 }
 </style>

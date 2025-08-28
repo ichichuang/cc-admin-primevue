@@ -1,40 +1,36 @@
 <script setup lang="ts">
-import { useLayoutStore, useSizeStore } from '@/stores'
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { useElementSize } from '@/hooks'
+import { useLayoutStore } from '@/stores'
+import { computed, nextTick, ref } from 'vue'
 
-const sizeStore = useSizeStore()
 const layoutStore = useLayoutStore()
 const currentLayoutMode = computed(() => layoutStore.getCurrentLayout)
-const containerRef = ref<HTMLElement>()
-const containerHeight = computed(() => containerRef.value?.clientHeight || 0)
-const isReady = ref(false)
+const containerRef = ref<HTMLElement | null>(null)
+const containerHeight = ref(0)
 
-// 监听容器高度变化，重新计算尺寸
-watch(containerHeight, newHeight => {
-  if (newHeight > 0 && isReady.value) {
-    // 延迟重新计算，确保 DOM 更新完成
-    nextTick(() => {
-      sizeStore.recalculateSizes()
-    })
-  }
-})
-
-onMounted(async () => {
+const getContainerHeight = async () => {
   await nextTick()
-  isReady.value = true
+  if (containerRef.value) {
+    console.log('初始化 AppContainer 内容容器高度: ', containerRef.value.clientHeight)
+    containerHeight.value = containerRef.value.clientHeight
+  }
+}
 
-  // 确保在组件挂载后重新计算一次尺寸
-  setTimeout(() => {
-    sizeStore.recalculateSizes()
-  }, 50)
-})
+// 节流模式，每 300ms 更新一次
+useElementSize(
+  containerRef,
+  () => {
+    getContainerHeight()
+  },
+  { mode: 'debounce', delay: 100 }
+)
 </script>
+
 <template lang="pug">
-.full.c-transition(ref='containerRef')
-  template(v-if='isReady')
-    ScrollbarWrapper(
-      :class='currentLayoutMode !== "fullscreen" ? "px-padding lg:px-paddingx xxl:px-paddingl" : ""',
-      :style='{ height: containerHeight + "px" }'
-    )
-      AminateRouterView.container(:style='{ minHeight: containerHeight + "px" }')
+.full(ref='containerRef')
+  ScrollbarWrapper(
+    :class='currentLayoutMode !== "fullscreen" && currentLayoutMode !== "ratio" ? "px-padding lg:px-paddingx xxl:px-paddingl c-transitions" : ""',
+    :style='{ height: containerHeight + "px" }'
+  )
+    AminateRouterView.container(:style='{ minHeight: containerHeight + "px" }')
 </template>
