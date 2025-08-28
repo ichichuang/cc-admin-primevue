@@ -1,8 +1,10 @@
 import store from '@/stores'
 import { useLayoutStoreWithOut } from '@/stores/modules/layout'
-import { RemAdapter, type RemAdapterConfig, env } from '@/utils'
+import { RemAdapter, type RemAdapterConfig, env, useMitt } from '@/utils'
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
+
+const { on } = useMitt()
 
 /* PostCSS rem 适配 store */
 export const usePostcssStore = defineStore(
@@ -279,8 +281,7 @@ export const usePostcssStore = defineStore(
 
         window.addEventListener('fontSizeChanged', handleFontSizeChange as EventListener)
 
-        // 添加更多事件监听，确保及时响应
-        window.addEventListener('resize', handleLayoutChange)
+        // 保留 orientationchange 事件监听，因为 mitt 可能不处理这个事件
         window.addEventListener('orientationchange', handleLayoutChange)
 
         // 使用 MutationObserver 监听根字体大小的实际变化
@@ -301,6 +302,39 @@ export const usePostcssStore = defineStore(
           })
         }
 
+        // 添加 mitt 事件监听，仿照 size.ts 的实现
+        on('windowResize', async () => {
+          await nextTick()
+          if (remAdapter.value && typeof remAdapter.value.setRootFontSize === 'function') {
+            // 直接使用最新的窗口尺寸，避免使用可能过期的 deviceInfo
+            const currentWidth = window.innerWidth
+            const currentHeight = window.innerHeight
+
+            if (env.debug) {
+              console.log(`🔄 PostCSS mitt 事件处理 - 当前宽度: ${currentWidth}px`)
+            }
+
+            // 创建临时的设备信息对象
+            const tempDeviceInfo: DeviceInfo = {
+              type: currentWidth >= 768 ? 'PC' : 'Mobile',
+              system: 'Unknown',
+              screen: {
+                orientation: currentWidth >= currentHeight ? 'horizontal' : 'vertical',
+                deviceWidth: window.screen.width,
+                deviceHeight: window.screen.height,
+                width: currentWidth,
+                height: currentHeight,
+                definitely: currentWidth >= currentHeight ? currentHeight : currentWidth,
+                navHeight: 0,
+                tabHeight: 0,
+              },
+            }
+
+            remAdapter.value.setRootFontSize(tempDeviceInfo)
+            currentRemBase.value = remAdapter.value.getCurrentFontSize()
+          }
+        })
+
         // 保存事件清理函数
         const originalCleanup = remCleanupFn.value
         remCleanupFn.value = () => {
@@ -308,7 +342,6 @@ export const usePostcssStore = defineStore(
             originalCleanup()
           }
           window.removeEventListener('fontSizeChanged', handleFontSizeChange as EventListener)
-          window.removeEventListener('resize', handleLayoutChange)
           window.removeEventListener('orientationchange', handleLayoutChange)
           if (rootFontObserver) {
             rootFontObserver.disconnect()

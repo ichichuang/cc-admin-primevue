@@ -356,6 +356,66 @@ export const getDefaultTheme: GetDefaultTheme = isDark => {
 // const height = window.innerHeight
 
 /**
+ * 尺寸最大值限制配置
+ * 三种尺寸预设共用一套最大值限制
+ */
+export interface SizeMaxLimits {
+  sidebarWidth: number
+  sidebarCollapsedWidth: number
+  headerHeight: number
+  breadcrumbHeight: number
+  footerHeight: number
+  tabsHeight: number
+  gap: number
+}
+
+/**
+ * 默认尺寸最大值限制
+ */
+export const DEFAULT_SIZE_MAX_LIMITS: SizeMaxLimits = {
+  sidebarWidth: 380, // 侧边栏最大宽度
+  sidebarCollapsedWidth: 80, // 侧边栏折叠最大宽度
+  headerHeight: 68, // 头部最大高度
+  breadcrumbHeight: 60, // 面包屑最大高度
+  footerHeight: 40, // 底部最大高度
+  tabsHeight: 64, // 标签页最大高度
+  gap: 32, // 间距最大值
+}
+
+/**
+ * 全局尺寸最大值限制（可动态修改）
+ */
+let globalSizeMaxLimits: SizeMaxLimits = { ...DEFAULT_SIZE_MAX_LIMITS }
+
+/**
+ * 设置全局尺寸最大值限制
+ */
+export const setSizeMaxLimits = (limits: Partial<SizeMaxLimits>) => {
+  globalSizeMaxLimits = { ...globalSizeMaxLimits, ...limits }
+}
+
+/**
+ * 获取全局尺寸最大值限制
+ */
+export const getSizeMaxLimits = (): SizeMaxLimits => {
+  return { ...globalSizeMaxLimits }
+}
+
+/**
+ * 重置全局尺寸最大值限制为默认值
+ */
+export const resetSizeMaxLimits = () => {
+  globalSizeMaxLimits = { ...DEFAULT_SIZE_MAX_LIMITS }
+}
+
+/**
+ * 应用最大值限制的工具函数
+ */
+const applyMaxLimit = (value: number, maxValue: number): number => {
+  return Math.min(value, maxValue)
+}
+
+/**
  * 获取当前窗口尺寸
  */
 const getCurrentWindowSize = () => {
@@ -370,20 +430,28 @@ const getCurrentWindowSize = () => {
  */
 export const createCompactSizes = (): Layout => {
   const { width, height } = getCurrentWindowSize()
+  const maxLimits = getSizeMaxLimits()
+
   return {
-    sidebarWidth: Math.max(200, Math.min(width * 0.16, 400)),
-    sidebarCollapsedWidth: Math.max(60, Math.min(width * 0.03, 60)),
-    headerHeight: Math.max(44, Math.min(height * 0.05, 96)),
-    breadcrumbHeight: Math.max(32, Math.min(height * 0.026, 48)),
-    footerHeight: 20,
-    tabsHeight: Math.max(36, Math.min(height * 0.03, 56)),
+    sidebarWidth: applyMaxLimit(Math.max(200, Math.min(width * 0.16, 400)), maxLimits.sidebarWidth),
+    sidebarCollapsedWidth: applyMaxLimit(
+      Math.max(60, Math.min(width * 0.03, 60)),
+      maxLimits.sidebarCollapsedWidth
+    ),
+    headerHeight: applyMaxLimit(Math.max(44, Math.min(height * 0.05, 96)), maxLimits.headerHeight),
+    breadcrumbHeight: applyMaxLimit(
+      Math.max(32, Math.min(height * 0.026, 48)),
+      maxLimits.breadcrumbHeight
+    ),
+    footerHeight: applyMaxLimit(20, maxLimits.footerHeight),
+    tabsHeight: applyMaxLimit(Math.max(36, Math.min(height * 0.03, 56)), maxLimits.tabsHeight),
     contentHeight: 0,
     contentsHeight: 0,
     contentsBreadcrumbHeight: 0,
     contentsTabsHeight: 0,
     contentBreadcrumbHeight: 0,
     contentTabsHeight: 0,
-    gap: 8,
+    gap: applyMaxLimit(8, maxLimits.gap),
   }
 }
 
@@ -392,20 +460,28 @@ export const createCompactSizes = (): Layout => {
  */
 export const createComfortableSizes = (): Layout => {
   const { width, height } = getCurrentWindowSize()
+  const maxLimits = getSizeMaxLimits()
+
   return {
-    sidebarWidth: Math.max(240, Math.min(width * 0.18, 500)),
-    sidebarCollapsedWidth: Math.max(70, Math.min(width * 0.03, 60)),
-    headerHeight: Math.max(48, Math.min(height * 0.05, 96)),
-    breadcrumbHeight: Math.max(36, Math.min(height * 0.03, 56)),
-    footerHeight: 24,
-    tabsHeight: Math.max(40, Math.min(height * 0.04, 64)),
+    sidebarWidth: applyMaxLimit(Math.max(240, Math.min(width * 0.18, 500)), maxLimits.sidebarWidth),
+    sidebarCollapsedWidth: applyMaxLimit(
+      Math.max(70, Math.min(width * 0.03, 60)),
+      maxLimits.sidebarCollapsedWidth
+    ),
+    headerHeight: applyMaxLimit(Math.max(48, Math.min(height * 0.05, 96)), maxLimits.headerHeight),
+    breadcrumbHeight: applyMaxLimit(
+      Math.max(36, Math.min(height * 0.03, 56)),
+      maxLimits.breadcrumbHeight
+    ),
+    footerHeight: applyMaxLimit(24, maxLimits.footerHeight),
+    tabsHeight: applyMaxLimit(Math.max(40, Math.min(height * 0.04, 64)), maxLimits.tabsHeight),
     contentHeight: 0,
     contentsHeight: 0,
     contentsBreadcrumbHeight: 0,
     contentsTabsHeight: 0,
     contentBreadcrumbHeight: 0,
     contentTabsHeight: 0,
-    gap: 16,
+    gap: applyMaxLimit(16, maxLimits.gap),
   }
 }
 
@@ -414,20 +490,28 @@ export const createComfortableSizes = (): Layout => {
  */
 export const createLooseSizes = (): Layout => {
   const { width, height } = getCurrentWindowSize()
+  const maxLimits = getSizeMaxLimits()
+
   return {
-    sidebarWidth: Math.max(280, Math.min(width * 0.2, 600)),
-    sidebarCollapsedWidth: Math.max(80, Math.min(width * 0.03, 60)),
-    headerHeight: Math.max(56, Math.min(height * 0.06, 112)),
-    breadcrumbHeight: Math.max(40, Math.min(height * 0.04, 64)),
-    footerHeight: 24,
-    tabsHeight: Math.max(40, Math.min(height * 0.04, 64)),
+    sidebarWidth: applyMaxLimit(Math.max(280, Math.min(width * 0.2, 600)), maxLimits.sidebarWidth),
+    sidebarCollapsedWidth: applyMaxLimit(
+      Math.max(80, Math.min(width * 0.03, 60)),
+      maxLimits.sidebarCollapsedWidth
+    ),
+    headerHeight: applyMaxLimit(Math.max(56, Math.min(height * 0.06, 112)), maxLimits.headerHeight),
+    breadcrumbHeight: applyMaxLimit(
+      Math.max(40, Math.min(height * 0.04, 64)),
+      maxLimits.breadcrumbHeight
+    ),
+    footerHeight: applyMaxLimit(24, maxLimits.footerHeight),
+    tabsHeight: applyMaxLimit(Math.max(40, Math.min(height * 0.04, 64)), maxLimits.tabsHeight),
     contentHeight: 0,
     contentsHeight: 0,
     contentsBreadcrumbHeight: 0,
     contentsTabsHeight: 0,
     contentBreadcrumbHeight: 0,
     contentTabsHeight: 0,
-    gap: 24,
+    gap: applyMaxLimit(24, maxLimits.gap),
   }
 }
 
@@ -448,3 +532,32 @@ export const sizePresetsMap: Record<Size, () => Layout> = {
 // - paddingOptions: 间距选项配置
 // - fontSizeOptions: 字体尺寸选项配置
 // - sizeOptions: 尺寸选项配置
+
+/*
+尺寸最大值限制使用示例：
+
+// 1. 设置侧边栏最大宽度为 300px
+setSizeMaxLimits({ sidebarWidth: 300 })
+
+// 2. 设置多个最大值限制
+setSizeMaxLimits({
+  sidebarWidth: 300,
+  headerHeight: 80,
+  gap: 20
+})
+
+// 3. 获取当前最大值限制
+const limits = getSizeMaxLimits()
+console.log('当前最大值限制:', limits)
+
+// 4. 重置为默认值
+resetSizeMaxLimits()
+
+// 5. 查看默认最大值限制
+console.log('默认最大值限制:', DEFAULT_SIZE_MAX_LIMITS)
+
+注意：
+- 三种尺寸预设（紧凑、舒适、宽松）共用同一套最大值限制
+- 当计算出的尺寸超过最大值时，会自动限制为最大值
+- 修改最大值限制后，需要重新调用尺寸预设函数才能生效
+*/

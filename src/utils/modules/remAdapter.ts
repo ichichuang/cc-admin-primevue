@@ -1,38 +1,22 @@
 import { useSizeStoreWithOut } from '@/stores'
 import { env } from '@/utils'
 
-// 导入类型定义
-type FontSizeOptions = {
-  label: string
-  key: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xls' | 'xxl' | 'xxxl'
-  value: number
-}
-
 // 内联配置，避免循环依赖
 const breakpoints = {
-  xs: 375,
-  sm: 768,
-  md: 1024,
-  lg: 1400,
-  xl: 1660,
-  xls: 1920,
-  xxl: 2560,
-  xxxl: 3840,
-} as const
-
-const _deviceTypes = {
-  mobile: 'Mobile',
-  tablet: 'Tablet',
-  desktop: 'Desktop',
-  largeScreen: 'LargeScreen',
-  ultraWide: 'UltraWide',
-  fourK: 'FourK',
+  xs: 375, // 超小屏
+  sm: 768, // 小屏（平板）
+  md: 1024, // 中等屏（小桌面）
+  lg: 1400, // 大屏（桌面）
+  xl: 1660, // 超大屏
+  xls: 1920, // 大屏显示器
+  xxl: 2560, // 超宽屏
+  xxxl: 3840, // 4K屏
 } as const
 
 const deviceConfigs = {
   mobile: {
     minWidth: 0,
-    maxWidth: breakpoints.sm,
+    maxWidth: breakpoints.sm - 1, // 0-767px
     designWidth: 375,
     baseFontSize: 14,
     minFontSize: 12,
@@ -41,7 +25,7 @@ const deviceConfigs = {
   },
   tablet: {
     minWidth: breakpoints.sm,
-    maxWidth: breakpoints.md,
+    maxWidth: breakpoints.md - 1, // 768-1023px
     designWidth: 768,
     baseFontSize: 15,
     minFontSize: 12,
@@ -50,7 +34,7 @@ const deviceConfigs = {
   },
   desktop: {
     minWidth: breakpoints.md,
-    maxWidth: breakpoints.xls,
+    maxWidth: breakpoints.xls - 1, // 1024-1919px
     designWidth: 1440,
     baseFontSize: 16,
     minFontSize: 14,
@@ -59,7 +43,7 @@ const deviceConfigs = {
   },
   largeScreen: {
     minWidth: breakpoints.xls,
-    maxWidth: breakpoints.xxl,
+    maxWidth: breakpoints.xxl - 1, // 1920-2559px
     designWidth: 1920,
     baseFontSize: 18,
     minFontSize: 16,
@@ -68,7 +52,7 @@ const deviceConfigs = {
   },
   ultraWide: {
     minWidth: breakpoints.xxl,
-    maxWidth: breakpoints.xxxl,
+    maxWidth: breakpoints.xxxl - 1, // 2560-3839px
     designWidth: 2560,
     baseFontSize: 20,
     minFontSize: 18,
@@ -77,6 +61,7 @@ const deviceConfigs = {
   },
   fourK: {
     minWidth: breakpoints.xxxl,
+    maxWidth: Infinity, // 3840px+
     designWidth: 3840,
     baseFontSize: 24,
     minFontSize: 20,
@@ -85,31 +70,51 @@ const deviceConfigs = {
   },
 } as const
 
-const breakpointFontSizeMap = {
-  mobile: 'xs',
-  tablet: 'sm',
-  desktop: 'md',
-  largeScreen: 'lg',
-  ultraWide: 'xl',
-  fourK: 'xxl',
+// 设备类型与尺寸模式的映射
+const deviceSizeMap = {
+  mobile: 'compact', // 移动端默认紧凑模式
+  tablet: 'comfortable', // 平板端默认舒适模式
+  desktop: 'comfortable', // 桌面端默认舒适模式
+  largeScreen: 'loose', // 大屏端默认宽松模式
+  ultraWide: 'loose', // 超宽屏端默认宽松模式
+  fourK: 'loose', // 4K屏端默认宽松模式
 } as const
 
 // 工具函数
-const getDeviceType = (width: number): keyof typeof _deviceTypes => {
+const getDeviceType = (width: number): keyof typeof deviceConfigs => {
+  // 从大到小检查，确保正确的优先级
   if (width >= breakpoints.xxxl) {
+    if (env.debug) {
+      console.log(`📱 设备类型检测: ${width}px >= ${breakpoints.xxxl}px -> fourK`)
+    }
     return 'fourK'
   }
   if (width >= breakpoints.xxl) {
+    if (env.debug) {
+      console.log(`📱 设备类型检测: ${width}px >= ${breakpoints.xxl}px -> ultraWide`)
+    }
     return 'ultraWide'
   }
   if (width >= breakpoints.xls) {
+    if (env.debug) {
+      console.log(`📱 设备类型检测: ${width}px >= ${breakpoints.xls}px -> largeScreen`)
+    }
     return 'largeScreen'
   }
   if (width >= breakpoints.md) {
+    if (env.debug) {
+      console.log(`📱 设备类型检测: ${width}px >= ${breakpoints.md}px -> desktop`)
+    }
     return 'desktop'
   }
   if (width >= breakpoints.sm) {
+    if (env.debug) {
+      console.log(`📱 设备类型检测: ${width}px >= ${breakpoints.sm}px -> tablet`)
+    }
     return 'tablet'
+  }
+  if (env.debug) {
+    console.log(`📱 设备类型检测: ${width}px < ${breakpoints.sm}px -> mobile`)
   }
   return 'mobile'
 }
@@ -119,8 +124,37 @@ const getDeviceConfig = (width: number) => {
   return deviceConfigs[deviceType as keyof typeof deviceConfigs]
 }
 
-const getRecommendedFontSize = (deviceType: keyof typeof _deviceTypes): string => {
-  return breakpointFontSizeMap[deviceType as keyof typeof breakpointFontSizeMap] || 'md'
+const getRecommendedSize = (deviceType: keyof typeof deviceConfigs): Size => {
+  const recommendedSize = deviceSizeMap[deviceType as keyof typeof deviceSizeMap] || 'comfortable'
+  if (env.debug) {
+    console.log(`📏 尺寸推荐: ${deviceType} -> ${recommendedSize}`)
+  }
+  return recommendedSize
+}
+
+// 调试函数：打印设备类型检测的详细信息
+const _debugDeviceTypeDetection = (width: number) => {
+  if (!env.debug) {
+    return
+  }
+
+  console.log(`🔍 设备类型检测调试 - 屏幕宽度: ${width}px`)
+  console.log(`📊 断点配置:`, breakpoints)
+
+  const deviceType = getDeviceType(width)
+  const deviceConfig = deviceConfigs[deviceType]
+  const recommendedSize = getRecommendedSize(deviceType)
+
+  console.log(`📱 检测结果:`, {
+    deviceType,
+    deviceConfig: {
+      name: deviceConfig.name,
+      minWidth: deviceConfig.minWidth,
+      maxWidth: deviceConfig.maxWidth,
+      designWidth: deviceConfig.designWidth,
+    },
+    recommendedSize,
+  })
 }
 
 // rem 适配配置
@@ -268,6 +302,12 @@ export class RemAdapter {
    */
   setRootFontSize(deviceInfo: DeviceInfo): void {
     try {
+      if (env.debug) {
+        console.log(
+          `📐 setRootFontSize 调用 - 设备宽度: ${deviceInfo.screen.width}px, 窗口宽度: ${window.innerWidth}px`
+        )
+      }
+
       const newFontSize = this.calculateRootFontSize(deviceInfo)
 
       if (newFontSize !== this.currentFontSize) {
@@ -282,7 +322,7 @@ export class RemAdapter {
           this.config.postcssRootValue.toString()
         )
 
-        this.updateBreakpointFontSize(deviceInfo.screen.width)
+        this.updateSizeByDevice(deviceInfo.screen.width)
 
         if (typeof window !== 'undefined') {
           window.dispatchEvent(
@@ -295,8 +335,6 @@ export class RemAdapter {
             })
           )
         }
-
-        // console.log(`📏 RemAdapter: 字体大小已更新为 ${newFontSize}px`)
       }
     } catch (error) {
       console.error('设置根字体大小失败:', error)
@@ -304,32 +342,31 @@ export class RemAdapter {
   }
 
   /**
-   * 更新断点字体大小
+   * 根据设备类型更新尺寸模式
    */
-  private updateBreakpointFontSize(width: number): void {
+  private updateSizeByDevice(width: number): void {
     try {
+      // 调试设备类型检测
+      _debugDeviceTypeDetection(width)
+
       const sizeStore = useSizeStoreWithOut()
       const deviceType = getDeviceType(width)
-      const recommendedFontSize = getRecommendedFontSize(deviceType) as FontSizeOptions['key']
+      const recommendedSize = getRecommendedSize(deviceType)
 
-      /* console.log(`🔍 智能断点分析:`, {
-        screenWidth: width,
-        deviceType,
-        recommendedFontSize,
-        mappingConfig: breakpointFontSizeMap[deviceType as keyof typeof breakpointFontSizeMap],
-      }) */
+      // 注意：最大尺寸限制在 theme.ts 中通过 setSizeMaxLimits 实现
+      // 这里只负责根据设备类型推荐合适的尺寸模式
 
-      if (sizeStore && typeof sizeStore.setFontSize === 'function') {
-        const currentFontSize = sizeStore.getFontSize
-        if (currentFontSize !== recommendedFontSize) {
-          sizeStore.setFontSize(recommendedFontSize)
-          /* console.log(
-            `🎯 智能断点更新: ${deviceType} (宽度: ${width}px, 字体: ${currentFontSize} → ${recommendedFontSize})`
-          ) */
+      if (sizeStore && typeof sizeStore.setSize === 'function') {
+        const currentSize = (sizeStore as any).getSize
+        if (currentSize !== recommendedSize) {
+          if (env.debug) {
+            console.log('📐 更新尺寸模式:', recommendedSize)
+          }
+          sizeStore.setSize(recommendedSize)
         }
       }
     } catch (error) {
-      console.error('更新断点字体大小失败:', error)
+      console.error('更新尺寸模式失败:', error)
     }
   }
 
@@ -408,7 +445,7 @@ export class RemAdapter {
         deviceName: deviceConfig.name,
         deviceType: _deviceType,
         screenSize: `${deviceInfo.screen.width}x${deviceInfo.screen.height}`,
-        recommendedFontSize: getRecommendedFontSize(_deviceType),
+        recommendedSize: getRecommendedSize(_deviceType),
       }
       if (env.debug) {
         console.log(`📐 rem 适配器初始化完成 ✅:`, initInfo)
@@ -421,10 +458,11 @@ export class RemAdapter {
         let rafId: number | null = null
 
         return () => {
-          const currentDeviceInfo = getDeviceInfo()
-          const { width, height } = currentDeviceInfo.screen
+          // 直接使用最新的窗口尺寸，避免使用可能过期的设备信息
+          const currentWidth = window.innerWidth
+          const currentHeight = window.innerHeight
 
-          if (width === lastWidth && height === lastHeight) {
+          if (currentWidth === lastWidth && currentHeight === lastHeight) {
             return
           }
 
@@ -439,11 +477,30 @@ export class RemAdapter {
           rafId = requestAnimationFrame(() => {
             resizeTimeout = setTimeout(() => {
               try {
-                this.setRootFontSize(currentDeviceInfo)
-                this.updateBreakpointFontSize(width)
+                // 创建临时的设备信息对象，使用最新的窗口尺寸
+                const tempDeviceInfo: DeviceInfo = {
+                  type: currentWidth >= 768 ? 'PC' : 'Mobile',
+                  system: 'Unknown',
+                  screen: {
+                    orientation: currentWidth >= currentHeight ? 'horizontal' : 'vertical',
+                    deviceWidth: window.screen.width,
+                    deviceHeight: window.screen.height,
+                    width: currentWidth,
+                    height: currentHeight,
+                    definitely: currentWidth >= currentHeight ? currentHeight : currentWidth,
+                    navHeight: 0,
+                    tabHeight: 0,
+                  },
+                }
 
-                lastWidth = width
-                lastHeight = height
+                if (env.debug) {
+                  console.log(`🔄 RemAdapter resize 处理 - 当前宽度: ${currentWidth}px`)
+                }
+                this.setRootFontSize(tempDeviceInfo)
+                this.updateSizeByDevice(currentWidth)
+
+                lastWidth = currentWidth
+                lastHeight = currentHeight
               } catch (error) {
                 console.error('处理窗口大小变化失败:', error)
               }
