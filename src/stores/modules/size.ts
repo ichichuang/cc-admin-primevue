@@ -4,7 +4,7 @@
 
 import { cloneDeep, toKebabCase } from '@/common'
 import { fontSizeOptions, paddingOptions, roundedOptions, sizeOptions } from '@/constants'
-import { comfortableSizes } from '@/constants/modules/theme'
+import { comfortableSizes, sizePresetsMap } from '@/constants/modules/theme'
 import store, { useLayoutStoreWithOut } from '@/stores'
 import { env, useMitt } from '@/utils'
 import { defineStore } from 'pinia'
@@ -29,6 +29,16 @@ export const useSizeStore = defineStore('size', {
   }),
 
   getters: {
+    // 动态获取当前尺寸预设（根据窗口实时尺寸计算）
+    currentLayout: (state: SizeState) => {
+      try {
+        const factory = sizePresetsMap[state.size]
+        return factory ? factory() : sizePresetsMap.comfortable()
+      } catch (error) {
+        console.warn('计算 currentLayout 失败，回退到 comfortable:', error)
+        return sizePresetsMap.comfortable()
+      }
+    },
     // 验证当前是否为【紧凑模式】
     isCompact: (state: SizeState) => state.size === 'compact',
     // 验证当前是否为【舒适模式】
@@ -45,20 +55,32 @@ export const useSizeStore = defineStore('size', {
       state.sizeOptions.find(option => option.value === state.size)?.label,
 
     // 获取侧边栏宽度
-    getSidebarWidth: (state: SizeState) => state.sizes.sidebarWidth as number,
+    getSidebarWidth(_state: SizeState) {
+      return (this as any).currentLayout.sidebarWidth as number
+    },
     // 获取侧边栏折叠宽度
-    getSidebarCollapsedWidth: (state: SizeState) => state.sizes.sidebarCollapsedWidth as number,
+    getSidebarCollapsedWidth(_state: SizeState) {
+      return (this as any).currentLayout.sidebarCollapsedWidth as number
+    },
     // 获取头部高度
-    getHeaderHeight: (state: SizeState) => state.sizes.headerHeight as number,
+    getHeaderHeight(_state: SizeState) {
+      return (this as any).currentLayout.headerHeight as number
+    },
     // 获取面包屑高度
-    getBreadcrumbHeight: (state: SizeState) => state.sizes.breadcrumbHeight as number,
+    getBreadcrumbHeight(_state: SizeState) {
+      return (this as any).currentLayout.breadcrumbHeight as number
+    },
     // 获取底部高度
-    getFooterHeight: (state: SizeState) => state.sizes.footerHeight as number,
+    getFooterHeight(_state: SizeState) {
+      return (this as any).currentLayout.footerHeight as number
+    },
     // 获取标签页高度
-    getTabsHeight: (state: SizeState) => state.sizes.tabsHeight as number,
+    getTabsHeight(_state: SizeState) {
+      return (this as any).currentLayout.tabsHeight as number
+    },
 
     // 获取内容容器高度 = 窗口高度 - 头部 - 底部 - 面包屑 - 标签页
-    getContentHeight: (state: SizeState) => {
+    getContentHeight(_state: SizeState) {
       const layoutStore = useLayoutStoreWithOut()
       const screenHeight = layoutStore.getHeight
 
@@ -74,21 +96,21 @@ export const useSizeStore = defineStore('size', {
       const showTabs = layoutStore.getShowTabs
       let height: number = 0
       if (showHeader) {
-        height += state.sizes.headerHeight
+        height += (this as any).getHeaderHeight
       }
       if (showFooter) {
-        height += state.sizes.footerHeight
+        height += (this as any).getFooterHeight
       }
       if (showBreadcrumb) {
-        height += state.sizes.breadcrumbHeight
+        height += (this as any).getBreadcrumbHeight
       }
       if (showTabs) {
-        height += state.sizes.tabsHeight
+        height += (this as any).getTabsHeight
       }
       return (screenHeight - height) as number
     },
     // 获取包含面包屑内容容器高度 = 窗口高度 - 头部 - 底部 - 标签页
-    getContentBreadcrumbHeight: (state: SizeState) => {
+    getContentBreadcrumbHeight(_state: SizeState) {
       const layoutStore = useLayoutStoreWithOut()
       const screenHeight = layoutStore.getHeight
 
@@ -103,18 +125,18 @@ export const useSizeStore = defineStore('size', {
       const showTabs = layoutStore.getShowTabs
       let height: number = 0
       if (showHeader) {
-        height += state.sizes.headerHeight
+        height += (this as any).getHeaderHeight
       }
       if (showFooter) {
-        height += state.sizes.footerHeight
+        height += (this as any).getFooterHeight
       }
       if (showTabs) {
-        height += state.sizes.tabsHeight
+        height += (this as any).getTabsHeight
       }
       return (screenHeight - height) as number
     },
     // 获取包含标签页内容容器高度 = 窗口高度 - 头部 - 底部 - 面包屑
-    getContentTabsHeight: (state: SizeState) => {
+    getContentTabsHeight(_state: SizeState) {
       const layoutStore = useLayoutStoreWithOut()
       const screenHeight = layoutStore.getHeight
 
@@ -129,18 +151,18 @@ export const useSizeStore = defineStore('size', {
       const showBreadcrumb = layoutStore.getShowBreadcrumb
       let height: number = 0
       if (showHeader) {
-        height += state.sizes.headerHeight
+        height += (this as any).getHeaderHeight
       }
       if (showFooter) {
-        height += state.sizes.footerHeight
+        height += (this as any).getFooterHeight
       }
       if (showBreadcrumb) {
-        height += state.sizes.breadcrumbHeight
+        height += (this as any).getBreadcrumbHeight
       }
       return (screenHeight - height) as number
     },
     // 获取包含面包屑和标签页内容容器高度 = 窗口高度 - 头部 - 底部
-    getContentsHeight: (state: SizeState) => {
+    getContentsHeight(_state: SizeState) {
       const layoutStore = useLayoutStoreWithOut()
       const screenHeight = layoutStore.getHeight
 
@@ -154,15 +176,15 @@ export const useSizeStore = defineStore('size', {
       const showTabs = layoutStore.getShowTabs
       let height: number = 0
       if (showBreadcrumb) {
-        height += state.sizes.breadcrumbHeight
+        height += (this as any).getBreadcrumbHeight
       }
       if (showTabs) {
-        height += state.sizes.tabsHeight
+        height += (this as any).getTabsHeight
       }
       return (screenHeight - height) as number
     },
     // 获取包含面包屑内容容器高度 = 窗口高度 - 头部 - 底部 - 标签页
-    getContentsBreadcrumbHeight: (state: SizeState) => {
+    getContentsBreadcrumbHeight(_state: SizeState) {
       const layoutStore = useLayoutStoreWithOut()
       const screenHeight = layoutStore.getHeight
 
@@ -175,12 +197,12 @@ export const useSizeStore = defineStore('size', {
       const showTabs = layoutStore.getShowTabs
       let height: number = 0
       if (showTabs) {
-        height += state.sizes.tabsHeight
+        height += (this as any).getTabsHeight
       }
       return (screenHeight - height) as number
     },
     // 获取包含标签页内容容器高度 = 窗口高度 - 头部 - 底部 - 面包屑
-    getContentsTabsHeight: (state: SizeState) => {
+    getContentsTabsHeight(_state: SizeState) {
       const layoutStore = useLayoutStoreWithOut()
       const screenHeight = layoutStore.getHeight
 
@@ -193,19 +215,28 @@ export const useSizeStore = defineStore('size', {
       const showBreadcrumb = layoutStore.getShowBreadcrumb
       let height: number = 0
       if (showBreadcrumb) {
-        height += state.sizes.breadcrumbHeight
+        height += (this as any).getBreadcrumbHeight
       }
       return (screenHeight - height) as number
     },
 
     // 获取间距
-    getGap: (state: SizeState) => state.sizes.gap as number,
+    getGap(_state: SizeState) {
+      return (this as any).currentLayout.gap as number
+    },
     // 获取间距的一半 = 间距 / 2
-    getGaps: (state: SizeState) => (state.sizes.gap / 2) as number,
+    getGaps(_state: SizeState) {
+      return ((this as any).currentLayout.gap / 2) as number
+    },
     // 获取间距的一半多 = 间距 + 间距 / 2
-    getGapx: (state: SizeState) => (state.sizes.gap + state.sizes.gap / 2) as number,
+    getGapx(_state: SizeState) {
+      const gap = (this as any).currentLayout.gap
+      return (gap + gap / 2) as number
+    },
     // 获取间距的两倍
-    getGapl: (state: SizeState) => (state.sizes.gap * 2) as number,
+    getGapl(_state: SizeState) {
+      return ((this as any).currentLayout.gap * 2) as number
+    },
 
     // padding
     getPadding: (state: SizeState) => {
@@ -401,6 +432,20 @@ export const useSizeStore = defineStore('size', {
     /* 更新 size css 变量 */
     setCssVariables(this: any) {
       console.log('更新 size css 变量')
+      console.log({
+        sidebarWidth: this.getSidebarWidth,
+        sidebarCollapsedWidth: this.getSidebarCollapsedWidth,
+        headerHeight: this.getHeaderHeight,
+        breadcrumbHeight: this.getBreadcrumbHeight,
+        footerHeight: this.getFooterHeight,
+        tabsHeight: this.getTabsHeight,
+        contentHeight: this.getContentHeight,
+        contentBreadcrumbHeight: this.getContentBreadcrumbHeight,
+        contentTabsHeight: this.getContentTabsHeight,
+        contentsHeight: this.getContentsHeight,
+        contentsBreadcrumbHeight: this.getContentsBreadcrumbHeight,
+        contentsTabsHeight: this.getContentsTabsHeight,
+      })
       const cssVariables: Record<string, string> = {
         [toKebabCase('sidebarWidth', '--')]: this.getSidebarWidth + 'px',
         [toKebabCase('sidebarCollapsedWidth', '--')]: this.getSidebarCollapsedWidth + 'px',
