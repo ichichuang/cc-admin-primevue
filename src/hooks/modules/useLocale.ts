@@ -4,7 +4,6 @@
 import type { SupportedLocale } from '@/locales'
 import { getCurrentLocale, setLocale, supportedLocales } from '@/locales'
 import router from '@/router'
-import { useAppStoreWithOut } from '@/stores'
 import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -68,9 +67,8 @@ export function useLocale() {
       // 直接更新当前页面标题
       const currentRoute = router?.currentRoute?.value
       if (currentRoute) {
-        const appStore = useAppStoreWithOut()
         const env = import.meta.env
-        const title = env.VITE_APP_TITLE || appStore.getTitle
+        const title = env.VITE_APP_TITLE
 
         let pageTitle = title
         if (currentRoute.meta?.titleKey) {

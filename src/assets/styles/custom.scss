@@ -2,6 +2,32 @@
 @use '@/assets/styles/custom-nprogress.scss';
 @use '@/assets/styles/custom-primevue.scss';
 
+/* View Transitions API 样式 */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+.dark::view-transition-old(root) {
+  z-index: 1000;
+}
+
+/* 优化过渡性能 */
+html {
+  transition: background-color 0.3s ease;
+}
+
+/* 浏览器兼容性处理 */
+@supports not (view-transition-name: root) {
+  .theme-transition {
+    transition: all 0.3s ease;
+  }
+
+  .theme-switch {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
 * {
   font-size: var(--fontSize);
 }
@@ -35,28 +61,10 @@
       &,
       * {
         transition:
-          all 0.6s,
-          transform 0.1s !important;
+          all 0.8s,
+          transform 0.2s !important;
+        transition-timing-function: linear;
       }
     }
   }
 }
-
-/* 禁用 input 标签的全部默认样式 */
-/* input {
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  &:hover,
-  &:focus,
-  &:active,
-  &:disabled,
-  &:read-only,
-  &:focus-visible,
-  &:focus-within,
-  &:invalid {
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-  }
-} */

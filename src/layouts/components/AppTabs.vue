@@ -2,20 +2,18 @@
 import { getCurrentRoute, goToRoute } from '@/common'
 import ScrollbarWrapper from '@/components/modules/scrollbar-wrapper/ScrollbarWrapper.vue'
 import type { ScrollEvent } from '@/components/modules/scrollbar-wrapper/utils/types'
-import { useLocale } from '@/hooks'
-import { useLayoutStore, usePermissionStore, type TabItem } from '@/stores'
+import { useElementSize, useLocale } from '@/hooks'
+import { usePermissionStore, type TabItem } from '@/stores'
 import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const { $t } = useLocale()
 
-const layoutStore = useLayoutStore()
 const permissionStore = usePermissionStore()
 const router = useRouter()
 
 // 侧边栏收缩状态
-const isSidebarCollapsed = computed(() => layoutStore.getSidebarCollapsed)
 
 // 使用 store 的 tabs 计算属性
 const tabs = computed(() => permissionStore.getTabs)
@@ -32,7 +30,7 @@ const dynamicTabs = computed(() => {
 const activeTab = computed(() => dynamicTabs.value.find(tab => tab.active))
 
 // DOM refs
-const containerRef = ref<HTMLElement>()
+const containerRef = ref<HTMLElement | null>()
 const trackRef = ref<HTMLElement>()
 const scrollbarRef = ref<InstanceType<typeof ScrollbarWrapper>>()
 
@@ -156,7 +154,13 @@ const createItemRef = (tab: TabItem, index: number) => (el: any) => {
   // 当元素被设置时，延迟更新指示器
   if (el) {
     nextTick(() => {
-      setTimeout(() => updateIndicator(), 10)
+      setTimeout(() => {
+        updateIndicator()
+        // 如果是激活的标签，确保滚动到正确位置
+        if (tab.active) {
+          setTimeout(() => scrollToActiveTabCenter(), 50)
+        }
+      }, 10)
     })
   }
 }
@@ -166,7 +170,7 @@ const indicatorLeft = ref(0)
 const indicatorWidth = ref(0)
 const indicatorHeight = ref(0)
 const containerHeight = ref(0)
-const observedHeight = ref(0)
+const containerWidth = ref(0)
 const showIndicator = ref(false)
 
 // 水平滚动距离
@@ -358,16 +362,19 @@ const updateIndicator = async (maxRetries = 10) => {
   // 等待样式计算完成
   await new Promise(resolve => requestAnimationFrame(resolve))
 
+  // 确保元素已经完全渲染
+  if (maxRetries > 0 && (el.offsetWidth === 0 || el.offsetHeight === 0)) {
+    setTimeout(() => updateIndicator(maxRetries - 1), 20)
+    return
+  }
+
   const trackRect = track.getBoundingClientRect()
   const elRect = el.getBoundingClientRect()
 
   if (!elRect.width || !elRect.height) {
-    return
-  }
-
-  // 如果尺寸不合理且还有重试次数
-  if ((elRect.width === 0 || elRect.height === 0) && maxRetries > 0) {
-    setTimeout(() => updateIndicator(maxRetries - 1), 20)
+    if (maxRetries > 0) {
+      setTimeout(() => updateIndicator(maxRetries - 1), 20)
+    }
     return
   }
 
@@ -381,7 +388,7 @@ const updateIndicator = async (maxRetries = 10) => {
   indicatorWidth.value = elRect.width
   indicatorHeight.value = elRect.height
   containerHeight.value = containerRef.value?.clientHeight ?? elRect.height
-
+  containerWidth.value = containerRef.value?.clientWidth ?? elRect.width
   showIndicator.value = true
 }
 
@@ -410,24 +417,25 @@ const scrollToActiveTabCenter = async (maxRetries = 10) => {
     return
   }
 
-  const itemOffsetLeft = el.offsetLeft
-  const itemWidth = el.offsetWidth
-  const containerWidth = scrollEl.clientWidth
-  const scrollWidth = scrollEl.scrollWidth
+  // 使用 getBoundingClientRect 获取更精确的位置信息
+  const trackRect = track.getBoundingClientRect()
+  const elRect = el.getBoundingClientRect()
+  const scrollElRect = scrollEl.getBoundingClientRect()
 
-  if (itemWidth === 0 && maxRetries > 0) {
+  if (elRect.width === 0 && maxRetries > 0) {
     setTimeout(() => scrollToActiveTabCenter(maxRetries - 1), 50)
     return
   }
 
-  if (itemWidth === 0) {
+  if (elRect.width === 0) {
     return
   }
 
-  // 计算目标滚动位置：使选中项居中
-  const itemCenter = itemOffsetLeft + itemWidth / 2
-  const targetScrollLeft = itemCenter - containerWidth / 2
-  const maxScrollLeft = scrollWidth - containerWidth
+  // 计算相对于滚动容器的位置
+  const relativeItemLeft = elRect.left - trackRect.left
+  const itemCenter = relativeItemLeft + elRect.width / 2
+  const targetScrollLeft = itemCenter - scrollElRect.width / 2
+  const maxScrollLeft = scrollEl.scrollWidth - scrollElRect.width
   const clampedScrollLeft = Math.max(0, Math.min(targetScrollLeft, maxScrollLeft))
 
   scrollbar.scrollTo({
@@ -441,82 +449,25 @@ const handleScrollHorizontal = (event: ScrollEvent) => {
   scrollLeft.value = event.scrollLeft
 }
 
-// Observer 相关
-let mutationObserver: MutationObserver | null = null
-let resizeObserver: ResizeObserver | null = null
-
-const setupObservers = () => {
-  if (!containerRef.value) {
-    return
-  }
-
-  // 监听DOM结构变化
-  if ('MutationObserver' in window) {
-    mutationObserver = new MutationObserver(() => {
+// 利用 useElementSize 监听容器尺寸变化并联动更新
+useElementSize(
+  containerRef as unknown as Ref<HTMLElement | null>,
+  entry => {
+    containerWidth.value = entry.width
+    containerHeight.value = entry.height
+    nextTick(async () => {
+      await new Promise(resolve => requestAnimationFrame(resolve))
       updateIndicator()
-    })
-    mutationObserver.observe(containerRef.value, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['class', 'style'],
-    })
-  }
-
-  // 监听尺寸变化
-  if ('ResizeObserver' in window) {
-    resizeObserver = new ResizeObserver(entries => {
-      const entry = entries[0]
-      if (!entry) {
-        return
-      }
-      const height = Math.round(entry.contentRect.height)
-      if (height !== observedHeight.value) {
-        observedHeight.value = height
-        containerHeight.value = height
-        nextTick(() => {
-          updateIndicator()
-          // 尽量保持活动项居中
-          scrollToActiveTabCenter()
-        })
-      }
-    })
-    resizeObserver.observe(containerRef.value)
-  }
-}
-
-const cleanupObservers = () => {
-  if (mutationObserver) {
-    mutationObserver.disconnect()
-    mutationObserver = null
-  }
-  if (resizeObserver) {
-    resizeObserver.disconnect()
-    resizeObserver = null
-  }
-}
-
-// 生命周期
-onMounted(() => {
-  nextTick(async () => {
-    await new Promise(resolve => requestAnimationFrame(resolve))
-    setupObservers()
-    updateIndicator()
-    scrollToActiveTabCenter()
-
-    // 监听侧边栏收缩状态变化
-    watch(
-      () => isSidebarCollapsed.value,
-      () => {
+      // 容器尺寸变化时，确保激活标签滚动到中心
+      setTimeout(() => {
         scrollToActiveTabCenter()
-      }
-    )
-  })
-})
+      }, 50)
+    })
+  },
+  { mode: 'debounce', delay: 100 }
+)
 
 onBeforeUnmount(() => {
-  cleanupObservers()
-
   // 清理所有拖拽监听器
   dragCleanupMap.forEach(cleanup => cleanup())
   dropCleanupMap.forEach(cleanup => cleanup())
@@ -529,13 +480,26 @@ const currentRoute = getCurrentRoute()
 permissionStore.addTab(currentRoute.name || currentRoute.path)
 permissionStore.updateTabActive(currentRoute.name || currentRoute.path)
 
+// 组件挂载后初始化
+onMounted(() => {
+  // 延迟初始化，确保所有元素都已渲染
+  setTimeout(() => {
+    updateIndicator()
+    scrollToActiveTabCenter()
+  }, 100)
+})
+
 router.afterEach(to => {
   permissionStore.addTab(to.name || to.path)
   permissionStore.updateTabActive(to.name || to.path)
   nextTick(() => {
+    // 先更新指示器，再滚动到中心
     setTimeout(() => {
-      scrollToActiveTabCenter()
-    }, 100)
+      updateIndicator()
+      setTimeout(() => {
+        scrollToActiveTabCenter()
+      }, 50)
+    }, 50)
   })
 })
 
@@ -545,25 +509,18 @@ watch(
   () => {
     nextTick(() => {
       updateIndicator()
+      // 确保激活标签滚动到中心
+      setTimeout(() => {
+        scrollToActiveTabCenter()
+      }, 50)
     })
   },
   { deep: true }
-)
-
-// 监听激活标签变化，滚动到中心
-watch(
-  () => activeTab.value,
-  () => {
-    nextTick(() => {
-      scrollToActiveTabCenter()
-    })
-  }
 )
 </script>
 
 <template lang="pug">
 .full(ref='containerRef')
-  //- SVG goo filter（仅一次定义在本组件范围内）
   svg(width='0', height='0', style='position: absolute')
     defs
       filter#app-tabs-goo
@@ -578,7 +535,7 @@ watch(
 
   ScrollbarWrapper.c-transitions(
     ref='scrollbarRef',
-    :style='{ height: containerHeight + "px" }',
+    :style='{ height: containerHeight + "px", width: containerWidth + "px" }',
     :thumb-width='2',
     :direction='"horizontal"',
     @scroll-horizontal='handleScrollHorizontal'
@@ -594,9 +551,9 @@ watch(
 
         //- 标签列表 - 直接使用 store 中的 tabs
         template(v-for='(tab, index) in dynamicTabs', :key='tab.name || tab.path')
-          .center.relative.z-2.h-full.mx-gaps.px-padding.bg-tm.border-none.color-text200.select-none(
+          .center.relative.z-1.h-full.mx-gaps.px-padding.bg-tm.border-none.color-text200.select-none.tab-item(
             :ref='createItemRef(tab, index)',
-            :class='[tab.active ? "active color-accent200" : "color-text200 hover:color-text100 tab-item", { "cursor-move": !tab.fixed, "c-cp": tab.fixed, dragging: isDragging && dragOverIndex === index, "drag-over": dragOverIndex === index && !isDragging }]',
+            :class='[tab.active ? "active color-accent100" : "color-text200 hover:color-text100", { "cursor-move": !tab.fixed, "c-cp": tab.fixed, dragging: isDragging && dragOverIndex === index, "drag-over": dragOverIndex === index && !isDragging }]',
             @click='goToRoute(String(tab?.name))',
             @contextmenu='handleContextMenu($event, tab)',
             :aria-haspopup='true'
@@ -683,6 +640,17 @@ watch(
     0 8px 32px color-mix(in srgb, var(--primary200) 8%, transparent),
     0 4px 16px color-mix(in srgb, var(--primary200) 6%, transparent),
     inset 0 1px 0 color-mix(in srgb, var(--primary200) 40%, transparent);
+  &.active {
+    background: transparent;
+    /* 玻璃边框 - 使用主色调的半透明 */
+    border: 1px solid color-mix(in srgb, var(--accent100) 20%, transparent);
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid color-mix(in srgb, var(--accent200) 30%, transparent);
+    border-left: 1px solid color-mix(in srgb, var(--accent100) 30%, transparent);
+
+    /* 圆角 */
+    border-radius: var(--rounded);
+  }
 }
 
 .dark .tab-item {

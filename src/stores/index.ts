@@ -12,7 +12,6 @@ const store = createPinia()
 store.use(piniaPluginPersistedstate)
 
 // 导出所有 Store 模块
-export * from '@/stores/modules/app'
 export * from '@/stores/modules/color'
 export * from '@/stores/modules/layout'
 export * from '@/stores/modules/locale'

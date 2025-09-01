@@ -220,6 +220,11 @@ declare global {
     roundedOptions: RoundedOptions[]
     fontSize: FontSizeOptions['key']
     fontSizeOptions: FontSizeOptions[]
+    // 窗口尺寸状态，用于触发 getter 重新计算
+    windowSize: {
+      width: number
+      height: number
+    }
   }
 
   /* ==================== 工具函数类型 ==================== */

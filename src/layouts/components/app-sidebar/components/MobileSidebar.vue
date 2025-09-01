@@ -23,13 +23,13 @@ router.beforeEach(() => {
 <template lang="pug">
 .full
   //- 移动端菜单
-  AnimateWrapper.fixed.t-gapl.l-gapl.z-4.wa.ha(
+  AnimateWrapper.fixed.t-gapl.l-gapl.z-999.wa.ha(
     :show='mobileSidebarVisible',
     enter='slideInLeft',
     leave='fadeOutLeft',
     duration='400ms'
   )
-    .bg-primary200.py-paddingl.px-padding.rounded-rounded
+    .bg-primary100.py-paddingl.px-padding.rounded-rounded
       ScrollbarWrapper(
         :color-scheme='{ thumbColor: "var(--primary100)", thumbHoverColor: "var(--primary200)" }',
         :thumb-width='6'

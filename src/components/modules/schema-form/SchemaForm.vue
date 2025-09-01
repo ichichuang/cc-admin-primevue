@@ -22,7 +22,7 @@
       <!-- Grid Container -->
       <div
         :class="['grid', `grid-cols-12`]"
-        :style="{ gap: `${(mergedLayout.gap ?? gap < 14) ? 14 : gap}px` }"
+        :style="{ gap: `${mergedLayout.gap}px` }"
       >
         <!-- Render Fields Based on Schema Type -->
         <template v-if="schema.sections && !schema.steps">
@@ -33,6 +33,7 @@
             :disabled="disabled"
             :options-cache-t-t-l="optionsCacheTTL"
             :global-layout="mergedLayout"
+            :global-style="mergedStyle"
             :column-by-field="columnByField"
             :col-style="colStyle"
           />
@@ -46,6 +47,7 @@
             :disabled="disabled"
             :options-cache-t-t-l="optionsCacheTTL"
             :global-layout="mergedLayout"
+            :global-style="mergedStyle"
             :column-by-field="columnByField"
             :col-style="colStyle"
           />
@@ -67,32 +69,30 @@
             :disabled="disabled"
             :options-cache-t-t-l="optionsCacheTTL"
             :global-layout="mergedLayout"
+            :global-style="mergedStyle"
             :col-style="colStyle"
           />
         </template>
       </div>
 
-      <!-- Actions -->
-      <FormActions
-        :form="$form"
-        @reset="handleReset"
-        @submit="handleSubmit"
-      />
+      <!-- Actions - 现在由用户自定义，不再预设按钮组 -->
 
       <!-- Persistence (Implicit) -->
       <div class="hidden">{{ persistValues($form.values) }}</div>
       <!-- ModelValue Sync (Implicit) -->
       <div class="hidden">{{ syncToModelValue($form.values) }}</div>
+      <!-- Capture $form API for expose -->
+      <div class="hidden">{{ captureFormApi($form) }}</div>
     </Form>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useSizeStore } from '@/stores'
 import { Form } from '@primevue/forms'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import {
   DefaultRenderer,
-  FormActions,
   SectionsRenderer,
   StepNavigation,
   StepsHeader,
@@ -105,13 +105,11 @@ import type {
   SchemaColumnsItem,
   SchemaFormEmits,
   SchemaFormProps,
+  StyleConfig,
 } from './utils/types'
-
-import { useSizeStore } from '@/stores'
 const sizeStore = useSizeStore()
-const gap = computed(() => sizeStore.getGap)
-
 const formContainerRef = ref<HTMLElement | null>(null)
+let formApiRef: any = null
 
 // ==================== Props & Emits ====================
 
@@ -121,6 +119,11 @@ const props = withDefaults(defineProps<SchemaFormProps>(), {
 })
 
 const emit = defineEmits<SchemaFormEmits>()
+/** 捕获 $form API 以便在 defineExpose 暴露 */
+function captureFormApi(api: any) {
+  formApiRef = api
+  return ''
+}
 
 // ==================== Internal State ====================
 
@@ -177,10 +180,18 @@ const mergedLayout = computed((): LayoutConfig => {
   if (!layout?.labelAlign) {
     layout.labelAlign = 'left'
   }
-  if (!layout?.showLabel) {
+  if (layout?.showLabel === undefined) {
     layout.showLabel = true
   }
+  if (!layout?.gap) {
+    layout.gap = sizeStore.getGap
+  }
   return layout
+})
+
+/** 合并样式配置：schema.style > 默认值 */
+const mergedStyle = computed((): StyleConfig => {
+  return props.schema.style || {}
 })
 
 // ==================== Methods ====================
@@ -237,13 +248,20 @@ function columnByField(field: string): SchemaColumnsItem | undefined {
 /** 列样式计算 */
 const colStyle = computed(() => {
   return (fieldLayout?: LayoutConfig): Record<string, string> => {
-    const width = containerWidth.value || formContainerRef.value?.clientWidth || 0
+    let width = containerWidth.value || formContainerRef.value?.clientWidth || 0
+
+    // 确保 width 是有效数字
+    if (isNaN(width) || !isFinite(width) || width < 0) {
+      width = 1200 // 默认桌面宽度
+    }
 
     // 合并布局配置：fieldLayout > mergedLayout > 默认值
     const finalLayout: LayoutConfig = {
       ...mergedLayout.value,
       ...fieldLayout, // 表单项配置优先级最高
     }
+
+    // 直接使用 helperColStyle，它会正确处理表单项的 cols 配置
     return helperColStyle(finalLayout, width)
   }
 })
@@ -479,8 +497,6 @@ async function onValidSubmit(event: { values: Record<string, any>; valid: boolea
     ? props.submitTransform(transformedValues)
     : transformedValues
 
-  console.log('finalValues: ', finalValues)
-
   emit('submit', finalValues)
 }
 
@@ -526,16 +542,107 @@ async function validateStepFields(
   return false // 无错误
 }
 
-/** 重置处理 */
-function handleReset(form: any) {
-  form.reset()
-  activeStep.value = 0
-}
+// 这些方法现在由用户通过 hook 调用，不再需要内部处理
 
-/** 提交处理 */
-function handleSubmit() {
-  // 由 Form 组件自动处理
-}
+// =============== Expose API ===============
+defineExpose({
+  /** 获取当前值 */
+  get values() {
+    if (formApiRef) {
+      // PrimeVue Form 的 $form 对象直接包含字段值
+      // 过滤掉函数和方法，只保留字段值
+      const fieldValues: Record<string, any> = {}
+      Object.keys(formApiRef).forEach(key => {
+        // 跳过函数和方法
+        if (typeof formApiRef[key] !== 'function' && key !== 'valid' && key !== 'errors') {
+          // 检查是否是响应式对象（Proxy）
+          if (
+            formApiRef[key] &&
+            typeof formApiRef[key] === 'object' &&
+            'value' in formApiRef[key]
+          ) {
+            const value = formApiRef[key].value
+
+            // 特殊处理 InputOtp 组件
+            if (key === 'inputOtp') {
+              // 尝试直接访问 InputOtp 组件的实例
+              const inputOtpElement = formContainerRef.value?.querySelector(
+                '[name="inputOtp"]'
+              ) as any
+              if (inputOtpElement && inputOtpElement.__vueParentComponent) {
+                const inputOtpInstance = inputOtpElement.__vueParentComponent.ctx
+
+                if (
+                  inputOtpInstance &&
+                  inputOtpInstance.tokens &&
+                  Array.isArray(inputOtpInstance.tokens)
+                ) {
+                  const tokens = inputOtpInstance.tokens
+                  const fullValue = tokens.join('')
+                  fieldValues[key] = fullValue
+                } else {
+                  fieldValues[key] = value
+                }
+              } else {
+                fieldValues[key] = value
+              }
+            } else {
+              fieldValues[key] = value
+            }
+          } else {
+            fieldValues[key] = formApiRef[key]
+          }
+        }
+      })
+      return fieldValues
+    }
+    return {}
+  },
+  /** 触发验证，返回 { valid, errors } */
+  async validate() {
+    if (formApiRef && typeof formApiRef.validate === 'function') {
+      const result = await formApiRef.validate()
+      return result
+    }
+    return { valid: true, errors: {} }
+  },
+  /** 提交（走内部 onValidSubmit 流程） */
+  submit() {
+    const formEl = formContainerRef.value?.querySelector('form') as HTMLFormElement | null
+    if (formEl) {
+      formEl.requestSubmit()
+    }
+  },
+  /** 重置（恢复 defaultValue） */
+  reset() {
+    if (formApiRef && typeof formApiRef.reset === 'function') {
+      return formApiRef.reset()
+    }
+    // 兜底：刷新 initial-values 依赖
+    const el = formContainerRef.value?.querySelector('form') as any
+    if (el && typeof el.reset === 'function') {
+      el.reset()
+    }
+  },
+  /** 设置某个字段值 */
+  setFieldValue(field: string, value: any) {
+    if (formApiRef && typeof formApiRef.setFieldValue === 'function') {
+      return formApiRef.setFieldValue(field, value)
+    }
+  },
+  /** 批量设置值 */
+  setValues(newValues: Record<string, any>) {
+    if (formApiRef && typeof formApiRef.setValues === 'function') {
+      return formApiRef.setValues(newValues)
+    }
+    // 兜底：逐个字段设置
+    if (formApiRef && typeof formApiRef.setFieldValue === 'function') {
+      Object.keys(newValues || {}).forEach(key => {
+        formApiRef.setFieldValue(key, (newValues as any)[key])
+      })
+    }
+  },
+})
 </script>
 
 <style scoped>

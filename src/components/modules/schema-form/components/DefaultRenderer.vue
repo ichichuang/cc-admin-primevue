@@ -10,13 +10,14 @@
       :disabled="disabled"
       :options-cache-t-t-l="optionsCacheTTL"
       :global-layout="globalLayout"
+      :global-style="globalStyle"
       :style="colStyle(column.layout)"
     />
   </template>
 </template>
 
 <script setup lang="ts">
-import type { LayoutConfig, SchemaColumnsItem } from '../utils/types'
+import type { LayoutConfig, SchemaColumnsItem, StyleConfig } from '../utils/types'
 import SchemaFormItem from './FormItems'
 
 defineProps<{
@@ -25,6 +26,7 @@ defineProps<{
   disabled: boolean
   optionsCacheTTL: number
   globalLayout: LayoutConfig
+  globalStyle?: StyleConfig
   colStyle: (layout?: LayoutConfig) => Record<string, string>
 }>()
 </script>

@@ -217,8 +217,9 @@
     .form-item-label {
     }
     .form-item-content,
-    .form-item-content > input {
-      width: 100%;
+    .form-item-content * {
+      // width: 100%;
+      // height: 100%;
       transition: all 0.4s ease-in-out !important;
       border-radius: var(--rounded);
       border-color: var(--bg300);

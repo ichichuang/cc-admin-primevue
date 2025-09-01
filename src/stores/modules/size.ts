@@ -11,7 +11,69 @@ import { defineStore } from 'pinia'
 import { nextTick } from 'vue'
 const { on } = useMitt()
 
-export const useSizeStore = defineStore('size', {
+// 显式为 getters 与 actions 补全类型，避免通过聚合导出时类型推断丢失
+type SizeGetters = {
+  currentLayout(state: SizeState): Layout
+  isCompact(state: SizeState): boolean
+  isComfortable(state: SizeState): boolean
+  isLoose(state: SizeState): boolean
+
+  getSizeOptions(state: SizeState): SizeOptions[]
+  getSize(state: SizeState): SizeOptions['value']
+  getSizeLabel(state: SizeState): string | undefined
+
+  getSidebarWidth(state: SizeState): number
+  getSidebarCollapsedWidth(state: SizeState): number
+  getHeaderHeight(state: SizeState): number
+  getBreadcrumbHeight(state: SizeState): number
+  getFooterHeight(state: SizeState): number
+  getTabsHeight(state: SizeState): number
+
+  getContentHeight(state: SizeState): number
+  getContentBreadcrumbHeight(state: SizeState): number
+  getContentTabsHeight(state: SizeState): number
+  getContentsHeight(state: SizeState): number
+  getContentsBreadcrumbHeight(state: SizeState): number
+  getContentsTabsHeight(state: SizeState): number
+
+  getGap(state: SizeState): number
+  getGaps(state: SizeState): number
+  getGapx(state: SizeState): number
+  getGapl(state: SizeState): number
+
+  getPadding(state: SizeState): PaddingOptions['key']
+  getPaddingValue(state: SizeState): number
+  getPaddingsValue(state: SizeState): number
+  getPaddingxValue(state: SizeState): number
+  getPaddinglValue(state: SizeState): number
+  getPaddingLabel(state: SizeState): string | undefined
+  getPaddingOptions(state: SizeState): PaddingOptions[]
+
+  getRounded(state: SizeState): RoundedOptions['key']
+  getRoundedValue(state: SizeState): number
+  getRoundedLabel(state: SizeState): string | undefined
+  getRoundedOptions(state: SizeState): RoundedOptions[]
+
+  getFontSize(state: SizeState): FontSizeOptions['key']
+  getFontSizeOptions(state: SizeState): FontSizeOptions[]
+  getFontSizeValue(state: SizeState): number
+  getFontSizeLabel(state: SizeState): string | undefined
+  getFontSizesValue(state: SizeState): number
+  getFontSizexValue(state: SizeState): number
+  getFontSizelValue(state: SizeState): number
+}
+
+type SizeActions = {
+  setSize(this: any, size: SizeOptions['value']): void
+  setPadding(this: any, padding: PaddingOptions['key']): void
+  setRounded(this: any, rounded: RoundedOptions['key']): void
+  setFontSize(this: any, fontSize: FontSizeOptions['key']): void
+  setCssVariables(this: any): void
+  init(this: any): void
+  reset(this: any): void
+}
+
+export const useSizeStore = defineStore<'size', SizeState, SizeGetters, SizeActions>('size', {
   state: (): SizeState => ({
     size: 'comfortable',
     sizeOptions: [...sizeOptions], // 创建可变副本
@@ -26,6 +88,12 @@ export const useSizeStore = defineStore('size', {
 
     fontSize: 'md',
     fontSizeOptions: [...fontSizeOptions], // 创建可变副本
+
+    // 添加窗口尺寸状态，用于触发 getter 重新计算
+    windowSize: {
+      width: Math.max(375, Math.min(window.innerWidth, 3840)),
+      height: Math.max(667, Math.min(window.innerHeight, 2160)),
+    },
   }),
 
   getters: {
@@ -33,6 +101,9 @@ export const useSizeStore = defineStore('size', {
     currentLayout: (state: SizeState) => {
       try {
         const factory = sizePresetsMap[state.size]
+        // 使用 state.windowSize 来确保 getter 会响应窗口尺寸变化
+        // 通过访问 state.windowSize 来建立响应式依赖
+        const _ = state.windowSize.width + state.windowSize.height
         return factory ? factory() : sizePresetsMap.comfortable()
       } catch (error) {
         console.warn('计算 currentLayout 失败，回退到 comfortable:', error)
@@ -222,20 +293,48 @@ export const useSizeStore = defineStore('size', {
 
     // 获取间距
     getGap(_state: SizeState) {
-      return (this as any).currentLayout.gap as number
+      try {
+        const layout = (this as any).currentLayout
+        const gap = layout?.gap
+        if (gap === undefined || gap === null || isNaN(gap) || !isFinite(gap) || gap < 0) {
+          console.warn('getGap: 无效的 gap 值，使用默认值 16')
+          return 16
+        }
+        return gap as number
+      } catch (error) {
+        console.error('getGap: 获取 gap 失败，使用默认值 16:', error)
+        return 16
+      }
     },
     // 获取间距的一半 = 间距 / 2
     getGaps(_state: SizeState) {
-      return ((this as any).currentLayout.gap / 2) as number
+      try {
+        const gap = (this as any).getGap
+        return (gap / 2) as number
+      } catch (error) {
+        console.error('getGaps: 计算失败，使用默认值 8:', error)
+        return 8
+      }
     },
     // 获取间距的一半多 = 间距 + 间距 / 2
     getGapx(_state: SizeState) {
-      const gap = (this as any).currentLayout.gap
-      return (gap + gap / 2) as number
+      try {
+        const gap = (this as any).getGap
+        return (gap + gap / 2) as number
+      } catch (error) {
+        console.error('getGapx: 计算失败，使用默认值 24:', error)
+        return 24
+      }
     },
     // 获取间距的两倍
     getGapl(_state: SizeState) {
-      return ((this as any).currentLayout.gap * 2) as number
+      try {
+        const gap = (this as any).getGap
+        return (gap * 2) as number
+      } catch (error) {
+        console.error('getGapl: 计算失败，使用默认值 32:', error)
+        return 32
+      }
     },
 
     // padding
@@ -431,21 +530,6 @@ export const useSizeStore = defineStore('size', {
 
     /* 更新 size css 变量 */
     setCssVariables(this: any) {
-      console.log('更新 size css 变量')
-      console.log({
-        sidebarWidth: this.getSidebarWidth,
-        sidebarCollapsedWidth: this.getSidebarCollapsedWidth,
-        headerHeight: this.getHeaderHeight,
-        breadcrumbHeight: this.getBreadcrumbHeight,
-        footerHeight: this.getFooterHeight,
-        tabsHeight: this.getTabsHeight,
-        contentHeight: this.getContentHeight,
-        contentBreadcrumbHeight: this.getContentBreadcrumbHeight,
-        contentTabsHeight: this.getContentTabsHeight,
-        contentsHeight: this.getContentsHeight,
-        contentsBreadcrumbHeight: this.getContentsBreadcrumbHeight,
-        contentsTabsHeight: this.getContentsTabsHeight,
-      })
       const cssVariables: Record<string, string> = {
         [toKebabCase('sidebarWidth', '--')]: this.getSidebarWidth + 'px',
         [toKebabCase('sidebarCollapsedWidth', '--')]: this.getSidebarCollapsedWidth + 'px',
@@ -485,6 +569,11 @@ export const useSizeStore = defineStore('size', {
     init(this: any) {
       this.setSize(this.size)
       on('windowResize', async () => {
+        // 更新窗口尺寸状态，触发 getter 重新计算
+        this.windowSize = {
+          width: Math.max(375, Math.min(window.innerWidth, 3840)),
+          height: Math.max(667, Math.min(window.innerHeight, 2160)),
+        }
         await nextTick()
         this.setCssVariables()
       })
@@ -495,6 +584,11 @@ export const useSizeStore = defineStore('size', {
       this.padding = 'md'
       this.rounded = 'smooth'
       this.sizes = cloneDeep(comfortableSizes)
+      // 重置窗口尺寸状态
+      this.windowSize = {
+        width: Math.max(375, Math.min(window.innerWidth, 3840)),
+        height: Math.max(667, Math.min(window.innerHeight, 2160)),
+      }
       this.setCssVariables()
     },
   },

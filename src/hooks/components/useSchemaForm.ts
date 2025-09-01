@@ -5,80 +5,232 @@
  * - 例如：addField / removeField / updateField / setValues / reset / submitProgrammatic
  */
 
-import type { FieldSchema, Schema } from '@/components/modules/schema-form/utils/types'
-import { reactive, ref } from 'vue'
+import type { Schema, SchemaColumnsItem } from '@/components/modules/schema-form/utils/types'
+import { nextTick, reactive, unref, type Ref } from 'vue'
 
-export function useSchemaForm(initialSchema: Schema, initialValues: Record<string, any> = {}): any {
-  const schema = reactive<Schema>({ ...initialSchema })
-  const values = ref<Record<string, any>>({ ...initialValues })
+export interface SchemaFormExpose {
+  values: Record<string, any>
+  validate: () => Promise<{ valid: boolean; errors: any }>
+  submit: () => void
+  reset: () => void
+  setFieldValue: (field: string, value: any) => void
+  setValues: (newValues: Record<string, any>) => void
+}
 
-  // 引用 PrimeVue Form 实例（可在 SchemaForm.vue 中注入）
-  const formRef = ref<any>(null)
+export interface UseSchemaFormReturn {
+  // 响应式数据
+  schema: Schema
 
-  function setFormRef(f: any) {
-    formRef.value = f
+  // 表单整体操作
+  getFormValues: () => Record<string, any>
+  validateForm: () => Promise<{ valid: boolean; errors: any }>
+  resetForm: () => void
+  clearForm: () => void
+  submitForm: () => void
+
+  // 表单项操作
+  addField: (field: SchemaColumnsItem, index?: number | 'first' | 'last' | null) => boolean
+  removeField: (fieldName: string) => boolean
+  updateField: (fieldName: string, updates: Partial<SchemaColumnsItem>) => boolean
+  getField: (fieldName: string) => SchemaColumnsItem | undefined
+  getFieldValue: (fieldName: string) => any
+  setFieldValue: (fieldName: string, value: any) => void
+  moveField: (fieldName: string, newIndex: number) => boolean
+
+  // 批量操作
+  setValues: (newValues: Record<string, any>) => void
+  getValues: () => Record<string, any>
+
+  // 工具方法
+  hasField: (fieldName: string) => boolean
+  getFieldIndex: (fieldName: string) => number
+}
+
+export const useSchemaForm = (
+  formRef: Ref<SchemaFormExpose | undefined>,
+  initialSchema: Schema
+): UseSchemaFormReturn => {
+  // 响应式 schema 数据 - 使用类型断言避免复杂的类型推断
+  const schema = reactive(initialSchema as any) as Schema
+
+  // 获取表单值
+  const getFormValues = () => {
+    return unref(formRef)?.values || {}
   }
 
-  // field 操作
-  function addField(field: FieldSchema, index?: number) {
-    if (typeof index === 'number') {
-      schema.fields.splice(index, 0, field)
-    } else {
-      schema.fields.push(field)
+  // 验证表单
+  const validateForm = async () => {
+    await nextTick()
+    return unref(formRef)?.validate() || { valid: true, errors: {} }
+  }
+
+  // 重置表单
+  const resetForm = () => {
+    unref(formRef)?.reset()
+  }
+
+  // 清空表单
+  const clearForm = () => {
+    // 通过设置所有字段为空值来清空表单
+    const form = unref(formRef)
+    if (form) {
+      const currentValues = form.values
+      const emptyValues: Record<string, any> = {}
+
+      // 将所有字段设置为空值
+      Object.keys(currentValues).forEach(key => {
+        emptyValues[key] = ''
+      })
+
+      form.setValues(emptyValues)
     }
   }
-  function removeField(name: string) {
-    const idx = schema.fields.findIndex(f => f.name === name)
-    if (idx >= 0) {
-      schema.fields.splice(idx, 1)
-    }
+
+  // 提交表单
+  const submitForm = () => {
+    unref(formRef)?.submit()
   }
-  function updateField(name: string, patch: Partial<FieldSchema>) {
-    const f = schema.fields.find(f => f.name === name)
-    if (f) {
-      Object.assign(f, patch)
+
+  // 添加字段
+  const addField = (
+    field: SchemaColumnsItem,
+    index?: number | 'first' | 'last' | null
+  ): boolean => {
+    try {
+      // 检查字段名是否已存在
+      if (hasField(field.field)) {
+        console.warn(`字段名 "${field.field}" 已存在`)
+        return false
+      }
+
+      let insertIndex: number
+
+      if (typeof index === 'number') {
+        insertIndex = Math.max(0, Math.min(index, schema.columns.length))
+      } else if (index === 'first') {
+        insertIndex = 0
+      } else if (index === 'last') {
+        insertIndex = schema.columns.length
+      } else {
+        insertIndex = schema.columns.length
+      }
+
+      schema.columns.splice(insertIndex, 0, field)
+      return true
+    } catch (error) {
+      console.error('添加字段失败:', error)
+      return false
     }
   }
 
-  // values 操作
-  function setValues(v: Record<string, any>) {
-    values.value = { ...v }
-  }
-  function setValue(key: string, v: any) {
-    values.value[key] = v
-  }
-  function getValue(key: string) {
-    return values.value[key]
-  }
-
-  function reset(initial?: Record<string, any>) {
-    values.value = initial ? { ...initial } : {}
-    // 如果有 Form 实例可调用 reset
-    if (formRef.value && formRef.value.reset) {
-      formRef.value.reset()
+  // 删除字段
+  const removeField = (fieldName: string): boolean => {
+    try {
+      const index = getFieldIndex(fieldName)
+      if (index >= 0) {
+        schema.columns.splice(index, 1)
+        return true
+      }
+      return false
+    } catch (error) {
+      console.error('删除字段失败:', error)
+      return false
     }
   }
 
-  async function submitProgrammatic() {
-    if (!formRef.value) {
-      throw new Error('formRef is not bound')
+  // 更新字段
+  const updateField = (fieldName: string, updates: Partial<SchemaColumnsItem>): boolean => {
+    try {
+      const field = getField(fieldName)
+      if (field) {
+        Object.assign(field, updates)
+        return true
+      }
+      return false
+    } catch (error) {
+      console.error('更新字段失败:', error)
+      return false
     }
-    // PrimeVue Forms 提供 submit 方法
-    const r = await formRef.value.submit?.()
-    return r
+  }
+
+  // 获取字段配置
+  const getField = (fieldName: string): SchemaColumnsItem | undefined => {
+    return schema.columns.find(column => column.field === fieldName)
+  }
+
+  // 获取字段值
+  const getFieldValue = (fieldName: string): any => {
+    const values = getFormValues()
+    return values[fieldName]
+  }
+
+  // 设置字段值
+  const setFieldValue = (fieldName: string, value: any) => {
+    unref(formRef)?.setFieldValue(fieldName, value)
+  }
+
+  // 移动字段
+  const moveField = (fieldName: string, newIndex: number): boolean => {
+    try {
+      const currentIndex = getFieldIndex(fieldName)
+      if (currentIndex >= 0 && newIndex >= 0 && newIndex < schema.columns.length) {
+        const field = schema.columns.splice(currentIndex, 1)[0]
+        schema.columns.splice(newIndex, 0, field)
+        return true
+      }
+      return false
+    } catch (error) {
+      console.error('移动字段失败:', error)
+      return false
+    }
+  }
+
+  // 批量设置值
+  const setValues = (newValues: Record<string, any>) => {
+    unref(formRef)?.setValues(newValues)
+  }
+
+  // 获取所有值
+  const getValues = () => {
+    return getFormValues()
+  }
+
+  // 检查字段是否存在
+  const hasField = (fieldName: string): boolean => {
+    return schema.columns.some(column => column.field === fieldName)
+  }
+
+  // 获取字段索引
+  const getFieldIndex = (fieldName: string): number => {
+    return schema.columns.findIndex(column => column.field === fieldName)
   }
 
   return {
-    schema,
-    values,
-    setFormRef,
+    // 响应式数据
+    schema: schema as Schema,
+
+    // 表单整体操作
+    getFormValues,
+    validateForm,
+    resetForm,
+    clearForm,
+    submitForm,
+
+    // 表单项操作
     addField,
     removeField,
     updateField,
+    getField,
+    getFieldValue,
+    setFieldValue,
+    moveField,
+
+    // 批量操作
     setValues,
-    setValue,
-    getValue,
-    reset,
-    submitProgrammatic,
+    getValues,
+
+    // 工具方法
+    hasField,
+    getFieldIndex,
   }
 }

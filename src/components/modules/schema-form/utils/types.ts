@@ -64,6 +64,21 @@ export interface LayoutConfig {
   labelWidth?: string | number
   /** 是否显示标签 */
   showLabel?: boolean
+  /* label content 之间 间隔 */
+}
+
+// ==================== 样式配置 ====================
+
+/** 样式配置 */
+export interface StyleConfig {
+  /** 自定义 label class */
+  labelClass?: string
+  /** 自定义内容 class */
+  contentClass?: string
+  /** 自定义 label 样式 */
+  labelStyle?: Record<string, string>
+  /** 自定义内容样式 */
+  contentStyle?: Record<string, string>
 }
 
 // ==================== 验证规则 ====================
@@ -100,14 +115,6 @@ export interface SchemaColumnsItem {
   field: string
   /** 标签文本 */
   label?: string
-  /* 自定义 label class */
-  labelClass?: string
-  /* 自定义内容 class */
-  contentClass?: string
-  /** 自定义 label 样式 */
-  labelStyle?: Record<string, string>
-  /** 自定义内容样式 */
-  contentStyle?: Record<string, string>
   /** 组件类型 */
   component: ComponentType
   /** 占位符（提示文本） */
@@ -116,8 +123,6 @@ export interface SchemaColumnsItem {
   defaultValue?: any
   /** 验证规则 */
   rules?: Rule
-  /** 选项列表 */
-  options?: OptionItem[] | ((ctx: EvalCtx) => Promise<OptionItem[]>)
   /** 依赖字段 */
   dependsOn?: string[]
   /** 是否可见（支持函数式） */
@@ -134,6 +139,8 @@ export interface SchemaColumnsItem {
   transform?: TransformConfig
   /** 布局配置（覆盖全局配置） */
   layout?: LayoutConfig
+  /** 样式配置（覆盖全局配置） */
+  style?: StyleConfig
 }
 
 // ==================== 步骤和分组配置 ====================
@@ -158,6 +165,8 @@ export interface Schema {
   columns: SchemaColumnsItem[]
   /** 布局配置（全局布局配置） */
   layout?: LayoutConfig
+  /** 样式配置（全局样式配置） */
+  style?: StyleConfig
   /** 步骤配置 */
   steps?: StepConfig[]
   /** 分组配置 */
@@ -248,3 +257,34 @@ export type ExcludeKeys<T, K extends keyof T> = Omit<T, K>
 
 /** 只包含指定键 */
 export type PickKeys<T, K extends keyof T> = Pick<T, K>
+
+// ==================== 使用示例 ====================
+
+/**
+ * 样式配置使用示例：
+ *
+ * // 全局样式配置
+ * const schema: Schema = {
+ *   columns: [...],
+ *   layout: { cols: 2, gap: 16 },
+ *   style: {
+ *     labelClass: 'text-blue-500 font-bold',
+ *     contentClass: 'border-2 border-gray-300',
+ *     labelStyle: { fontSize: '14px' },
+ *     contentStyle: { padding: '8px' }
+ *   }
+ * }
+ *
+ * // 表单项单独样式配置（优先级更高）
+ * const column: SchemaColumnsItem = {
+ *   field: 'username',
+ *   component: 'InputText',
+ *   label: '用户名',
+ *   style: {
+ *     labelClass: 'text-red-500', // 覆盖全局配置
+ *     contentStyle: { borderColor: 'red' } // 覆盖全局配置
+ *   }
+ * }
+ *
+ * 优先级：表单项样式 > 全局样式 > 默认样式
+ */

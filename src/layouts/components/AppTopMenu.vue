@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { throttle } from '@/common'
+import { useThemeSwitch } from '@/hooks'
 import { t } from '@/locales'
 import { useLayoutStore, useUserStore } from '@/stores'
 import { computed, ref } from 'vue'
+const { toggleThemeWithAnimation, isDark } = useThemeSwitch()
 const userStore = useUserStore()
 const layoutStore = useLayoutStore()
 const isLoggedIn = computed(() => userStore.getIsLogin)
@@ -38,9 +40,11 @@ const toggleMobileMenu = () => {
 </script>
 
 <template lang="pug">
+//- 未登录-登录界面
 template(v-if='!isLoggedIn')
   ThemeSwitch
 template(v-else)
+  //- 全屏布局
   template(v-if='currentLayoutMode === "fullscreen"')
     ThemeSwitch
     LocalesSwitch
@@ -61,13 +65,24 @@ template(v-else)
       )
         .text-ellipsis.fs-appFontSizex(class='icon-line-md:cog-filled')
       //- 移动端
-      .c-card-primary.shadow-none.size-1-1.center(class='md:hidden', @click='toggleMobileMenu')
+      .c-card-primary.shadow-none.size-1-1.center.hidden(
+        class='sm:block md:hidden',
+        @click='toggleMobileMenu'
+      )
         .fs-appFontSizex(class='icon-line-md:grid-3-filled')
       .c-card-primary.shadow-none.size-1-1.center(
         class='md:hidden',
         @click='toggleSetting("mobile", $event)'
       )
         .fs-appFontSizex(class='icon-line-md:cog-filled')
+      .c-card-primary.shadow-none.size-1-1.center(
+        @click='toggleThemeWithAnimation($event)',
+        class='lg:hidden'
+      )
+        template(v-if='isDark')
+          .fs-appFontSizex(class='icon-line-md:moon-twotone-alt-loop')
+        template(v-else)
+          .fs-appFontSizex(class='icon-line-md:sunny-outline-twotone')
 
 //- 桌面端设置面板抽屉
 Drawer(v-model:visible='desktopSettingVisible', position='right', class='w32% lg:w28% xl:w24% xls:w22%')

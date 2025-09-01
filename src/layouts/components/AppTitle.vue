@@ -23,9 +23,9 @@ watch(
 )
 </script>
 <template lang="pug">
-.select-none.h-full.between-start
+.select-none.h-full.between-start.color-primary400
   template(v-if='isCollapsed')
-    AnimateWrapper(:show='flag', enter='fadeInLeft', leave='fadeOutLeft', duration='3s')
+    AnimateWrapper(:show='flag', enter='fadeInLeft', leave='fadeOutLeft', duration='1s')
       .h-full.w-auto.p-padding.center
         Image.full(src='/face.png')
   template(v-else)

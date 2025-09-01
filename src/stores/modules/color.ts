@@ -706,7 +706,7 @@ export const useColorStore = defineStore('color', {
         this.mode = mode
         this.darkMode = mode === 'auto' ? getSystemColorMode() === 'dark' : mode === 'dark'
 
-        document.documentElement.classList.toggle('dark', mode === 'dark')
+        document.documentElement.classList.toggle('dark', this.darkMode)
 
         if (mode === 'auto') {
           this.setupAutoModeListener()

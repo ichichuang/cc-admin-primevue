@@ -59,11 +59,11 @@ export const useUserStore = defineStore('user', {
     async logout() {
       const key = `${env.piniaKeyPrefix}-`
       Object.keys(localStorage).forEach(item => {
+        console.log(item)
         if (item.startsWith(key)) {
           localStorage.removeItem(item)
         }
       })
-      // 重置语言
       window.location.reload()
     },
   },

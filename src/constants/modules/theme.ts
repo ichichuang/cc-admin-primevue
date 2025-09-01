@@ -375,10 +375,10 @@ export interface SizeMaxLimits {
 export const DEFAULT_SIZE_MAX_LIMITS: SizeMaxLimits = {
   sidebarWidth: 380, // 侧边栏最大宽度
   sidebarCollapsedWidth: 80, // 侧边栏折叠最大宽度
-  headerHeight: 68, // 头部最大高度
-  breadcrumbHeight: 60, // 面包屑最大高度
+  headerHeight: 60, // 头部最大高度
+  breadcrumbHeight: 40, // 面包屑最大高度
   footerHeight: 40, // 底部最大高度
-  tabsHeight: 64, // 标签页最大高度
+  tabsHeight: 48, // 标签页最大高度
   gap: 32, // 间距最大值
 }
 

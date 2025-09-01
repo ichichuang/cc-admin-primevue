@@ -7,7 +7,7 @@
  * - colClass：col 配置 -> UnoCSS 类（基于 12 栅格）
  */
 import * as yup from 'yup'
-import type { EvalCtx, FieldSchema, LayoutConfig, OptionItem } from './types'
+import type { EvalCtx, LayoutConfig, OptionItem, SchemaColumnsItem } from './types'
 
 /** 简单内存缓存：Map<key, {expires,data}> */
 const memoryCache = new Map<string, { expires: number; data: OptionItem[] }>()
@@ -89,21 +89,26 @@ export function buildYupFromRuleString(
   return base
 }
 
-/** 将 field.options 加载（支持静态数组或函数），并使用内存缓存 */
-export async function loadOptions(field: FieldSchema, ctx: EvalCtx, cacheTTL = 1000 * 60 * 5) {
-  if (!field.options) {
+/** 将 field.props.options 加载（支持静态数组或函数），并使用内存缓存 */
+export async function loadOptions(
+  field: SchemaColumnsItem,
+  ctx: EvalCtx,
+  cacheTTL = 1000 * 60 * 5
+) {
+  const options = field.props?.options
+  if (!options) {
     return []
   }
-  if (Array.isArray(field.options)) {
-    return field.options
+  if (Array.isArray(options)) {
+    return options
   }
-  // field.options 是函数
-  const cacheKey = `${field.name}:${JSON.stringify(field.dependsOn?.map(k => ctx.values[k] ?? null) ?? [])}`
+  // options 是函数
+  const cacheKey = `${field.field}:${JSON.stringify(field.dependsOn?.map((k: string) => ctx.values[k] ?? null) ?? [])}`
   const cached = cacheGet(cacheKey)
   if (cached) {
     return cached
   }
-  const data = await field.options(ctx)
+  const data = await options(ctx)
   cacheSet(cacheKey, data, cacheTTL)
   return data
 }
@@ -118,21 +123,25 @@ export function colStyle(layout: LayoutConfig, width: number): Record<string, st
   }
 
   // 如果没有配置 cols，则根据容器宽度动态计算
-  if (width < 768) {
-    return { gridColumn: `span 12 / span 12` }
-  } else if (width < 1024) {
-    return { gridColumn: `span 6 / span 6` }
-  } else if (width < 1440) {
-    return { gridColumn: `span 4 / span 4` }
-  } else if (width < 2560) {
-    return { gridColumn: `span 3 / span 3` }
+  // 但确保不会超出12列的限制
+  let span = 12
+  if (width >= 2560) {
+    span = 2
+  } else if (width >= 1920) {
+    span = 3
+  } else if (width >= 1080) {
+    span = 4
+  } else if (width >= 768) {
+    span = 6
   } else {
-    return { gridColumn: `span 2 / span 2` }
+    span = 12
   }
+
+  return { gridColumn: `span ${span} / span ${span}` }
 }
 
 /** 检查字段是否必填 */
-export function isFieldRequired(field: FieldSchema): boolean {
+export function isFieldRequired(field: SchemaColumnsItem): boolean {
   const rules = field.rules
 
   if (!rules) {

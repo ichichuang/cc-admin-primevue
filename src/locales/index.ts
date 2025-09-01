@@ -54,31 +54,8 @@ const messages: Record<SupportedLocale, LocaleMessages> = {
   ['zh-TW']: zhTW,
 }
 
-// 获取默认语言
+// 获取默认语言（框架默认中文）
 function getDefaultLocale(): SupportedLocale {
-  // 1. 从localStorage获取用户设置
-  const savedLocale = localStorage.getItem('cc-admin-locale') as SupportedLocale
-  if (savedLocale && messages[savedLocale]) {
-    return savedLocale
-  }
-
-  // 2. 从浏览器语言检测
-  const browserLang = navigator.language.toLowerCase()
-
-  // 中文检测
-  if (browserLang.includes('zh')) {
-    if (browserLang.includes('tw') || browserLang.includes('hk') || browserLang.includes('hant')) {
-      return 'zh-TW'
-    }
-    return 'zh-CN'
-  }
-
-  // 英文检测
-  if (browserLang.includes('en')) {
-    return 'en-US'
-  }
-
-  // 3. 默认中文
   return 'zh-CN'
 }
 
@@ -109,7 +86,6 @@ export function getCurrentLocale(): SupportedLocale {
 export function setLocale(locale: SupportedLocale) {
   if (messages[locale]) {
     ;(i18n.global.locale as any).value = locale
-    localStorage.setItem('cc-admin-locale', locale)
 
     // 更新HTML lang属性
     document.documentElement.lang = locale

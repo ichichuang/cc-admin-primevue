@@ -265,7 +265,7 @@ onUnmounted(() => {
 })
 </script>
 <template lang="pug">
-.full.py-padding(class='md:block', :class='{ "px-padding": !isCollapsed }')
+.full.pb-footerHeight.hidden(class='md:block', :class='{ "px-padding": !isCollapsed }')
   DesktopSidebar(:items='items', :components-props='componentsProps')
 .full(class='md:hidden')
   MobileSidebar(:items='items', :components-props='componentsProps')

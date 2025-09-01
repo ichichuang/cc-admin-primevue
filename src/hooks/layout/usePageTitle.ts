@@ -2,16 +2,14 @@
  * 页面标题管理的Composable函数
  */
 import { t } from '@/locales'
-import { useAppStoreWithOut } from '@/stores'
 import { computed, watch } from 'vue'
 import type { Router } from 'vue-router'
 import { useRoute } from 'vue-router'
 
 export function usePageTitle(_router?: Router) {
   const route = useRoute()
-  const appStore = useAppStoreWithOut()
   const env = import.meta.env
-  const appTitle = env.VITE_APP_TITLE || appStore.getTitle
+  const appTitle = env.VITE_APP_TITLE
 
   /**
    * 获取路由页面标题（支持多语言）
@@ -66,7 +64,7 @@ export function usePageTitle(_router?: Router) {
    * 监听应用标题变化
    */
   watch(
-    () => appStore.getTitle,
+    () => env.VITE_APP_TITLE,
     () => {
       updatePageTitle()
     }

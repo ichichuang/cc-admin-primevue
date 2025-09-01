@@ -4,7 +4,7 @@
  */
 
 export { default as DefaultRenderer } from './DefaultRenderer.vue'
-export { default as FormActions } from './FormActions.vue'
+// FormActions 已删除，现在由用户自定义按钮
 export { default as SchemaFormItem } from './FormItems'
 export { default as SectionsRenderer } from './SectionsRenderer.vue'
 export { default as StepNavigation } from './StepNavigation.vue'

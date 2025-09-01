@@ -11,7 +11,8 @@ interface LocaleState {
 
 export const useLocaleStore = defineStore('locale', {
   state: (): LocaleState => ({
-    locale: getCurrentLocale(),
+    // 默认语言固定为中文
+    locale: 'zh-CN',
     loading: false,
   }),
 
@@ -59,15 +60,11 @@ export const useLocaleStore = defineStore('locale', {
       }
     },
 
-    // 初始化语言
+    // 初始化语言：根据 store 的值应用到 i18n
     initLocale() {
-      const current = getCurrentLocale()
-      this.locale = current
-
-      // 确保HTML属性设置正确
-      document.documentElement.lang = current
-      const localeInfo = supportedLocales.find(item => item.key === current)
-      document.documentElement.dir = localeInfo?.direction || 'ltr'
+      const target = this.locale || 'zh-CN'
+      setLocale(target)
+      this.locale = getCurrentLocale()
     },
 
     // 获取语言信息
