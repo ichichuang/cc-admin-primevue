@@ -134,9 +134,8 @@ const processMenuTree = (menuItems: any[]): MenuItem[] => {
                   command: () => {
                     try {
                       if (item.name) {
-                        const parent = item.meta?.parent || 'admin'
-                        const shouldOpenNewWindow = parent === 'screen' || parent === 'fullscreen'
-                        goToRoute(item.name, undefined, shouldOpenNewWindow)
+                        // 支持外链：goToRoute 内部将根据 isLink/linkUrl 处理
+                        goToRoute(item.name)
                       }
                     } catch (error) {
                       console.warn('AppSidebar: 菜单项点击处理失败', error)
@@ -265,8 +264,8 @@ onUnmounted(() => {
 })
 </script>
 <template lang="pug">
-.full.pb-footerHeight.hidden(class='md:block', :class='{ "px-padding": !isCollapsed }')
+.full.pb-footerHeight.hidden.z-999(class='md:block', :class='{ "px-padding": !isCollapsed }')
   DesktopSidebar(:items='items', :components-props='componentsProps')
-.full(class='md:hidden')
+.full.z-999(class='md:hidden')
   MobileSidebar(:items='items', :components-props='componentsProps')
 </template>

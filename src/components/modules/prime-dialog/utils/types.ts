@@ -140,7 +140,7 @@ export interface DialogOptions extends Partial<PrimeDialogProps> {
   openDelay?: number
   /** 对话框关闭的延时时间，单位毫秒 */
   closeDelay?: number
-  /** 是否可以通过点击遮罩关闭对话框 */
+  /** 是否可以通过按下 ESC 键关闭对话框 */
   closeOnEscape?: boolean
   /** 是否可以通过点击遮罩关闭对话框 */
   closeOnMask?: boolean
@@ -156,6 +156,10 @@ export interface DialogOptions extends Partial<PrimeDialogProps> {
   props?: any
   /** 是否隐藏对话框按钮操作区的内容 */
   hideFooter?: boolean
+  /** 是否隐藏对话框头部（包括头部内容和关闭按钮） */
+  hideHeader?: boolean
+  /** 是否隐藏关闭按钮 */
+  hideClose?: boolean
   /** 确认对话框相关配置 */
   confirmOptions?: ConfirmOptions
   /** 点击确定按钮后是否开启 loading 加载动画 */

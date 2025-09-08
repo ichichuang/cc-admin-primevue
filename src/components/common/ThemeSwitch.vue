@@ -21,7 +21,10 @@ const contentClass = computed(() => {
 
 <template lang="pug">
 // 主题切换开关
-.c-border.rounded-full.c-transitions.gap-3.p-3(@click='handleClick', :class='contentClass')
+.c-border.bg-bg100.rounded-full.c-transitions.gap-3.p-3(
+  @click='handleClick',
+  :class='contentClass'
+)
   .w-appFontSizex.h-appFontSizex.center.rounded-full.c-transitions.relative.z-2.p-3.box-content.c-cp
     .w-appFontSize.h-appFontSize(
       class='icon-line-md:sunny-outline-twotone',
@@ -37,7 +40,7 @@ const contentClass = computed(() => {
   .w-appFontSizex.h-appFontSizex.center.rounded-full.c-transitions.relative.z-2.p-3.box-content.c-cp
     .w-appFontSize.h-appFontSize(class='icon-line-md:monitor', :class='{ "bg-accent100": mode === "auto" }')
 
-  .w-appFontSizex.h-appFontSizex.center.rounded-full.c-transition.active-blob.absolute.p-3.box-content
+  .w-appFontSizex.h-appFontSizex.center.rounded-full.c-transitions.active-blob.absolute.p-3.box-content
 </template>
 <style scoped lang="scss">
 .active-blob {

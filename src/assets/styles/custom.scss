@@ -47,24 +47,3 @@ html {
 .size-4-3 {
   aspect-ratio: 4/3;
 }
-
-// 滚动容器
-.custom-scrollbar-wrapper {
-  .scrollbar__wrapper {
-    .scrollbar__scroller {
-      // overflow: visible;
-      .scrollbar__content {
-        min-height: 100%;
-      }
-    }
-    .scrollbar__thumbPlaceholder {
-      &,
-      * {
-        transition:
-          all 0.8s,
-          transform 0.2s !important;
-        transition-timing-function: linear;
-      }
-    }
-  }
-}

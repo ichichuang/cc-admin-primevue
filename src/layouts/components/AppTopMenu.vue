@@ -45,11 +45,21 @@ template(v-if='!isLoggedIn')
   ThemeSwitch
 template(v-else)
   //- 全屏布局
-  template(v-if='currentLayoutMode === "fullscreen"')
-    ThemeSwitch
-    LocalesSwitch
+  template(v-if='currentLayoutMode === "ratio"')
+  template(v-else-if='currentLayoutMode === "fullscreen"')
+    .c-card-primary.shadow-none.size-1-1.center(@click='toggleThemeWithAnimation($event)')
+      template(v-if='isDark')
+        .fs-appFontSizex(class='icon-line-md:moon-twotone-alt-loop')
+      template(v-else)
+        .fs-appFontSizex(class='icon-line-md:sunny-outline-twotone')
     ColorSwitch.fixed.b-gapl.r-gapl
-  template(v-else)
+  template(v-else-if='currentLayoutMode === "screen"')
+    .c-card-primary.shadow-none.size-1-1.center(@click='toggleThemeWithAnimation($event)')
+      template(v-if='isDark')
+        .fs-appFontSizex(class='icon-line-md:moon-twotone-alt-loop')
+      template(v-else)
+        .fs-appFontSizex(class='icon-line-md:sunny-outline-twotone')
+  template(v-else-if='currentLayoutMode === "admin"')
     .between.gap-gap(class='h100%')
       //- 桌面端
       .hidden.c-card-primary.shadow-none.size-1-1.center(
@@ -75,10 +85,7 @@ template(v-else)
         @click='toggleSetting("mobile", $event)'
       )
         .fs-appFontSizex(class='icon-line-md:cog-filled')
-      .c-card-primary.shadow-none.size-1-1.center(
-        @click='toggleThemeWithAnimation($event)',
-        class='lg:hidden'
-      )
+      .c-card-primary.shadow-none.size-1-1.center(@click='toggleThemeWithAnimation($event)')
         template(v-if='isDark')
           .fs-appFontSizex(class='icon-line-md:moon-twotone-alt-loop')
         template(v-else)

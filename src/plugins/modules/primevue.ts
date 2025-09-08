@@ -1,10 +1,12 @@
 import { createCustomPreset, customPreset } from '@/constants'
+import { getCurrentLocale, i18n } from '@/locales'
 import { useColorStore, useSizeStore } from '@/stores'
 import { definePreset, usePreset } from '@primevue/themes'
 import Aura from '@primevue/themes/aura'
 import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
 import DialogService from 'primevue/dialogservice'
+import ToastService from 'primevue/toastservice'
 import { watch, type App } from 'vue'
 
 /**
@@ -89,6 +91,13 @@ export function setupPrimeVue(app: App, config: Partial<PrimeVueConfig> = {}) {
   // 创建动态主题预设
   const dynamicPreset = createPrimeVuePreset(colorStore, sizeStore)
 
+  // 获取当前语言的 PrimeVue locale 配置
+  const getPrimeVueLocale = () => {
+    const currentLocale = getCurrentLocale()
+    const messages = i18n.global.getLocaleMessage(currentLocale)
+    return messages?.primevue || {}
+  }
+
   // 设置 PrimeVue
   app.use(PrimeVue, {
     theme: {
@@ -99,11 +108,30 @@ export function setupPrimeVue(app: App, config: Partial<PrimeVueConfig> = {}) {
         cssLayer: finalConfig.cssLayer,
       },
     },
+    // 初始化时设置 locale
+    locale: getPrimeVueLocale(),
   })
 
   // 注册 PrimeVue 服务
   app.use(ConfirmationService)
   app.use(DialogService)
+  app.use(ToastService)
+
+  // 监听语言变化，动态更新 PrimeVue locale
+  watch(
+    () => (i18n.global.locale as any).value,
+    newLocale => {
+      const messages = i18n.global.getLocaleMessage(newLocale)
+      if (messages?.primevue) {
+        // 使用 usePrimeVue 动态更新 locale
+        const primeVueInstance = app.config.globalProperties.$primevue
+        if (primeVueInstance?.config?.locale) {
+          Object.assign(primeVueInstance.config.locale, messages.primevue)
+        }
+      }
+    },
+    { immediate: false }
+  )
 
   watch([colorStore, sizeStore], () => {
     updatePrimeVueTheme(colorStore, sizeStore)

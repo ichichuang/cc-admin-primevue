@@ -2,6 +2,7 @@
 import '@/assets/styles/custom.scss'
 import '@/assets/styles/reset.scss'
 import 'animate.css'
+import 'overlayscrollbars/overlayscrollbars.css'
 import 'uno.css'
 
 // 导入应用

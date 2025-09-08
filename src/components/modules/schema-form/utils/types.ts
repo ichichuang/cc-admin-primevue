@@ -17,16 +17,10 @@ export type ComponentType =
   | 'ColorPicker' // 颜色选择器组件
   | 'DatePicker' // 日期选择器组件
   | 'Editor' // 富文本编辑器组件
-  | 'FloatLabel' // 浮动标签组件
-  | 'IconField' // 图标字段组件
-  | 'IftaLabel' // 输入标签组件
   | 'InputGroup' // 输入组组件
   | 'InputMask' // 输入掩码组件
   | 'InputNumber' // 数字输入组件
-  | 'InputOtp' // OTP 输入组件
   | 'InputText' // 文本输入组件
-  // | 'KeyFilter' // 键过滤组件
-  | 'Knob' // 旋钮输入组件
   | 'Listbox' // 列表框组件
   | 'MultiSelect' // 多选组件
   | 'Password' // 密码输入组件
@@ -39,6 +33,7 @@ export type ComponentType =
   | 'ToggleButton' // 切换按钮组件
   | 'ToggleSwitch' // 切换开关组件
   | 'TreeSelect' // 树形选择组件
+  | 'Custom' // 自定义渲染组件
 
 // ==================== 布局配置 ====================
 
@@ -46,8 +41,6 @@ export type ComponentType =
 export interface LayoutConfig {
   /** 表单项栅格列数 */
   cols?: number
-  /** 表单项栅格间距 */
-  gap?: number
   /** 表单项标签对齐方式（内容左侧 | 内容右侧 | 内容顶部） */
   labelAlign?: 'left' | 'right' | 'top'
   /** 表单项标签位置 */
@@ -64,7 +57,6 @@ export interface LayoutConfig {
   labelWidth?: string | number
   /** 是否显示标签 */
   showLabel?: boolean
-  /* label content 之间 间隔 */
 }
 
 // ==================== 样式配置 ====================
@@ -141,6 +133,12 @@ export interface SchemaColumnsItem {
   layout?: LayoutConfig
   /** 样式配置（覆盖全局配置） */
   style?: StyleConfig
+  /* 表单项是否隐藏（默认 false） */
+  hidden?: boolean
+  /* 表单项隐藏后，是否可以获取到值（默认 false） */
+  hideValue?: boolean
+  /* 表单项隐藏后，是否保留原来的栅格位置（默认 false） */
+  hideBlock?: boolean
 }
 
 // ==================== 步骤和分组配置 ====================
@@ -171,6 +169,10 @@ export interface Schema {
   steps?: StepConfig[]
   /** 分组配置 */
   sections?: SectionConfig[]
+  /** 表单项栅格间距 */
+  gap?: number
+  gapX?: number
+  gapY?: number
 }
 
 // ==================== 上下文类型 ====================

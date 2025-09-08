@@ -126,6 +126,7 @@ watch(
 <template lang="pug">
 .ratio-wrapper(ref='wrapperRef', :style='{ position: "relative", width: "100%", height: "100%" }')
   .ratio-box(ref='ratioRef', :style='boxStyle')
-    AminateRouterView.container
+    //- AppContainer
+    AnimateRouterView
 </template>
 <style lang="scss" scoped></style>

@@ -117,6 +117,19 @@ export const goToRoute = (
   }
   const targetRoute = targetRoutes[0]
 
+  // 外链处理：优先根据 meta.isLink/linkUrl 处理
+  const isLink = targetRoute?.meta?.isLink === true
+  const linkUrl = targetRoute?.meta?.linkUrl as string | undefined
+  if (isLink) {
+    const url = linkUrl || targetRoute.path
+    try {
+      window.open(url, '_blank')
+    } catch {
+      console.warn('外链打开失败：', url)
+    }
+    return
+  }
+
   // 权限检查（如需集成可在此处）
   if (checkPermission) {
     // ...
@@ -127,7 +140,7 @@ export const goToRoute = (
   // 2. 如果未指定，则根据路由的 parent 属性自动判断
   let shouldOpenNewWindow = newWindow
 
-  if (newWindow === undefined) {
+  if (!newWindow) {
     // 获取路由的 parent 属性，默认为 'admin'
     const parent = (targetRoute.meta?.parent as LayoutMode) || 'admin'
 

@@ -8,7 +8,7 @@
         type="button"
         @click="$emit('step-change', index)"
         :class="[
-          'px-3 py-1 rounded-full transition-colors',
+          'px-3 py-1 rounded-full',
           index === activeStep
             ? 'bg-primary text-white'
             : 'border border-gray-300 hover:bg-gray-50',

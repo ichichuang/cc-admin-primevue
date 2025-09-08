@@ -16,12 +16,14 @@ import { h } from 'vue'
  * 对话框操作 Hook
  * 提供便捷的对话框操作方法
  */
-export function useDialog(): any {
+export function useDialog() {
   /**
    * 打开标准对话框
+   * @returns 返回对话框索引，用于后续操作
    */
-  const openDialog = (options: DialogOptions) => {
+  const openDialog = (options: DialogOptions): number => {
     addDialog(options)
+    return dialogStore.value.length - 1
   }
 
   /**
@@ -33,6 +35,7 @@ export function useDialog(): any {
 
   /**
    * 打开动态对话框
+   * @returns 返回对话框索引，用于后续操作
    */
   const openDynamic = (
     component: any,
@@ -41,16 +44,42 @@ export function useDialog(): any {
     listeners?: any,
     style?: any,
     className?: string
-  ) => {
+  ): number => {
     addDynamicDialog(component, props, data, listeners, style, className)
+    return dialogStore.value.length - 1
   }
 
   /**
-   * 关闭指定对话框
+   * 关闭指定索引的对话框
+   * @param index 对话框索引
+   * @param args 关闭参数
    */
   const closeDialogByIndex = (index: number, args?: any) => {
     if (dialogStore.value[index]) {
-      ;(closeDialog as any)(dialogStore.value[index], index, args)
+      closeDialog(dialogStore.value[index], index, args)
+    }
+  }
+
+  /**
+   * 关闭指定对话框（通过对话框对象）
+   * @param dialog 对话框对象
+   * @param args 关闭参数
+   */
+  const closeDialogByObject = (dialog: DialogOptions, args?: any) => {
+    const index = dialogStore.value.findIndex((item: DialogOptions) => item === dialog)
+    if (index !== -1) {
+      closeDialog(dialog, index, args)
+    }
+  }
+
+  /**
+   * 关闭最后一个打开的对话框
+   * @param args 关闭参数
+   */
+  const closeLastDialog = (args?: any) => {
+    if (dialogStore.value.length > 0) {
+      const lastIndex = dialogStore.value.length - 1
+      closeDialog(dialogStore.value[lastIndex], lastIndex, args)
     }
   }
 
@@ -63,18 +92,38 @@ export function useDialog(): any {
 
   /**
    * 更新对话框属性
+   * @param value 新值
+   * @param key 属性键
+   * @param index 对话框索引
    */
   const update = (value: any, key = 'header', index = 0) => {
     updateDialog(value, key, index)
   }
 
   /**
-   * 快速打开信息对话框
+   * 获取当前打开的对话框数量
    */
-  const info = (message: string, title = '提示', callback?: () => void) => {
-    const dialogIndex = dialogStore.value.length
-    openDialog({
+  const getDialogCount = (): number => {
+    return dialogStore.value.length
+  }
+
+  /**
+   * 检查指定索引的对话框是否存在
+   * @param index 对话框索引
+   */
+  const isDialogExists = (index: number): boolean => {
+    return index >= 0 && index < dialogStore.value.length
+  }
+
+  /**
+   * 快速打开信息对话框
+   * @returns 返回对话框索引
+   */
+  const info = (message: string, title = '提示', options?: Partial<DialogOptions>): number => {
+    const dialogIndex = openDialog({
       header: title,
+      hideHeader: false,
+      ...options,
       contentRenderer: () => h('div', { class: 'text-center py-4' }, message),
       footerButtons: [
         {
@@ -83,20 +132,22 @@ export function useDialog(): any {
           text: true,
           btnClick: () => {
             closeDialogByIndex(dialogIndex, { command: 'sure' })
-            callback?.()
           },
         },
       ],
     })
+    return dialogIndex
   }
 
   /**
    * 快速打开成功对话框
+   * @returns 返回对话框索引
    */
-  const success = (message: string, title = '成功', callback?: () => void) => {
-    const dialogIndex = dialogStore.value.length
-    openDialog({
+  const success = (message: string, title = '成功', options?: Partial<DialogOptions>): number => {
+    const dialogIndex = openDialog({
       header: title,
+      hideHeader: false,
+      ...options,
       contentRenderer: () => h('div', { class: 'text-center py-4 text-green-600' }, message),
       footerButtons: [
         {
@@ -105,20 +156,22 @@ export function useDialog(): any {
           text: true,
           btnClick: () => {
             closeDialogByIndex(dialogIndex, { command: 'sure' })
-            callback?.()
           },
         },
       ],
     })
+    return dialogIndex
   }
 
   /**
    * 快速打开警告对话框
+   * @returns 返回对话框索引
    */
-  const warning = (message: string, title = '警告', callback?: () => void) => {
-    const dialogIndex = dialogStore.value.length
-    openDialog({
+  const warning = (message: string, title = '警告', options?: Partial<DialogOptions>): number => {
+    const dialogIndex = openDialog({
       header: title,
+      hideHeader: false,
+      ...options,
       contentRenderer: () => h('div', { class: 'text-center py-4 text-orange-600' }, message),
       footerButtons: [
         {
@@ -127,20 +180,22 @@ export function useDialog(): any {
           text: true,
           btnClick: () => {
             closeDialogByIndex(dialogIndex, { command: 'sure' })
-            callback?.()
           },
         },
       ],
     })
+    return dialogIndex
   }
 
   /**
    * 快速打开错误对话框
+   * @returns 返回对话框索引
    */
-  const error = (message: string, title = '错误', callback?: () => void) => {
-    const dialogIndex = dialogStore.value.length
-    openDialog({
+  const error = (message: string, title = '错误', options?: Partial<DialogOptions>): number => {
+    const dialogIndex = openDialog({
       header: title,
+      hideHeader: false,
+      ...options,
       contentRenderer: () => h('div', { class: 'text-center py-4 text-red-600' }, message),
       footerButtons: [
         {
@@ -149,11 +204,11 @@ export function useDialog(): any {
           text: true,
           btnClick: () => {
             closeDialogByIndex(dialogIndex, { command: 'sure' })
-            callback?.()
           },
         },
       ],
     })
+    return dialogIndex
   }
 
   /**
@@ -162,24 +217,34 @@ export function useDialog(): any {
   const confirm = (
     message: string,
     title = '确认',
-    onConfirm?: () => void,
-    onCancel?: () => void
+    options?: Partial<DialogOptions> & { onConfirm?: () => void; onCancel?: () => void }
   ) => {
-    openConfirm(
-      {
-        header: title,
-        message,
-        acceptLabel: '确定',
-        rejectLabel: '取消',
-      },
-      (result: boolean) => {
-        if (result) {
-          onConfirm?.()
-        } else {
-          onCancel?.()
-        }
-      }
-    )
+    const dialogIndex = openDialog({
+      header: title,
+      hideHeader: false,
+      ...options,
+      contentRenderer: () => h('div', { class: 'text-center py-4' }, message),
+      footerButtons: [
+        {
+          label: '取消',
+          severity: 'secondary',
+          text: true,
+          btnClick: () => {
+            closeDialogByIndex(dialogIndex, { command: 'cancel' })
+            options?.onCancel?.()
+          },
+        },
+        {
+          label: '确定',
+          severity: 'primary',
+          text: true,
+          btnClick: () => {
+            closeDialogByIndex(dialogIndex, { command: 'sure' })
+            options?.onConfirm?.()
+          },
+        },
+      ],
+    })
   }
 
   /**
@@ -188,25 +253,34 @@ export function useDialog(): any {
   const confirmDelete = (
     message = '确定要删除吗？',
     title = '删除确认',
-    onConfirm?: () => void,
-    onCancel?: () => void
+    options?: Partial<DialogOptions> & { onConfirm?: () => void; onCancel?: () => void }
   ) => {
-    openConfirm(
-      {
-        header: title,
-        message,
-        acceptLabel: '删除',
-        rejectLabel: '取消',
-        acceptClass: 'p-button-danger',
-      },
-      (result: boolean) => {
-        if (result) {
-          onConfirm?.()
-        } else {
-          onCancel?.()
-        }
-      }
-    )
+    const dialogIndex = openDialog({
+      header: title,
+      hideHeader: false,
+      ...options,
+      contentRenderer: () => h('div', { class: 'text-center py-4 text-red-600' }, message),
+      footerButtons: [
+        {
+          label: '取消',
+          severity: 'secondary',
+          text: true,
+          btnClick: () => {
+            closeDialogByIndex(dialogIndex, { command: 'cancel' })
+            options?.onCancel?.()
+          },
+        },
+        {
+          label: '删除',
+          severity: 'danger',
+          text: true,
+          btnClick: () => {
+            closeDialogByIndex(dialogIndex, { command: 'sure' })
+            options?.onConfirm?.()
+          },
+        },
+      ],
+    })
   }
 
   return {
@@ -217,10 +291,16 @@ export function useDialog(): any {
     openDialog,
     openConfirm,
     openDynamic,
-    closeDialog: closeDialogByIndex,
+    closeDialog: closeDialogByIndex, // 保持向后兼容
     closeDialogByIndex,
+    closeDialogByObject,
+    closeLastDialog,
     closeAll,
     update,
+
+    // 工具方法
+    getDialogCount,
+    isDialogExists,
 
     // 便捷方法
     info,

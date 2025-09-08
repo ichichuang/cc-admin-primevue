@@ -9,6 +9,11 @@ const homeRoutes: RouteConfig[] = [
       roles: ['admin', 'user'],
       icon: 'icon-line-md:speed-twotone',
       fixedTag: true, // 固定标签，不可拖拽和删除
+      transition: {
+        name: 'fade',
+        enterTransition: 'animate__animated animate__fadeIn enter-active-class',
+        leaveTransition: 'animate__animated animate__fadeOut leave-active-class',
+      },
     },
   },
 ]

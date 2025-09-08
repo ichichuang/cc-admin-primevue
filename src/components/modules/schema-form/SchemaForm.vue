@@ -22,7 +22,7 @@
       <!-- Grid Container -->
       <div
         :class="['grid', `grid-cols-12`]"
-        :style="{ gap: `${mergedLayout.gap}px` }"
+        :style="gridGapStyle"
       >
         <!-- Render Fields Based on Schema Type -->
         <template v-if="schema.sections && !schema.steps">
@@ -110,6 +110,8 @@ import type {
 const sizeStore = useSizeStore()
 const formContainerRef = ref<HTMLElement | null>(null)
 let formApiRef: any = null
+// 对外提供的稳定响应式表单值引用
+const valuesRef = ref<Record<string, any>>({})
 
 // ==================== Props & Emits ====================
 
@@ -154,14 +156,26 @@ watch(
 /** 监听表单值变化，同步到 modelValue */
 let lastValues: Record<string, any> = {}
 function syncToModelValue(values: Record<string, any>) {
+  const safeValues = values && typeof values === 'object' ? values : {}
   // 只有当值真正改变时才触发事件
-  if (JSON.stringify(values) !== JSON.stringify(lastValues)) {
-    lastValues = { ...values }
-    emit('updateModelValue', { ...values })
+  if (JSON.stringify(safeValues) !== JSON.stringify(lastValues)) {
+    lastValues = { ...safeValues }
+    emit('updateModelValue', { ...safeValues })
+    // 同步给对外暴露的响应式引用（根据 hideValue 属性决定是否包含隐藏字段）
+    const filtered: Record<string, any> = {}
+    for (const column of props.schema.columns) {
+      // 如果字段被隐藏且 hideValue 为 false，则跳过该字段
+      if (column.hidden === true && column.hideValue !== true) {
+        continue
+      }
+      filtered[column.field] = (safeValues as any)[column.field]
+    }
+    valuesRef.value = filtered
   }
 }
 const containerWidth = ref(0)
 let resizeObserver: ResizeObserver | null = null
+let valuesSyncTimer: number | null = null
 
 // ==================== Computed ====================
 
@@ -183,9 +197,6 @@ const mergedLayout = computed((): LayoutConfig => {
   if (layout?.showLabel === undefined) {
     layout.showLabel = true
   }
-  if (!layout?.gap) {
-    layout.gap = sizeStore.getGap
-  }
   return layout
 })
 
@@ -195,6 +206,28 @@ const mergedStyle = computed((): StyleConfig => {
 })
 
 // ==================== Methods ====================
+
+/** 基于 schema.gap/gapX/gapY 生成网格间距样式 */
+const gridGapStyle = computed((): Record<string, string> => {
+  const style: Record<string, string> = {}
+  const gapX = (props.schema as any).gapX
+  const gapY = (props.schema as any).gapY
+  const gap = props.schema.gap ?? sizeStore.getGap
+
+  // 若传入 gapX 或 gapY，则优先使用它们；否则使用 gap 默认值
+  if (gapX !== undefined || gapY !== undefined) {
+    if (gapY !== undefined) {
+      style.rowGap = `${gapY}px`
+    }
+    if (gapX !== undefined) {
+      style.columnGap = `${gapX}px`
+    }
+  } else if (gap !== undefined) {
+    style.gap = `${gap}px`
+  }
+
+  return style
+})
 
 /** 构建初始值 */
 function buildInitialValues(): Record<string, any> {
@@ -301,6 +334,64 @@ onMounted(() => {
     setupResizeObserver()
     // 初始设置容器宽度
     updateContainerWidth()
+    // 初始化对外暴露的 valuesRef，避免外部首次读取为空 {}
+    try {
+      // 优先从当前表单 API 获取实时值；若不可用，则退回到初始值构建
+      const initial = formApiRef
+        ? ((): Record<string, any> => {
+            const result: Record<string, any> = {}
+            for (const column of props.schema.columns) {
+              const key = column.field
+              const source = formApiRef[key]
+              if (source && typeof source === 'object' && 'value' in source) {
+                result[key] = source.value
+              } else if (key in formApiRef) {
+                result[key] = formApiRef[key]
+              } else {
+                // 使用 buildInitialValues 的结果作为兜底
+                const fallback = buildInitialValues()
+                result[key] = (fallback as any)[key]
+              }
+            }
+            return result
+          })()
+        : buildInitialValues()
+      valuesRef.value = initial
+    } catch (_err) {
+      // 忽略初始化异常：在极早阶段 formApiRef 可能尚未就绪
+      // 轻量兜底，保持为对象引用
+      valuesRef.value = { ...(valuesRef.value || {}) }
+    }
+
+    // 启动定时同步，确保在复杂控件/外部受控场景下也能实时更新
+    if (valuesSyncTimer) {
+      window.clearInterval(valuesSyncTimer)
+      valuesSyncTimer = null
+    }
+    valuesSyncTimer = window.setInterval(() => {
+      try {
+        if (!formApiRef) {
+          return
+        }
+        const latest: Record<string, any> = {}
+        for (const column of props.schema.columns) {
+          const key = column.field
+          const source = formApiRef[key]
+          if (source && typeof source === 'object' && 'value' in source) {
+            latest[key] = source.value
+          } else if (key in formApiRef) {
+            latest[key] = formApiRef[key]
+          } else {
+            latest[key] = undefined
+          }
+        }
+        if (JSON.stringify(latest) !== JSON.stringify(valuesRef.value)) {
+          valuesRef.value = { ...latest }
+        }
+      } catch (_e) {
+        // 忽略单次同步异常
+      }
+    }, 200)
   })
 })
 
@@ -308,6 +399,10 @@ onUnmounted(() => {
   if (resizeObserver) {
     resizeObserver.disconnect()
     resizeObserver = null
+  }
+  if (valuesSyncTimer) {
+    window.clearInterval(valuesSyncTimer)
+    valuesSyncTimer = null
   }
   // 移除窗口大小变化监听
   window.removeEventListener('resize', updateContainerWidth)
@@ -327,6 +422,11 @@ function buildValidationResolver() {
     const errors: Record<string, Array<{ message: string }>> = {}
 
     for (const column of props.schema.columns) {
+      // 跳过完全不渲染的隐藏字段的验证
+      if (column.hidden === true && column.hideValue !== true) {
+        continue
+      }
+
       if (!column.rules) {
         continue
       }
@@ -483,9 +583,14 @@ async function onValidSubmit(event: { values: Record<string, any>; valid: boolea
     return
   }
 
-  // 字段输出转换
+  // 字段输出转换（根据 hideValue 属性决定是否包含隐藏字段）
   const transformedValues: Record<string, any> = {}
   for (const column of props.schema.columns) {
+    // 如果字段被隐藏且 hideValue 为 false，则跳过该字段
+    if (column.hidden === true && column.hideValue !== true) {
+      continue
+    }
+
     const rawValue = values[column.field]
     transformedValues[column.field] = column.transform?.output
       ? column.transform.output(rawValue, { values, column })
@@ -531,6 +636,11 @@ async function validateStepFields(
 ): Promise<boolean> {
   for (const fieldName of fieldNames) {
     const column = columnByField(fieldName)
+    // 跳过完全不渲染的隐藏字段的验证
+    if (column?.hidden === true && column?.hideValue !== true) {
+      continue
+    }
+
     if (column?.rules) {
       const value = values[fieldName]
       const error = validateField(column, value, values)
@@ -546,65 +656,73 @@ async function validateStepFields(
 
 // =============== Expose API ===============
 defineExpose({
+  /** 响应式表单值（推荐外部监听它） */
+  valuesRef,
   /** 获取当前值 */
   get values() {
     if (formApiRef) {
-      // PrimeVue Form 的 $form 对象直接包含字段值
-      // 过滤掉函数和方法，只保留字段值
+      // 根据 hideValue 属性决定是否包含隐藏字段的值
       const fieldValues: Record<string, any> = {}
-      Object.keys(formApiRef).forEach(key => {
-        // 跳过函数和方法
-        if (typeof formApiRef[key] !== 'function' && key !== 'valid' && key !== 'errors') {
-          // 检查是否是响应式对象（Proxy）
-          if (
-            formApiRef[key] &&
-            typeof formApiRef[key] === 'object' &&
-            'value' in formApiRef[key]
-          ) {
-            const value = formApiRef[key].value
-
-            // 特殊处理 InputOtp 组件
-            if (key === 'inputOtp') {
-              // 尝试直接访问 InputOtp 组件的实例
-              const inputOtpElement = formContainerRef.value?.querySelector(
-                '[name="inputOtp"]'
-              ) as any
-              if (inputOtpElement && inputOtpElement.__vueParentComponent) {
-                const inputOtpInstance = inputOtpElement.__vueParentComponent.ctx
-
-                if (
-                  inputOtpInstance &&
-                  inputOtpInstance.tokens &&
-                  Array.isArray(inputOtpInstance.tokens)
-                ) {
-                  const tokens = inputOtpInstance.tokens
-                  const fullValue = tokens.join('')
-                  fieldValues[key] = fullValue
-                } else {
-                  fieldValues[key] = value
-                }
-              } else {
-                fieldValues[key] = value
-              }
-            } else {
-              fieldValues[key] = value
-            }
-          } else {
-            fieldValues[key] = formApiRef[key]
-          }
+      for (const column of props.schema.columns) {
+        // 如果字段被隐藏且 hideValue 为 false，则跳过该字段
+        if (column.hidden === true && column.hideValue !== true) {
+          continue
         }
-      })
+
+        const key = column.field
+        const source = formApiRef[key]
+        if (source && typeof source === 'object' && 'value' in source) {
+          fieldValues[key] = source.value
+        } else if (key in formApiRef) {
+          fieldValues[key] = formApiRef[key]
+        } else {
+          fieldValues[key] = undefined
+        }
+      }
       return fieldValues
     }
     return {}
   },
-  /** 触发验证，返回 { valid, errors } */
+  /** 触发验证，返回 { valid, errors }（与提交流程一致的校验逻辑） */
   async validate() {
-    if (formApiRef && typeof formApiRef.validate === 'function') {
-      const result = await formApiRef.validate()
-      return result
+    const values: Record<string, any> = {}
+    if (formApiRef) {
+      for (const column of props.schema.columns) {
+        // 如果字段被隐藏且 hideValue 为 false，则跳过该字段
+        if (column.hidden === true && column.hideValue !== true) {
+          continue
+        }
+
+        const key = column.field
+        const source = formApiRef[key]
+        if (source && typeof source === 'object' && 'value' in source) {
+          values[key] = source.value
+        } else if (key in formApiRef) {
+          values[key] = formApiRef[key]
+        } else {
+          values[key] = undefined
+        }
+      }
     }
-    return { valid: true, errors: {} }
+
+    const errorMap: Record<string, Array<{ message: string }>> = {}
+    for (const column of props.schema.columns) {
+      // 跳过完全不渲染的隐藏字段的验证
+      if (column.hidden === true && column.hideValue !== true) {
+        continue
+      }
+
+      if (!column.rules) {
+        continue
+      }
+      const value = values[column.field]
+      const err = validateField(column, value, values)
+      if (err) {
+        errorMap[column.field] = [{ message: err }]
+      }
+    }
+    const valid = Object.keys(errorMap).length === 0
+    return { valid, errors: errorMap }
   },
   /** 提交（走内部 onValidSubmit 流程） */
   submit() {
@@ -626,21 +744,40 @@ defineExpose({
   },
   /** 设置某个字段值 */
   setFieldValue(field: string, value: any) {
-    if (formApiRef && typeof formApiRef.setFieldValue === 'function') {
+    if (!formApiRef) {
+      return
+    }
+    if (typeof formApiRef.setFieldValue === 'function') {
       return formApiRef.setFieldValue(field, value)
     }
+    // 降级：直接写入对应字段的 ref/value
+    const target = formApiRef[field]
+    if (target && typeof target === 'object' && 'value' in target) {
+      target.value = value
+      return
+    }
+    formApiRef[field] = value
   },
   /** 批量设置值 */
   setValues(newValues: Record<string, any>) {
-    if (formApiRef && typeof formApiRef.setValues === 'function') {
+    if (!formApiRef) {
+      return
+    }
+    if (typeof formApiRef.setValues === 'function') {
       return formApiRef.setValues(newValues)
     }
-    // 兜底：逐个字段设置
-    if (formApiRef && typeof formApiRef.setFieldValue === 'function') {
-      Object.keys(newValues || {}).forEach(key => {
-        formApiRef.setFieldValue(key, (newValues as any)[key])
-      })
-    }
+    // 兜底：逐个字段设置（使用上面的降级逻辑）
+    Object.keys(newValues || {}).forEach(key => {
+      const val = (newValues as any)[key]
+      const target = formApiRef[key]
+      if (target && typeof target === 'object' && 'value' in target) {
+        target.value = val
+      } else if (typeof formApiRef.setFieldValue === 'function') {
+        formApiRef.setFieldValue(key, val)
+      } else {
+        formApiRef[key] = val
+      }
+    })
   },
 })
 </script>

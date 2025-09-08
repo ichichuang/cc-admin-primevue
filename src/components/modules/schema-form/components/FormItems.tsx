@@ -21,10 +21,7 @@ import InputGroup from 'primevue/inputgroup'
 import InputGroupAddon from 'primevue/inputgroupaddon'
 import InputMask from 'primevue/inputmask'
 import InputNumber from 'primevue/inputnumber'
-import InputOtp from 'primevue/inputotp'
 import InputText from 'primevue/inputtext'
-// import KeyFilter from 'primevue/keyfilter'
-import Knob from 'primevue/knob'
 import Listbox from 'primevue/listbox'
 import MultiSelect from 'primevue/multiselect'
 import Password from 'primevue/password'
@@ -216,6 +213,15 @@ export default defineComponent({
               if (key.startsWith('on')) {
                 return false
               }
+              // 排除会破坏 Form 受控绑定的值相关属性
+              if (
+                key === 'value' ||
+                key === 'modelValue' ||
+                key === 'model-value' ||
+                key === 'checked'
+              ) {
+                return false
+              }
               return true
             })
           )
@@ -318,33 +324,11 @@ export default defineComponent({
         case 'InputNumber':
           return <InputNumber {...componentProps} />
 
-        case 'InputOtp': {
-          // InputOtp 需要特殊处理，确保正确绑定值
-          const inputOtpProps = {
-            ...componentProps,
-            // 确保 length 属性正确传递
-            length: column.props?.length || 6,
-            // 确保 integerOnly 属性正确传递
-            integerOnly: column.props?.integerOnly || false,
-            // 直接使用 v-model 绑定，而不是依赖 PrimeVue Form 的自动绑定
-            modelValue: props.form.values?.[column.field] || '',
-            onUpdateModelValue: (value: any) => {
-              if (props.form.setValue) {
-                props.form.setValue(column.field, value)
-              }
-            },
-          }
-          return <InputOtp {...inputOtpProps} />
-        }
-
         case 'InputText':
           return <InputText {...componentProps} />
 
         /* case 'KeyFilter':
           return <KeyFilter {...componentProps} /> */
-
-        case 'Knob':
-          return <Knob {...componentProps} />
 
         case 'Listbox':
           return (
@@ -536,11 +520,9 @@ export default defineComponent({
           )
         }
 
-        case 'IconField':
-        case 'FloatLabel':
-        case 'IftaLabel':
-          // 这些组件类型不存在，使用 InputText 作为替代
-          return <InputText {...componentProps} />
+        /* 自定义渲染 */
+        case 'Custom':
+          return <div>自定义渲染: {column.props?.render(componentProps)}</div>
 
         default:
           return <div>不支持的组件类型: {column.component}</div>
@@ -558,6 +540,51 @@ export default defineComponent({
       const isInvalid = props.form[column.field]?.invalid
       // 是否必填
       const isRequired = isFieldRequired(column)
+      // 是否隐藏
+      const isHidden = column.hidden === true
+      // 是否保留隐藏字段的值（默认 false）
+      const keepHiddenValue = column.hideValue === true
+      // 是否保留所占栅格（默认 false）
+      const keepBlock = column.hideBlock === true
+
+      // 包裹元素样式（控制是否保留栅格/整体隐藏）
+      const itemStyle: Record<string, string> = {
+        ...props.style,
+        marginBottom: '24px',
+      }
+
+      // 内容容器样式（控制内部可视/渲染）
+      const contentStyle: Record<string, string> = {
+        ...componentStyle.value,
+      }
+
+      // 是否需要隐藏 Label（当保留栅格但不保留值时，Label 也应隐藏）
+      let hideLabel = false
+
+      if (isHidden) {
+        if (keepBlock) {
+          // 保留栅格：外层不改变 grid 占位
+          if (keepHiddenValue) {
+            // 可获取值：渲染但不可见
+            itemStyle.visibility = 'hidden'
+            hideLabel = true
+          } else {
+            // 不可获取值：内容不显示（仍渲染外壳以占位）
+            contentStyle.display = 'none'
+            hideLabel = true
+          }
+        } else {
+          // 不保留栅格
+          if (keepHiddenValue) {
+            // 可获取值：整体隐藏但仍渲染
+            itemStyle.display = 'none'
+            hideLabel = true
+          } else {
+            // 不可获取值：完全不渲染
+            return null
+          }
+        }
+      }
 
       return (
         <div
@@ -569,10 +596,7 @@ export default defineComponent({
                 ? 'between-start flex-row-reverse'
                 : 'between-start', // 改为 between-start 而不是 between
           ].filter(Boolean)}
-          style={{
-            ...props.style,
-            marginBottom: '24px', // 确保表单项之间有足够间距
-          }}
+          style={itemStyle}
           data-field-id={column.field}
         >
           {/* Label */}
@@ -581,6 +605,7 @@ export default defineComponent({
               style={{
                 ...labelStyle.value,
                 ...(mergedColumnStyle.value.labelStyle || {}), // 自定义标签样式（第一优先级）
+                ...(hideLabel ? { display: 'none' } : {}),
               }}
               class={[
                 'form-item-label',
@@ -612,10 +637,8 @@ export default defineComponent({
           {/* 间距元素 - 只在非顶部对齐时显示 */}
 
           <div
-            class={['relative w-full ha c-transitions'].filter(Boolean)}
-            style={{
-              ...componentStyle.value,
-            }}
+            class={['relative w-full ha'].filter(Boolean)}
+            style={contentStyle}
           >
             {/* Component Container */}
             {renderComponent()}
@@ -625,7 +648,12 @@ export default defineComponent({
             )}
             {/* Help Text */}
             {!isInvalid && column.help && (
-              <div class="absolute top-[calc(100%+2px)] left-0 z-1 fs-appFontSizes color-bg300 select-none pl-padding fs-10 pointer-events-none">
+              <div
+                class={[
+                  'absolute top-[calc(100%+2px)] left-0 z-1 color-bg300 select-none pl-paddings pointer-events-none',
+                  'fs-10 sm:fs-12 md:fs-14 lg:fs-12',
+                ]}
+              >
                 {column.help}
               </div>
             )}
@@ -638,7 +666,9 @@ export default defineComponent({
               duration="500ms"
             >
               {isInvalid && (
-                <div class="full rounded-rounded pl-padding fs-10">
+                <div
+                  class={['full rounded-rounded pl-paddings', 'fs-10 sm:fs-12 md:fs-14 lg:fs-12']}
+                >
                   {props.form[column.field]?.error?.message}
                 </div>
               )}

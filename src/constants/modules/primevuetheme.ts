@@ -333,6 +333,88 @@ export interface PrimeVueThemeConfig {
   sizeStore: ReturnType<typeof useSizeStore>
 }
 
+const initToastColor = (preset: any, colorStore: ReturnType<typeof useColorStore>) => {
+  deepMergeStylesAdvancedInPlace(preset.components.toast, {
+    info: {
+      background: colorStore.isDark ? colorStore.getInfoColorHover + 60 : colorStore.getBg100,
+      borderColor: colorStore.getInfoColorActive,
+      color: colorStore.getInfoColor,
+      detailColor: colorStore.getText100,
+      shadow: `0px 4px 8px 0px color-mix(in srgb, ${colorStore.getInfoColorText}, transparent 96%)`,
+      closeButton: {
+        hoverBackground: colorStore.getBg100,
+        focusRing: {
+          color: colorStore.getText100,
+        },
+      },
+    },
+    success: {
+      background: colorStore.isDark ? colorStore.getSuccessColorHover + 60 : colorStore.getBg100,
+      borderColor: colorStore.getSuccessColorActive,
+      color: colorStore.getSuccessColor,
+      detailColor: colorStore.getText100,
+      shadow: `0px 4px 8px 0px color-mix(in srgb, ${colorStore.getSuccessColorText}, transparent 96%)`,
+      closeButton: {
+        hoverBackground: colorStore.getBg100,
+        focusRing: {
+          color: colorStore.getText100,
+        },
+      },
+    },
+    warn: {
+      background: colorStore.isDark ? colorStore.getWarnColorHover + 60 : colorStore.getBg100,
+      borderColor: colorStore.getWarnColorActive,
+      color: colorStore.getWarnColor,
+      detailColor: colorStore.getText100,
+      shadow: `0px 4px 8px 0px color-mix(in srgb, ${colorStore.getWarnColorText}, transparent 96%)`,
+      closeButton: {
+        hoverBackground: colorStore.getBg100,
+        focusRing: {
+          color: colorStore.getText100,
+        },
+      },
+    },
+    error: {
+      background: colorStore.isDark ? colorStore.getDangerColorHover + 60 : colorStore.getBg100,
+      borderColor: colorStore.getDangerColorActive,
+      color: colorStore.getDangerColor,
+      detailColor: colorStore.getText100,
+      shadow: `0px 4px 8px 0px color-mix(in srgb, ${colorStore.getDangerColorText}, transparent 96%)`,
+      closeButton: {
+        hoverBackground: colorStore.getBg100,
+        focusRing: {
+          color: colorStore.getText100,
+        },
+      },
+    },
+    secondary: {
+      background: colorStore.getSecondaryColorHover + 90,
+      borderColor: colorStore.getSecondaryColorActive,
+      color: colorStore.getSecondaryColorText,
+      detailColor: colorStore.getSecondaryColorText,
+      shadow: `0px 4px 8px 0px color-mix(in srgb, ${colorStore.getSecondaryColorText}, transparent 96%)`,
+      closeButton: {
+        hoverBackground: colorStore.getSecondaryColorHover,
+        focusRing: {
+          color: colorStore.getSecondaryColorText,
+        },
+      },
+    },
+    contrast: {
+      background: colorStore.getContrastColor,
+      borderColor: colorStore.getContrastColorActive,
+      color: colorStore.getContrastColorText,
+      detailColor: colorStore.getContrastColorText,
+      shadow: `0px 4px 8px 0px color-mix(in srgb, ${colorStore.getContrastColorText}, transparent 96%)`,
+      closeButton: {
+        hoverBackground: colorStore.getContrastColorHover,
+        focusRing: {
+          color: colorStore.getContrastColorText,
+        },
+      },
+    },
+  })
+}
 /**
  * 创建自定义主题预设
  * @param preset 原始预设
@@ -360,48 +442,55 @@ export const createCustomPreset = (preset: any, { colorStore, sizeStore }: Prime
       // 边框颜色
       borderColor: colorStore.getBg300, // 默认边框色
       hoverBorderColor: colorStore.getPrimary100, // 悬停时边框色
-      focusBorderColor: colorStore.getBg100, // 聚焦时边框色
-      invalidBorderColor: colorStore.getBg200, // 校验失败时边框色
+      focusBorderColor: colorStore.getPrimary100, // 聚焦时边框色
+      invalidBorderColor: colorStore.getDangerColor, // 校验失败时边框色
 
       // 文字颜色
       color: colorStore.getText100, // 默认文字颜色
-      contrastColor: colorStore.getBg100, // 文字对比色（通常用于浅色背景上的深色文字）
+      contrastColor: colorStore.getBg100, // 对比色
       hoverColor: colorStore.getPrimary100, // 悬停文字颜色
-      activeColor: colorStore.getPrimary200, // 激活状态文字颜色
-      disabledColor: colorStore.getBg300, // 禁用状态文字颜色
-      placeholderColor: colorStore.getBg300, // 占位符文字颜色
-      invalidPlaceholderColor: colorStore.getBg200, // 校验失败时占位符颜色
-      focusColor: colorStore.getText100, // 聚焦状态文字颜色
-      floatLabelColor: colorStore.getBg300, // 浮动标签颜色（未聚焦）
-      floatLabelFocusColor: colorStore.getBg100, // 浮动标签聚焦颜色
-      floatLabelActiveColor: colorStore.getBg300, // 浮动标签激活颜色
-      floatLabelInvalidColor: colorStore.getBg200, // 浮动标签错误状态颜色
-      selectedColor: colorStore.getPrimary200, // 选中项文字颜色
-      selectedFocusColor: colorStore.getPrimary100, // 选中项聚焦时文字颜色
+      activeColor: colorStore.getPrimary100, // 激活文字颜色
+      disabledColor: colorStore.getText200, // 禁用文字颜色
+      placeholderColor: colorStore.getBg300, // 占位符默认色（按默认规则）
+      invalidPlaceholderColor: colorStore.getDangerColor, // 校验失败时占位符颜色
+      focusColor: colorStore.getPrimary100, // 聚焦状态文字颜色
+      floatLabelColor: colorStore.getText100, // 浮动标签颜色（默认）
+      floatLabelFocusColor: colorStore.getPrimary100, // 浮动标签聚焦颜色
+      floatLabelActiveColor: colorStore.getAccent100, // 浮动标签激活颜色
+      floatLabelInvalidColor: colorStore.getDangerColor, // 浮动标签错误状态颜色
+      selectedColor: colorStore.getAccent100, // 选中文字颜色
+      selectedFocusColor: colorStore.getPrimary100, // 选中聚焦文字颜色
 
       // 背景色
-      background: colorStore.getBg100, // 默认背景色
-      hoverBackground: colorStore.getPrimary200, // 悬停时背景色
-      disabledBackground: colorStore.getBg300, // 禁用状态背景色
-      filledBackground: colorStore.getBg200, // 填充类型组件背景色
-      filledHoverBackground: colorStore.getBg200, // 填充组件悬停背景色
-      filledFocusBackground: colorStore.getBg200, // 填充组件聚焦背景色
-      focusBackground: colorStore.getBg200, // 聚焦状态下背景色
-      selectedBackground: colorStore.getBg200, // 被选中时背景色
-      selectedFocusBackground: colorStore.getBg200, // 被选中聚焦时背景色
+      background: colorStore.getBg100, // 默认背景
+      hoverBackground: colorStore.getBg200, // 悬停背景
+      disabledBackground: colorStore.getBg200, // 禁用背景
+      filledBackground: colorStore.getBg100, // 填充默认背景
+      filledHoverBackground: colorStore.getBg200, // 填充悬停背景
+      filledFocusBackground: colorStore.getBg200, // 填充聚焦背景（与 hover 一致）
+      focusBackground: colorStore.getBg100, // 聚焦时背景保持默认
+      selectedBackground: colorStore.getBg200, // 选中背景
+      selectedFocusBackground: colorStore.getBg200, // 选中聚焦背景
 
       // 图标颜色
       iconColor: colorStore.getText100, // 默认图标颜色
       icon: {
-        color: colorStore.getText100, // 图标默认颜色
-        focusColor: colorStore.getPrimary100, // 聚焦时图标颜色
-        activeColor: colorStore.getPrimary200, // 激活状态图标颜色
+        color: colorStore.getText100, // 默认
+        focusColor: colorStore.getPrimary100, // 悬停/聚焦
+        activeColor: colorStore.getAccent100, // 激活
       },
       submenuIcon: {
-        color: colorStore.getText100, // 子菜单图标默认颜色
-        focusColor: colorStore.getPrimary100, // 子菜单图标聚焦颜色
-        activeColor: colorStore.getPrimary200, // 子菜单图标激活颜色
+        color: colorStore.getText100, // 默认
+        focusColor: colorStore.getPrimary100, // 悬停/聚焦
+        activeColor: colorStore.getPrimary100, // 激活
       },
+
+      focusRing: {
+        color: colorStore.getPrimary100, // 聚焦边框颜色
+        shadow: `${colorStore.getPrimary100}40`, // 聚焦边框阴影
+      },
+      selectedHoverBackground: colorStore.getBg200, // 选中悬停背景
+      selectedHoverColor: colorStore.getPrimary100, // 选中悬停文字
     }
 
     // 自定义尺寸配置
@@ -449,7 +538,7 @@ export const createCustomPreset = (preset: any, { colorStore, sizeStore }: Prime
       override: true,
     })
 
-    // 单独处理组件
+    // 固定尺寸（大）
     const customComponentsStyle1 = {
       padding: `6px 8px`,
       paddingY: `6px`,
@@ -459,6 +548,27 @@ export const createCustomPreset = (preset: any, { colorStore, sizeStore }: Prime
       marginX: `6px`,
       gap: `6px`,
     }
+    // 固定尺寸（中）
+    const customComponentsStyle1m = {
+      padding: `6px 8px`,
+      paddingY: `6px`,
+      paddingX: `8px`,
+      margin: `2px`,
+      marginY: `2px`,
+      marginX: `2px`,
+      gap: `2px`,
+    }
+    // 固定尺寸（小）
+    const customComponentsStyle1s = {
+      padding: `4px 6px`,
+      paddingY: `4px`,
+      paddingX: `6px`,
+      margin: `2px`,
+      marginY: `2px`,
+      marginX: `2px`,
+      gap: `2px`,
+    }
+    // 动态尺寸
     const customComponentsStyle2 = {
       padding: `${sizeStore.getPaddingsValue}px ${sizeStore.getPaddingValue}px`,
       paddingY: `${sizeStore.getPaddingsValue}px`,
@@ -468,10 +578,19 @@ export const createCustomPreset = (preset: any, { colorStore, sizeStore }: Prime
       marginX: `${sizeStore.getGaps}px`,
       gap: `${sizeStore.getGap}px`,
     }
-
+    initToastColor(newPreset, colorStore)
+    deepMergeStylesAdvancedInPlace(newPreset.components.toast, {
+      ...customComponentsStyle2,
+      padding: `${sizeStore.getPaddingValue}px`,
+      gap: `${sizeStore.getGaps}px`,
+    })
     // speeddial 组件单独处理
     deepMergeStylesAdvancedInPlace(newPreset.components.speeddial, {
       ...customComponentsStyle1,
+    })
+    // dialog 组件单独处理
+    deepMergeStylesAdvancedInPlace(newPreset.components.dialog, {
+      // ...customComponentsStyle2,
     })
     // menu 组件单独处理
     deepMergeStylesAdvancedInPlace(newPreset.components.menu, {
@@ -507,9 +626,55 @@ export const createCustomPreset = (preset: any, { colorStore, sizeStore }: Prime
     })
     // select 组件单独处理
     deepMergeStylesAdvancedInPlace(newPreset.components.select, {
-      ...customComponentsStyle2,
+      ...customComponentsStyle1m,
     })
-    // 缓存结果
+    // inputgroup 输入组
+    deepMergeStylesAdvancedInPlace(newPreset.components.inputgroup, {
+      ...customComponentsStyle1m,
+    })
+    // 列表框
+    deepMergeStylesAdvancedInPlace(newPreset.components.listbox, {
+      ...customComponentsStyle1m,
+    })
+    // 多选列表框
+    deepMergeStylesAdvancedInPlace(newPreset.components.multiselect, {
+      ...customComponentsStyle1m,
+      margin: `6px`,
+      marginY: `6px`,
+      marginX: `12px`,
+      gap: `6px`,
+      ['option.gap']: `12px`,
+      ['list.header.padding']: `12px 16px 0 16px`,
+    })
+    // 级联选择
+    deepMergeStylesAdvancedInPlace(newPreset.components.cascadeselect, {
+      ...customComponentsStyle1m,
+    })
+    // 树形选择
+    deepMergeStylesAdvancedInPlace(newPreset.components.tree, {
+      ...customComponentsStyle1s,
+      padding: `0`,
+      paddingY: `0px`,
+      paddingX: `0px`,
+      margin: `2px`,
+      marginY: `2px`,
+      marginX: `2px`,
+      gap: `2px`,
+    })
+    // 颜色选择器
+    deepMergeStylesAdvancedInPlace(newPreset.components.colorpicker, {
+      ...customComponentsStyle1m,
+    })
+    // 选择按钮
+    deepMergeStylesAdvancedInPlace(newPreset.components.selectbutton, {
+      ...customComponentsStyle1m,
+    })
+    // 日期选择器
+    deepMergeStylesAdvancedInPlace(newPreset.components.datepicker, {
+      ...customComponentsStyle1m,
+    })
+
+    /* 缓存结果 */
     if (cacheKey) {
       themeCache.set(cacheKey, newPreset)
 

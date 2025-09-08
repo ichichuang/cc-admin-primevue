@@ -21,7 +21,7 @@ router.beforeEach(() => {
 })
 </script>
 <template lang="pug">
-.full
+.full.relative.z-999
   //- 移动端菜单
   AnimateWrapper.fixed.t-gapl.l-gapl.z-999.wa.ha(
     :show='mobileSidebarVisible',
@@ -32,7 +32,7 @@ router.beforeEach(() => {
     .bg-primary100.py-paddingl.px-padding.rounded-rounded
       ScrollbarWrapper(
         :color-scheme='{ thumbColor: "var(--primary100)", thumbHoverColor: "var(--primary200)" }',
-        :thumb-width='6'
+        :size='6'
       )
         .rounded-rounded.max-w-60vw.min-w-44vw.h-contentHeight.select-none
           PrimeMenu(
@@ -41,7 +41,7 @@ router.beforeEach(() => {
             :components-props='props.componentsProps'
           )
   //- 遮罩
-  AnimateWrapper.fixed.t-0.l-0.z-3(:show='mobileSidebarVisible', enter='fadeIn', leave='fadeOut')
+  AnimateWrapper.fixed.t-0.l-0.z-998(:show='mobileSidebarVisible', enter='fadeIn', leave='fadeOut')
     .full.opacity-50(@click='layoutStore.setMobileSidebarVisible(false)')
 </template>
 <style lang="scss" scope></style>

@@ -191,19 +191,6 @@
   }
 }
 
-// contextmenu 右键菜单
-.p-contextmenu {
-  transition: all 0.4s ease-in-out !important;
-}
-
-// input 输入框
-.p-textarea {
-  transition:
-    all 0.4s,
-    width 0s,
-    height 0s !important;
-}
-
 // icon
 .p-icon {
   width: var(--app-font-size);
@@ -214,13 +201,14 @@
 // form
 .p-form {
   .form-item {
+    column-gap: var(--gap);
     .form-item-label {
     }
     .form-item-content,
     .form-item-content * {
-      // width: 100%;
-      // height: 100%;
-      transition: all 0.4s ease-in-out !important;
+      .p-inputtext {
+        width: 100%;
+      }
       border-radius: var(--rounded);
       border-color: var(--bg300);
       // 鼠标悬停
@@ -273,5 +261,113 @@
         }
       }
     }
+  }
+
+  .p-password {
+    .p-icon {
+      width: var(--app-font-size);
+      height: var(--app-font-size);
+      font-size: var(--app-font-size);
+      top: 50% !important;
+      margin-top: calc(-1 * var(--app-font-size) / 2) !important;
+      cursor: pointer;
+      color: var(--text200);
+      &:hover {
+        color: var(--text100);
+      }
+    }
+  }
+}
+
+/* 选项组 选择按钮 */
+.p-togglebutton {
+  width: auto !important;
+  border: 1px solid var(--bg300) !important;
+  padding: 4px var(--paddings);
+  .p-togglebutton-content {
+    padding: 2px var(--paddings);
+    margin: 0;
+  }
+}
+.p-togglebutton-checked {
+  color: var(--accent100);
+}
+
+/* 开关 */
+.p-toggleswitch {
+  width: calc(var(--app-font-sizex) * 2 + var(--gaps) * 2) !important;
+  height: calc(var(--app-font-sizex) + var(--gaps)) !important;
+  * {
+    background: var(--bg100) !important;
+  }
+  .p-toggleswitch-slider {
+    .p-toggleswitch-handle {
+      width: var(--app-font-sizex) !important;
+      height: calc(var(--app-font-sizex)) !important;
+      background: var(--bg300) !important;
+      inset-inline-start: var(--gaps) !important;
+      margin-block-start: calc(-1 * calc(var(--app-font-sizex) / 2)) !important;
+    }
+  }
+}
+.p-toggleswitch-checked {
+  * {
+    background: var(--accent100) !important;
+    border-color: var(--accent200) !important;
+  }
+  .p-toggleswitch-slider {
+    .p-toggleswitch-handle {
+      background: var(--bg200) !important;
+      inset-inline-start: calc(100% - var(--app-font-sizex) - var(--gaps)) !important;
+    }
+  }
+}
+
+/* 颜色选择 */
+.p-colorpicker-panel {
+  border-radius: 4px !important;
+}
+
+/* 滑块 */
+.p-slider {
+  background: var(--bg300) !important;
+  .p-slider-range {
+    background: var(--accent100) !important;
+  }
+  .p-slider-handle {
+    background: var(--bg300) !important;
+  }
+}
+
+/* 星星 */
+.p-rating {
+  .p-icon {
+    &:hover {
+      color: var(--accent100) !important;
+    }
+  }
+}
+/* 单选 */
+.p-radiobutton-group {
+  gap: var(--gapl) !important;
+  .p-radiobutton-checked {
+    .p-radiobutton-box {
+      background: var(--accent100) !important;
+    }
+  }
+}
+/* 多选 */
+.p-checkbox {
+  &.p-checkbox-checked {
+    .p-checkbox-box {
+      background: var(--accent100) !important;
+    }
+  }
+}
+
+/* Toast */
+.p-toast-message {
+  .p-toast-message-icon {
+    margin-top: 2px;
   }
 }

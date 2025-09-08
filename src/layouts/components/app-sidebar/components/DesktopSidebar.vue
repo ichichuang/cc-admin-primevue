@@ -115,7 +115,7 @@ onUnmounted(() => {
 })
 </script>
 <template lang="pug">
-.full(ref='containerRef')
+.full.relative.z-999(ref='containerRef')
   //- 折叠状态菜单
   AnimateWrapper(
     :show='collapsedDelay',
@@ -123,7 +123,7 @@ onUnmounted(() => {
     leave='fadeOutLeft',
     duration='120ms'
   )
-    .w-full.c-transitions(:style='{ height: (observedHeight || containerHeight) + "px" }')
+    .w-full(:style='{ height: (observedHeight || containerHeight) + "px" }')
       PrimeMenu(
         v-if='collapsedDelay',
         :type='"tier"',
@@ -138,10 +138,7 @@ onUnmounted(() => {
     leave='slideOutLeft',
     duration='120ms'
   )
-    ScrollbarWrapper.c-transitions(
-      :style='{ height: (observedHeight || containerHeight) + "px" }',
-      :thumb-width='6'
-    )
+    ScrollbarWrapper(:style='{ height: (observedHeight || containerHeight) + "px" }', :size='6')
       PrimeMenu(
         v-if='!expandedDelay',
         :type='"panel"',

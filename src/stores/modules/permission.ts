@@ -67,6 +67,10 @@ export const usePermissionStore = defineStore('permission', {
       const flattenMenuTree = getFlatMenuTree()
       const route = getFlatRouteList().find(route => route.name === name || route.path === name)
       if (route) {
+        // hiddenTag: 隐藏标签，不加入 tabs
+        if (route.meta?.hiddenTag) {
+          return
+        }
         // 如果标签页已存在，则不添加
         if (this.tabs.some(tab => tab.name === name || tab.path === name)) {
           return

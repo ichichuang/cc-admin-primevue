@@ -490,8 +490,17 @@ onMounted(() => {
 })
 
 router.afterEach(to => {
-  permissionStore.addTab(to.name || to.path)
-  permissionStore.updateTabActive(to.name || to.path)
+  // 如果路由声明 activeMenu，则以其为高亮目标
+  const activeNameOrPath = (to.meta?.activeMenu as string) || to.name || to.path
+
+  // 确保 activeMenu 对应的标签存在
+  permissionStore.addTab(activeNameOrPath)
+  // 也确保当前路由自身（若不同）存在，避免后续切回无法命中
+  if (activeNameOrPath !== (to.name || to.path)) {
+    permissionStore.addTab(to.name || to.path)
+  }
+
+  permissionStore.updateTabActive(activeNameOrPath)
   nextTick(() => {
     // 先更新指示器，再滚动到中心
     setTimeout(() => {
@@ -533,20 +542,21 @@ watch(
         )
         feBlend(in='SourceGraphic', in2='goo')
 
-  ScrollbarWrapper.c-transitions(
+  ScrollbarWrapper(
     ref='scrollbarRef',
     :style='{ height: containerHeight + "px", width: containerWidth + "px" }',
-    :thumb-width='2',
-    :direction='"horizontal"',
+    :size='1',
+    direction='horizontal',
+    auto-hide='leave',
     @scroll-horizontal='handleScrollHorizontal'
   )
-    .py-4.center(class='sm:py-6 md:py-paddings')
+    .py-4.center.full(class='sm:py-6 md:py-paddings')
       .full.between-start(ref='trackRef')
         //- 活动背景 - 只有在确认有合理尺寸时才渲染
         Transition(name='indicator', mode='out-in')
           .active-blob(
             v-if='showIndicator && indicatorWidth > 0 && indicatorHeight > 0',
-            :style='{ "--left": indicatorLeft - scrollLeft + "px", "--width": indicatorWidth + "px", "--height": indicatorHeight + "px" }'
+            :style='{ "--left": indicatorLeft + "px", "--width": indicatorWidth + "px", "--height": indicatorHeight + "px" }'
           )
 
         //- 标签列表 - 直接使用 store 中的 tabs
@@ -560,8 +570,8 @@ watch(
           )
             .between.gap-gaps
               .bg-text200.fs-appFontSizes(class='icon-line-md:hash-small', v-if='tab.fixed')
-              p.truncate.c-transition.c-cp {{ tab.label }}
-              .bg-text200.fs-appFontSizes.c-transition.c-cp(
+              p.truncate.c-cp {{ tab.label }}
+              .bg-text200.fs-appFontSizes.c-cp(
                 class='icon-line-md:remove hover:bg-dangerColor',
                 v-if='tab.deletable && !tab.fixed',
                 @click.stop='closeTab(tab)'
@@ -642,14 +652,6 @@ watch(
     inset 0 1px 0 color-mix(in srgb, var(--primary200) 40%, transparent);
   &.active {
     background: transparent;
-    /* 玻璃边框 - 使用主色调的半透明 */
-    border: 1px solid color-mix(in srgb, var(--accent100) 20%, transparent);
-    border-top: 1px solid transparent;
-    border-bottom: 1px solid color-mix(in srgb, var(--accent200) 30%, transparent);
-    border-left: 1px solid color-mix(in srgb, var(--accent100) 30%, transparent);
-
-    /* 圆角 */
-    border-radius: var(--rounded);
   }
 }
 
@@ -666,7 +668,7 @@ watch(
 // 指示器淡入淡出动画
 .indicator-enter-active,
 .indicator-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.25s ease;
 }
 
 .indicator-enter-from,
@@ -682,13 +684,13 @@ watch(
 .dragging {
   opacity: 0.5;
   transform: scale(0.95);
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 .drag-over {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px color-mix(in srgb, var(--accent100) 20%, transparent);
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 /* 拖拽时的指示器 */

@@ -20,6 +20,8 @@ export const defaultDialogProps: Partial<DialogOptions> = {
   center: false,
   destroyOnClose: false,
   hideFooter: false,
+  hideHeader: false,
+  hideClose: false,
   sureBtnLoading: false,
   openDelay: 0,
   closeDelay: 200,
@@ -191,6 +193,38 @@ export const defaultDialogProps: Partial<DialogOptions> = {
  *         }
  *       ]
  *     })
+ *
+ * 11. 隐藏头部的对话框：
+ *     addDialog({
+ *       type: 'dialog',
+ *       hideHeader: true,  // 隐藏整个头部区域（包括头部内容和关闭按钮）
+ *       contentRenderer: ({ options, index }) => h('div', '无头部的内容')
+ *     })
+ *
+ * 12. 只隐藏关闭按钮的对话框：
+ *     addDialog({
+ *       type: 'dialog',
+ *       header: '标题',
+ *       hideClose: true,   // 只隐藏关闭按钮，保留头部内容
+ *       contentRenderer: ({ options, index }) => h('div', '内容')
+ *     })
+ *
+ * 13. 隐藏头部和底部的对话框：
+ *     addDialog({
+ *       type: 'dialog',
+ *       hideHeader: true,  // 隐藏整个头部区域
+ *       hideFooter: true,  // 隐藏底部按钮区域
+ *       contentRenderer: ({ options, index }) => h('div', '纯内容对话框')
+ *     })
+ *
+ * 14. 使用 useDialog Hook 的便捷方法：
+ *     const { info, success, warning, error } = useDialog()
+ *
+ *     // 隐藏头部的信息对话框
+ *     info('操作成功', '提示', () => console.log('确定'), true)
+ *
+ *     // 隐藏头部的成功对话框
+ *     success('数据保存成功', '成功', () => console.log('确定'), true)
  *
  * 注意：关闭对话框时会先设置 visible: false 触发关闭动画，
  * 然后延时移除对话框，确保动画效果正常显示。

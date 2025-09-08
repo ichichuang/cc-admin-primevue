@@ -21,7 +21,7 @@ const items = computed(() => {
 })
 </script>
 <template lang="pug">
-SpeedDial.flex.select-none(:model='items', direction='up', :transition-delay='80', class='items-end!')
+SpeedDial.flex.select-none(:model='items', direction='up', class='items-end!')
   // 按钮插槽
   template(#button='{ toggleCallback }')
     .c-card-accent.size-1-1(@click='toggleCallback')

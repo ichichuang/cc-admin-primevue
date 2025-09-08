@@ -16,7 +16,7 @@ const sidebarCollapsed = computed(() => layoutStore.getSidebarCollapsed)
 <template lang="pug">
 .full.between
   // 菜单栏目
-  aside.h-full.c-transition.relative.z-2(
+  aside.h-full.relative.z-999.c-transitions(
     :class='showSidebar ? (sidebarCollapsed ? "md:block md:w-sidebarCollapsedWidth" : "md:block md:w-sidebarWidth") : "hidden md:w-0"'
   )
     .full.bg-primary100
@@ -27,7 +27,7 @@ const sidebarCollapsed = computed(() => layoutStore.getSidebarCollapsed)
           AppSidebar
 
   // 主体
-  main.h-full.w-375.c-transitions.flex-1
+  main.h-full.w-375.flex-1
     // 头部
     template(v-if='showHeader')
       header.h-headerHeight.px-padding
@@ -38,9 +38,7 @@ const sidebarCollapsed = computed(() => layoutStore.getSidebarCollapsed)
         AppTabs
 
     // 内容区域
-    .w-full.h-contentBreadcrumbHeight.relative.py-padding.c-transitions(
-      class='lg:py-paddingx xxl:py-paddingl'
-    )
+    .w-full.h-contentBreadcrumbHeight.relative.py-12(class='sm:py-16 lg:py-18 xxl:py-24')
       AppContainer
       template(v-if='isPageLoading')
         .absolute.t-0.r-0.l-0.b-0.z-1.center

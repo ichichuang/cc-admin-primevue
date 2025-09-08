@@ -81,7 +81,6 @@ const exampleRoutes: RouteConfig[] = [
             meta: {
               titleKey: 'router.example.components.menu',
               rank: 1,
-              icon: 'icon-line-md:list',
             },
           },
           {
@@ -91,7 +90,15 @@ const exampleRoutes: RouteConfig[] = [
             meta: {
               titleKey: 'router.example.components.dialog',
               rank: 2,
-              icon: 'icon-line-md:chevron-up-square-twotone',
+            },
+          },
+          {
+            path: 'toast',
+            name: 'ExampleComponentsToast',
+            component: () => import('@/views/example/views/example-toast.vue'),
+            meta: {
+              titleKey: 'router.example.components.toast',
+              rank: 3,
             },
           },
           {
@@ -99,7 +106,7 @@ const exampleRoutes: RouteConfig[] = [
             name: 'ExampleComponentsSchemaForm',
             meta: {
               titleKey: 'router.example.components.schemaForm.title',
-              rank: 3,
+              rank: 4,
               icon: 'icon-line-md:text-box',
             },
             children: [

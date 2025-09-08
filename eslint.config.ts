@@ -21,6 +21,12 @@ export default tseslint.config(
         templateTokenizer: {
           pug: 'vue-eslint-parser-template-tokenizer-pug',
         },
+        // 支持 JSX 语法
+        ecmaFeatures: {
+          jsx: true,
+        },
+        ecmaVersion: 'latest',
+        sourceType: 'module',
       },
     },
     rules: {

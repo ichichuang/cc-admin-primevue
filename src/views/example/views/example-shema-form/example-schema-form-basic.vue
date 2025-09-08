@@ -1,8 +1,9 @@
-<script setup lang="ts">
+<script setup lang="tsx">
 import type { Schema, SchemaColumnsItem } from '@/components/modules/schema-form/utils/types'
+import { useDialog } from '@/hooks/components/useDialog'
 import { useSchemaForm } from '@/hooks/components/useSchemaForm'
 import { ref } from 'vue'
-
+const { openDialog, info, success, error } = useDialog()
 // ==================== 表单 Schema 定义 ====================
 const initialSchema: Schema = {
   columns: [
@@ -18,7 +19,7 @@ const initialSchema: Schema = {
       layout: {
         labelAlign: 'top',
         labelPosition: 'left',
-        cols: 12,
+        cols: 3,
       },
     },
     {
@@ -26,12 +27,17 @@ const initialSchema: Schema = {
       label: '数字输入',
       component: 'InputNumber',
       placeholder: '请输入数字',
-      rules: 'required|min:1|max:100',
+      rules: 'required|min:1|max:1000',
       help: '数字范围为1-100',
       props: {
         min: 1,
-        max: 100,
+        max: 1000,
         step: 1,
+      },
+      layout: {
+        labelAlign: 'top',
+        labelPosition: 'left',
+        cols: 3,
       },
     },
     {
@@ -45,17 +51,10 @@ const initialSchema: Schema = {
         toggleMask: true,
         feedback: false,
       },
-    },
-    {
-      field: 'textarea',
-      label: '文本区域',
-      component: 'Textarea',
-      placeholder: '请输入详细描述',
-      rules: 'required|min:10|max:500',
-      help: '描述至少10个字符，最多500个字符',
-      props: {
-        rows: 4,
-        autoResize: true,
+      layout: {
+        labelAlign: 'top',
+        labelPosition: 'left',
+        cols: 3,
       },
     },
     {
@@ -69,22 +68,32 @@ const initialSchema: Schema = {
         mask: '99999999999',
         slotChar: '_',
       },
+      layout: {
+        labelAlign: 'top',
+        labelPosition: 'left',
+        cols: 3,
+      },
     },
     {
-      field: 'inputOtp',
-      label: '验证码',
-      component: 'InputOtp',
-      rules: 'required',
-      help: '请输入6位验证码',
-      defaultValue: '123456',
+      field: 'textarea',
+      label: '文本区域',
+      component: 'Textarea',
+      placeholder: '请输入详细描述',
+      rules: 'required|min:10|max:500',
+      help: '描述至少10个字符，最多500个字符',
       props: {
-        length: 6,
-        integerOnly: true,
+        rows: 4,
+        autoResize: true,
       },
       layout: {
-        cols: 6,
+        labelPosition: 'right-top',
+        cols: 12,
+      },
+      style: {
+        labelClass: 'h-full',
       },
     },
+
     {
       field: 'inputGroup',
       label: '输入组',
@@ -127,6 +136,7 @@ const initialSchema: Schema = {
           { label: '橙子', value: 'orange' },
           { label: '葡萄', value: 'grape' },
         ],
+        filter: true,
         maxSelectedLabels: 2,
         showSelectAll: true,
         value: [],
@@ -150,6 +160,32 @@ const initialSchema: Schema = {
         filter: true,
         value: null,
       },
+      layout: {
+        cols: 4,
+      },
+    },
+    {
+      field: 'hidden',
+      label: '隐藏',
+      component: 'InputText',
+      placeholder: '请输入文本',
+      rules: 'required|min:3|max:20',
+      defaultValue: '可以隐藏的表单项',
+      layout: {
+        cols: 8,
+      },
+      hidden: false,
+      hideBlock: true,
+    },
+    {
+      field: 'hideValue',
+      label: '隐藏',
+      component: 'InputText',
+      placeholder: '请输入文本',
+      rules: 'required|min:3|max:20',
+      defaultValue: '可以隐藏但是保留值的表单项',
+      hidden: false,
+      hideValue: true,
     },
     {
       field: 'cascadeSelect',
@@ -289,6 +325,9 @@ const initialSchema: Schema = {
       props: {
         value: false,
       },
+      style: {
+        contentClass: 'wa',
+      },
     },
     {
       field: 'toggleSwitch',
@@ -297,6 +336,9 @@ const initialSchema: Schema = {
       help: '滑动开关',
       props: {
         value: false,
+      },
+      style: {
+        contentClass: 'center',
       },
     },
 
@@ -343,19 +385,6 @@ const initialSchema: Schema = {
         defaultColor: '#FF0000',
         format: 'hex',
         value: '#FF0000',
-      },
-    },
-    {
-      field: 'knob',
-      label: '旋钮',
-      component: 'Knob',
-      help: '旋转选择数值',
-      props: {
-        min: 0,
-        max: 100,
-        step: 1,
-        showValue: true,
-        value: 50,
       },
     },
     {
@@ -427,36 +456,11 @@ const initialSchema: Schema = {
         placeholder: '请输入内容...',
         value: '',
       },
-    },
-
-    // 图标字段 - 使用 InputText 替代
-    {
-      field: 'iconField',
-      label: '图标字段',
-      component: 'InputText',
-      placeholder: '请输入内容',
-      help: '带图标的输入字段（示例）',
-      props: {
-        class: 'p-input-icon-left',
+      layout: {
+        labelAlign: 'top',
+        labelPosition: 'left',
+        cols: 12,
       },
-    },
-
-    // 浮动标签 - 使用 InputText 替代
-    {
-      field: 'floatLabel',
-      label: '浮动标签',
-      component: 'InputText',
-      placeholder: '请输入内容',
-      help: '标签会浮动到输入框上方（示例）',
-    },
-
-    // 输入标签 - 使用 InputText 替代
-    {
-      field: 'iftaLabel',
-      label: '输入标签',
-      component: 'InputText',
-      placeholder: '请输入内容',
-      help: '带标签的输入字段（示例）',
     },
   ],
   layout: {
@@ -468,19 +472,22 @@ const initialSchema: Schema = {
   style: {
     contentClass: 'w-100%!',
   },
+  gapX: 12,
+  gapY: 24,
 }
 
 // ==================== 表单 Ref 管理 ====================
 const schemaFormRef = ref<any>(null)
 
 // ==================== 表单数据响应式状态 ====================
-const formValues = ref<Record<string, any>>({})
+// 由 useSchemaForm 提供稳定的响应式表单值
 
 // ==================== 使用 useSchemaForm Hook ====================
 const {
+  formValues,
   schema,
+  getFormData,
   getFormValues,
-  validateForm,
   resetForm,
   clearForm,
   submitForm,
@@ -495,21 +502,8 @@ const {
   getValues,
   hasField,
   getFieldIndex,
-} = useSchemaForm(schemaFormRef, initialSchema)
-
-// ==================== 监听表单值变化 ====================
-import { watch } from 'vue'
-
-// 使用 watch 监听表单值变化，避免频繁调用 getter
-watch(
-  () => schemaFormRef.value?.values,
-  newValues => {
-    if (newValues) {
-      formValues.value = { ...newValues }
-    }
-  },
-  { deep: true, immediate: true }
-)
+} = useSchemaForm({ formRef: schemaFormRef, initialSchema })
+// 从 hook 解构实时表单值（重置/清空后仍会持续更新）
 
 // ==================== 表单操作函数 ====================
 
@@ -519,42 +513,54 @@ const handleSubmit = (values: Record<string, any>) => {
 
 // ==================== 演示操作函数 ====================
 
+// 获取表单数据
+const handleGetFormData = async () => {
+  const formData = await getFormData()
+  if (formData) {
+    console.log('表单值:', formData)
+    openDialog({
+      header: '表单数据',
+      contentRenderer: () => {
+        return <pre>{JSON.stringify(formData, null, 2)}</pre>
+      },
+      hideClose: true,
+      hideFooter: true,
+    })
+  } else {
+    window.$toast.error('表单数据为空')
+  }
+}
+
 // 表单整体操作
 const handleGetFormValues = () => {
   const formValues = getFormValues()
-  console.log('当前表单值:', formValues)
-  alert(`当前表单值: ${JSON.stringify(formValues, null, 2)}`)
-}
-
-const handleValidateForm = async () => {
-  try {
-    const result = await validateForm()
-    if (result.valid) {
-      alert('表单验证通过！')
-    } else {
-      alert(`表单验证失败: ${JSON.stringify(result.errors, null, 2)}`)
-    }
-  } catch (_error) {
-    alert('验证过程中发生错误')
-  }
+  console.log('表单值:', formValues)
+  openDialog({
+    header: '表单值',
+    contentRenderer: () => {
+      return <pre>{JSON.stringify(formValues, null, 2)}</pre>
+    },
+    hideClose: true,
+    hideFooter: true,
+  })
 }
 
 const handleResetForm = () => {
   resetForm()
-  alert('表单已重置到初始状态')
+  success('表单已重置到初始状态')
 }
 
 const handleClearForm = () => {
   clearForm()
-  alert('表单已清空')
+  info('表单已清空')
 }
 
 const handleSubmitForm = async () => {
-  try {
-    await submitForm()
-    alert('表单提交成功！')
-  } catch (_error) {
-    alert('表单提交失败')
+  const { valid } = await submitForm()
+  if (valid) {
+    success('表单提交成功！')
+  } else {
+    error('表单校验未通过，请检查必填项或格式')
   }
 }
 
@@ -570,30 +576,30 @@ const handleAddField = () => {
 
   try {
     addField(newField, 0) // 添加到第一个位置
-    alert('字段添加成功！')
-  } catch (error) {
-    alert(`字段添加失败: ${error}`)
+    success('字段添加成功！')
+  } catch (_error) {
+    error(`字段添加失败: ${_error}`)
   }
 }
 
 const handleRemoveField = () => {
   const fieldName = 'inputText'
   if (hasField(fieldName)) {
-    const success = removeField(fieldName)
-    if (success) {
-      alert(`字段 "${fieldName}" 删除成功！`)
+    const flag = removeField(fieldName)
+    if (flag) {
+      success(`字段 "${fieldName}" 删除成功！`)
     } else {
-      alert(`字段 "${fieldName}" 删除失败！`)
+      error(`字段 "${fieldName}" 删除失败！`)
     }
   } else {
-    alert(`字段 "${fieldName}" 不存在！`)
+    error(`字段 "${fieldName}" 不存在！`)
   }
 }
 
 const handleUpdateField = () => {
   const fieldName = 'inputNumber'
   if (hasField(fieldName)) {
-    const success = updateField(fieldName, {
+    const flag = updateField(fieldName, {
       label: '更新后的数字输入',
       help: '这个字段已经被更新了',
       props: {
@@ -602,13 +608,13 @@ const handleUpdateField = () => {
         step: 5,
       },
     })
-    if (success) {
-      alert(`字段 "${fieldName}" 更新成功！`)
+    if (flag) {
+      success(`字段 "${fieldName}" 更新成功！`)
     } else {
-      alert(`字段 "${fieldName}" 更新失败！`)
+      error(`字段 "${fieldName}" 更新失败！`)
     }
   } else {
-    alert(`字段 "${fieldName}" 不存在！`)
+    error(`字段 "${fieldName}" 不存在！`)
   }
 }
 
@@ -616,23 +622,23 @@ const handleGetField = () => {
   const fieldName = 'select'
   const field = getField(fieldName)
   if (field) {
-    alert(`字段 "${fieldName}" 配置: ${JSON.stringify(field, null, 2)}`)
+    success(`字段 "${fieldName}" 配置: ${JSON.stringify(field, null, 2)}`)
   } else {
-    alert(`字段 "${fieldName}" 不存在！`)
+    error(`字段 "${fieldName}" 不存在！`)
   }
 }
 
 const handleGetFieldValue = () => {
   const fieldName = 'inputText'
   const value = getFieldValue(fieldName)
-  alert(`字段 "${fieldName}" 的值: ${value}`)
+  success(`字段 "${fieldName}" 的值: ${value}`)
 }
 
 const handleSetFieldValue = () => {
   const fieldName = 'inputText'
   const newValue = `设置的值 ${Date.now()}`
   setFieldValue(fieldName, newValue)
-  alert(`字段 "${fieldName}" 的值已设置为: ${newValue}`)
+  success(`字段 "${fieldName}" 的值已设置为: ${newValue}`)
 }
 
 const handleMoveField = () => {
@@ -640,93 +646,148 @@ const handleMoveField = () => {
   const currentIndex = getFieldIndex(fieldName)
   if (currentIndex >= 0) {
     const newIndex = currentIndex === 0 ? 1 : 0
-    const success = moveField(fieldName, newIndex)
-    if (success) {
-      alert(`字段 "${fieldName}" 已从位置 ${currentIndex} 移动到位置 ${newIndex}`)
+    const flag = moveField(fieldName, newIndex)
+    if (flag) {
+      success(`字段 "${fieldName}" 已从位置 ${currentIndex} 移动到位置 ${newIndex}`)
     } else {
-      alert(`字段 "${fieldName}" 移动失败！`)
+      error(`字段 "${fieldName}" 移动失败！`)
     }
   } else {
-    alert(`字段 "${fieldName}" 不存在！`)
+    error(`字段 "${fieldName}" 不存在！`)
+  }
+}
+
+const handleHiddenField = () => {
+  const fieldName1 = 'hidden'
+  const fieldName2 = 'hideValue'
+  const hidden1 = getField(fieldName1)?.hidden
+  const hidden2 = getField(fieldName2)?.hidden
+  const flag1 = updateField(fieldName1, {
+    hidden: !hidden1,
+  })
+  const flag2 = updateField(fieldName2, {
+    hidden: !hidden2,
+  })
+  if (flag1 && flag2) {
+    success(`字段 "${fieldName1}", "${fieldName2}" ${hidden1 ? '显示' : '隐藏'}成功！`)
   }
 }
 
 // 批量操作
 const handleSetValues = () => {
   const newValues = {
-    inputText: '批量设置的文本',
-    inputNumber: 42,
+    // 基础输入组件
+    inputText: '批量设置的文本内容',
+    inputNumber: 88,
+    password: 'password123',
+    inputMask: '13800138000',
+    textarea:
+      '这是一个批量设置的文本区域内容，用于演示批量设置功能。内容可以很长，支持多行文本显示。',
+    inputGroup: 'admin',
+
+    // 选择组件
     select: 'option2',
-    checkbox: true,
+    multiSelect: ['apple', 'banana'],
+    listbox: 'shanghai',
+    cascadeSelect: 'sanlitun', // 级联选择的最终值
+    treeSelect: 'child1-1',
+
+    // 按钮类组件
+    selectButton: 'b',
+    toggleButton: true,
     toggleSwitch: true,
+
+    // 特殊输入组件
+    autoComplete: 'apple',
+    datePicker: new Date('2024-01-15'),
+    colorPicker: '#00FF00',
+    slider: 75,
+    rating: 4,
+
+    // 复选框和单选
+    checkbox: true,
+    radioButton: 'option2',
+
+    // 富文本编辑器
+    editor: '<p>这是批量设置的富文本内容</p><p>支持<strong>粗体</strong>和<em>斜体</em>等格式</p>',
   }
   setValues(newValues)
-  alert('批量设置表单值成功！')
+  success('批量设置所有表单项成功！')
 }
 
 const handleGetValues = () => {
   const allValues = getValues()
-  alert(`所有表单值: ${JSON.stringify(allValues, null, 2)}`)
+  openDialog({
+    header: '所有已填写的表单值',
+    contentRenderer: () => {
+      return <pre>{JSON.stringify(allValues, null, 2)}</pre>
+    },
+    hideClose: true,
+    hideFooter: true,
+  })
 }
 
 // 工具方法
 const handleHasField = () => {
   const fieldName = 'inputText'
   const exists = hasField(fieldName)
-  alert(`字段 "${fieldName}" ${exists ? '存在' : '不存在'}`)
+  if (exists) {
+    success(`字段 "${fieldName}" 存在`)
+  } else {
+    error(`字段 "${fieldName}" 不存在！`)
+  }
 }
 
 const handleGetFieldIndex = () => {
   const fieldName = 'inputNumber'
   const index = getFieldIndex(fieldName)
   if (index >= 0) {
-    alert(`字段 "${fieldName}" 的索引是: ${index}`)
+    success(`字段 "${fieldName}" 的索引是: ${index}`)
   } else {
-    alert(`字段 "${fieldName}" 不存在！`)
+    error(`字段 "${fieldName}" 不存在！`)
   }
 }
 </script>
 
 <template lang="pug">
 div
-  .fs-appFontSizex SchemaForm 组件类型示例 + useSchemaForm Hook 演示
-  .my-gap.color-text200 展示所有支持的组件类型及其配置，以及 useSchemaForm hook 的各种功能
-
   // 操作按钮区域（吸顶区域）
-  .c-card-accent.between-col.items-start.gap-gap.sticky.top-0.z-2
-    .fs-appFontSizes.color-accent100 表单整体操作
-    .between-start.gap-gap
-      Button(@click='handleGetFormValues') 获取表单值
-      Button(@click='handleValidateForm') 验证表单
-      Button(@click='handleResetForm') 重置表单
-      Button(@click='handleClearForm') 清空表单
-      Button(@click='handleSubmitForm') 提交表单
-
-    .fs-appFontSizes.color-accent100 表单项操作
-    .between-start.gap-gap
-      Button(@click='handleAddField') 添加字段
-      Button(@click='handleRemoveField') 删除字段
-      Button(@click='handleUpdateField') 更新字段
-      Button(@click='handleGetField') 获取字段配置
-      Button(@click='handleGetFieldValue') 获取字段值
-      Button(@click='handleSetFieldValue') 设置字段值
-      Button(@click='handleMoveField') 移动字段
-
-    .fs-appFontSizes.color-accent100 批量操作
-    .between-start.gap-gap
-      Button(@click='handleSetValues') 批量设置值
-      Button(@click='handleGetValues') 获取所有值
-
-    .fs-appFontSizes.color-accent100 工具方法
-    .between-start.gap-gap
-      Button(@click='handleHasField') 检查字段存在
-      Button(@click='handleGetFieldIndex') 获取字段索引
-
+  .c-card.rounded-0.px-padding.between-col.items-start.sticky.top-0.z-2.gap-gaps.items-start.gap-gap
+    .fs-appFontSizex SchemaForm 组件类型示例 + useSchemaForm Hook 演示
+    .color-text200 展示所有支持的组件类型及其配置，以及 useSchemaForm hook 的各种功能
+    div
+      .fs-appFontSizes.color-accent100 表单整体操作
+      .between-start.gap-gap
+        Button(@click='handleGetFormData') 获取表单数据
+        Button(@click='handleGetFormValues') 获取表单值
+        Button(@click='handleResetForm') 重置表单
+        Button(@click='handleClearForm') 清空表单
+        Button(@click='handleSubmitForm') 提交表单
+    div
+      .fs-appFontSizes.color-accent100 表单项操作
+      .between-start.gap-gap
+        Button(@click='handleAddField') 添加字段
+        Button(@click='handleRemoveField') 删除字段
+        Button(@click='handleUpdateField') 更新字段
+        Button(@click='handleGetField') 获取字段配置
+        Button(@click='handleGetFieldValue') 获取字段值
+        Button(@click='handleSetFieldValue') 设置字段值
+        Button(@click='handleMoveField') 移动字段
+        Button(@click='handleHiddenField') 隐藏/显示字段
+    div
+      .fs-appFontSizes.color-accent100 批量操作
+      .between-start.gap-gap
+        Button(@click='handleSetValues') 批量设置值
+        Button(@click='handleGetValues') 获取所有值
+    div
+      .fs-appFontSizes.color-accent100 工具方法
+      .between-start.gap-gap
+        Button(@click='handleHasField') 检查字段存在
+        Button(@click='handleGetFieldIndex') 获取字段索引
   .c-border.p-padding.my-gapl
     // 表单组件
     SchemaForm(:schema='schema', @submit='handleSubmit', ref='schemaFormRef')
-
-  .mt-4
-    .fs-appFontSizex 表单数据预览：
-    pre.c-card-primary {{ JSON.stringify(formValues, null, 2) }}
+  .full.c-card-accent.fs-appFontSizes.between-col.gap-gap
+    span.fs-appFontSizex 表单数据实时预览：
+    pre.c-border-primary.p-paddings.full {{ JSON.stringify(formValues, null, 2) }}
 </template>
