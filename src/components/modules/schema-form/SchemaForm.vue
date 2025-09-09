@@ -617,11 +617,42 @@ async function nextStep(form: any) {
   }
 
   const currentStepFields = props.schema.steps[activeStep.value].fields
-  const hasError = await validateStepFields(currentStepFields, form.values)
+
+  // 构建当前值：优先使用内部 formApiRef，更加可靠
+  let currentValues: Record<string, any> = {}
+  try {
+    if (formApiRef) {
+      const temp: Record<string, any> = {}
+      for (const column of props.schema.columns) {
+        const key = column.field
+        const source = formApiRef[key]
+        if (source && typeof source === 'object' && 'value' in source) {
+          temp[key] = source.value
+        } else if (key in formApiRef) {
+          temp[key] = formApiRef[key]
+        } else {
+          temp[key] = undefined
+        }
+      }
+      currentValues = temp
+    } else {
+      currentValues =
+        (form && typeof form === 'object' && 'values' in form ? (form as any).values : {}) || {}
+    }
+  } catch {
+    currentValues = {}
+  }
+
+  const hasError = await validateStepFields(currentStepFields, currentValues)
 
   if (!hasError) {
     activeStep.value = Math.min(activeStep.value + 1, props.schema.steps.length - 1)
+    return
   }
+
+  // 若存在错误，触发一次原生提交以让 PrimeVue Form 渲染错误状态（不会真正提交成功）
+  const formEl = formContainerRef.value?.querySelector('form') as HTMLFormElement | null
+  formEl?.requestSubmit()
 }
 
 /** 上一步处理 */
@@ -629,11 +660,14 @@ function prevStep() {
   activeStep.value = Math.max(activeStep.value - 1, 0)
 }
 
-/** 验证步骤字段 */
+/** 验证步骤字段（对 values 做安全兜底） */
 async function validateStepFields(
   fieldNames: string[],
   values: Record<string, any>
 ): Promise<boolean> {
+  const safeValues: Record<string, any> =
+    values && typeof values === 'object' ? (values as Record<string, any>) : {}
+
   for (const fieldName of fieldNames) {
     const column = columnByField(fieldName)
     // 跳过完全不渲染的隐藏字段的验证
@@ -642,8 +676,8 @@ async function validateStepFields(
     }
 
     if (column?.rules) {
-      const value = values[fieldName]
-      const error = validateField(column, value, values)
+      const value = safeValues[fieldName]
+      const error = validateField(column, value, safeValues)
       if (error) {
         return true
       } // 有错误

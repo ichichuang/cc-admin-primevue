@@ -3,13 +3,14 @@ import { getCurrentRoute, goToRoute } from '@/common'
 import ScrollbarWrapper from '@/components/modules/scrollbar-wrapper/ScrollbarWrapper.vue'
 import type { ScrollEvent } from '@/components/modules/scrollbar-wrapper/utils/types'
 import { useElementSize, useLocale } from '@/hooks'
-import { usePermissionStore, type TabItem } from '@/stores'
+import { usePermissionStore, useSizeStore, type TabItem } from '@/stores'
 import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const { $t } = useLocale()
 
+const sizeStore = useSizeStore()
 const permissionStore = usePermissionStore()
 const router = useRouter()
 
@@ -514,7 +515,14 @@ router.afterEach(to => {
 
 // 监听标签页变化，更新指示器
 watch(
-  () => dynamicTabs.value,
+  () => [
+    dynamicTabs.value,
+    sizeStore.getTabsHeight,
+    sizeStore.getPaddingValue,
+    sizeStore.getPaddingsValue,
+    sizeStore.getPaddingxValue,
+    sizeStore.getPaddinglValue,
+  ],
   () => {
     nextTick(() => {
       updateIndicator()

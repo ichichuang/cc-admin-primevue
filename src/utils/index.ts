@@ -10,9 +10,9 @@ export * from '@/utils/modules/colorUtils'
 export * from '@/utils/modules/deviceInfo'
 export * from '@/utils/modules/env'
 export * from '@/utils/modules/http'
+export * from '@/utils/modules/mitt'
 export * from '@/utils/modules/moduleLoader'
 export * from '@/utils/modules/remAdapter'
-export * from '@/utils/modules/mitt'
 
 // 导出所有工具
 export default importedUtils

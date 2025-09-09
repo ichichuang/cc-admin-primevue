@@ -146,17 +146,26 @@ const exampleRoutes: RouteConfig[] = [
                   icon: 'icon-line-md:text-box',
                 },
               },
+            ],
+          },
+          {
+            path: 'grid-table',
+            name: 'ExampleComponentsGridTable',
+            meta: {
+              titleKey: 'router.example.components.gridTable.title',
+              rank: 5,
+              icon: 'icon-line-md:telegram',
+            },
+            children: [
               {
-                path: 'dynamic',
-                name: 'ExampleComponentsSchemaFormDynamic',
+                path: 'basic',
+                name: 'ExampleComponentsGridTableBasic',
                 component: () =>
-                  import(
-                    '@/views/example/views/example-shema-form/example-schema-form-dynamic.vue'
-                  ),
+                  import('@/views/example/views/example-grid-table/example-grid-table-basic.vue'),
                 meta: {
-                  titleKey: 'router.example.components.schemaForm.dynamic',
-                  rank: 4,
-                  icon: 'icon-line-md:text-box',
+                  titleKey: 'router.example.components.gridTable.basic',
+                  rank: 1,
+                  icon: 'icon-line-md:telegram',
                 },
               },
             ],

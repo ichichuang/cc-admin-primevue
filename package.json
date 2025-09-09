@@ -73,6 +73,8 @@
     "@primevue/forms": "^4.3.7",
     "@primevue/themes": "^4.3.7",
     "@unocss/preset-rem-to-px": "^66.3.3",
+    "ag-grid-community": "^34.1.2",
+    "ag-grid-vue3": "^34.1.2",
     "alova": "^3.3.3",
     "animate.css": "^4.1.1",
     "crypto-js": "^4.2.0",
