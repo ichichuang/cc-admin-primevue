@@ -158,17 +158,49 @@ const exampleRoutes: RouteConfig[] = [
             },
             children: [
               {
+                path: 'default',
+                name: 'ExampleComponentsGridTableDefault',
+                component: () =>
+                  import('@/views/example/views/example-grid-table/example-grid-table-default.vue'),
+                meta: {
+                  titleKey: 'router.example.components.gridTable.default',
+                  rank: 1,
+                  icon: 'icon-line-md:telegram',
+                },
+              },
+              {
                 path: 'basic',
                 name: 'ExampleComponentsGridTableBasic',
                 component: () =>
                   import('@/views/example/views/example-grid-table/example-grid-table-basic.vue'),
                 meta: {
                   titleKey: 'router.example.components.gridTable.basic',
-                  rank: 1,
+                  rank: 2,
+                  icon: 'icon-line-md:telegram',
+                },
+              },
+              {
+                path: 'service',
+                name: 'ExampleComponentsGridTableService',
+                component: () =>
+                  import('@/views/example/views/example-grid-table/example-grid-table-service.vue'),
+                meta: {
+                  titleKey: 'router.example.components.gridTable.service',
+                  rank: 3,
                   icon: 'icon-line-md:telegram',
                 },
               },
             ],
+          },
+          {
+            path: 'echarts',
+            name: 'ExampleComponentsEcharts',
+            component: () => import('@/views/example/views/example-echarts.vue'),
+            meta: {
+              titleKey: 'router.example.components.echarts',
+              rank: 6,
+              icon: 'icon-line-md:telegram',
+            },
           },
         ],
       },

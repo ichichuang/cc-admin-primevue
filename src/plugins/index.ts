@@ -3,6 +3,7 @@ import { setupLocales } from '@/plugins/modules/locales'
 import { setupPrimeVue } from '@/plugins/modules/primevue'
 import { setupRouter } from '@/plugins/modules/router'
 import { setupStores } from '@/plugins/modules/stores'
+import { setupEcharts } from '@/plugins/modules/echarts'
 import type { App } from 'vue'
 
 /**
@@ -17,4 +18,5 @@ export const setupPlugins = (app: App) => {
   setupRouter(app)
   setupLocales(app)
   setupPrimeVue(app)
+  setupEcharts(app)
 }

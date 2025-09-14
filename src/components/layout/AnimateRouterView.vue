@@ -28,7 +28,7 @@ const transitionName = computed(() =>
 const enterActiveClass = computed(
   () =>
     (rawTransition.value as any).enterTransition ||
-    'animate__animated animate__slideInRight animate__fast enter-active-class'
+    'animate__animated animate__fadeIn animate__fast enter-active-class'
 )
 const leaveActiveClass = computed(
   () =>
@@ -54,10 +54,10 @@ router-view(v-slot='{ Component, route }')
 </template>
 <style lang="scss" scoped>
 .enter-active-class {
-  animation-duration: 500ms !important;
+  animation-duration: 800ms !important;
 }
 .leave-active-class {
-  animation-duration: 300ms !important;
+  animation-duration: 200ms !important;
   animation-timing-function: ease-in-out !important;
 }
 </style>

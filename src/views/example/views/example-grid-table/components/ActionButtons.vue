@@ -36,6 +36,6 @@ const deleteRow = () => {
 </script>
 <template lang="pug">
 .full.center.gap-gap
-  Button.btn-edit(@click='editRow') 编辑
-  Button.btn-delete(@click='deleteRow', severity='danger') 删除
+  Button.px-paddings.py-2.btn-edit(@click='editRow') 编辑
+  Button.px-paddings.py-2.btn-delete(@click='deleteRow', severity='danger') 删除
 </template>

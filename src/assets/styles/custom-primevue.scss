@@ -295,18 +295,18 @@
 
 /* 开关 */
 .p-toggleswitch {
-  width: calc(var(--app-font-sizex) * 2 + var(--gaps) * 2) !important;
-  height: calc(var(--app-font-sizex) + var(--gaps)) !important;
+  width: calc(var(--app-font-size) * 2 + var(--gaps) * 2) !important;
+  height: calc(var(--app-font-size) + var(--gaps)) !important;
   * {
     background: var(--bg100) !important;
   }
   .p-toggleswitch-slider {
     .p-toggleswitch-handle {
-      width: var(--app-font-sizex) !important;
-      height: calc(var(--app-font-sizex)) !important;
+      width: var(--app-font-size) !important;
+      height: calc(var(--app-font-size)) !important;
       background: var(--bg300) !important;
-      inset-inline-start: var(--gaps) !important;
-      margin-block-start: calc(-1 * calc(var(--app-font-sizex) / 2)) !important;
+      inset-inline-start: 4px !important;
+      margin-block-start: calc(-1 * calc(var(--app-font-size) / 2)) !important;
     }
   }
 }
@@ -318,7 +318,7 @@
   .p-toggleswitch-slider {
     .p-toggleswitch-handle {
       background: var(--bg200) !important;
-      inset-inline-start: calc(100% - var(--app-font-sizex) - var(--gaps)) !important;
+      inset-inline-start: calc(100% - var(--app-font-size) - 4px) !important;
     }
   }
 }

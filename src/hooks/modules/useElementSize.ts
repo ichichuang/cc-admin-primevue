@@ -12,7 +12,7 @@ export interface UseElementSizeOptions {
  * - targetRef 为 false 时，默认监听 document.documentElement 尺寸
  */
 export function useElementSize(
-  targetRef: Ref<HTMLElement | null> | false,
+  targetRef: Ref<HTMLElement | HTMLDivElement | null> | false,
   callback?: (entry: DOMRectReadOnly) => void,
   options: UseElementSizeOptions = {}
 ) {

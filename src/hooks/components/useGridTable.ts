@@ -23,11 +23,11 @@ import { useLocale } from '@/hooks/modules/useLocale'
 import { useColorStore, useSizeStore } from '@/stores'
 import type { GridApi, GridOptions, GridReadyEvent } from 'ag-grid-community'
 import { themeQuartz } from 'ag-grid-community'
-import { computed, ref, watch, type Ref } from 'vue'
+import { computed, ref, unref, watch, type Ref } from 'vue'
 
 export interface UseGridTableOptions {
   /** 初始网格选项 */
-  initialGridOptions?: GridOptions
+  initialGridOptions?: GridOptions | Ref<GridOptions>
   /** 是否启用选择状态持久化 */
   enableSelectionPersistence?: boolean
   /** 是否在挂载后自动调整列宽 */
@@ -79,6 +79,18 @@ export function useGridTable(
     autoSizeOnMount = true,
   } = options
 
+  // 处理响应式的 initialGridOptions
+  const reactiveGridOptions = computed(() => {
+    if (
+      initialGridOptions &&
+      typeof initialGridOptions === 'object' &&
+      'value' in initialGridOptions
+    ) {
+      return unref(initialGridOptions)
+    }
+    return initialGridOptions as GridOptions
+  })
+
   // Grid API 引用
   const gridApi = ref<GridApi | null>(null)
   const columnApi = ref<any | null>(null)
@@ -96,9 +108,11 @@ export function useGridTable(
   const isDark = computed(() => colorStore.isDark)
 
   // 语言或主题变化时，使用 key 强制重建 Grid
-  // gridKey 仅与语言相关，避免主题/尺寸变化导致整表重建从而丢失分页状态
+  // gridKey 包含语言和选择配置，确保选择配置变化时表格重新渲染
   const gridKey = computed(() => {
-    return generateGridKey(locale.value, false, 'static-theme', 'static-size')
+    // 从 props 中获取选择配置
+    const selectionConfig = (props as any).config?.selection
+    return generateGridKey(locale.value, false, 'static-theme', 'static-size', selectionConfig)
   })
 
   // 在重建前捕获选择
@@ -143,10 +157,45 @@ export function useGridTable(
 
   // 组合最终 gridOptions
   const mergedGridOptions = computed(() => ({
-    ...buildGridOptions(initialGridOptions, { onGridReady }),
+    ...buildGridOptions(reactiveGridOptions.value, { onGridReady }),
     localeText: localeText.value as unknown as Record<string, string>,
     theme: customTheme.value,
   }))
+
+  // 监听配置变化，实时更新 AG Grid
+  watch(
+    mergedGridOptions,
+    newOptions => {
+      if (gridApi.value) {
+        // 更新 AG Grid 的配置，排除初始属性和特殊属性
+        const excludeKeys = [
+          'onGridReady',
+          'theme',
+          'localeText',
+          'paginationPageSizeSelector',
+          'suppressColumnVirtualisation',
+          'rowClassRules',
+          'getRowId', // 初始属性，不能动态更新
+        ]
+
+        Object.keys(newOptions).forEach(key => {
+          if (!excludeKeys.includes(key)) {
+            try {
+              gridApi.value!.setGridOption(key as any, (newOptions as any)[key])
+            } catch (error) {
+              console.warn(`无法更新 AG Grid 属性 ${key}:`, error)
+            }
+          }
+        })
+
+        // 特殊处理斑马纹：getRowClass/getRowStyle 变化时强制刷新
+        if ((newOptions as any).getRowClass || (newOptions as any).getRowStyle) {
+          gridApi.value.refreshCells({ force: true })
+        }
+      }
+    },
+    { deep: true }
+  )
 
   // 选择状态管理方法
   const captureSelection = () => {
@@ -250,8 +299,12 @@ export function useGridTable(
 
   // 暴露的 API
   const exposedApi: GridTableExpose = {
-    gridApi: gridApi as any,
-    columnApi,
+    get gridApi() {
+      return gridApi.value as any
+    },
+    get columnApi() {
+      return columnApi.value
+    },
     refreshCells,
     sizeColumnsToFit,
     autoSizeAll,
@@ -295,5 +348,52 @@ export function useGridTable(
 
     // 暴露的 API
     exposedApi,
+  }
+}
+
+/**
+ * 面向“使用 GridTable 组件的页面层”的轻量包装 Hooks
+ * - 通过组件 ref 代理调用 GridTable 暴露的 API
+ * - 让页面无需直接访问组件实例方法，保持调用语义一致
+ */
+export function useGridTableController(componentRef: Ref<any>) {
+  const gridApiRef = computed(() => componentRef.value?.gridApi ?? null)
+  const columnApiRef = computed(() => componentRef.value?.columnApi ?? null)
+
+  const safeCall = <T>(fn: ((...args: any[]) => T) | undefined, ...args: any[]): T | undefined => {
+    if (typeof fn === 'function') {
+      return fn(...args)
+    }
+  }
+
+  const exportCsv = (params?: any) => safeCall(componentRef.value?.exportCsv, params)
+  const refreshCells = () => safeCall(componentRef.value?.refreshCells)
+  const sizeColumnsToFit = () => safeCall(componentRef.value?.sizeColumnsToFit)
+  const autoSizeAll = (skipHeader?: boolean) =>
+    safeCall(componentRef.value?.autoSizeAll, skipHeader)
+  const getSelectedRows = () => safeCall(componentRef.value?.getSelectedRows) || []
+  const getSelectedData = () => safeCall(componentRef.value?.getSelectedData) || []
+  const setSelectedRows = (rows: any[]) => safeCall(componentRef.value?.setSelectedRows, rows)
+  const clearSelection = () => safeCall(componentRef.value?.clearSelection)
+  const refreshData = () => safeCall(componentRef.value?.refreshData)
+  const updateData = (data: any[]) => safeCall(componentRef.value?.updateData, data)
+
+  return {
+    get gridApi() {
+      return unref(gridApiRef) ?? null
+    },
+    get columnApi() {
+      return unref(columnApiRef) ?? null
+    },
+    exportCsv,
+    refreshCells,
+    sizeColumnsToFit,
+    autoSizeAll,
+    getSelectedRows,
+    getSelectedData,
+    setSelectedRows,
+    clearSelection,
+    refreshData,
+    updateData,
   }
 }

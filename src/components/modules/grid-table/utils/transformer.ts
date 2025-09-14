@@ -4,14 +4,18 @@
  * 将友好的配置转换为 AG Grid 原生配置
  */
 
+import { useColorStore } from '@/stores'
 import type { ColDef, GridOptions } from 'ag-grid-community'
+import { COLUMN_TYPE_DEFAULTS, DEFAULT_GRID_OPTIONS, GRID_TABLE_DEFAULT_CONFIG } from './constants'
 import type {
   ExportConfig,
+  FeatureConfig,
   GridColumn,
   GridTableConfig,
   LayoutConfig,
   PaginationConfig,
   SelectionConfig,
+  TableLayoutConfig,
   TextAlign,
 } from './types'
 
@@ -25,122 +29,174 @@ const textAlignMap: Record<TextAlign, string> = {
 
 // ==================== 列类型转换 ====================
 
-const columnTypeMap: Record<string, Partial<ColDef>> = {
-  text: {
-    filter: 'agTextColumnFilter',
-    sortable: true,
-  },
-  number: {
-    filter: 'agNumberColumnFilter',
-    sortable: true,
-    valueFormatter: params => params.value?.toLocaleString() || '',
-  },
-  date: {
-    filter: 'agDateColumnFilter',
-    sortable: true,
-    valueFormatter: (params: any) => {
-      if (!params.value) {
-        return ''
-      }
-      return new Date(params.value).toLocaleDateString('zh-CN')
-    },
-  },
-  boolean: {
-    filter: 'agTextColumnFilter', // 使用社区版过滤器
-    cellRenderer: (params: any) => (params.value ? '是' : '否'),
-  },
-  select: {
-    filter: 'agTextColumnFilter', // 使用社区版过滤器
-  },
-  actions: {
-    sortable: false,
-    filter: false, // 不使用过滤器
-    resizable: false,
-    suppressHeaderMenuButton: true, // 修复：使用正确的属性名
-    cellStyle: { textAlign: 'center' },
-  },
-  custom: {},
-}
-
 // ==================== 列配置转换器 ====================
 
-export function transformColumn(column: GridColumn): ColDef {
+export function transformColumn(
+  column: GridColumn,
+  globalLayout?: LayoutConfig,
+  allowPinnedColumnMoving?: boolean
+): ColDef {
+  // ==================== 基础列配置 ====================
+  // 应用全局布局配置的默认值（优先级：列 > 列.layout > 表级 layout > 默认）
   const baseColDef: ColDef = {
     field: column.field,
     headerName: column.headerName || column.field,
-    width: column.width,
-    minWidth: column.minWidth,
-    maxWidth: column.maxWidth,
-    resizable: column.resizable ?? true,
-    sortable: column.sortable ?? false,
-    filter: column.filterable ? column.filter || 'agTextColumnFilter' : false,
+
+    // ==================== 尺寸配置 ====================
+    // 尺寸限制：列.layout > 表.layout > 默认
+    minWidth: ((): any => {
+      const v = column.layout?.minWidth ?? globalLayout?.minWidth
+      return v && v > 0 ? v : undefined
+    })(),
+    maxWidth: ((): any => {
+      const v = column.layout?.maxWidth ?? globalLayout?.maxWidth
+      return v && v > 0 ? v : undefined
+    })(),
+
+    // ==================== 列行为配置 ====================
+    // 列级别配置优先，然后列.layout，其次表级 layout，最后默认
+    resizable: (() => {
+      const defaultResizing = GRID_TABLE_DEFAULT_CONFIG.layout?.layout?.resizing ?? true
+      const finalResizing = column.layout?.resizing ?? globalLayout?.resizing ?? defaultResizing
+      return finalResizing
+    })(),
+    // 不使用 flex，避免影响宽度限制
+    flex: undefined,
+
+    sortable: (() => {
+      const defaultSorting = GRID_TABLE_DEFAULT_CONFIG.layout?.layout?.sorting ?? true
+      const finalSorting = column.layout?.sorting ?? globalLayout?.sorting ?? defaultSorting
+      return finalSorting
+    })(),
+
+    // ==================== 列移动配置 ====================
+    suppressMovable: (() => {
+      const defaultColumnMoving = GRID_TABLE_DEFAULT_CONFIG.layout?.layout?.columnMoving ?? false
+      const finalColumnMoving =
+        column.layout?.columnMoving ?? globalLayout?.columnMoving ?? defaultColumnMoving
+      return !finalColumnMoving // columnMoving: false -> suppressMovable: true
+    })(),
+
+    lockPosition: (() => {
+      // 固定列是否允许移动：由 features.allowPinnedColumnMoving 控制（默认 false）
+      if (column.pinned) {
+        if (allowPinnedColumnMoving === false) {
+          return true
+        }
+      }
+      // 如果列明确设置了 columnMoving: false，也锁定位置
+      const defaultColumnMoving = GRID_TABLE_DEFAULT_CONFIG.layout?.layout?.columnMoving ?? false
+      const finalColumnMoving =
+        column.layout?.columnMoving ?? globalLayout?.columnMoving ?? defaultColumnMoving
+      if (finalColumnMoving === false) {
+        return true
+      }
+      return false // 默认不锁定
+    })(),
+
+    // ==================== 筛选配置 ====================
+    filter: (() => {
+      // 最终过滤开关：列.layout > 表级 layout > 默认(false)
+      const defaultFiltering = GRID_TABLE_DEFAULT_CONFIG.layout?.layout?.filtering ?? false
+      const finalFiltering = column.layout?.filtering ?? globalLayout?.filtering ?? defaultFiltering
+
+      if (!finalFiltering) {
+        return false
+      }
+
+      // 如果是字符串，直接使用
+      if (column.filter && typeof column.filter === 'string') {
+        return column.filter
+      }
+
+      // 否则使用默认筛选器
+      return 'agTextColumnFilter'
+    })(),
+
+    // ==================== 编辑配置 ====================
+    editable: (() => {
+      const defaultCellEditing = GRID_TABLE_DEFAULT_CONFIG.layout?.layout?.cellEditing ?? false
+      const isEditable =
+        column.layout?.cellEditing ?? globalLayout?.cellEditing ?? defaultCellEditing
+      return isEditable
+    })(),
+
+    // ==================== 其他配置 ====================
     pinned: column.pinned,
-    hide: column.hidden ?? false,
-    suppressHeaderMenuButton: column.disabled ?? false,
+    hide: column.hidden ?? false, // 默认不隐藏列
     ...column.props,
   }
 
-  // 应用列类型配置
-  if (column.type && columnTypeMap[column.type]) {
-    Object.assign(baseColDef, columnTypeMap[column.type])
+  // 应用列类型配置（保留前面已判定为 false 的过滤开关）
+  // 如果没有指定 type，默认使用 'text' 类型
+  const columnType = column.type || 'text'
+  if ((COLUMN_TYPE_DEFAULTS as any)[columnType]) {
+    const typeDef: Partial<ColDef> = { ...(COLUMN_TYPE_DEFAULTS as any)[columnType] }
+    if (baseColDef.filter === false) {
+      delete (typeDef as any).filter
+    }
+    if (baseColDef.sortable === false) {
+      delete (typeDef as any).sortable
+    }
+    if (baseColDef.resizable === false) {
+      delete (typeDef as any).resizable
+    }
+    Object.assign(baseColDef, typeDef)
   }
 
-  // 应用文本对齐
-  if (column.textAlign) {
+  // 应用文本对齐（列 > 列.layout > 表级 layout > 默认）
+  {
+    const finalTextAlign: TextAlign | undefined =
+      column.layout?.textAlign ?? globalLayout?.textAlign
+    // 即使没有明确设置，也要应用默认值
+    const textAlignToApply = finalTextAlign || 'center'
     baseColDef.cellStyle = {
       ...baseColDef.cellStyle,
-      textAlign: textAlignMap[column.textAlign],
+      textAlign: textAlignMap[textAlignToApply],
     }
   }
 
-  // 应用样式配置
-  if (column.style) {
-    const cellStyle: Record<string, any> = { ...baseColDef.cellStyle }
-
-    if (column.style.textAlign) {
-      cellStyle.textAlign = textAlignMap[column.style.textAlign]
-    }
-    if (column.style.fontSize) {
-      cellStyle.fontSize = column.style.fontSize
-    }
-    if (column.style.fontWeight) {
-      cellStyle.fontWeight = column.style.fontWeight
-    }
-    if (column.style.color) {
-      cellStyle.color = column.style.color
-    }
-    if (column.style.class) {
-      baseColDef.cellClass = column.style.class
-    }
-    if (column.style.style) {
-      Object.assign(cellStyle, column.style.style)
-    }
-
-    baseColDef.cellStyle = cellStyle
+  // 应用样式配置（从 layout 读取类名）
+  if (column.layout?.cellClass) {
+    baseColDef.cellClass = column.layout.cellClass
   }
 
-  // 应用列头样式
-  if (column.headerStyle) {
-    if (column.headerStyle.class) {
-      baseColDef.headerClass = column.headerStyle.class
-    }
-    if (column.headerStyle.style) {
-      baseColDef.headerStyle = column.headerStyle.style
+  // 应用单元格内联样式（从 layout 读取）
+  if (column.layout?.cellStyle) {
+    baseColDef.cellStyle = {
+      ...(baseColDef.cellStyle as any),
+      ...column.layout.cellStyle,
     }
   }
 
-  // 应用单元格样式
-  if (column.cellStyle) {
-    if (column.cellStyle.class) {
-      baseColDef.cellClass = column.cellStyle.class
+  // 应用列头样式与表头对齐（列 > 列.layout > 表级 layout > 默认）
+  {
+    const finalHeaderTextAlign: TextAlign | undefined =
+      column.layout?.headerTextAlign ?? globalLayout?.headerTextAlign
+
+    if (column.layout?.headerClass) {
+      baseColDef.headerClass = column.layout.headerClass
     }
-    if (column.cellStyle.style) {
-      baseColDef.cellStyle = {
-        ...baseColDef.cellStyle,
-        ...column.cellStyle.style,
+
+    if (column.layout?.headerStyle) {
+      baseColDef.headerStyle = {
+        ...(baseColDef.headerStyle as any),
+        ...column.layout.headerStyle,
       }
     }
+
+    if (finalHeaderTextAlign) {
+      const alignClass =
+        finalHeaderTextAlign === 'left'
+          ? 'left'
+          : finalHeaderTextAlign === 'center'
+            ? 'center'
+            : 'right'
+      baseColDef.headerClass = [baseColDef.headerClass, alignClass].filter(Boolean).join(' ')
+    }
   }
+
+  // 单元格样式已在上面处理
 
   // 应用自定义渲染器
   if (column.cellRenderer) {
@@ -162,9 +218,31 @@ export function transformColumn(column: GridColumn): ColDef {
     baseColDef.valueParser = column.valueParser
   }
 
+  // 应用编辑完成回调
+  if (column.onCellValueChanged) {
+    baseColDef.onCellValueChanged = (event: any) => {
+      const { oldValue, newValue, data, colDef } = event
+      column.onCellValueChanged!({
+        oldValue,
+        newValue,
+        data,
+        field: colDef.field,
+      })
+    }
+  }
+
   // 应用过滤器参数
   if (column.filterParams) {
     baseColDef.filterParams = column.filterParams
+  }
+
+  // 保存原始的 layout 配置到 colDef.context 中，供自定义渲染器使用
+  if (column.layout) {
+    // 使用 AG Grid 推荐的 context 属性来存储应用数据
+    baseColDef.context = {
+      ...baseColDef.context,
+      layout: column.layout,
+    }
   }
 
   return baseColDef
@@ -172,15 +250,22 @@ export function transformColumn(column: GridColumn): ColDef {
 
 // ==================== 布局配置转换器 ====================
 
-export function transformLayout(layout?: LayoutConfig): Partial<GridOptions> {
+export function transformLayout(layout?: TableLayoutConfig): Partial<GridOptions> {
   if (!layout) {
     return {}
   }
 
   const gridOptions: Partial<GridOptions> = {}
 
+  // 处理高度配置
   if (layout.height) {
-    gridOptions.domLayout = 'normal'
+    if (layout.height === 'auto') {
+      // auto 模式：让 AG Grid 自动计算高度，不设置 domLayout
+      gridOptions.domLayout = 'autoHeight'
+    } else {
+      // 固定高度模式：使用 normal 布局
+      gridOptions.domLayout = 'normal'
+    }
   }
 
   if (layout.rowHeight) {
@@ -191,19 +276,104 @@ export function transformLayout(layout?: LayoutConfig): Partial<GridOptions> {
     gridOptions.headerHeight = layout.headerHeight
   }
 
-  if (layout.bordered) {
-    gridOptions.suppressColumnVirtualisation = true
+  // 斑马纹控制：基于 zebra 模式（none/odd/even）与可选的 zebraColor
+  // 颜色优先级：layout.zebraColor（行内样式覆盖）> colorStore.getBg200 + '50'（回退）
+  const normalizeColor = (c?: string): string | undefined => {
+    if (!c) {
+      return undefined
+    }
+    const v = String(c).trim()
+    if (!v) {
+      return undefined
+    }
+    return v.startsWith('#') ? v : `#${v}`
+  }
+  const zebraColor: string | undefined = normalizeColor((layout as any).zebraColor)
+  const colorStore = useColorStore()
+  const storeFallback: string | undefined = normalizeColor(String(colorStore.getBg200) + '80')
+
+  switch (layout.zebra) {
+    case 'odd':
+      // 视觉上的“第 1、3、5 ... 行”为奇数行，对应 0-based 索引的偶数 index
+      gridOptions.getRowClass = (params: any) => {
+        const index = params.node?.rowIndex ?? 0
+        return index % 2 === 0 ? 'ag-row-odd' : ''
+      }
+      gridOptions.getRowStyle = (params: any) => {
+        const index = params.node?.rowIndex ?? 0
+        const color = zebraColor || storeFallback
+        if (index % 2 === 0) {
+          return color ? { backgroundColor: color } : { backgroundColor: '' }
+        }
+        // 显式清理偶数行上一次配置遗留
+        return { backgroundColor: '' }
+      }
+      break
+    case 'even':
+      // 视觉上的“第 2、4、6 ... 行”为偶数行，对应 0-based 索引的奇数 index
+      gridOptions.getRowClass = (params: any) => {
+        const index = params.node?.rowIndex ?? 0
+        return index % 2 === 1 ? 'ag-row-even' : ''
+      }
+      gridOptions.getRowStyle = (params: any) => {
+        const index = params.node?.rowIndex ?? 0
+        const color = zebraColor || storeFallback
+        if (index % 2 === 1) {
+          return color ? { backgroundColor: color } : { backgroundColor: '' }
+        }
+        // 显式清理奇数行上一次配置遗留
+        return { backgroundColor: '' }
+      }
+      break
+    case 'none':
+    default:
+      // 清理两种回调与内联背景色，达到“无斑马纹”效果
+      gridOptions.getRowClass = undefined as any
+      gridOptions.getRowStyle = () => ({ backgroundColor: '' })
+      break
   }
 
-  if (layout.striped) {
-    const rowClassRules: Record<string, (params: any) => boolean> = {}
-    rowClassRules['ag-row-even'] = (params: any) => (params.node?.rowIndex ?? 0) % 2 === 0
-    rowClassRules['ag-row-odd'] = (params: any) => (params.node?.rowIndex ?? 0) % 2 === 1
-    gridOptions.rowClassRules = rowClassRules
+  // 分割线控制 - 通过 context 传递自定义数据
+  const lineClasses = []
+  if (layout.horizontalLines) {
+    lineClasses.push('cc-ag-horizontal-lines')
+  } else {
+    lineClasses.push('cc-ag-no-horizontal-lines')
+  }
+  if (layout.verticalLines) {
+    lineClasses.push('cc-ag-vertical-lines')
+  } else {
+    lineClasses.push('cc-ag-no-vertical-lines')
+  }
+  if (lineClasses.length > 0) {
+    // 使用 context 属性传递自定义数据
+    gridOptions.context = {
+      ...gridOptions.context,
+      lineClasses,
+    }
   }
 
-  if (layout.hoverable) {
-    gridOptions.suppressRowHoverHighlight = false
+  // 高亮效果控制
+  if (layout.hoverRowHighlight === false) {
+    // gridOptions.suppressRowHoverHighlight = true
+  } else {
+    // gridOptions.suppressRowHoverHighlight = false
+  }
+
+  if (layout.hoverColumnHighlight === true) {
+    gridOptions.columnHoverHighlight = true
+  } else {
+    gridOptions.columnHoverHighlight = false
+  }
+
+  // 单元格高亮设置
+  // 开启单元格选中标记
+  gridOptions.suppressCellFocus = false
+  if (layout.selectedCellBorderHighlight) {
+    lineClasses.push('cc-ag-cell-border-highlight')
+  }
+  if (layout.selectedCellBackgroundHighlight) {
+    lineClasses.push('cc-ag-cell-background-highlight')
   }
 
   return gridOptions
@@ -212,15 +382,28 @@ export function transformLayout(layout?: LayoutConfig): Partial<GridOptions> {
 // ==================== 分页配置转换器 ====================
 
 export function transformPagination(pagination?: PaginationConfig): Partial<GridOptions> {
-  if (!pagination || !pagination.enabled) {
-    return {}
+  // 使用 constants.ts 中的默认分页配置
+  const defaultPagination = GRID_TABLE_DEFAULT_CONFIG.pagination || {
+    enabled: false,
+    pageSize: 10,
+    pageSizeOptions: [5, 10, 20, 50],
+    showPageSizeSelector: true,
+  }
+
+  const finalPagination = { ...defaultPagination, ...pagination }
+
+  if (!finalPagination.enabled) {
+    return {
+      pagination: false,
+      suppressPaginationPanel: true,
+    }
   }
 
   const gridOptions: Partial<GridOptions> = {
     pagination: true,
-    paginationPageSize: pagination.pageSize || 10,
-    paginationPageSizeSelector: pagination.showPageSizeSelector
-      ? pagination.pageSizeOptions || [5, 10, 20, 50]
+    paginationPageSize: finalPagination.pageSize,
+    paginationPageSizeSelector: finalPagination.showPageSizeSelector
+      ? finalPagination.pageSizeOptions
       : false,
   }
 
@@ -229,26 +412,104 @@ export function transformPagination(pagination?: PaginationConfig): Partial<Grid
 
 // ==================== 选择配置转换器 ====================
 
-export function transformSelection(selection?: SelectionConfig): Partial<GridOptions> {
-  if (!selection) {
+export function transformSelection(
+  selection?: SelectionConfig,
+  rowModelType?: string
+): Partial<GridOptions> {
+  // 使用 constants.ts 中的默认选择配置
+  const defaultSelection = GRID_TABLE_DEFAULT_CONFIG.selection || {
+    mode: 'singleRow' as const,
+    checkboxes: false,
+    clickToSelect: true,
+    keyboardToSelect: true,
+  }
+
+  const finalSelection = { ...defaultSelection, ...selection }
+
+  // infinite 行模型不支持选择功能，返回空配置
+  if (rowModelType === 'infinite') {
     return {}
   }
 
-  const gridOptions: Partial<GridOptions> = {
-    rowSelection: {
-      mode: selection.mode === 'multiple' ? 'multiRow' : 'singleRow',
-      enableClickSelection: selection.clickToSelect ?? true,
-    },
-  }
+  const gridOptions: Partial<GridOptions> = {}
 
-  if (selection.checkboxes) {
-    gridOptions.rowSelection = {
-      mode: 'multiRow',
-      enableClickSelection: false,
+  // ==================== 选择配置处理 ====================
+  // 只有当明确启用复选框时才设置 rowSelection
+  if (finalSelection.checkboxes) {
+    const rowSelectionConfig: any = {
+      // 选择模式：根据 mode 设置（单选或多选）
+      mode: finalSelection.mode === 'multiRow' ? 'multiRow' : 'singleRow',
+      // 点击选择：根据 clickToSelect 设置
+      enableClickSelection: finalSelection.clickToSelect,
+      // 始终启用复选框列
+      checkboxes: true,
     }
+
+    // ==================== 表头复选框配置 ====================
+    if (finalSelection.headerCheckbox) {
+      rowSelectionConfig.headerCheckbox = true
+      // 全选行为：'all' 表示全选所有行，'filtered' 表示只全选过滤后的行
+      rowSelectionConfig.selectAll = 'all'
+    }
+
+    // ==================== 高级选择配置 ====================
+    if (finalSelection.mode === 'multiRow' && finalSelection.clickToSelect) {
+      // v32.2+：允许无修饰键点击进行多选（不需要按住 Ctrl/Cmd）
+      rowSelectionConfig.enableSelectionWithoutKeys = true
+    }
+
+    // ==================== 复选框列固定配置 ====================
+    // 如果需要固定复选框列，通过 rowSelection.checkboxColumn 配置
+    // 应用列固定配置
+    if (finalSelection.pinned) {
+      gridOptions.selectionColumnDef = {
+        width: 40,
+        pinned: finalSelection.pinned,
+        lockPosition: true,
+      }
+    }
+
+    gridOptions.rowSelection = rowSelectionConfig
+  }
+  // 注意：如果不启用复选框，则不设置 rowSelection，避免 AG Grid 自动显示复选框列
+  return gridOptions
+}
+
+// ==================== 功能配置转换器 ====================
+
+export function transformFeatures(features?: FeatureConfig): Partial<GridOptions> {
+  // 使用 constants.ts 中的默认功能配置
+  const defaultFeatures = GRID_TABLE_DEFAULT_CONFIG.features || {
+    allowPinnedColumnMoving: false,
+    clipboard: true,
+    export: true,
+    fullScreen: false,
+    pagination: true,
   }
 
-  // 注意：headerCheckbox 不是有效的 gridOptions 属性，需要在列定义中处理
+  const finalFeatures = { ...defaultFeatures, ...features }
+
+  const gridOptions: Partial<GridOptions> = {}
+
+  // 复制粘贴
+  if (finalFeatures.clipboard === false) {
+    gridOptions.suppressClipboardApi = true
+  }
+
+  // 导出功能
+  if (finalFeatures.export === false) {
+    gridOptions.suppressCsvExport = true
+    gridOptions.suppressExcelExport = true
+  }
+
+  // 分页
+  if (finalFeatures.pagination === false) {
+    gridOptions.pagination = false
+    gridOptions.suppressPaginationPanel = true
+  } else {
+    gridOptions.pagination = true
+    gridOptions.suppressPaginationPanel = false
+  }
 
   return gridOptions
 }
@@ -256,22 +517,27 @@ export function transformSelection(selection?: SelectionConfig): Partial<GridOpt
 // ==================== 导出配置转换器 ====================
 
 export function transformExport(exportConfig?: ExportConfig): Partial<GridOptions> {
-  if (!exportConfig) {
-    return {}
+  // 使用 constants.ts 中的默认导出配置
+  const defaultExport = GRID_TABLE_DEFAULT_CONFIG.export || {
+    csv: true,
+    excel: false,
+    fileName: '数据导出',
   }
+
+  const finalExport = { ...defaultExport, ...exportConfig }
 
   const gridOptions: Partial<GridOptions> = {}
 
-  if (exportConfig.csv) {
+  if (finalExport.csv) {
     gridOptions.suppressCsvExport = false
-    if (exportConfig.params) {
-      gridOptions.defaultCsvExportParams = exportConfig.params
+    if (finalExport.params) {
+      gridOptions.defaultCsvExportParams = finalExport.params
     }
   } else {
     gridOptions.suppressCsvExport = true
   }
 
-  if (exportConfig.excel) {
+  if (finalExport.excel) {
     gridOptions.suppressExcelExport = false
   } else {
     gridOptions.suppressExcelExport = true
@@ -287,41 +553,52 @@ export function transformGridConfig(config: GridTableConfig): {
   gridOptions: GridOptions
   components: Record<string, any>
 } {
-  // 转换列配置
-  const columnDefs = config.columns.map(transformColumn)
+  // 获取表格级别的布局配置（作为列的默认配置）
+  const globalLayout = config.layout?.layout
+
+  // 合并 GridOptions（默认只来自 constants）
+  // 注意：getRowId 是初始属性，不能被用户配置覆盖
+  const { getRowId: _getRowId, ...userGridOptions } = config.gridOptions || {}
 
   // 转换各种配置
   const layoutOptions = transformLayout(config.layout)
+  const featuresOptions = transformFeatures(config.features)
   const paginationOptions = transformPagination(config.pagination)
-  const selectionOptions = transformSelection(config.selection)
+  const selectionOptions = transformSelection(config.selection, userGridOptions.rowModelType)
   const exportOptions = transformExport(config.export)
-
-  // 合并 GridOptions
   const gridOptions: GridOptions = {
-    // 默认配置
-    animateRows: true,
-    suppressRowHoverHighlight: false,
-    enableCellTextSelection: true,
-    defaultColDef: {
-      flex: 1,
-      minWidth: 100,
-      sortable: true,
-      filter: true,
-      resizable: true,
-    },
-    // 合并用户配置
+    ...DEFAULT_GRID_OPTIONS,
     ...layoutOptions,
+    ...featuresOptions,
     ...paginationOptions,
     ...selectionOptions,
     ...exportOptions,
-    // 用户自定义配置（优先级最高）
-    ...config.gridOptions,
+    ...userGridOptions,
+    // 确保 getRowId 始终使用默认值，不被用户配置覆盖
+    getRowId: DEFAULT_GRID_OPTIONS.getRowId,
+    // 处理数据：如果配置中有 data 且不是 infinite 行模型，则设置 rowData
+    ...(config.data && userGridOptions.rowModelType !== 'infinite' ? { rowData: config.data } : {}),
   }
 
-  // 移除过时的配置选项
+  // ==================== 列配置处理 ====================
+  // 表级列移动控制：不再通过 suppressMovableColumns 或重写 defaultColDef，
+  // 仅通过每列的 suppressMovable/lockPosition 控制，避免切换时列顺序闪动。
+
+  // 转换列配置（优先级：列 > 列.layout > 表.layout > 默认）
+  const defaultAllowPinnedMove =
+    GRID_TABLE_DEFAULT_CONFIG.features?.allowPinnedColumnMoving ?? false
+  const allowPinnedMove = config.features?.allowPinnedColumnMoving ?? defaultAllowPinnedMove
+  const columnDefs = config.columns.map(column =>
+    transformColumn(column, globalLayout, allowPinnedMove)
+  )
+
+  // ==================== 复选框列处理 ====================
+  // 注意：当 fixed: true 时，我们通过 rowSelection.checkboxColumn 来配置固定复选框列
+  // 不需要手动创建复选框列，因为 AG Grid v32.2+ 会自动处理
+
+  // ==================== 清理过时配置 ====================
   if (gridOptions.enableRangeSelection) {
     delete gridOptions.enableRangeSelection
-    // 不设置 cellSelection，因为需要企业版模块
   }
   if (gridOptions.suppressRowClickSelection !== undefined) {
     delete gridOptions.suppressRowClickSelection
@@ -330,7 +607,7 @@ export function transformGridConfig(config: GridTableConfig): {
     delete gridOptions.suppressRowDeselection
   }
   if (gridOptions.cellSelection) {
-    delete gridOptions.cellSelection // 移除，因为需要企业版模块
+    delete gridOptions.cellSelection
   }
 
   return {
@@ -347,9 +624,11 @@ export function createDefaultColumn(field: string, headerName?: string): GridCol
     field,
     headerName: headerName || field,
     type: 'text',
-    width: 120,
-    sortable: true,
-    filterable: true,
+    // 宽度统一由 layout.minWidth 管控
+    layout: {
+      sorting: GRID_TABLE_DEFAULT_CONFIG.layout?.layout?.sorting ?? true,
+      filtering: GRID_TABLE_DEFAULT_CONFIG.layout?.layout?.filtering ?? false,
+    },
   }
 }
 
@@ -357,12 +636,14 @@ export function createActionColumn(renderer: string = 'actionButtons'): GridColu
   return {
     field: 'actions',
     headerName: '操作',
-    type: 'actions',
-    width: 120,
+    type: 'custom',
+    // 宽度统一由 layout.minWidth 管控
     pinned: 'right',
-    resizable: false,
-    sortable: false,
-    filterable: false,
+    layout: {
+      resizing: false,
+      sorting: false,
+      filtering: false,
+    },
     cellRenderer: renderer,
   }
 }
@@ -372,11 +653,11 @@ export function createIdColumn(field: string = 'id', headerName: string = 'ID'):
     field,
     headerName,
     type: 'number',
-    width: 80,
+    // 宽度统一由 layout.minWidth 管控
     pinned: 'left',
-    textAlign: 'center',
-    style: {
-      fontWeight: 'bold',
+    layout: {
+      textAlign: 'center',
+      cellClass: 'font-bold',
     },
   }
 }

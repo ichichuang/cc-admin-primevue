@@ -752,7 +752,7 @@ const handleGetFieldIndex = () => {
 <template lang="pug">
 div
   // 操作按钮区域（吸顶区域）
-  .c-card.rounded-0.px-padding.between-col.items-start.sticky.top-0.z-2.gap-gaps.items-start.gap-gap
+  .c-card.rounded-0.px-padding.between-col.items-start.sticky.top-0.z-2.gap-gap
     .fs-appFontSizex SchemaForm 组件类型示例 + useSchemaForm Hook 演示
     .color-text200 展示所有支持的组件类型及其配置，以及 useSchemaForm hook 的各种功能
     div

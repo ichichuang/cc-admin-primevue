@@ -178,8 +178,11 @@ const enUS = {
         },
         gridTable: {
           title: 'Table',
+          default: 'Default Table',
           basic: 'Basic Table',
+          service: 'Service Table',
         },
+        echarts: 'Echarts',
       },
     },
     error: {

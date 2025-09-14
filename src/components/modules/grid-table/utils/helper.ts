@@ -20,11 +20,18 @@ export function buildGridOptions(
   user: GridOptions | undefined,
   hooks: GridOptionsHooks
 ): GridOptions {
+  // 注意：getRowId 是初始属性，不能被用户配置覆盖
+  const { getRowId: _getRowId, ...userOptions } = user || {}
   const base: GridOptions = {
     ...DEFAULT_GRID_OPTIONS,
     onGridReady: hooks.onGridReady,
   }
-  return { ...base, ...(user || {}) }
+  return {
+    ...base,
+    ...userOptions,
+    // 确保 getRowId 始终使用默认值
+    getRowId: DEFAULT_GRID_OPTIONS.getRowId,
+  }
 }
 
 // ==================== 网格 API 操作 ====================
@@ -116,9 +123,6 @@ export function buildThemeParams(isDark: boolean, colorStore: any, sizeStore: an
 
     // 表格项选中样式
     borderColor: colorStore.getBg300,
-
-    // 斑马线样式
-    oddRowBackgroundColor: colorStore.getBg200 + 50,
   }
 }
 
@@ -181,9 +185,13 @@ export function generateGridKey(
   locale: string,
   isDark: boolean,
   themeValue: string,
-  sizeValue: string
+  sizeValue: string,
+  selectionConfig?: any
 ): string {
-  return `ag-grid-${locale}-${isDark ? 'dark' : 'light'}-${themeValue}-${sizeValue}`
+  const selectionKey = selectionConfig
+    ? `${selectionConfig.mode || 'none'}-${selectionConfig.checkboxes || false}-${selectionConfig.clickToSelect || false}`
+    : 'none'
+  return `ag-grid-${locale}-${isDark ? 'dark' : 'light'}-${themeValue}-${sizeValue}-${selectionKey}`
 }
 
 // ==================== 事件监听器处理 ====================

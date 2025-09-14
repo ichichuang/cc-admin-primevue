@@ -177,8 +177,11 @@ const zhTW = {
         },
         gridTable: {
           title: '表格',
+          default: '默认表格',
           basic: '基础表格',
+          service: '服务端表格',
         },
+        echarts: '圖表',
       },
     },
     error: {
