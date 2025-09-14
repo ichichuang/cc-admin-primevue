@@ -98,7 +98,7 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
       target: 'es2015',
       sourcemap: VITE_BUILD_SOURCEMAP,
       minify: isDev ? false : 'terser',
-      chunkSizeWarningLimit: 2000, // 降低警告阈值以优化包大小
+      chunkSizeWarningLimit: 3000, // 降低警告阈值以优化包大小
       cssCodeSplit: true, // 启用 CSS 代码分割
       assetsInlineLimit: 4096, // 小于 4kb 的资源内联
       terserOptions: {
@@ -133,7 +133,9 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
             // UI 库 (primeicons 是纯 CSS 库，不需要在 JS 打包中处理)
             'ui-library': ['primevue', '@primevue/themes'],
             // 工具库
-            utilities: ['lodash-es', 'crypto-js', 'dayjs'],
+            utilities: ['lodash-es', 'crypto-js', 'dayjs', '@vueuse/core', '@pureadmin/utils'],
+            // 图表库
+            'echarts-core': ['echarts'],
             // HTTP 库
             'http-client': ['alova'],
             // 国际化
