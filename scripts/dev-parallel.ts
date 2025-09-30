@@ -7,13 +7,13 @@ logInfo('启动命名规范监听...')
 // 启动 Vite 开发服务器
 const viteProcess = spawn('pnpm', ['exec', 'vite'], {
   stdio: 'inherit',
-  shell: true,
+  shell: false,
 })
 
 // 启动命名规范监听
 const namingWatchProcess = spawn('pnpm', ['naming-watch'], {
   stdio: 'inherit',
-  shell: true,
+  shell: false,
 })
 
 // 处理进程退出

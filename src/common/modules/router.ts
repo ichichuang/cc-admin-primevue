@@ -103,19 +103,29 @@ export const goToRoute = (
     router.push(env.rootRedirect)
     return
   }
+  // 当传入的是以 '/' 开头的路径时，直接按路径跳转
+  if (typeof name === 'string' && name.startsWith('/')) {
+    router.push({ path: name, query })
+    return
+  }
   if (router.currentRoute.value.name === name) {
     return
   }
   const targetRoutes = getRouteByName(name)
   if (targetRoutes.length === 0) {
     try {
+      // 如果按名称未找到，则尝试直接跳转（可能传的是可解析的路径或路由定位对象）
       router.push(name)
+      return
     } catch {
       console.warn(`路由 "${name}" 未找到`)
       return
     }
   }
   const targetRoute = targetRoutes[0]
+  if (!targetRoute) {
+    return
+  }
 
   // 外链处理：优先根据 meta.isLink/linkUrl 处理
   const isLink = targetRoute?.meta?.isLink === true

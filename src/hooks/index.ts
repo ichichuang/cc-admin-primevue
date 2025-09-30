@@ -21,6 +21,7 @@ export * from '@/hooks/layout/useNprogress'
 export * from '@/hooks/layout/usePageTitle'
 export * from '@/hooks/modules/useChart'
 export * from '@/hooks/modules/useChartTheme'
+export * from '@/hooks/modules/useDateUtils'
 export * from '@/hooks/modules/useElementSize'
 export * from '@/hooks/modules/useLocale'
 

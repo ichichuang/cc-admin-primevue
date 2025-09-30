@@ -4,7 +4,7 @@ import { defineComponent } from 'vue'
 import { GRID_TABLE_DEFAULT_CONFIG } from '../../utils/constants'
 
 export default defineComponent({
-  name: 'DatePickerRenderer',
+  name: 'DateTimePickerRenderer',
   props: {
     params: {
       type: Object as () => ICellRendererParams,
@@ -12,9 +12,9 @@ export default defineComponent({
     },
   },
   setup(props) {
-    // 日期值格式化函数 - 转换为显示用的字符串
-    const formatDateForDisplay = (value: unknown): string => {
-      const FORMAT = 'YYYY-MM-DD'
+    // 日期时间值格式化函数 - 转换为显示用的字符串
+    const formatDateTimeForDisplay = (value: unknown): string => {
+      const FORMAT = 'YYYY-MM-DD HH:mm'
       if (value === undefined || value === null || value === '') {
         return ''
       }
@@ -116,7 +116,7 @@ export default defineComponent({
     }
 
     const textAlignStyle = getTextAlignStyle()
-    const displayValue = formatDateForDisplay(props.params.value)
+    const displayValue = formatDateTimeForDisplay(props.params.value)
 
     return () => (
       <div

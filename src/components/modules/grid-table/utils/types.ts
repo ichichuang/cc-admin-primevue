@@ -28,6 +28,8 @@ export type ColumnType =
   | 'text' // 文本列：使用自定义封装的 InputText 组件
   | 'number' // 数字列：使用自定义封装的 InputNumber 组件
   | 'date' // 日期列：使用自定义封装的 DatePicker 组件
+  | 'datetime' // 日期时间列：使用自定义封装的 DateTimePicker 组件
+  | 'time' // 时间列：使用自定义封装的 TimePicker 组件
   | 'boolean' // 布尔列：使用自定义封装的 ToggleSwitch 组件，值为 boolean
   | 'custom' // 自定义列：完全自定义的列
 
@@ -183,6 +185,40 @@ export interface GridColumn {
   // 编辑完成回调
   onCellValueChanged?: (params: { oldValue: any; newValue: any; data: any; field: string }) => void
 
+  // ========== 单元格合并（跨列/跨行） ==========
+  /**
+   * 向右合并列数量（列跨越）。
+   * - 数字：表示额外向右合并的列数量（0 表示不合并；1 表示跨 2 列（当前列 + 右侧1列））。
+   * - 函数：根据单元格上下文动态返回合并数量（同上，返回额外数量）。
+   */
+  mergeRight?: number | ((params: any) => number)
+  /**
+   * 向下合并（行跨越）。
+   * - 布尔：true 表示按值相同进行连续合并；false 不合并。
+   * - 函数：自定义合并判定，返回 true 表示当前与下一行合并。
+   *   回调签名示例：(ctx) => boolean，其中 ctx 包含 value/currentRow/nextRow 等信息。
+   */
+  mergeDown?: boolean | ((ctx: any) => boolean)
+
+  // ========== 表头合并（列组） ==========
+  /**
+   * 表头合并配置。
+   * - 字符串：列组名称，相同名称的列会被合并到同一个表头组下。
+   * - 对象：详细的表头合并配置。
+   */
+  headerGroup?:
+    | string
+    | {
+        /** 列组名称 */
+        name: string
+        /** 列组标题（可选，默认使用 name） */
+        title?: string
+        /** 列组样式类名 */
+        className?: string
+        /** 列组样式 */
+        style?: Record<string, any>
+      }
+
   // ========== 筛选配置 ==========
   // 过滤器类型（如 'agTextColumnFilter'）
   filter?: string
@@ -248,6 +284,27 @@ export interface ExportConfig {
   params?: CsvExportParams
 }
 
+// ==================== 无限滚动配置 ====================
+
+/**
+ * 无限滚动配置
+ *
+ * 控制表格的无限滚动功能。
+ * 当用户滚动接近底部时触发加载更多数据的事件。
+ */
+export interface InfiniteScrollConfig {
+  /** 是否启用无限滚动 */
+  enabled?: boolean
+  /** 触发加载的阈值（距离底部的像素数） */
+  threshold?: number
+  /** 滚动触底事件回调 */
+  onScrollToBottom?: (event: { api: GridApi; columnApi: any }) => void
+  /** 是否在加载中显示加载状态 */
+  showLoadingIndicator?: boolean
+  /** 加载状态文本 */
+  loadingText?: string
+}
+
 /* API */
 export interface GridTableApi {
   // url
@@ -285,6 +342,8 @@ export interface GridTableConfig {
   selection?: SelectionConfig
   /** 导出配置 */
   export?: ExportConfig
+  /** 无限滚动配置 */
+  infiniteScroll?: InfiniteScrollConfig
   /** 自定义组件注册表 */
   components?: Record<string, any>
   /** 其他 AG Grid 选项（直接传递给 AG Grid） */
@@ -420,6 +479,10 @@ export interface GridOptionsHooks {
   onSortChanged?: (event: any) => void
   /** 过滤变化事件 */
   onFilterChanged?: (event: any) => void
+  /** 滚动事件 */
+  onBodyScroll?: (event: any) => void
+  /** 滚动触底事件 */
+  onScrollToBottom?: (event: { api: GridApi; columnApi: any }) => void
 }
 
 // ==================== 国际化类型 ====================
@@ -480,6 +543,14 @@ export interface LocaleTextMap {
   startsWith: string
   /** 结束于 */
   endsWith: string
+  /** 之前 */
+  before: string
+  /** 之后 */
+  after: string
+  /** 范围 */
+  between: string
+  /** 范围内 */
+  inRange: string
   /** 空白 */
   blank: string
   /** 非空白 */
@@ -502,4 +573,10 @@ export interface LocaleTextMap {
   columns: string
   /** 过滤器 */
   filters: string
+
+  // ========== 表格无数据提示 ==========
+  /** 表格无数据提示 */
+  noRowsToShow: string
+  /** 表格无数据提示 */
+  noDataAvailable: string
 }

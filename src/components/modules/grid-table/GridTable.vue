@@ -4,9 +4,11 @@ import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community'
 import { AgGridVue } from 'ag-grid-vue3'
 import { computed, ref, useAttrs, watch } from 'vue'
 import { DatePickerEditor, DatePickerRenderer } from './components/date'
+import { DateTimePickerEditor, DateTimePickerRenderer } from './components/datetime'
 import { InputNumberEditor, InputNumberRenderer } from './components/number'
 import { ToggleSwitchEditor, ToggleSwitchRenderer } from './components/switch'
 import { InputTextEditor, InputTextRenderer } from './components/text'
+import { TimePickerEditor, TimePickerRenderer } from './components/time'
 import { GRID_TABLE_DEFAULT_CONFIG, GRID_TABLE_DEFAULT_PROPS } from './utils/constants'
 import { extractListeners } from './utils/helper'
 import { transformGridConfig } from './utils/transformer'
@@ -85,6 +87,12 @@ const builtinComponents = {
   // Date 组件
   datePickerRenderer: DatePickerRenderer,
   datePickerEditor: DatePickerEditor,
+  // DateTime 组件
+  dateTimePickerRenderer: DateTimePickerRenderer,
+  dateTimePickerEditor: DateTimePickerEditor,
+  // Time 组件
+  timePickerRenderer: TimePickerRenderer,
+  timePickerEditor: TimePickerEditor,
   // Boolean 组件
   toggleSwitchRenderer: ToggleSwitchRenderer,
   toggleSwitchEditor: ToggleSwitchEditor,
@@ -260,6 +268,10 @@ defineExpose(exposedApi)
     }
   }
 }
+.ag-menu,
+.ag-popup {
+  z-index: 15 !important;
+}
 /* 固定的左侧列 */
 .ag-pinned-left-cols-container {
   .ag-row {
@@ -272,7 +284,7 @@ defineExpose(exposedApi)
     .ag-cell {
       outline-color: transparent !important;
     }
-    .ag-cell:not(:first-child) {
+    .ag-cell:last-child {
       border-right: 1px solid var(--bg300) !important;
     }
   }

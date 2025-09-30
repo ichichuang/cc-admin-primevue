@@ -83,6 +83,8 @@ export const useSchemaForm = ({
   }
 
   // 深度监听内部表单值并同步到稳定引用，确保在 reset/clear 之后仍能持续更新
+  // 添加防抖机制，避免频繁更新
+  let debounceTimer: NodeJS.Timeout | null = null
   watch(
     // 优先监听 SchemaForm 暴露的 valuesRef（它在 reset 时也会被刷新）
     () => {
@@ -92,9 +94,16 @@ export const useSchemaForm = ({
       return isRef(source) ? source.value : source
     },
     newVal => {
-      // 解包可能的 ref，再复制一份，确保引用稳定，便于外部 watch
-      const unwrapped = isRef(newVal) ? (newVal as any).value : newVal
-      formValuesRef.value = { ...((unwrapped as any) || {}) }
+      // 防抖处理，避免频繁更新
+      if (debounceTimer) {
+        clearTimeout(debounceTimer)
+      }
+      debounceTimer = setTimeout(() => {
+        // 解包可能的 ref，再复制一份，确保引用稳定，便于外部 watch
+        const unwrapped = isRef(newVal) ? (newVal as any).value : newVal
+        formValuesRef.value = { ...((unwrapped as any) || {}) }
+        debounceTimer = null
+      }, 100) // 100ms 防抖
     },
     { deep: true, immediate: true }
   )
@@ -158,6 +167,12 @@ export const useSchemaForm = ({
     index?: number | 'first' | 'last' | null
   ): boolean => {
     try {
+      // 验证字段配置
+      if (!field || !field.field || !field.component) {
+        console.error('添加字段失败: 字段配置不完整', { field })
+        return false
+      }
+
       // 检查字段名是否已存在
       if (hasField(field.field)) {
         console.warn(`字段名 "${field.field}" 已存在`)
@@ -177,6 +192,7 @@ export const useSchemaForm = ({
       }
 
       schema.columns.splice(insertIndex, 0, field)
+
       // 写入默认值并同步一次稳定引用（若外部未立即触发 setValue）
       const form = unref(formRef)
       if (form) {
@@ -194,7 +210,7 @@ export const useSchemaForm = ({
       })
       return true
     } catch (error) {
-      console.error('添加字段失败:', error)
+      console.error('添加字段失败:', error, { field, index })
       return false
     }
   }

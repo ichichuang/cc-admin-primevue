@@ -59,12 +59,131 @@ function getDefaultLocale(): SupportedLocale {
   return 'zh-CN'
 }
 
+// 日期时间格式配置
+const datetimeFormats = {
+  ['zh-CN']: {
+    short: {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    },
+    long: {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long',
+    },
+    datetime: {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    },
+    time: {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    },
+    dateOnly: {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    },
+    timeOnly: {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    },
+  },
+  ['en-US']: {
+    short: {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    },
+    long: {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long',
+    },
+    datetime: {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    },
+    time: {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    },
+    dateOnly: {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    },
+    timeOnly: {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    },
+  },
+  ['zh-TW']: {
+    short: {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    },
+    long: {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long',
+    },
+    datetime: {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    },
+    time: {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    },
+    dateOnly: {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    },
+    timeOnly: {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    },
+  },
+} as const
+
 // 创建 i18n 实例
 export const i18n = createI18n({
   legacy: false,
   locale: getDefaultLocale(),
   fallbackLocale: 'zh-CN',
   messages: messages as any,
+  datetimeFormats,
   globalInjection: true,
   silentTranslationWarn: true,
   silentFallbackWarn: true,

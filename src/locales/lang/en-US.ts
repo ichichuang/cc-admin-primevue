@@ -70,6 +70,7 @@ const enUS = {
       page: 'Page',
       to: 'to',
       of: 'of',
+      pageOf: 'Page',
       next: 'Next',
       last: 'Last',
       first: 'First',
@@ -78,7 +79,6 @@ const enUS = {
       showing: 'Showing',
       items: 'items',
       total: 'of',
-      pageOf: 'of',
     },
     filter: {
       placeholder: 'Type to filter...',
@@ -90,6 +90,10 @@ const enUS = {
       notContains: 'Not contains',
       startsWith: 'Starts with',
       endsWith: 'Ends with',
+      before: 'Before',
+      after: 'After',
+      between: 'Between',
+      inRange: 'In Range',
       blank: 'Blank',
       notBlank: 'Not blank',
       lessThan: 'Less than',
@@ -125,6 +129,10 @@ const enUS = {
       resourceNotFound: 'Requested resource not found',
       serverInternalError: 'Server internal error',
       serverUnavailable: 'Server temporarily unavailable',
+    },
+    gridTable: {
+      noRowsToShow: 'No Rows To Show',
+      noDataAvailable: 'No data available',
     },
   },
   user: {
@@ -181,8 +189,14 @@ const enUS = {
           default: 'Default Table',
           basic: 'Basic Table',
           service: 'Service Table',
+          noRowsToShow: 'No Rows To Show',
+          noDataAvailable: 'No data available',
         },
         echarts: 'Echarts',
+      },
+      function: {
+        title: 'Function',
+        date: 'Date',
       },
     },
     error: {

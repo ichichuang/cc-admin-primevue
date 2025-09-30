@@ -75,6 +75,36 @@ const initialSchema: Schema = {
       },
     },
     {
+      field: 'inputTexts',
+      label: '文本输入',
+      component: 'InputText',
+      placeholder: '请输入文本',
+      rules: 'required|min:3|max:20',
+      help: '文本长度为3-20个字符',
+      defaultValue: '默认初始文本',
+      layout: {
+        cols: 6,
+        labelWidth: 160,
+      },
+    },
+    {
+      field: 'inputNumbers',
+      label: '数字输入',
+      component: 'InputNumber',
+      placeholder: '请输入数字',
+      rules: 'required|min:1|max:1000',
+      help: '数字范围为1-100',
+      props: {
+        min: 1,
+        max: 1000,
+        step: 1,
+      },
+      layout: {
+        cols: 6,
+        labelWidth: 160,
+      },
+    },
+    {
       field: 'textarea',
       label: '文本区域',
       component: 'Textarea',
@@ -195,6 +225,8 @@ const initialSchema: Schema = {
       rules: 'required',
       help: '请选择省市区',
       props: {
+        optionLabel: 'label',
+        optionValue: 'value',
         options: [
           {
             label: '北京市',
@@ -686,11 +718,11 @@ const handleSetValues = () => {
     inputGroup: 'admin',
 
     // 选择组件
-    select: 'option2',
-    multiSelect: ['apple', 'banana'],
-    listbox: 'shanghai',
-    cascadeSelect: 'sanlitun', // 级联选择的最终值
-    treeSelect: 'child1-1',
+    // select: 'option2',
+    // multiSelect: ['apple', 'banana'],
+    // listbox: 'shanghai',
+    // cascadeSelect: 'sanlitun', // 级联选择的最终值
+    // treeSelect: 'child1-1',
 
     // 按钮类组件
     selectButton: 'b',

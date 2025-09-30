@@ -157,10 +157,16 @@ watch(
 let lastValues: Record<string, any> = {}
 function syncToModelValue(values: Record<string, any>) {
   const safeValues = values && typeof values === 'object' ? values : {}
-  // 只有当值真正改变时才触发事件
-  if (JSON.stringify(safeValues) !== JSON.stringify(lastValues)) {
+
+  // 使用浅比较优化性能，避免深度 JSON.stringify
+  const hasChanged =
+    Object.keys(safeValues).some(key => safeValues[key] !== lastValues[key]) ||
+    Object.keys(lastValues).some(key => !(key in safeValues))
+
+  if (hasChanged) {
     lastValues = { ...safeValues }
     emit('updateModelValue', { ...safeValues })
+
     // 同步给对外暴露的响应式引用（根据 hideValue 属性决定是否包含隐藏字段）
     const filtered: Record<string, any> = {}
     for (const column of props.schema.columns) {
@@ -364,6 +370,7 @@ onMounted(() => {
     }
 
     // 启动定时同步，确保在复杂控件/外部受控场景下也能实时更新
+    // 使用更长的间隔减少性能开销，并添加防抖机制
     if (valuesSyncTimer) {
       window.clearInterval(valuesSyncTimer)
       valuesSyncTimer = null
@@ -385,13 +392,19 @@ onMounted(() => {
             latest[key] = undefined
           }
         }
-        if (JSON.stringify(latest) !== JSON.stringify(valuesRef.value)) {
+
+        // 使用浅比较优化性能
+        const hasChanged =
+          Object.keys(latest).some(key => latest[key] !== valuesRef.value[key]) ||
+          Object.keys(valuesRef.value).some(key => !(key in latest))
+
+        if (hasChanged) {
           valuesRef.value = { ...latest }
         }
       } catch (_e) {
         // 忽略单次同步异常
       }
-    }, 200)
+    }, 500) // 增加间隔到500ms
   })
 })
 
@@ -517,10 +530,12 @@ function validateFunctionRule(
     const result = rule(value, ctx)
     if (result instanceof Promise) {
       // 对于异步函数，暂时返回 null，实际验证会在异步流程中处理
+      // 可以考虑添加异步验证状态管理
       return null
     }
     return result === true ? null : typeof result === 'string' ? result : '校验失败'
-  } catch {
+  } catch (error) {
+    console.error('验证函数执行失败:', error)
     return '校验失败'
   }
 }

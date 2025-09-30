@@ -671,7 +671,22 @@ export const createCustomPreset = (preset: any, { colorStore, sizeStore }: Prime
     })
     // 日期选择器
     deepMergeStylesAdvancedInPlace(newPreset.components.datepicker, {
-      ...customComponentsStyle1m,
+      ...customComponentsStyle1s,
+      padding: `2px`,
+      paddingY: `2px`,
+      paddingX: `2px`,
+      margin: `2px`,
+      marginY: `2px`,
+      marginX: `2px`,
+      gap: `2px`,
+    })
+    // 日期选择器
+    deepMergeStylesAdvancedInPlace(newPreset.components.tabs, {
+      ...customComponentsStyle2,
+      ['tab.margin']: `0px ${sizeStore.getGaps}px`,
+      ['tab.borderWidth']: `0px`,
+      ['activeBar.background']: `${colorStore.getPrimary100}`,
+      hoverBackground: 'transparent',
     })
 
     /* 缓存结果 */

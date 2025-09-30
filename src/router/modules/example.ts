@@ -14,7 +14,7 @@ const exampleRoutes: RouteConfig[] = [
         name: 'ExampleLayout',
         meta: {
           titleKey: 'router.example.layout.title',
-          rank: 2,
+          rank: 3,
           icon: 'icon-line-md:folder-filled',
         },
         children: [
@@ -200,6 +200,27 @@ const exampleRoutes: RouteConfig[] = [
               titleKey: 'router.example.components.echarts',
               rank: 6,
               icon: 'icon-line-md:telegram',
+            },
+          },
+        ],
+      },
+      {
+        path: 'function',
+        name: 'ExampleFunction',
+        meta: {
+          titleKey: 'router.example.function.title',
+          icon: 'icon-line-md:calendar',
+          rank: 2,
+        },
+        children: [
+          {
+            path: 'date',
+            name: 'ExampleFunctionDate',
+            component: () => import('@/views/example/views/example-date.vue'),
+            meta: {
+              titleKey: 'router.example.function.date',
+              rank: 1,
+              icon: 'icon-line-md:calendar',
             },
           },
         ],

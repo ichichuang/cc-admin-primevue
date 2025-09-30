@@ -65,7 +65,9 @@ async function runNamingCheck(triggerFile?: string) {
       }
     }
 
-    const { stdout, stderr } = await execAsync('pnpm exec tsx scripts/naming-rules.ts')
+    const { stdout, stderr } = await execAsync('pnpm exec tsx scripts/naming-rules.ts', {
+      shell: false,
+    })
 
     const duration = Date.now() - startTime
 
@@ -152,11 +154,14 @@ function shouldWatchDirectory(dirPath: string): boolean {
  * 启动监听器
  */
 function startWatcher() {
-  logTitle('启动文件命名规范实时监听')
-  logInfo(`📁 监听目录: ${CONFIG.watchDir.replace(projectRoot, '')}`)
-  logInfo(`⚙️  防抖延迟: ${CONFIG.debounceDelay}ms`)
-  logInfo(`🔍 详细模式: ${CONFIG.verbose ? '开启' : '关闭'}`)
-  logInfo('💡 提示: 使用 --verbose 或 -v 参数开启详细日志')
+  // 完全静默启动，仅在详细模式下显示信息
+  if (CONFIG.verbose) {
+    logTitle('启动文件命名规范实时监听')
+    logInfo(`📁 监听目录: ${CONFIG.watchDir.replace(projectRoot, '')}`)
+    logInfo(`⚙️  防抖延迟: ${CONFIG.debounceDelay}ms`)
+    logInfo(`🔍 详细模式: ${CONFIG.verbose ? '开启' : '关闭'}`)
+    logInfo('💡 提示: 使用 --verbose 或 -v 参数开启详细日志')
+  }
 
   const watcher = chokidar.watch(CONFIG.watchDir, {
     ignored: CONFIG.ignored,
@@ -171,7 +176,9 @@ function startWatcher() {
   // 文件添加事件
   watcher.on('add', filePath => {
     if (shouldWatchFile(filePath)) {
-      logFile(`新增文件: ${filePath.replace(projectRoot, '')}`)
+      if (CONFIG.verbose) {
+        logFile(`新增文件: ${filePath.replace(projectRoot, '')}`)
+      }
       debouncedCheck(filePath)
     }
   })
@@ -179,7 +186,9 @@ function startWatcher() {
   // 目录添加事件
   watcher.on('addDir', dirPath => {
     if (shouldWatchDirectory(dirPath)) {
-      logFolder(`新增目录: ${dirPath.replace(projectRoot, '')}`)
+      if (CONFIG.verbose) {
+        logFolder(`新增目录: ${dirPath.replace(projectRoot, '')}`)
+      }
       debouncedCheck(dirPath)
     }
   })
@@ -187,7 +196,9 @@ function startWatcher() {
   // 文件重命名事件
   watcher.on('unlink', filePath => {
     if (shouldWatchFile(filePath)) {
-      logFile(`删除文件: ${filePath.replace(projectRoot, '')}`)
+      if (CONFIG.verbose) {
+        logFile(`删除文件: ${filePath.replace(projectRoot, '')}`)
+      }
       debouncedCheck()
     }
   })
@@ -195,7 +206,9 @@ function startWatcher() {
   // 目录删除事件
   watcher.on('unlinkDir', dirPath => {
     if (shouldWatchDirectory(dirPath)) {
-      logFolder(`删除目录: ${dirPath.replace(projectRoot, '')}`)
+      if (CONFIG.verbose) {
+        logFolder(`删除目录: ${dirPath.replace(projectRoot, '')}`)
+      }
       debouncedCheck()
     }
   })
@@ -203,7 +216,9 @@ function startWatcher() {
   // 文件修改事件
   watcher.on('change', filePath => {
     if (shouldWatchFile(filePath)) {
-      logFile(`修改文件: ${filePath.replace(projectRoot, '')}`)
+      if (CONFIG.verbose) {
+        logFile(`修改文件: ${filePath.replace(projectRoot, '')}`)
+      }
       debouncedCheck(filePath)
     }
   })
@@ -216,7 +231,9 @@ function startWatcher() {
 
   // 监听器就绪
   watcher.on('ready', () => {
-    logSuccess('监听器已就绪，开始监听文件变化...\n')
+    if (CONFIG.verbose) {
+      logSuccess('监听器已就绪，开始监听文件变化...\n')
+    }
 
     // 初始检查
     runNamingCheck()
@@ -254,7 +271,7 @@ async function main() {
   try {
     // 检查依赖
     try {
-      await execAsync('pnpm --version')
+      await execAsync('pnpm --version', { shell: false })
     } catch {
       logError('未找到 pnpm，请确保已安装 pnpm')
       process.exit(1)

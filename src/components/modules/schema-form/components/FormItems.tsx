@@ -522,7 +522,20 @@ export default defineComponent({
 
         /* 自定义渲染 */
         case 'Custom':
-          return <div>自定义渲染: {column.props?.render(componentProps)}</div>
+          return (
+            <div
+              class={[
+                ...baseProps.class,
+                mergedColumnStyle.value.contentClass || '', // 自定义内容类名（第一优先级）
+              ].filter(Boolean)}
+              style={{
+                ...baseProps.style,
+                ...(mergedColumnStyle.value.contentStyle || {}), // 自定义内容样式（第一优先级）
+              }}
+            >
+              {column.props?.render(componentProps)}
+            </div>
+          )
 
         default:
           return <div>不支持的组件类型: {column.component}</div>

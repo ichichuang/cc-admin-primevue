@@ -13,6 +13,21 @@ const calculateRadius = (x: number, y: number): number => {
   return Math.hypot(maxX, maxY)
 }
 
+// 创建淡入淡出蒙层
+const createFadeOverlay = (color: string, duration: number) => {
+  const overlay = document.createElement('div')
+  overlay.className = 'theme-fade-overlay'
+  overlay.style.background = color
+  overlay.style.position = 'fixed'
+  overlay.style.inset = '0'
+  overlay.style.zIndex = '2000'
+  overlay.style.opacity = '0'
+  overlay.style.pointerEvents = 'none'
+  overlay.style.transition = `opacity ${duration}ms ease`
+  document.body.appendChild(overlay)
+  return overlay
+}
+
 export const useThemeSwitch = () => {
   const colorStore = useColorStore()
   const isAnimating = ref(false)
@@ -106,39 +121,66 @@ export const useThemeSwitch = () => {
     }
 
     try {
+      // 🎯 关键修复：在切换前缓存当前背景色
+      const oldBg = getComputedStyle(document.documentElement).getPropertyValue('--bg100')
+      document.documentElement.style.setProperty('--bg100-old', oldBg)
+
       // 在切换前添加预处理类
       document.documentElement.classList.add('theme-transition')
 
       const transition = document.startViewTransition(async () => {
+        // 确保在快照阶段同步根元素的深浅色类，避免外部异步更新导致的层错位
         toggleFunction()
+        document.documentElement.classList.toggle('dark', willBeDark)
+
+        // 🎯 关键修复：切换后缓存新背景色
+        const newBg = getComputedStyle(document.documentElement).getPropertyValue('--bg100')
+        document.documentElement.style.setProperty('--bg100-new', newBg)
       }) as ViewTransition
 
       await transition.ready
+
+      // 🎯 使用目标主题色创建 overlay（这里不是死板的黑/白）
+      const targetBg = getComputedStyle(document.documentElement).getPropertyValue('--bg100-new')
+      const overlay = createFadeOverlay(targetBg, duration)
+
+      // 启动 overlay 动画
+      requestAnimationFrame(() => {
+        overlay.style.opacity = '0.15' // 淡淡的就行，避免喧宾夺主
+      })
+
       const { clientX, clientY } = event
       const radius = calculateRadius(clientX, clientY)
 
-      const clipPath = [
-        `circle(0px at ${clientX}px ${clientY}px)`,
-        `circle(${radius}px at ${clientX}px ${clientY}px)`,
-      ]
+      const from = `circle(0px at ${clientX}px ${clientY}px)`
+      const to = `circle(${radius}px at ${clientX}px ${clientY}px)`
+      // 统一在 new 层上做 clip-path 动画（new 层永远在上层，避免空窗期）
+      const keyframes = [from, to]
+      const targetPseudo = '::view-transition-new(root)'
 
       document.documentElement.animate(
-        {
-          clipPath: willBeDark ? clipPath.reverse() : clipPath,
-        },
-        {
-          ...animationConfig,
-          pseudoElement: willBeDark ? '::view-transition-old(root)' : '::view-transition-new(root)',
-        }
+        { clipPath: keyframes },
+        { ...animationConfig, pseudoElement: targetPseudo }
       )
 
-      // 等待过渡完成后移除预处理类
+      // 等待过渡完成后移除预处理类、蒙层和临时变量
       await transition.finished
+
+      // 🎯 移除 overlay
+      overlay.style.opacity = '0'
+      setTimeout(() => overlay.remove(), duration)
+
       document.documentElement.classList.remove('theme-transition')
+      // 清理临时背景色变量
+      document.documentElement.style.removeProperty('--bg100-old')
+      document.documentElement.style.removeProperty('--bg100-new')
     } catch (error) {
       console.error('Theme transition failed:', error)
       toggleFunction()
       document.documentElement.classList.remove('theme-transition')
+      // 清理临时变量
+      document.documentElement.style.removeProperty('--bg100-old')
+      document.documentElement.style.removeProperty('--bg100-new')
     } finally {
       isAnimating.value = false
     }
@@ -176,7 +218,9 @@ export const useThemeSwitch = () => {
     // 缓存动画配置
     const animationConfig = {
       duration: duration,
-      easing: 'cubic-bezier(0.4, 0, 0.2, 1)', // 使用更平滑的缓动函数
+      easing: willBeDark
+        ? 'cubic-bezier(0.8, -0.6, 0.2, 1.5)' // 收缩时带弹性
+        : 'cubic-bezier(0.2, 0.8, 0.4, 1.2)', // 扩展时柔和
     }
 
     // 如果浏览器不支持 startViewTransition，降级处理
@@ -187,39 +231,66 @@ export const useThemeSwitch = () => {
     }
 
     try {
+      // 🎯 关键修复：在切换前缓存当前背景色
+      const oldBg = getComputedStyle(document.documentElement).getPropertyValue('--bg100')
+      document.documentElement.style.setProperty('--bg100-old', oldBg)
+
       // 在切换前添加预处理类
       document.documentElement.classList.add('theme-transition')
 
       const transition = document.startViewTransition(async () => {
         setMode(themeValue as Mode)
+        // 与目标主题同步根元素类
+        document.documentElement.classList.toggle('dark', willBeDark)
+
+        // 🎯 关键修复：切换后缓存新背景色
+        const newBg = getComputedStyle(document.documentElement).getPropertyValue('--bg100')
+        document.documentElement.style.setProperty('--bg100-new', newBg)
       }) as ViewTransition
 
       await transition.ready
+
+      // 🎯 使用目标主题色创建 overlay（这里不是死板的黑/白）
+      const targetBg = getComputedStyle(document.documentElement).getPropertyValue('--bg100-new')
+      const overlay = createFadeOverlay(targetBg, duration)
+
+      // 启动 overlay 动画
+      requestAnimationFrame(() => {
+        overlay.style.opacity = '0.15' // 淡淡的就行，避免喧宾夺主
+      })
+
       const { clientX, clientY } = event
       const radius = calculateRadius(clientX, clientY)
 
-      const clipPath = [
-        `circle(0px at ${clientX}px ${clientY}px)`,
-        `circle(${radius}px at ${clientX}px ${clientY}px)`,
-      ]
+      const from = `circle(0px at ${clientX}px ${clientY}px)`
+      const to = `circle(${radius}px at ${clientX}px ${clientY}px)`
+      // 统一在 new 层上做 clip-path 动画（new 层永远在上层，避免空窗期）
+      const keyframes = [from, to]
+      const targetPseudo = '::view-transition-new(root)'
 
       document.documentElement.animate(
-        {
-          clipPath: willBeDark ? clipPath.reverse() : clipPath,
-        },
-        {
-          ...animationConfig,
-          pseudoElement: willBeDark ? '::view-transition-old(root)' : '::view-transition-new(root)',
-        }
+        { clipPath: keyframes },
+        { ...animationConfig, pseudoElement: targetPseudo }
       )
 
-      // 等待过渡完成后移除预处理类
+      // 等待过渡完成后移除预处理类、蒙层和临时变量
       await transition.finished
+
+      // 🎯 移除 overlay
+      overlay.style.opacity = '0'
+      setTimeout(() => overlay.remove(), duration)
+
       document.documentElement.classList.remove('theme-transition')
+      // 清理临时背景色变量
+      document.documentElement.style.removeProperty('--bg100-old')
+      document.documentElement.style.removeProperty('--bg100-new')
     } catch (error) {
       console.error('Theme transition failed:', error)
       setMode(themeValue as Mode)
       document.documentElement.classList.remove('theme-transition')
+      // 清理临时变量
+      document.documentElement.style.removeProperty('--bg100-old')
+      document.documentElement.style.removeProperty('--bg100-new')
     } finally {
       isAnimating.value = false
     }

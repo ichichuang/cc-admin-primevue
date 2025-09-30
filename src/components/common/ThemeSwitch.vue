@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useThemeSwitch } from '@/hooks'
 import { useColorStore } from '@/stores'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 const { toggleThemeWithAnimation } = useThemeSwitch()
 const colorStore = useColorStore()
@@ -9,8 +9,20 @@ const colorStore = useColorStore()
 const mode = computed(() => colorStore.mode)
 
 // 处理点击事件
-const handleClick = (event: MouseEvent) => {
-  toggleThemeWithAnimation(event, true)
+const isAnimating = ref(false)
+const handleClick = async (event: MouseEvent) => {
+  if (isAnimating.value) {
+    return
+  }
+  isAnimating.value = true
+  try {
+    await toggleThemeWithAnimation(event, true)
+  } finally {
+    // 与动画时长对齐，略大于 400ms，避免重复触发
+    setTimeout(() => {
+      isAnimating.value = false
+    }, 450)
+  }
 }
 
 /* 动态计算高亮背景位置 */
@@ -23,7 +35,7 @@ const contentClass = computed(() => {
 // 主题切换开关
 .c-border.bg-bg100.rounded-full.c-transitions.gap-3.p-3(
   @click='handleClick',
-  :class='contentClass'
+  :class='[contentClass, isAnimating ? "pointer-events-none opacity-90" : ""]'
 )
   .w-appFontSizex.h-appFontSizex.center.rounded-full.c-transitions.relative.z-2.p-3.box-content.c-cp
     .w-appFontSize.h-appFontSize(

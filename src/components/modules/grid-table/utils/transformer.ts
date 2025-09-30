@@ -7,11 +7,13 @@
 import { useColorStore } from '@/stores'
 import type { ColDef, GridOptions } from 'ag-grid-community'
 import { COLUMN_TYPE_DEFAULTS, DEFAULT_GRID_OPTIONS, GRID_TABLE_DEFAULT_CONFIG } from './constants'
+import { createBodyScrollHandler } from './helper'
 import type {
   ExportConfig,
   FeatureConfig,
   GridColumn,
   GridTableConfig,
+  InfiniteScrollConfig,
   LayoutConfig,
   PaginationConfig,
   SelectionConfig,
@@ -28,6 +30,65 @@ const textAlignMap: Record<TextAlign, string> = {
 }
 
 // ==================== 列类型转换 ====================
+
+// ==================== 表头合并处理 ====================
+
+/**
+ * 处理表头合并，将具有相同 headerGroup 的列组织成列组
+ */
+function processHeaderGroups(columnDefs: ColDef[]): ColDef[] {
+  // 收集所有需要分组的列
+  const groupMap = new Map<string, ColDef[]>()
+  const ungroupedColumns: ColDef[] = []
+
+  columnDefs.forEach(col => {
+    const headerGroup = (col as any).headerGroup
+    if (headerGroup) {
+      const groupName = typeof headerGroup === 'string' ? headerGroup : headerGroup.name
+      if (!groupMap.has(groupName)) {
+        groupMap.set(groupName, [])
+      }
+      groupMap.get(groupName)!.push(col)
+    } else {
+      ungroupedColumns.push(col)
+    }
+  })
+
+  // 如果没有分组，直接返回原列定义
+  if (groupMap.size === 0) {
+    return columnDefs
+  }
+
+  // 创建列组
+  const result: ColDef[] = []
+
+  groupMap.forEach((columns, _groupName) => {
+    // 获取第一个列的 headerGroup 配置作为组配置
+    const firstCol = columns[0]
+    const headerGroup = (firstCol as any).headerGroup
+    const groupConfig =
+      typeof headerGroup === 'string' ? { name: headerGroup, title: headerGroup } : headerGroup
+
+    // 创建列组
+    const columnGroup: any = {
+      headerName: groupConfig.title || groupConfig.name,
+      children: columns.map(col => {
+        // 移除 headerGroup 属性，避免传递给 AG Grid
+        const { headerGroup: _, ...cleanCol } = col as any
+        return cleanCol
+      }),
+      headerClass: groupConfig.className,
+      headerStyle: groupConfig.style,
+    }
+
+    result.push(columnGroup)
+  })
+
+  // 添加未分组的列
+  result.push(...ungroupedColumns)
+
+  return result
+}
 
 // ==================== 列配置转换器 ====================
 
@@ -203,6 +264,89 @@ export function transformColumn(
     baseColDef.cellRenderer = column.cellRenderer
   }
 
+  // ========== 合并（跨列/跨行）映射 ==========
+  // 列合并：mergeRight -> colSpan（AG Grid 期望的是总跨越列数，至少为 1）
+  // 注意：当同一列启用了行合并（spanRows）时，AG Grid 不允许同时设置 colSpan。
+  const wantsRowSpan = column.mergeDown !== undefined && column.mergeDown !== false
+  if (!wantsRowSpan && column.mergeRight !== undefined) {
+    const mergeRight = column.mergeRight
+    if (typeof mergeRight === 'function') {
+      baseColDef.colSpan = (params: any) => {
+        try {
+          const total = Number(mergeRight(params))
+          return Math.max(1, Number.isFinite(total) ? total : 1)
+        } catch {
+          return 1
+        }
+      }
+    } else {
+      const totalNum = Number(mergeRight)
+      const total = Math.max(1, Number.isFinite(totalNum) ? totalNum : 1)
+      if (total > 1) {
+        // 修正：colSpan 应该是函数形式
+        baseColDef.colSpan = (_params: any) => total
+      }
+    }
+  }
+
+  // 行合并：mergeDown -> rowSpan（需要开启 enableCellSpan）
+  if (column.mergeDown !== undefined) {
+    const mergeDown = column.mergeDown as any
+    console.log(`[GridTable] 应用行合并: ${column.field}, mergeDown:`, mergeDown)
+    if (typeof mergeDown === 'function') {
+      baseColDef.rowSpan = (params: any) => {
+        try {
+          return mergeDown(params) ? 2 : 1
+        } catch {
+          return 1
+        }
+      }
+    } else if (mergeDown === true) {
+      // 默认策略：连续相同值合并
+      baseColDef.rowSpan = (params: any) => {
+        // 检查参数是否有效
+        if (!params || !params.data || !params.node) {
+          return 1
+        }
+
+        const currentValue = params.data[column.field]
+        const currentRowIndex = params.node.rowIndex
+
+        // 如果当前值与前一行相同，则返回0（不显示）
+        if (currentRowIndex > 0) {
+          const prevRow = params.api.getDisplayedRowAtIndex(currentRowIndex - 1)
+          if (prevRow && prevRow.data && prevRow.data[column.field] === currentValue) {
+            return 0 // 不显示此单元格
+          }
+        }
+
+        // 计算连续相同值的数量
+        let spanCount = 1
+        let nextRowIndex = currentRowIndex + 1
+        const totalRows = params.api.getDisplayedRowCount()
+
+        while (nextRowIndex < totalRows) {
+          const nextRow = params.api.getDisplayedRowAtIndex(nextRowIndex)
+          if (nextRow && nextRow.data && nextRow.data[column.field] === currentValue) {
+            spanCount++
+            nextRowIndex++
+          } else {
+            break
+          }
+        }
+
+        return spanCount
+      }
+
+      // 添加单元格样式规则，确保合并的单元格有正确的样式
+      baseColDef.cellClassRules = {
+        agRowSpan: (params: any) => {
+          return params.data && params.data[column.field] !== undefined
+        },
+      }
+    }
+  }
+
   // 应用自定义编辑器
   if (column.cellEditor) {
     baseColDef.cellEditor = column.cellEditor
@@ -243,6 +387,11 @@ export function transformColumn(
       ...baseColDef.context,
       layout: column.layout,
     }
+  }
+
+  // 保存 headerGroup 配置，供后续处理表头合并使用
+  if (column.headerGroup) {
+    ;(baseColDef as any).headerGroup = column.headerGroup
   }
 
   return baseColDef
@@ -546,6 +695,61 @@ export function transformExport(exportConfig?: ExportConfig): Partial<GridOption
   return gridOptions
 }
 
+// ==================== 无限滚动配置转换器 ====================
+
+export function transformInfiniteScroll(
+  infiniteScrollConfig?: InfiniteScrollConfig,
+  userGridOptions?: Partial<GridOptions>
+): Partial<GridOptions> {
+  // 使用 constants.ts 中的默认无限滚动配置
+  const defaultInfiniteScroll = GRID_TABLE_DEFAULT_CONFIG.infiniteScroll || {
+    enabled: false,
+    threshold: 100,
+    showLoadingIndicator: false,
+    loadingText: '加载中...',
+  }
+
+  const finalInfiniteScroll = { ...defaultInfiniteScroll, ...infiniteScrollConfig }
+
+  const gridOptions: Partial<GridOptions> = {}
+
+  // 如果启用无限滚动
+  if (finalInfiniteScroll.enabled) {
+    // 创建增强的 bodyScroll 事件处理器
+    let lastScrollTop = 0
+    const onScrollDownOnly = (evt: any) => {
+      const gridContainer = document.querySelector('.ag-body-viewport') as HTMLElement | null
+      if (!gridContainer) {
+        return
+      }
+      const currentScrollTop = gridContainer.scrollTop
+      const isScrollingDown = currentScrollTop > lastScrollTop
+      lastScrollTop = currentScrollTop
+      if (!isScrollingDown) {
+        return
+      }
+      if (typeof finalInfiniteScroll.onScrollToBottom === 'function') {
+        finalInfiniteScroll.onScrollToBottom(evt as any)
+      }
+    }
+
+    const enhancedBodyScrollHandler = createBodyScrollHandler(
+      userGridOptions?.onBodyScroll,
+      onScrollDownOnly as any,
+      finalInfiniteScroll.threshold
+    )
+
+    gridOptions.onBodyScroll = enhancedBodyScrollHandler
+  } else {
+    // 如果用户有自定义的 onBodyScroll，保留它
+    if (userGridOptions?.onBodyScroll) {
+      gridOptions.onBodyScroll = userGridOptions.onBodyScroll
+    }
+  }
+
+  return gridOptions
+}
+
 // ==================== 主转换器 ====================
 
 export function transformGridConfig(config: GridTableConfig): {
@@ -566,6 +770,7 @@ export function transformGridConfig(config: GridTableConfig): {
   const paginationOptions = transformPagination(config.pagination)
   const selectionOptions = transformSelection(config.selection, userGridOptions.rowModelType)
   const exportOptions = transformExport(config.export)
+  const infiniteScrollOptions = transformInfiniteScroll(config.infiniteScroll, userGridOptions)
   const gridOptions: GridOptions = {
     ...DEFAULT_GRID_OPTIONS,
     ...layoutOptions,
@@ -573,6 +778,7 @@ export function transformGridConfig(config: GridTableConfig): {
     ...paginationOptions,
     ...selectionOptions,
     ...exportOptions,
+    ...infiniteScrollOptions,
     ...userGridOptions,
     // 确保 getRowId 始终使用默认值，不被用户配置覆盖
     getRowId: DEFAULT_GRID_OPTIONS.getRowId,
@@ -588,15 +794,28 @@ export function transformGridConfig(config: GridTableConfig): {
   const defaultAllowPinnedMove =
     GRID_TABLE_DEFAULT_CONFIG.features?.allowPinnedColumnMoving ?? false
   const allowPinnedMove = config.features?.allowPinnedColumnMoving ?? defaultAllowPinnedMove
-  const columnDefs = config.columns.map(column =>
+  const rawColumnDefs = config.columns.map(column =>
     transformColumn(column, globalLayout, allowPinnedMove)
   )
+
+  // 处理表头合并（列组）
+  const columnDefs = processHeaderGroups(rawColumnDefs)
 
   // ==================== 复选框列处理 ====================
   // 注意：当 fixed: true 时，我们通过 rowSelection.checkboxColumn 来配置固定复选框列
   // 不需要手动创建复选框列，因为 AG Grid v32.2+ 会自动处理
 
   // ==================== 清理过时配置 ====================
+  // 当任意列配置了行合并（rowSpan/mergeDown）时，开启 enableCellSpan
+  const hasRowSpan = columnDefs.some(col => (col as any).rowSpan)
+  if (hasRowSpan) {
+    ;(gridOptions as any).enableCellSpan = true
+    // 与 rowSpan 冲突：需关闭文本选择（强制覆盖用户配置）
+    ;(gridOptions as any).enableCellTextSelection = false
+    // rowSpan 需要启用 suppressRowTransform（强制覆盖用户配置）
+    ;(gridOptions as any).suppressRowTransform = true
+    console.log('[GridTable] 检测到行合并，强制设置 suppressRowTransform = true')
+  }
   if (gridOptions.enableRangeSelection) {
     delete gridOptions.enableRangeSelection
   }
@@ -608,6 +827,13 @@ export function transformGridConfig(config: GridTableConfig): {
   }
   if (gridOptions.cellSelection) {
     delete gridOptions.cellSelection
+  }
+
+  // 最终强制覆盖：确保行合并相关配置正确
+  if (hasRowSpan) {
+    ;(gridOptions as any).suppressRowTransform = true
+    ;(gridOptions as any).enableCellTextSelection = false
+    ;(gridOptions as any).enableCellSpan = true
   }
 
   return {

@@ -217,9 +217,8 @@ export function useChartTheme(): UseChartThemeReturn {
         },
       },
 
-      // 数据区域缩放组件
+      // 数据区域缩放组件 - 提供基础配置
       dataZoom: {
-        show: false,
         backgroundColor: config.colors.background.secondary,
         borderColor: config.colors.border,
         fillerColor: adjustColor(config.colors.primary, -20, 0.3),
@@ -228,6 +227,32 @@ export function useChartTheme(): UseChartThemeReturn {
           color: config.colors.text.primary,
         },
       },
+
+      // 数据区域缩放组件数组配置
+      dataZoomArray: [
+        {
+          type: 'inside',
+          show: true, // 内部缩放默认显示
+          backgroundColor: config.colors.background.secondary,
+          borderColor: config.colors.border,
+          fillerColor: adjustColor(config.colors.primary, -20, 0.3),
+          handleColor: config.colors.primary,
+          textStyle: {
+            color: config.colors.text.primary,
+          },
+        },
+        {
+          type: 'slider',
+          show: true, // 滑块缩放默认显示
+          backgroundColor: config.colors.background.secondary,
+          borderColor: config.colors.border,
+          fillerColor: adjustColor(config.colors.primary, -20, 0.3),
+          handleColor: config.colors.primary,
+          textStyle: {
+            color: config.colors.text.primary,
+          },
+        },
+      ],
 
       // 网格样式
       grid: {

@@ -15,6 +15,12 @@ const handleGlobalEscKey = (event: KeyboardEvent) => {
     const lastIndex = dialogStore.value.length - 1
     const lastDialog = dialogStore.value[lastIndex]
 
+    // 检查最上层对话框是否允许通过 ESC 键关闭
+    if (lastDialog.closeOnEscape === false) {
+      // 如果设置为 false，则不处理 ESC 键，让对话框自己处理
+      return
+    }
+
     // 阻止默认行为
     event.preventDefault()
     event.stopPropagation()

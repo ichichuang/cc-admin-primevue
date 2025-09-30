@@ -122,6 +122,18 @@ export const GRID_TABLE_DEFAULT_CONFIG: Partial<GridTableConfig> = {
     /** 默认导出文件名 */
     fileName: '数据导出',
   },
+
+  /** 无限滚动配置默认值 */
+  infiniteScroll: {
+    /** 默认禁用无限滚动 */
+    enabled: false,
+    /** 默认触发阈值（距离底部 100px 时触发） */
+    threshold: 100,
+    /** 默认不显示加载指示器 */
+    showLoadingIndicator: false,
+    /** 默认加载文本 */
+    loadingText: '加载中...',
+  },
 }
 
 /**
@@ -204,12 +216,89 @@ export const COLUMN_TYPE_DEFAULTS = {
 
   /** 日期列默认配置：使用自定义封装的 DatePicker 组件 */
   date: {
-    /** 使用日期过滤器（社区版） */
+    /** 使用日期过滤器（社区版）并启用 between 选项 */
     filter: 'agDateColumnFilter',
+    filterParams: {
+      /** 启用 between 选项 */
+      includeBlanksInEquals: false,
+      includeBlanksInLessThan: false,
+      includeBlanksInGreaterThan: false,
+      includeBlanksInRange: false,
+      /** 自定义过滤器选项 */
+      filterOptions: [
+        'equals',
+        'notEqual',
+        'lessThan',
+        'lessThanOrEqual',
+        'greaterThan',
+        'greaterThanOrEqual',
+        'inRange',
+        'blank',
+        'notBlank',
+      ],
+    },
     /** 自定义渲染器：使用 DatePicker 组件 */
     cellRenderer: 'datePickerRenderer',
     /** 自定义编辑器：使用 DatePicker 组件 */
     cellEditor: 'datePickerEditor',
+  },
+
+  /** 日期时间列默认配置：使用自定义封装的 DateTimePicker 组件 */
+  datetime: {
+    /** 使用日期过滤器（社区版）并启用 between 选项 */
+    filter: 'agDateColumnFilter',
+    filterParams: {
+      /** 启用 between 选项 */
+      includeBlanksInEquals: false,
+      includeBlanksInLessThan: false,
+      includeBlanksInGreaterThan: false,
+      includeBlanksInRange: false,
+      /** 自定义过滤器选项 */
+      filterOptions: [
+        'equals',
+        'notEqual',
+        'lessThan',
+        'lessThanOrEqual',
+        'greaterThan',
+        'greaterThanOrEqual',
+        'inRange',
+        'blank',
+        'notBlank',
+      ],
+    },
+    /** 自定义渲染器：使用 DateTimePicker 组件 */
+    cellRenderer: 'dateTimePickerRenderer',
+    /** 自定义编辑器：使用 DateTimePicker 组件 */
+    cellEditor: 'dateTimePickerEditor',
+  },
+
+  /** 时间列默认配置：使用自定义封装的 TimePicker 组件 */
+  time: {
+    /** 使用日期过滤器（社区版）并启用 between 选项 */
+    filter: 'agDateColumnFilter',
+    filterParams: {
+      /** 启用 between 选项 */
+      includeBlanksInEquals: false,
+      includeBlanksInLessThan: false,
+      includeBlanksInGreaterThan: false,
+      includeBlanksInRange: false,
+      /** 自定义过滤器选项 */
+      filterOptions: [
+        'equals',
+        'notEqual',
+        'lessThan',
+        'lessThanOrEqual',
+        'greaterThan',
+        'greaterThanOrEqual',
+        'inRange',
+        'blank',
+        'notBlank',
+      ],
+    },
+    /** 自定义渲染器：使用 TimePicker 组件 */
+    cellRenderer: 'timePickerRenderer',
+    /** 自定义编辑器：使用 TimePicker 组件 */
+    cellEditor: 'timePickerEditor',
   },
 
   /** 布尔列默认配置：使用自定义封装的 ToggleSwitch 组件 */

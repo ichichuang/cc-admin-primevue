@@ -161,6 +161,10 @@ export function buildLocaleText(t: (key: string) => string): LocaleTextMap {
     notContains: $('common.filter.notContains', 'Not contains'),
     startsWith: $('common.filter.startsWith', 'Starts with'),
     endsWith: $('common.filter.endsWith', 'Ends with'),
+    before: $('common.filter.before', 'Before'),
+    after: $('common.filter.after', 'After'),
+    between: $('common.filter.between', 'Between'),
+    inRange: $('common.filter.inRange', 'In Range'),
     blank: $('common.filter.blank', 'Blank'),
     notBlank: $('common.filter.notBlank', 'Not blank'),
     lessThan: $('common.filter.lessThan', 'Less than'),
@@ -173,6 +177,10 @@ export function buildLocaleText(t: (key: string) => string): LocaleTextMap {
     // 侧边栏/列
     columns: $('common.columns', 'Columns'),
     filters: $('common.filters', 'Filters'),
+
+    // 表格无数据提示
+    noRowsToShow: $('common.gridTable.noRowsToShow', 'No Rows To Show'),
+    noDataAvailable: $('common.gridTable.noDataAvailable', 'No data available'),
   }
 }
 
@@ -192,6 +200,106 @@ export function generateGridKey(
     ? `${selectionConfig.mode || 'none'}-${selectionConfig.checkboxes || false}-${selectionConfig.clickToSelect || false}`
     : 'none'
   return `ag-grid-${locale}-${isDark ? 'dark' : 'light'}-${themeValue}-${sizeValue}-${selectionKey}`
+}
+
+// ==================== 无限滚动处理 ====================
+
+/**
+ * 创建滚动触底检测函数
+ */
+export function createScrollToBottomDetector(
+  threshold: number = 100,
+  onScrollToBottom?: (event: { api: GridApi; columnApi: any }) => void
+) {
+  let isTriggered = false
+  let gridApi: GridApi | null = null
+
+  return (event: any) => {
+    if (!onScrollToBottom) {
+      return
+    }
+
+    try {
+      // 从事件中获取 api
+      const api = event.api || event
+
+      // 如果事件中没有有效的 api，尝试从 DOM 中获取
+      if (!api || typeof api.getVerticalPixelRange !== 'function') {
+        if (!gridApi) {
+          // 尝试多种方式获取 Grid API
+          const gridElement = document.querySelector('.ag-root-wrapper')
+          if (gridElement && (gridElement as any).__agGridApi) {
+            gridApi = (gridElement as any).__agGridApi
+          } else {
+            // 尝试从全局变量获取
+            const agGridInstances = (window as any).agGridInstances
+            if (agGridInstances && agGridInstances.length > 0) {
+              gridApi = agGridInstances[0]
+            }
+          }
+        }
+        if (!gridApi) {
+          console.warn('无法获取有效的 Grid API')
+          return
+        }
+      } else {
+        // 缓存有效的 api
+        gridApi = api
+      }
+
+      // 获取表格容器
+      const gridContainer = document.querySelector('.ag-body-viewport') as HTMLElement
+      if (!gridContainer) {
+        return
+      }
+
+      // 获取总滚动高度和当前滚动位置
+      const totalHeight = gridContainer.scrollHeight
+      const currentScrollTop = gridContainer.scrollTop
+      const viewportHeight = gridContainer.clientHeight
+
+      // 计算是否接近底部
+      // 当滚动位置 + 视口高度 >= 总高度 - 阈值时，表示接近底部
+      const distanceFromBottom = totalHeight - (currentScrollTop + viewportHeight)
+      const isNearBottom = distanceFromBottom <= threshold
+
+      // 获取 API 用于回调
+      const currentApi = api || gridApi
+
+      if (isNearBottom && !isTriggered) {
+        isTriggered = true
+        onScrollToBottom({ api: currentApi, columnApi: null })
+
+        // 延迟重置触发状态，防止短时间内重复触发
+        setTimeout(() => {
+          isTriggered = false
+        }, 500)
+      }
+    } catch (error) {
+      console.warn('Error in scroll detection:', error)
+    }
+  }
+}
+
+/**
+ * 创建增强的 bodyScroll 事件处理器
+ */
+export function createBodyScrollHandler(
+  userOnBodyScroll?: (event: any) => void,
+  onScrollToBottom?: (event: { api: GridApi; columnApi: any }) => void,
+  threshold: number = 100
+) {
+  const scrollDetector = createScrollToBottomDetector(threshold, onScrollToBottom)
+
+  return (event: any) => {
+    // 先执行用户自定义的滚动事件处理
+    if (userOnBodyScroll) {
+      userOnBodyScroll(event)
+    }
+
+    // 然后执行滚动触底检测
+    scrollDetector(event)
+  }
 }
 
 // ==================== 事件监听器处理 ====================

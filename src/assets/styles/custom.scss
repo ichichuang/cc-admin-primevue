@@ -41,19 +41,34 @@
   background-color: var(--ag-header-background-color, var(--ag-background-color)) !important;
 }
 
-/* View Transitions API 样式 */
-::view-transition-old(root),
+/* View Transitions API 样式 - 固定分层优先级避免闪白 */
+::view-transition-old(root) {
+  animation: none;
+  background: var(--bg100-old, var(--bg100));
+  will-change: clip-path, opacity;
+  mix-blend-mode: normal;
+  z-index: 1; /* 永远在底层 */
+}
+
 ::view-transition-new(root) {
   animation: none;
+  background: var(--bg100-new, var(--bg100));
+  will-change: clip-path, opacity;
+  mix-blend-mode: normal;
+  z-index: 2; /* 永远在上层，避免白屏 */
 }
 
-.dark::view-transition-old(root) {
-  z-index: 1000;
-}
+/* 优化过渡性能：避免与 View Transitions 叠加，这里不对 html 应用全局过渡 */
 
-/* 优化过渡性能 */
-html {
-  transition: background-color 0.3s ease;
+/* 主题切换渐隐渐现蒙层样式 - 动态主题色版本 */
+.theme-fade-overlay {
+  pointer-events: none;
+  backdrop-filter: blur(2px); /* 轻微模糊，过渡更柔和 */
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
 /* 浏览器兼容性处理 */

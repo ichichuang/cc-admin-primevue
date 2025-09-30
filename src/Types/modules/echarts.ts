@@ -143,6 +143,7 @@ export interface EChartsThemeOptions {
 
   // 数据区域缩放组件
   dataZoom: {
+    show?: boolean
     backgroundColor: string
     borderColor: string
     fillerColor: string
@@ -151,6 +152,18 @@ export interface EChartsThemeOptions {
       color: string
     }
   }
+
+  // 数据区域缩放组件数组配置
+  dataZoomArray: Array<{
+    type?: 'inside' | 'slider'
+    backgroundColor: string
+    borderColor: string
+    fillerColor: string
+    handleColor: string
+    textStyle: {
+      color: string
+    }
+  }>
 
   // 网格样式
   grid: {

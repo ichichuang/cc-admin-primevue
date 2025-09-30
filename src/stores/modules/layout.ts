@@ -36,6 +36,9 @@ interface LayoutState {
 
   // 当前断点
   currentBreakpoint: Breakpoint
+
+  // 记住的滚动条距离
+  layoutScrollbarTop: number
 }
 
 /* 布局配置 */
@@ -62,6 +65,8 @@ export const useLayoutStore = defineStore('layout', {
 
     deviceInfo: getDeviceInfo(),
     currentBreakpoint: 'md',
+
+    layoutScrollbarTop: 0,
   }),
 
   getters: {
@@ -118,6 +123,9 @@ export const useLayoutStore = defineStore('layout', {
     getSystem: (state: LayoutState) => state.deviceInfo.system,
     // 当前断点
     getCurrentBreakpoint: (state: LayoutState) => state.currentBreakpoint,
+
+    // 记住的滚动条距离
+    getLayoutScrollbarTop: (state: LayoutState) => state.layoutScrollbarTop,
   },
 
   actions: {
@@ -173,6 +181,11 @@ export const useLayoutStore = defineStore('layout', {
     // 设置页面加载状态
     setIsPageLoading(loading: boolean) {
       this.isPageLoading = loading
+    },
+
+    // 设置记住的滚动条距离
+    setLayoutScrollbarTop(top: number) {
+      this.layoutScrollbarTop = top
     },
 
     // 初始化设备信息

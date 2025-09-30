@@ -9,24 +9,103 @@ import type { ColorScheme, ScrollbarWrapperProps } from './types'
  * 所有属性都是必需的，提供完整的颜色配置
  */
 export const defaultColorScheme: Required<ColorScheme> = {
-  /** 滚动条滑块默认颜色，使用明显的蓝色 */
-  thumbColor: 'var(--primary100)',
-  /** 滚动条滑块悬停颜色，使用更深的蓝色 */
+  /** 滚动条滑块默认颜色 */
+  // thumbColor: 'var(--bg300)',
+  thumbColor: 'var(--bg300)',
+  /** 滚动条滑块悬停颜色 */
   thumbHoverColor: 'var(--primary200)',
-  /** 滚动条滑块激活颜色，使用最深的蓝色 */
-  thumbActiveColor: 'var(--primary300)',
-  /** 滚动条轨道默认颜色，轻微的半透明灰色 */
+  /** 滚动条滑块激活颜色   */
+  thumbActiveColor: 'var(--primary100)',
+  /** 滚动条轨道默认颜色 */
   trackColor: 'var(--bg100)',
-  /** 滚动条轨道悬停颜色，稍深的半透明灰色 */
+  /** 滚动条轨道悬停颜色 */
   trackHoverColor: 'var(--bg200)',
-  /** 滚动条轨道激活颜色，更深的半透明灰色 */
+  /** 滚动条轨道激活颜色 */
   trackActiveColor: 'var(--bg300)',
-  /** 滚动条边框默认颜色，透明 */
+  /** 滚动条边框默认颜色 */
   borderColor: 'transparent',
-  /** 滚动条悬停边框颜色，轻微的半透明黑色 */
+  /** 滚动条悬停边框颜色 */
   borderHoverColor: 'var(--bg200)',
-  /** 滚动条激活边框颜色，更深的半透明黑色 */
+  /** 滚动条激活边框颜色 */
   borderActiveColor: 'var(--bg300)',
+}
+
+/**
+ * 应用颜色方案到 CSS 变量
+ * 将 JS 颜色方案对象映射到 CSS 变量，供样式消费
+ * @param scheme 颜色方案对象
+ * @param element 目标元素，默认为根元素
+ */
+export const applyColorScheme = (
+  scheme: ColorScheme,
+  element: HTMLElement = document.documentElement
+) => {
+  // 映射到与 CSS 中使用的变量名一致的 CSS 变量名
+  element.style.setProperty('--os-thumb-bg', scheme.thumbColor || defaultColorScheme.thumbColor)
+  element.style.setProperty(
+    '--os-thumb-bg-hover',
+    scheme.thumbHoverColor || defaultColorScheme.thumbHoverColor
+  )
+  element.style.setProperty(
+    '--os-thumb-bg-active',
+    scheme.thumbActiveColor || defaultColorScheme.thumbActiveColor
+  )
+  element.style.setProperty('--os-track-bg', scheme.trackColor || defaultColorScheme.trackColor)
+  element.style.setProperty(
+    '--os-track-bg-hover',
+    scheme.trackHoverColor || defaultColorScheme.trackHoverColor
+  )
+  element.style.setProperty(
+    '--os-track-bg-active',
+    scheme.trackActiveColor || defaultColorScheme.trackActiveColor
+  )
+  element.style.setProperty(
+    '--os-thumb-border',
+    scheme.borderColor || defaultColorScheme.borderColor
+  )
+  element.style.setProperty(
+    '--os-thumb-border-hover',
+    scheme.borderHoverColor || defaultColorScheme.borderHoverColor
+  )
+  element.style.setProperty(
+    '--os-thumb-border-active',
+    scheme.borderActiveColor || defaultColorScheme.borderActiveColor
+  )
+  element.style.setProperty(
+    '--os-track-border',
+    scheme.borderColor || defaultColorScheme.borderColor
+  )
+  element.style.setProperty(
+    '--os-track-border-hover',
+    scheme.borderHoverColor || defaultColorScheme.borderHoverColor
+  )
+  element.style.setProperty(
+    '--os-track-border-active',
+    scheme.borderActiveColor || defaultColorScheme.borderActiveColor
+  )
+}
+
+/**
+ * 获取颜色方案对应的 CSS 变量映射
+ * 返回一个对象，包含所有颜色方案对应的 CSS 变量值
+ * @param scheme 颜色方案对象
+ * @returns CSS 变量映射对象
+ */
+export const getColorSchemeVars = (scheme: ColorScheme) => {
+  return {
+    '--os-thumb-bg': scheme.thumbColor || defaultColorScheme.thumbColor,
+    '--os-thumb-bg-hover': scheme.thumbHoverColor || defaultColorScheme.thumbHoverColor,
+    '--os-thumb-bg-active': scheme.thumbActiveColor || defaultColorScheme.thumbActiveColor,
+    '--os-track-bg': scheme.trackColor || defaultColorScheme.trackColor,
+    '--os-track-bg-hover': scheme.trackHoverColor || defaultColorScheme.trackHoverColor,
+    '--os-track-bg-active': scheme.trackActiveColor || defaultColorScheme.trackActiveColor,
+    '--os-thumb-border': scheme.borderColor || defaultColorScheme.borderColor,
+    '--os-thumb-border-hover': scheme.borderHoverColor || defaultColorScheme.borderHoverColor,
+    '--os-thumb-border-active': scheme.borderActiveColor || defaultColorScheme.borderActiveColor,
+    '--os-track-border': scheme.borderColor || defaultColorScheme.borderColor,
+    '--os-track-border-hover': scheme.borderHoverColor || defaultColorScheme.borderHoverColor,
+    '--os-track-border-active': scheme.borderActiveColor || defaultColorScheme.borderActiveColor,
+  }
 }
 
 // ==================== 默认组件属性 ====================

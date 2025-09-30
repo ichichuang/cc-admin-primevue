@@ -62,7 +62,7 @@ const gridConfig = computed(
           filtering: false,
           minWidth: 60,
           headerClass: 'bg-primary100 color-primary400',
-          cellClass: 'font-bold bg-primary100 color-primary400',
+          cellClass: 'font-bold',
         },
         type: 'number',
         pinned: 'left',
@@ -76,7 +76,14 @@ const gridConfig = computed(
           headerTextAlign: 'left',
           minWidth: 100,
         },
-        pinned: 'left',
+        // 临时移除固定列以测试合并功能
+        // pinned: 'left',
+        // 测试列合并：只设置 mergeRight，去掉 mergeDown
+        mergeRight: params => {
+          const name = params.data.name
+          return name === '张三' ? 2 : 0
+        },
+        // mergeDown: true, // 注释掉行合并
       },
       {
         field: 'age',
@@ -85,12 +92,23 @@ const gridConfig = computed(
         layout: {
           sorting: controlState.ageColumnSortable,
         },
+        // 测试表头合并：个人信息组
+        headerGroup: {
+          name: 'personalInfo',
+          title: '个人信息',
+          className: 'bg-primary100 color-primary400',
+        },
       },
       {
         field: 'sex',
         headerName: '性别',
         layout: {
           filtering: controlState.sexColumnFilterable,
+        },
+        // 测试表头合并：个人信息组
+        headerGroup: {
+          name: 'personalInfo',
+          title: '个人信息',
         },
         cellRenderer: (params: any) => {
           const sexMap: Record<number, { text: string; color: string }> = {
@@ -148,6 +166,13 @@ const gridConfig = computed(
         field: 'department',
         headerName: '部门',
         layout: {},
+        // 测试行合并：部门列有重复值，应该能看到合并效果
+        // mergeDown: true, // 暂时禁用，先确保列合并和表头合并正常
+        // 测试表头合并：工作信息组
+        headerGroup: {
+          name: 'workInfo',
+          title: '工作信息',
+        },
         cellRenderer: (params: any) => {
           const deptColors: Record<string, string> = {
             技术部: '#007bff',
@@ -167,6 +192,11 @@ const gridConfig = computed(
           minWidth: 120,
           textAlign: 'right',
           headerTextAlign: 'right',
+        },
+        // 测试表头合并：工作信息组
+        headerGroup: {
+          name: 'workInfo',
+          title: '工作信息',
         },
       },
       {
@@ -217,6 +247,7 @@ const gridConfig = computed(
         type: 'date',
         layout: {
           minWidth: 180,
+          filtering: true,
         },
         valueFormatter: (params: any) => {
           if (!params.value) {
@@ -290,6 +321,14 @@ const gridConfig = computed(
       pageSizeOptions: [5, 10, 20, 50, 100],
       showPageSizeSelector: controlState.showPageSizeSelector,
     },
+    // 无限滚动配置
+    infiniteScroll: {
+      enabled: true,
+      threshold: 10, // 距离底部 50px 时触发
+      onScrollToBottom: handleScrollToBottom,
+      showLoadingIndicator: true,
+      loadingText: '加载中...',
+    },
     selection: {
       mode: controlState.selectionMode === 'multiple' ? 'multiRow' : 'singleRow',
       checkboxes: controlState.checkboxes,
@@ -308,7 +347,8 @@ const gridConfig = computed(
     },
     gridOptions: {
       animateRows: true,
-      enableCellTextSelection: true,
+      // enableCellTextSelection: true, // 注释掉，与行合并冲突
+      suppressRowTransform: true, // 启用行合并必需
       suppressRowHoverHighlight: !controlState.hoverRowHighlight,
       // 确保不抑制行点击选择
       suppressRowClickSelection: false,
@@ -339,6 +379,11 @@ const gridConfig = computed(
   })
 )
 
+// 滚动触底处理
+const handleScrollToBottom = (data: any) => {
+  console.log('滚动触底，开始加载更多数据: ', data)
+  // dataStore.fetchObsObjectsByDevice(props.deviceId)
+}
 // 模拟数据
 const rowData = ref([
   {
@@ -361,7 +406,7 @@ const rowData = ref([
     age: 32,
     sex: 2,
     email: 'lisi@example.com',
-    department: '产品部',
+    department: '技术部', // 修改为技术部，与上一行连续
     position: '产品经理',
     salary: 18000,
     status: '在职',
@@ -375,7 +420,7 @@ const rowData = ref([
     age: 25,
     sex: 1,
     email: 'wangwu@example.com',
-    department: '设计部',
+    department: '技术部', // 修改为技术部，形成连续3行
     position: 'UI设计师',
     salary: 12000,
     status: '试用期',
@@ -823,7 +868,7 @@ const toggleClipboard = () => {
   GridTable(ref='gridTableRef', :config='gridConfig', v-model='rowData')
 
   //- 控制面板
-  .h-400.rounded-0.c-border-accent
+  .h-200.rounded-0.c-border-accent
     ScrollbarWrapper.full(:size='0')
       .between-col.items-start.gap-gapl.p-padding
         //- 布局控制
@@ -923,7 +968,7 @@ const toggleClipboard = () => {
         //- 选择控制
         .full.c-card.p-padding.between-col
           .fs-appFontSizes.color-accent100.mb-gaps 选择控制
-          .full.grid.grid-cols-2.gap-gap(class='sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-8')
+          .full.grid.grid-cols-2.gap-gap(class='sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4')
             .flex.gap-1.items-center
               label 选择模式:
               Select(

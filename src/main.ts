@@ -10,10 +10,17 @@ import App from '@/App.vue'
 import { setupPlugins } from '@/plugins'
 import { createApp } from 'vue'
 
-const app = createApp(App)
+async function bootstrap() {
+  const app = createApp(App)
 
-// 设置插件
-setupPlugins(app)
+  // 设置插件（支持异步）
+  await setupPlugins(app)
 
-// 挂载应用
-app.mount('#app')
+  // 挂载应用
+  app.mount('#app')
+}
+
+// 启动应用
+bootstrap().catch(error => {
+  console.error('应用启动失败:', error)
+})

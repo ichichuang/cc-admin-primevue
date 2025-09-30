@@ -15,8 +15,8 @@ export const presets = [
   // presetRemToPx 会生成固定 px 值，无法实现响应式缩放
   presetIcons({
     prefix: 'icon-',
-    // 开发时警告未找到的图标
-    warn: process.env.NODE_ENV === 'development',
+    // 禁用图标加载警告
+    warn: false,
     // 图标属性
     extraProperties: {
       display: 'inline-block',

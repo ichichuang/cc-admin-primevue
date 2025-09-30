@@ -62,6 +62,9 @@ const staticOptions = {
       symbolSize: 8,
     },
   ],
+  dataZoom: {
+    show: false,
+  },
 }
 
 // 动态数据状态
@@ -71,8 +74,8 @@ const pm10Data = ref<number[]>([])
 const aqiData = ref<number[]>([])
 
 // 最大数据点数量和窗口大小
-const MAX_DATA_POINTS = 12
-const WINDOW_SIZE = 8
+const maxDataPoints = 12
+const windowSize = 8
 
 // 动画模式控制
 const animationMode = ref<'smooth' | 'dataZoom'>('smooth')
@@ -302,7 +305,7 @@ const updateDynamicData = () => {
   aqiData.value.push(mockData.aqi)
 
   // 如果数据超过最大点数，移除最老的数据
-  if (timeData.value.length > MAX_DATA_POINTS) {
+  if (timeData.value.length > maxDataPoints) {
     timeData.value.shift()
     pm25Data.value.shift()
     pm10Data.value.shift()
@@ -370,12 +373,12 @@ const updateWithDataZoom = () => {
     )
 
     // 如果数据超过窗口大小，使用 dataZoom 平移显示
-    if (timeData.value.length > WINDOW_SIZE) {
+    if (timeData.value.length > windowSize) {
       // const endIndex = timeData.value.length - 1
-      // const startIndex = endIndex - WINDOW_SIZE + 1
+      // const startIndex = endIndex - windowSize + 1
       const totalLength = timeData.value.length
       const endPercent = 100 // 始终显示到最新数据
-      const startPercent = ((totalLength - WINDOW_SIZE) / totalLength) * 100
+      const startPercent = ((totalLength - windowSize) / totalLength) * 100
 
       dynamicChartRef.value.dispatchAction({
         type: 'dataZoom',
@@ -486,8 +489,8 @@ const switchToDataZoom = () => {
 
     // 当前模式说明
     .text-sm.text-gray-600.mb-4
-      span(v-if='animationMode === "smooth"') 当前模式：平滑更新 - 限制最大{{ MAX_DATA_POINTS }}个数据点，旧数据自动移除
-      span(v-else) 当前模式：数据窗口平移 - 保留所有数据，显示最近{{ WINDOW_SIZE }}个数据点的滑动窗口
+      span(v-if='animationMode === "smooth"') 当前模式：平滑更新 - 限制最大{{ maxDataPoints }}个数据点，旧数据自动移除
+      span(v-else) 当前模式：数据窗口平移 - 保留所有数据，显示最近{{ windowSize }}个数据点的滑动窗口
 
     // 控制按钮
     .flex.items-center.gap-4.mb-4

@@ -332,8 +332,8 @@ export function getRouteMetaIcons(): string[] {
 
   const result = Array.from(icons)
 
-  // 开发环境下输出找到的图标，便于调试
-  if (process.env.NODE_ENV === 'development') {
+  // 开发环境下静默输出找到的图标数量（仅在调试模式下显示详细信息）
+  if (process.env.NODE_ENV === 'development' && process.env.VITE_DEBUG === 'true') {
     console.log(
       `[UnoCSS] Found ${result.length} valid icons:`,
       result.slice(0, 10),

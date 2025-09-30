@@ -7,6 +7,14 @@ import { defineStore } from 'pinia'
 interface LocaleState {
   locale: SupportedLocale
   loading: boolean
+  followTimezone: boolean
+}
+
+// 语言到默认时区映射（可按需补充）
+const localeToTimezoneMap: Record<SupportedLocale, string> = {
+  ['zh-CN']: 'Asia/Shanghai',
+  ['en-US']: 'America/New_York',
+  ['zh-TW']: 'Asia/Taipei',
 }
 
 export const useLocaleStore = defineStore('locale', {
@@ -14,6 +22,8 @@ export const useLocaleStore = defineStore('locale', {
     // 默认语言固定为中文
     locale: 'zh-CN',
     loading: false,
+    // 控制是否跟随语言自动切换时区
+    followTimezone: true,
   }),
 
   getters: {
@@ -31,6 +41,8 @@ export const useLocaleStore = defineStore('locale', {
     },
     // 获取可用语言列表
     availableLocales: () => supportedLocales,
+    // 是否跟随时区
+    isFollowTimezone: (state: LocaleState) => state.followTimezone,
   },
 
   actions: {
@@ -46,12 +58,29 @@ export const useLocaleStore = defineStore('locale', {
         setLocale(newLocale)
         this.locale = newLocale
 
-        // 触发自定义事件
+        // 标准事件，供 DateUtils 监听
+        window.dispatchEvent(
+          new CustomEvent('locale-changed', {
+            detail: { locale: newLocale },
+          })
+        )
+
+        // 兼容现有事件
         window.dispatchEvent(
           new CustomEvent('locale-store-changed', {
             detail: { locale: newLocale },
           })
         )
+
+        // 若开启跟随时区，则根据语言派发时区变更
+        if (this.followTimezone) {
+          const tz = localeToTimezoneMap[newLocale] || 'UTC'
+          window.dispatchEvent(
+            new CustomEvent('timezone-changed', {
+              detail: { timezone: tz },
+            })
+          )
+        }
       } catch (error) {
         console.error('Failed to switch locale:', error)
         throw error
@@ -65,11 +94,41 @@ export const useLocaleStore = defineStore('locale', {
       const target = this.locale || 'zh-CN'
       setLocale(target)
       this.locale = getCurrentLocale()
+
+      // 初始化时，按策略同步 locale 与 timezone
+      window.dispatchEvent(
+        new CustomEvent('locale-changed', {
+          detail: { locale: this.locale },
+        })
+      )
+
+      if (this.followTimezone) {
+        const tz = localeToTimezoneMap[this.locale] || 'UTC'
+        window.dispatchEvent(
+          new CustomEvent('timezone-changed', {
+            detail: { timezone: tz },
+          })
+        )
+      }
     },
 
     // 获取语言信息
     getLocaleInfo(locale: SupportedLocale): LocaleInfo | undefined {
       return supportedLocales.find(item => item.key === locale)
+    },
+
+    // 设置是否跟随时区
+    setFollowTimezone(value: boolean) {
+      this.followTimezone = value
+      // 切换策略后，立即按需应用当前语言对应时区
+      if (this.followTimezone) {
+        const tz = localeToTimezoneMap[this.locale] || 'UTC'
+        window.dispatchEvent(
+          new CustomEvent('timezone-changed', {
+            detail: { timezone: tz },
+          })
+        )
+      }
     },
   },
 

@@ -5,16 +5,95 @@ import { useECharts } from '@pureadmin/utils'
 import type { EChartsOption } from 'echarts'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
+// 事件类型定义
+type ElementEventName =
+  | 'click'
+  | 'dblclick'
+  | 'mousewheel'
+  | 'mouseout'
+  | 'mouseover'
+  | 'mouseup'
+  | 'mousedown'
+  | 'mousemove'
+  | 'contextmenu'
+  | 'drag'
+  | 'dragstart'
+  | 'dragend'
+  | 'dragenter'
+  | 'dragleave'
+  | 'dragover'
+  | 'drop'
+  | 'globalout'
+  | 'selectchanged'
+  | 'highlight'
+  | 'downplay'
+  | 'legendselectchanged'
+  | 'legendselected'
+  | 'legendunselected'
+  | 'legendselectall'
+  | 'legendinverseselect'
+  | 'legendscroll'
+  | 'datazoom'
+  | 'datarangeselected'
+  | 'graphroam'
+  | 'georoam'
+  | 'treeroam'
+  | 'timelinechanged'
+  | 'timelineplaychanged'
+  | 'restore'
+  | 'dataviewchanged'
+  | 'magictypechanged'
+  | 'geoselectchanged'
+  | 'geoselected'
+  | 'geounselected'
+  | 'axisareaselected'
+  | 'brush'
+  | 'brushEnd'
+  | 'brushselected'
+  | 'globalcursortaken'
+  | 'rendered'
+  | 'finished'
+
+type ElementEventType = 'echarts' | 'zrender'
+
+// 事件参数接口 - 使用 ECharts 原生类型
+interface EventParams {
+  componentIndex?: number
+  componentType: string
+  seriesType: string
+  seriesIndex: number
+  seriesName: string
+  name: string
+  dataIndex: number
+  data: object
+  dataType: string
+  event?: any
+  type?: string
+  targetType?: string
+  value: string | number | Array<string | number>
+  color: string
+}
+
+// 事件配置接口
+interface EventConfig {
+  name: ElementEventName
+  callback: (params: any) => void
+  type?: ElementEventType
+  query?: string | object
+}
+
 interface Props {
   options?: EChartsOption
   autoResize?: boolean
   renderer?: 'canvas' | 'svg'
+  events?: EventConfig[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
   options: () => ({}),
   autoResize: true,
   renderer: 'canvas',
+  events: () => [],
 })
 
 // 图表容器引用
@@ -60,39 +139,169 @@ const echartsInstance = useECharts(chartRef as any, {
   renderer: props.renderer,
 })
 
-// 增强的 setOptions 方法，自动合并主题配置（仅用于初始化）
-const setAppOptions = (options: EChartsOption, _clear = true) => {
-  const theme = reactiveTheme.value
-
-  // 基础主题配置
-  const baseOptions: EChartsOption = {
-    backgroundColor: theme.backgroundColor,
-    textStyle: theme.textStyle,
-    color: theme.color,
-
-    // 默认网格配置
-    grid: theme.grid,
-
-    // 默认标题样式
-    title: theme.title,
-
-    // 默认图例样式
-    legend: theme.legend,
-
-    // 默认坐标轴样式
-    xAxis: theme.categoryAxis,
-    yAxis: theme.valueAxis,
-
-    // 默认提示框样式
-    tooltip: theme.tooltip,
-
-    // 默认数据区域缩放组件样式
-    dataZoom: theme.dataZoom,
+// 事件处理函数
+const addEventListeners = (events: EventConfig[]) => {
+  const instance = echartsInstance.getInstance()
+  if (!instance || !events.length) {
+    return
   }
+
+  events.forEach(event => {
+    const { name, callback, type = 'echarts', query } = event
+
+    if (type === 'zrender') {
+      // zrender 事件
+      instance.getZr().on(name, callback as any)
+    } else {
+      // echarts 事件
+      if (query) {
+        instance.on(name, query, callback as any)
+      } else {
+        instance.on(name, callback as any)
+      }
+    }
+  })
+}
+
+// 移除事件监听器
+const removeEventListeners = (events: EventConfig[]) => {
+  const instance = echartsInstance.getInstance()
+  if (!instance || !events.length) {
+    return
+  }
+
+  events.forEach(event => {
+    const { name, callback, type = 'echarts' } = event
+
+    if (type === 'zrender') {
+      // zrender 事件
+      instance.getZr().off(name, callback as any)
+    } else {
+      // echarts 事件
+      instance.off(name, callback as any)
+    }
+  })
+}
+
+/**
+ * 深度合并坐标轴配置
+ */
+const mergeAxisConfig = (userAxis: any, themeAxis: any): any => {
+  if (!userAxis) {
+    return themeAxis
+  }
+
+  if (Array.isArray(userAxis)) {
+    return userAxis.map(axis => ({
+      ...themeAxis,
+      ...axis,
+      axisLabel: {
+        ...themeAxis?.axisLabel,
+        ...axis?.axisLabel,
+      },
+      axisLine: {
+        ...themeAxis?.axisLine,
+        ...axis?.axisLine,
+        lineStyle: {
+          ...themeAxis?.axisLine?.lineStyle,
+          ...axis?.axisLine?.lineStyle,
+        },
+      },
+      axisTick: {
+        ...themeAxis?.axisTick,
+        ...axis?.axisTick,
+        lineStyle: {
+          ...themeAxis?.axisTick?.lineStyle,
+          ...axis?.axisTick?.lineStyle,
+        },
+      },
+      splitLine: {
+        ...themeAxis?.splitLine,
+        ...axis?.splitLine,
+        lineStyle: {
+          ...themeAxis?.splitLine?.lineStyle,
+          ...axis?.splitLine?.lineStyle,
+        },
+      },
+    }))
+  } else {
+    return {
+      ...themeAxis,
+      ...userAxis,
+      axisLabel: {
+        ...themeAxis?.axisLabel,
+        ...userAxis?.axisLabel,
+      },
+      axisLine: {
+        ...themeAxis?.axisLine,
+        ...userAxis?.axisLine,
+        lineStyle: {
+          ...themeAxis?.axisLine?.lineStyle,
+          ...userAxis?.axisLine?.lineStyle,
+        },
+      },
+      axisTick: {
+        ...themeAxis?.axisTick,
+        ...userAxis?.axisTick,
+        lineStyle: {
+          ...themeAxis?.axisTick?.lineStyle,
+          ...userAxis?.axisTick?.lineStyle,
+        },
+      },
+      splitLine: {
+        ...themeAxis?.splitLine,
+        ...userAxis?.splitLine,
+        lineStyle: {
+          ...themeAxis?.splitLine?.lineStyle,
+          ...userAxis?.splitLine?.lineStyle,
+        },
+      },
+    }
+  }
+}
+
+/**
+ * 合并 dataZoom 配置
+ */
+const mergeDataZoomConfig = (userDataZoom: any, theme: any): any => {
+  if (!userDataZoom) {
+    return theme.dataZoom
+  }
+
+  if (Array.isArray(userDataZoom)) {
+    return userDataZoom.map((dzItem, index) => {
+      // 如果主题中有对应的数组配置，使用它；否则使用基础配置
+      const themeItem = theme.dataZoomArray?.[index] || theme.dataZoom
+      return {
+        ...themeItem,
+        ...dzItem,
+        textStyle: {
+          ...themeItem?.textStyle,
+          ...dzItem?.textStyle,
+        },
+      }
+    })
+  } else {
+    return {
+      ...theme.dataZoom,
+      ...userDataZoom,
+      textStyle: {
+        ...theme.dataZoom?.textStyle,
+        ...userDataZoom?.textStyle,
+      },
+    }
+  }
+}
+
+// 增强的 setOptions 方法，自动合并主题配置（仅用于初始化）
+const setAppOptions = (options: EChartsOption, _clear = true, ...eventConfigs: EventConfig[]) => {
+  const theme = reactiveTheme.value
 
   // 深度合并用户选项和主题配置
   const mergedOptions = {
-    ...baseOptions,
+    backgroundColor: theme.backgroundColor,
+    textStyle: theme.textStyle,
+    color: theme.color,
     ...options,
 
     // 深度合并标题样式
@@ -123,34 +332,43 @@ const setAppOptions = (options: EChartsOption, _clear = true) => {
         }
       : theme.legend,
 
-    // 合并坐标轴样式
-    xAxis: Array.isArray(options.xAxis)
-      ? options.xAxis.map(axis => ({ ...theme.categoryAxis, ...axis }))
-      : options.xAxis
-        ? { ...theme.categoryAxis, ...options.xAxis }
-        : theme.categoryAxis,
-
-    yAxis: Array.isArray(options.yAxis)
-      ? options.yAxis.map(axis => ({ ...theme.valueAxis, ...axis }))
-      : options.yAxis
-        ? { ...theme.valueAxis, ...options.yAxis }
-        : theme.valueAxis,
+    // 使用新的坐标轴合并函数
+    xAxis: mergeAxisConfig(options.xAxis, theme.categoryAxis),
+    yAxis: mergeAxisConfig(options.yAxis, theme.valueAxis),
 
     // 合并提示框样式
     tooltip: options.tooltip
       ? {
           ...theme.tooltip,
           ...options.tooltip,
+          textStyle: {
+            ...theme.tooltip?.textStyle,
+            ...(Array.isArray(options.tooltip) ? {} : options.tooltip?.textStyle),
+          },
         }
       : theme.tooltip,
 
-    // 合并数据区域缩放组件样式
-    dataZoom: options.dataZoom
-      ? {
-          ...theme.dataZoom,
-          ...options.dataZoom,
-        }
-      : theme.dataZoom,
+    // 使用新的 dataZoom 合并函数
+    dataZoom: mergeDataZoomConfig(options.dataZoom, theme),
+
+    // 合并 visualMap 样式
+    visualMap: options.visualMap
+      ? Array.isArray(options.visualMap)
+        ? options.visualMap.map(vm => ({
+            ...vm,
+            textStyle: {
+              color: theme.textStyle?.color,
+              ...vm?.textStyle,
+            },
+          }))
+        : {
+            ...options.visualMap,
+            textStyle: {
+              color: theme.textStyle?.color,
+              ...options.visualMap?.textStyle,
+            },
+          }
+      : options.visualMap,
 
     // 合并网格样式
     grid: options.grid
@@ -163,6 +381,11 @@ const setAppOptions = (options: EChartsOption, _clear = true) => {
 
   // 调用原始的 setOptions 方法
   echartsInstance.setOptions(mergedOptions)
+
+  // 添加事件监听器
+  if (eventConfigs.length > 0) {
+    addEventListeners(eventConfigs)
+  }
 }
 
 // 更新数据的方法（保持动画效果）
@@ -259,6 +482,30 @@ useElementSize(
   { mode: 'debounce', delay: 100 }
 )
 
+// 监听事件配置变化
+watch(
+  () => props.events,
+  (newEvents, oldEvents) => {
+    const instance = echartsInstance.getInstance()
+    if (!instance) {
+      return
+    }
+
+    // 移除旧的事件监听器
+    if (oldEvents && oldEvents.length > 0) {
+      removeEventListeners(oldEvents)
+    }
+
+    // 添加新的事件监听器
+    if (newEvents && newEvents.length > 0) {
+      addEventListeners(newEvents)
+    }
+  },
+  {
+    deep: true,
+  }
+)
+
 // 监听数据源变化 - 仅在初始化时使用
 watch(
   () => props.options,
@@ -278,12 +525,21 @@ onMounted(() => {
   if (props.options && echartsInstance.getInstance()) {
     setAppOptions(props.options)
   }
+
+  // 初始化时添加事件监听器
+  if (props.events && props.events.length > 0) {
+    addEventListeners(props.events)
+  }
 })
 
 // 组件卸载时清理
 onBeforeUnmount(() => {
   const instance = echartsInstance.getInstance()
   if (instance) {
+    // 移除所有事件监听器
+    if (props.events && props.events.length > 0) {
+      removeEventListeners(props.events)
+    }
     instance.dispose()
   }
 })
@@ -303,6 +559,48 @@ defineExpose({
     const instance = echartsInstance.getInstance()
     if (instance) {
       instance.dispose()
+    }
+  },
+  // 事件相关方法
+  addEventListeners, // 添加事件监听器
+  removeEventListeners, // 移除事件监听器
+  // 便捷的事件添加方法
+  addEvent: (eventConfig: EventConfig) => {
+    addEventListeners([eventConfig])
+  },
+  removeEvent: (eventConfig: EventConfig) => {
+    removeEventListeners([eventConfig])
+  },
+  // 常用事件快捷方法
+  onClick: (callback: (params: any) => void, query?: string | object) => {
+    addEventListeners([{ name: 'click', callback, query }])
+  },
+  onDoubleClick: (callback: (params: any) => void, query?: string | object) => {
+    addEventListeners([{ name: 'dblclick', callback, query }])
+  },
+  onRightClick: (callback: (params: any) => void, query?: string | object) => {
+    addEventListeners([{ name: 'contextmenu', callback, query }])
+  },
+  onMouseOver: (callback: (params: any) => void, query?: string | object) => {
+    addEventListeners([{ name: 'mouseover', callback, query }])
+  },
+  onMouseOut: (callback: (params: any) => void, query?: string | object) => {
+    addEventListeners([{ name: 'mouseout', callback, query }])
+  },
+  onLegendSelectChanged: (callback: (params: any) => void) => {
+    addEventListeners([{ name: 'legendselectchanged', callback }])
+  },
+  onDataZoom: (callback: (params: any) => void) => {
+    addEventListeners([{ name: 'datazoom', callback }])
+  },
+  onRendered: (callback: (params: any) => void) => {
+    addEventListeners([{ name: 'rendered', callback }])
+  },
+  // 点击空白处事件
+  onBlankClick: (callback: (params: any) => void) => {
+    const instance = echartsInstance.getInstance()
+    if (instance) {
+      instance.getZr().on('click', callback)
     }
   },
   chartTheme,
