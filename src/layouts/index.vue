@@ -9,32 +9,38 @@ import ScreenLayout from '@/layouts/components/LayoutScreen.vue'
 import { useLayoutStore } from '@/stores'
 import { useMitt } from '@/utils'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 
 const { emit, off } = useMitt()
 
-const router = useRouter()
 const layoutStore = useLayoutStore()
 const isLoading = computed(() => layoutStore.getIsLoading)
 
-// 根据路由meta获取布局模式，默认为admin
-const currentLayoutMode = ref<LayoutMode>('fullscreen')
-const toPath = ref<string>('')
-const toLayout = ref<string>('')
-const formPath = ref<string>('')
-const formLayout = ref<string>('')
-router.beforeEach((_to, form) => {
-  formPath.value = form.path
-  formLayout.value = form.meta?.parent || 'admin'
+// 使用响应式路由对象，直接基于 meta.parent 计算布局，避免首屏/刷新时竞态
+const route = useRoute()
+const currentLayoutMode = computed<LayoutMode>(() => {
+  return (route.meta?.parent as LayoutMode) || 'admin'
 })
 
-router.afterEach(to => {
-  toPath.value = to.path
-  toLayout.value = to.meta?.parent || 'admin'
-  const routeLayout = to.meta?.parent || 'admin'
-  currentLayoutMode.value = routeLayout
-  layoutStore.setCurrentLayout(currentLayoutMode.value)
-})
+// 记录上一次布局，用于离场动画方向判断
+const previousLayout = ref<LayoutMode>(currentLayoutMode.value)
+
+// 同步当前布局到 store，并在路由变化时刷新
+watch(
+  currentLayoutMode,
+  val => {
+    layoutStore.setCurrentLayout(val)
+  },
+  { immediate: true }
+)
+
+watch(
+  () => route.fullPath,
+  () => {
+    previousLayout.value = currentLayoutMode.value
+    nextTick(() => layoutStore.setCurrentLayout(currentLayoutMode.value))
+  }
+)
 
 // 保证动画可用
 const isLoadingRef = ref(true)
@@ -144,7 +150,7 @@ AnimateWrapper(:show='isLoadingRef', enter='fadeIn', leave='fadeOut', duration='
   AnimateWrapper(
     :show='!isLoadingRef',
     :enter='getLayoutEnterAnimation(currentLayoutMode)',
-    :leave='getLayoutLeaveAnimation(formLayout, toLayout)',
+    :leave='getLayoutLeaveAnimation(previousLayout, currentLayoutMode)',
     :duration='getAnimationDuration()',
     delay='0s'
   )
