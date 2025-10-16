@@ -32,73 +32,7 @@ const mockUser: (UserInfo & { password: string })[] = [
     phone: '12345678901',
   },
 ]
-const routes: BackendRouteConfig[] = [
-  {
-    path: '/user',
-    name: 'User',
-    component: 'user/index',
-    meta: {
-      titleKey: 'router.user.title',
-      icon: 'icon-line-md:account',
-      rank: 1,
-    },
-    children: [
-      {
-        path: 'list',
-        name: 'UserList',
-        component: 'user/views/user-list',
-        meta: {
-          titleKey: 'router.user.list.title',
-          icon: 'icon-line-md:account',
-          rank: 1,
-        },
-      },
-      {
-        path: 'permission',
-        name: 'UserPermission',
-        component: 'user/views/user-permission',
-        meta: {
-          titleKey: 'router.user.permission.title',
-          icon: 'icon-line-md:account',
-          rank: 2,
-        },
-      },
-    ],
-  },
-  {
-    path: '/permission',
-    name: 'Permission',
-    component: 'permission/index',
-    meta: {
-      titleKey: 'router.permission.title',
-      icon: 'icon-line-md:construction',
-      rank: 2,
-    },
-    children: [
-      {
-        path: 'page',
-        name: 'PermissionPage',
-        component: 'permission/views/permission-page',
-        meta: {
-          titleKey: 'router.permission.page.title',
-          roles: ['admin', 'common'],
-          icon: 'icon-line-md:construction',
-        },
-      },
-      {
-        path: 'button',
-        name: 'PermissionButton',
-        component: 'permission/views/permission-button',
-        meta: {
-          titleKey: 'router.permission.button.title',
-          roles: ['admin'],
-          auths: ['permission:btn:add', 'permission:btn:edit', 'permission:btn:delete'],
-          icon: 'icon-line-md:construction',
-        },
-      },
-    ],
-  },
-]
+const routes: BackendRouteConfig[] = []
 
 export const login = (params: { username: string; password: string }) => {
   const user = mockUser.find(item => item.username === params.username)

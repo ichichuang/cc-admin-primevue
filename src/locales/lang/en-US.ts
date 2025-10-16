@@ -182,71 +182,10 @@ const enUS = {
     dashboard: {
       dashboard: 'Dashboard',
     },
-    example: {
-      title: 'Example',
-      layout: {
-        title: 'Layout',
-        screen: 'Screen',
-        fullscreen: 'Fullscreen',
-        test: 'Test',
-        ratio: 'Ratio',
-      },
-      components: {
-        title: 'Components',
-        menu: 'Menu',
-        dialog: 'Dialog',
-        toast: 'Toast',
-        schemaForm: {
-          title: 'Form',
-          basic: 'Basic Form',
-          step: 'Step Form',
-          section: 'Section Form',
-        },
-        gridTable: {
-          title: 'Table',
-          default: 'Default Table',
-          basic: 'Basic Table',
-          service: 'Service Table',
-          advanced: 'Advanced Table',
-        },
-        echarts: {
-          title: 'Echarts',
-          default: 'Default Echarts',
-          static: 'Static Echarts',
-          event: 'Event Echarts',
-          dynamic: 'Dynamic Echarts',
-        },
-        datepicker: {
-          title: 'Date Picker',
-        },
-      },
-      function: {
-        title: 'Function',
-        date: 'Date',
-      },
-    },
     error: {
       notFound: 'Page Not Found',
       forbidden: 'Forbidden',
       serverError: 'Server Error',
-    },
-    user: {
-      title: 'User Management',
-      list: {
-        title: 'User List',
-      },
-      permission: {
-        title: 'User Permission',
-      },
-    },
-    permission: {
-      title: 'Permission Management',
-      page: {
-        title: 'Page Permission',
-      },
-      button: {
-        title: 'Button Permission',
-      },
     },
   },
   layout: {
