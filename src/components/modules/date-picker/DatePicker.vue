@@ -131,7 +131,12 @@ const placeholderText = computed(() => {
   const currentLocaleValue = currentLocale.value // 添加依赖，确保语言变化时重新计算
 
   // 根据不同的 mode 和 range 显示相应的 placeholder
-  const modeKey = props.range ? `range-${props.mode}` : props.mode
+  // 兼容语言包未提供 `range-date`，统一映射为 `range`
+  const modeKey = props.range
+    ? props.mode === 'date'
+      ? 'range'
+      : `range-${props.mode}`
+    : props.mode
   const specificPlaceholder = t(`components.datePicker.placeholders.${modeKey}`)
 
   if (

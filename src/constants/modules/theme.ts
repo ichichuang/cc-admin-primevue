@@ -180,7 +180,7 @@ export const lightThemeOptions: ThemeColor[] = [
       text200: '#4C6B8A', // Softer blue for secondary text
       bg100: '#F0F9FF', // Light blue background
       bg200: '#E0F2FE', // Slightly darker blue for panels
-      bg300: '#BAE6FD', // Soft blue for borders
+      bg300: '#aac1FD', // Soft blue for borders
       functionalColors: createFunctionalColors({
         color: '#0D9488',
         hover: '#34D1B6',

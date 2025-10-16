@@ -88,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { useSizeStore } from '@/stores'
+import { useLayoutStore, useSizeStore } from '@/stores'
 import { Form } from '@primevue/forms'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import {
@@ -108,6 +108,7 @@ import type {
   StyleConfig,
 } from './utils/types'
 const sizeStore = useSizeStore()
+const layoutStore = useLayoutStore()
 const formContainerRef = ref<HTMLElement | null>(null)
 let formApiRef: any = null
 // 对外提供的稳定响应式表单值引用
@@ -115,9 +116,11 @@ const valuesRef = ref<Record<string, any>>({})
 
 // ==================== Props & Emits ====================
 
-const props = withDefaults(defineProps<SchemaFormProps>(), {
+const props = withDefaults(defineProps<SchemaFormProps & { remember?: boolean }>(), {
   optionsCacheTTL: 1000 * 60 * 5, // 5 minutes
   disabled: false,
+  // 是否开启内容记忆（IndexedDB 存储，layout 仅保存指针）
+  remember: false,
 })
 
 const emit = defineEmits<SchemaFormEmits>()
@@ -177,11 +180,125 @@ function syncToModelValue(values: Record<string, any>) {
       filtered[column.field] = (safeValues as any)[column.field]
     }
     valuesRef.value = filtered
+
+    // 记忆存储：将当前表单值异步节流写入 IndexedDB，并同步 layout 指针
+    if (props.remember) {
+      const formId = getFormId()
+      const key = idbKeyRef.value || toSafeKey(formId)
+      idbKeyRef.value = key
+      // 同步到 layout 指针，供跨组件/刷新后寻址
+      try {
+        layoutStore.setFormMemoryPointer(formId, key)
+      } catch {
+        /* ignore pointer sync errors */
+      }
+      if (rememberSaveTimer) {
+        window.clearTimeout(rememberSaveTimer)
+        rememberSaveTimer = null
+      }
+      // 先缓存待保存数据，统一由节流计时器与 flush 写入
+      pendingRememberValues = { ...safeValues }
+      rememberSaveTimer = window.setTimeout(() => {
+        if (pendingRememberValues) {
+          idbPut(key, { values: pendingRememberValues, t: Date.now() })
+          pendingRememberValues = null
+        }
+      }, 500)
+    }
   }
 }
 const containerWidth = ref(0)
 let resizeObserver: ResizeObserver | null = null
 let valuesSyncTimer: number | null = null
+let rememberSaveTimer: number | null = null
+let pendingRememberValues: Record<string, any> | null = null
+
+// ==================== IndexedDB Memory for Form Values ====================
+
+const idbDbName = 'CCAdminFormMemory'
+const idbStoreName = 'forms'
+let idbOpenPromise: Promise<IDBDatabase> | null = null
+const idbKeyRef = ref<string | null>(null)
+
+function getFormId(): string {
+  // 使用路由/路径作为默认 formId，避免增加额外 props
+  const path = typeof window !== 'undefined' ? window.location.pathname : 'unknown'
+  // 可根据 schema 的列字段生成签名以增强唯一性
+  const fieldsSig = Array.isArray(props.schema?.columns)
+    ? props.schema.columns.map(c => c.field).join(',')
+    : ''
+  return `${path}::${fieldsSig}`
+}
+
+function toSafeKey(input: string): string {
+  try {
+    return `schemaform:${btoa(unescape(encodeURIComponent(input)))}`
+  } catch {
+    return `schemaform:${input}`
+  }
+}
+
+function openIdb(): Promise<IDBDatabase> {
+  if (idbOpenPromise) {
+    return idbOpenPromise
+  }
+  idbOpenPromise = new Promise((resolve, reject) => {
+    const request = indexedDB.open(idbDbName, 1)
+    request.onupgradeneeded = () => {
+      const db = request.result
+      if (!db.objectStoreNames.contains(idbStoreName)) {
+        db.createObjectStore(idbStoreName)
+      }
+    }
+    request.onsuccess = () => resolve(request.result)
+    request.onerror = () => reject(request.error)
+  })
+  return idbOpenPromise
+}
+
+async function idbGet<T = any>(key: string): Promise<T | null> {
+  try {
+    const db = await openIdb()
+    return await new Promise<T | null>((resolve, reject) => {
+      const tx = db.transaction(idbStoreName, 'readonly')
+      const store = tx.objectStore(idbStoreName)
+      const req = store.get(key)
+      req.onsuccess = () => resolve((req.result as T) ?? null)
+      req.onerror = () => reject(req.error)
+    })
+  } catch {
+    return null
+  }
+}
+
+async function idbPut<T = any>(key: string, value: T): Promise<void> {
+  try {
+    const db = await openIdb()
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(idbStoreName, 'readwrite')
+      const store = tx.objectStore(idbStoreName)
+      const req = store.put(value as any, key)
+      req.onsuccess = () => resolve()
+      req.onerror = () => reject(req.error)
+    })
+  } catch {
+    // 忽略单次持久化异常
+  }
+}
+
+function flushRememberSave() {
+  if (!props.remember) {
+    return
+  }
+  const formId = getFormId()
+  const key = idbKeyRef.value || toSafeKey(formId)
+  idbKeyRef.value = key
+  if (pendingRememberValues) {
+    // 写入最后一次的待保存值
+    idbPut(key, { values: pendingRememberValues, t: Date.now() })
+    pendingRememberValues = null
+  }
+}
 
 // ==================== Computed ====================
 
@@ -337,6 +454,93 @@ function updateContainerWidth() {
 onMounted(() => {
   // 延迟设置，确保 DOM 已经渲染
   nextTick(() => {
+    // 初始化内容记忆：根据 layout 指针或默认 key 获取并回填
+    if (props.remember) {
+      const formId = getFormId()
+      const pointer = layoutStore.getFormMemoryPointer?.(formId)
+      const key = pointer || toSafeKey(formId)
+      idbKeyRef.value = key
+      // 若无 pointer 则设置一次，便于其他处寻址
+      try {
+        if (!pointer) {
+          layoutStore.setFormMemoryPointer(formId, key)
+        }
+      } catch {
+        /* ignore pointer init errors */
+      }
+
+      // 从 IDB 读取历史值并尽可能回填
+      idbGet<{ values: Record<string, any> }>(key)
+        .then(data => {
+          if (!data || !data.values) {
+            // 尝试读取调试 shadow（如果 IDB 失败，便于确认路径）
+            try {
+              const shadow = localStorage.getItem(`__debug_idb_shadow__:${key}`)
+              if (shadow) {
+                data = JSON.parse(shadow)
+              }
+            } catch {
+              /* ignore parse error */
+            }
+          }
+          if (!data || !data.values) {
+            return
+          }
+          const incoming = data.values
+          const apply = () => {
+            try {
+              if (!formApiRef) {
+                return false
+              }
+              const toApply: Record<string, any> = {}
+              // 优先按 schema 字段回填；同时把 incoming 中的其他字段也保留（避免遗漏）
+              for (const column of props.schema.columns) {
+                const field = column.field
+                if (Object.prototype.hasOwnProperty.call(incoming, field)) {
+                  toApply[field] = incoming[field]
+                }
+              }
+              for (const k in incoming) {
+                if (!(k in toApply)) {
+                  toApply[k] = (incoming as any)[k]
+                }
+              }
+              if (typeof formApiRef.setValues === 'function') {
+                formApiRef.setValues(toApply)
+              } else {
+                Object.keys(toApply).forEach(k => {
+                  const v = toApply[k]
+                  const target = formApiRef[k]
+                  if (target && typeof target === 'object' && 'value' in target) {
+                    target.value = v
+                  } else if (typeof formApiRef.setFieldValue === 'function') {
+                    formApiRef.setFieldValue(k, v)
+                  } else {
+                    formApiRef[k] = v
+                  }
+                })
+              }
+              return true
+            } catch {
+              return false
+            }
+          }
+
+          // 立即尝试一次，若 API 尚未就绪，则延迟重试几次
+          let applied = apply()
+          if (!applied) {
+            let retry = 0
+            const timer = window.setInterval(() => {
+              applied = apply()
+              retry++
+              if (applied || retry >= 10) {
+                window.clearInterval(timer)
+              }
+            }, 100)
+          }
+        })
+        .catch(() => {})
+    }
     setupResizeObserver()
     // 初始设置容器宽度
     updateContainerWidth()
@@ -417,6 +621,12 @@ onUnmounted(() => {
     window.clearInterval(valuesSyncTimer)
     valuesSyncTimer = null
   }
+  // 离开组件强制落盘
+  try {
+    flushRememberSave()
+  } catch {
+    /* ignore flush errors */
+  }
   // 移除窗口大小变化监听
   window.removeEventListener('resize', updateContainerWidth)
 })
@@ -424,6 +634,19 @@ onUnmounted(() => {
 // 添加窗口大小变化监听作为备用方案
 onMounted(() => {
   window.addEventListener('resize', updateContainerWidth)
+  // 页面关闭/刷新时强制落盘
+  const beforeUnloadHandler = () => {
+    try {
+      flushRememberSave()
+    } catch {
+      /* ignore */
+    }
+  }
+  window.addEventListener('beforeunload', beforeUnloadHandler)
+  // 组件卸载时移除该监听
+  onUnmounted(() => {
+    window.removeEventListener('beforeunload', beforeUnloadHandler)
+  })
 })
 
 /** 构建验证解析器（PrimeVue 期望的错误格式：{ field: [{ message }] }） */

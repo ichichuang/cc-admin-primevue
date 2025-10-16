@@ -6,6 +6,7 @@
  */
 
 import type { Schema, SchemaColumnsItem } from '@/components/modules/schema-form/utils/types'
+import { useLayoutStore } from '@/stores'
 import { isRef, nextTick, reactive, ref, unref, watch, type Ref } from 'vue'
 
 export interface SchemaFormExpose {
@@ -53,12 +54,125 @@ export interface UseSchemaFormReturn {
 export const useSchemaForm = ({
   formRef,
   initialSchema,
+  remember,
+  formId,
 }: {
   formRef: Ref<SchemaFormExpose | undefined>
   initialSchema: Schema
+  remember?: boolean
+  /** 可选：自定义表单唯一ID；默认基于路由路径+字段签名 */
+  formId?: string
 }): UseSchemaFormReturn => {
   // 响应式 schema 数据 - 使用类型断言避免复杂的类型推断
   const schema = reactive(initialSchema as any) as Schema
+
+  // 布局 store（用于保存 key 指针）
+  const layoutStore = useLayoutStore()
+
+  // ======== IndexedDB helpers ========
+  const idbDbName = 'CCAdminFormMemory'
+  const idbStoreName = 'forms'
+  let idbOpenPromise: Promise<IDBDatabase> | null = null
+  let idbKeyCache: string | null = null
+  const debugLog = (..._args: any[]) => {}
+
+  function openIdb(): Promise<IDBDatabase> {
+    if (idbOpenPromise) {
+      return idbOpenPromise
+    }
+    idbOpenPromise = new Promise((resolve, reject) => {
+      const request = indexedDB.open(idbDbName, 1)
+      request.onupgradeneeded = () => {
+        const db = request.result
+        if (!db.objectStoreNames.contains(idbStoreName)) {
+          db.createObjectStore(idbStoreName)
+        }
+      }
+      request.onsuccess = () => {
+        debugLog('IndexedDB opened')
+        resolve(request.result)
+      }
+      request.onerror = () => {
+        console.error('[SchemaFormMemory] openIdb error:', request.error)
+        reject(request.error)
+      }
+    })
+    return idbOpenPromise
+  }
+
+  async function idbPut<T = any>(key: string, value: T): Promise<void> {
+    try {
+      const db = await openIdb()
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(idbStoreName, 'readwrite')
+        const store = tx.objectStore(idbStoreName)
+        const req = store.put(value as any, key)
+        req.onerror = () => {
+          console.error('[SchemaFormMemory] idbPut request error:', req.error)
+          reject(req.error)
+        }
+        tx.oncomplete = () => {
+          debugLog('idbPut success (tx complete)', { key, value })
+          resolve()
+        }
+        tx.onerror = event => {
+          console.error('[SchemaFormMemory] idbPut tx error:', (event as any)?.target?.error)
+          reject((event as any)?.target?.error)
+        }
+        tx.onabort = event => {
+          console.error('[SchemaFormMemory] idbPut tx abort:', (event as any)?.target?.error)
+          reject((event as any)?.target?.error)
+        }
+      })
+
+      // 额外：写入 localStorage 作为调试辅助（不作为正式存储）
+      try {
+        const debugKey = `__debug_idb_shadow__:${key}`
+        localStorage.setItem(debugKey, JSON.stringify(value))
+      } catch (_) {
+        /* ignore localStorage debug shadow error */
+      }
+    } catch {
+      // 忽略单次异常
+    }
+  }
+
+  function genKeyId(): string {
+    // 尽量使用 crypto.randomUUID
+    const id = (globalThis as any).crypto?.randomUUID?.()
+    if (id) {
+      return `schemaform:${id}`
+    }
+    return `schemaform:${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`
+  }
+
+  function computeFormId(): string {
+    if (formId) {
+      return formId
+    }
+    const path = typeof window !== 'undefined' ? window.location.pathname : 'unknown'
+    const fieldsSig = Array.isArray(schema?.columns)
+      ? schema.columns.map(c => c.field).join(',')
+      : ''
+    return `${path}::${fieldsSig}`
+  }
+
+  function ensureIdbKey(): string {
+    if (idbKeyCache) {
+      return idbKeyCache
+    }
+    const fid = computeFormId()
+    const existing = (layoutStore as any).getFormMemoryPointer?.(fid)
+    const key = existing || genKeyId()
+    idbKeyCache = key
+    try {
+      ;(layoutStore as any).setFormMemoryPointer?.(fid, key)
+    } catch {
+      /* ignore layout pointer error */
+    }
+    debugLog('ensureIdbKey', { formId: fid, key, existing })
+    return key
+  }
 
   // 提供一个稳定的、可深度追踪的表单值引用，避免直接监听 formRef?.values 带来的引用丢失问题
   const formValuesRef = ref<Record<string, any>>({})
@@ -102,6 +216,21 @@ export const useSchemaForm = ({
         // 解包可能的 ref，再复制一份，确保引用稳定，便于外部 watch
         const unwrapped = isRef(newVal) ? (newVal as any).value : newVal
         formValuesRef.value = { ...((unwrapped as any) || {}) }
+        // 记忆：表单值变化后，若 remember 启用，则立即写入 IndexedDB
+        if (remember) {
+          const key = ensureIdbKey()
+          // 构建完整字段集，避免后续某些变更导致未触发组件的值丢失
+          const fullValues: Record<string, any> = {}
+          try {
+            ;(schema.columns || []).forEach(col => {
+              fullValues[col.field] = (formValuesRef.value as any)[col.field]
+            })
+          } catch {
+            Object.assign(fullValues, formValuesRef.value)
+          }
+          debugLog('values changed, persist', { key, values: fullValues })
+          idbPut(key, { values: fullValues, t: Date.now() })
+        }
         debounceTimer = null
       }, 100) // 100ms 防抖
     },

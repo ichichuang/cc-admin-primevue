@@ -42,6 +42,9 @@ interface LayoutState {
 
   // 滚动位置记忆存储
   scrollPositions: Record<string, { scrollLeft: number; scrollTop: number }>
+
+  // 表单内容记忆指针：仅保存指向 IndexedDB 的键
+  formMemoryPointers: Record<string, string>
 }
 
 /* 布局配置 */
@@ -72,6 +75,8 @@ export const useLayoutStore = defineStore('layout', {
     layoutScrollbarTop: 0,
 
     scrollPositions: {},
+
+    formMemoryPointers: {},
   }),
 
   getters: {
@@ -134,6 +139,9 @@ export const useLayoutStore = defineStore('layout', {
 
     // 获取滚动位置记忆存储
     getScrollPositions: (state: LayoutState) => state.scrollPositions,
+
+    // 获取表单内容记忆指针映射
+    getFormMemoryPointers: (state: LayoutState) => state.formMemoryPointers,
   },
 
   actions: {
@@ -214,6 +222,22 @@ export const useLayoutStore = defineStore('layout', {
     // 清除所有滚动位置
     clearAllScrollPositions() {
       this.scrollPositions = {}
+    },
+
+    /* ======= 表单内容记忆指针 ======= */
+    // 设置表单指针（formId -> idbKey）
+    setFormMemoryPointer(formId: string, idbKey: string) {
+      this.formMemoryPointers[formId] = idbKey
+    },
+
+    // 获取表单指针
+    getFormMemoryPointer(formId: string): string | null {
+      return this.formMemoryPointers[formId] ?? null
+    },
+
+    // 清除表单指针
+    clearFormMemoryPointer(formId: string) {
+      delete this.formMemoryPointers[formId]
     },
 
     // 初始化设备信息

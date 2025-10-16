@@ -608,7 +608,7 @@ const {
   getValues,
   hasField,
   getFieldIndex,
-} = useSchemaForm({ formRef: schemaFormRef, initialSchema })
+} = useSchemaForm({ formRef: schemaFormRef, initialSchema, remember: true })
 // 从 hook 解构实时表单值（重置/清空后仍会持续更新）
 
 // ==================== 表单操作函数 ====================
@@ -861,7 +861,7 @@ const handleGetFieldIndex = () => {
 <template lang="pug">
 div
   // 操作按钮区域（吸顶区域）
-  .c-card.rounded-0.px-padding.between-col.items-start.sticky.top-0.z-2.gap-gap
+  .c-card.rounded-0.px-padding.between-col.items-start.sticky.top-0.z-2.gap-gap.z-9999
     .fs-appFontSizex SchemaForm 组件类型示例 + useSchemaForm Hook 演示
     .color-text200 展示所有支持的组件类型及其配置，以及 useSchemaForm hook 的各种功能
     div
@@ -895,7 +895,7 @@ div
         Button(@click='handleGetFieldIndex') 获取字段索引
   .c-border.p-padding.my-gapl
     // 表单组件
-    SchemaForm(:schema='schema', @submit='handleSubmit', ref='schemaFormRef')
+    SchemaForm(:schema='schema', @submit='handleSubmit', ref='schemaFormRef', :remember='true')
   .full.c-card-accent.fs-appFontSizes.between-col.gap-gap
     span.fs-appFontSizex 表单数据实时预览：
     pre.c-border-primary.p-paddings.full {{ JSON.stringify(formValues, null, 2) }}

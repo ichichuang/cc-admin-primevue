@@ -296,10 +296,6 @@ const saveScrollPosition = () => {
   if (scrollEl) {
     const { scrollLeft, scrollTop } = scrollEl
     layoutStore.setScrollPosition(scrollPositionKey.value, scrollLeft, scrollTop)
-    console.log(`💾 [ScrollbarWrapper] 保存滚动位置: ${scrollPositionKey.value}`, {
-      scrollLeft,
-      scrollTop,
-    })
   }
 }
 
@@ -311,11 +307,8 @@ const restoreScrollPosition = (retryCount = 0) => {
 
   const savedPosition = layoutStore.getScrollPosition(scrollPositionKey.value)
   if (!savedPosition) {
-    console.log(`❌ [ScrollbarWrapper] 未找到保存的滚动位置: ${scrollPositionKey.value}`)
     return
   }
-
-  console.log(`🔍 [ScrollbarWrapper] 找到保存的滚动位置: ${scrollPositionKey.value}`, savedPosition)
 
   const scrollEl = getScrollEl()
   if (!scrollEl) {
@@ -345,8 +338,6 @@ const restoreScrollPosition = (retryCount = 0) => {
       top: savedPosition.scrollTop,
       behavior: 'instant', // 立即跳转，不使用动画
     })
-
-    console.log(`🔄 [ScrollbarWrapper] 恢复滚动位置: ${scrollPositionKey.value}`, savedPosition)
   })
 }
 
@@ -839,8 +830,6 @@ watch(
 onMounted(() => {
   // 初始化滚动位置 key
   initScrollPositionKey()
-
-  console.log(`🆔 [ScrollbarWrapper] 初始化滚动位置 key: ${scrollPositionKey.value}`)
 })
 
 onUnmounted(() => {

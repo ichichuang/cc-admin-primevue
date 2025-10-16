@@ -64,64 +64,6 @@
   --dp-scroll-bar-hover-color: var(--bg300) !important;
 }
 
-/* 修复首屏加载时日期选择器不可点击的问题 */
-.dp__input_wrap {
-  pointer-events: auto !important;
-  z-index: 1000 !important;
-  position: relative !important;
-}
-
-.dp__input {
-  pointer-events: auto !important;
-  cursor: pointer !important;
-  z-index: 1000 !important;
-}
-
-.dp__menu {
-  pointer-events: auto !important;
-  z-index: 1001 !important;
-}
-
-/* 确保日期选择器面板可见和可交互 */
-.dp__menu_wrap {
-  pointer-events: auto !important;
-  z-index: 1001 !important;
-}
-
-/* 修复可能的父容器影响 */
-.dp__input_wrap * {
-  pointer-events: auto !important;
-}
-
-/* 初始化完成后的样式 */
-.dp-initialized {
-  .dp__input_wrap {
-    pointer-events: auto !important;
-    z-index: 1000 !important;
-  }
-
-  .dp__input {
-    pointer-events: auto !important;
-    cursor: pointer !important;
-  }
-}
-
-/* 强制确保所有日期选择器相关元素可交互 */
-.dp__input_wrap,
-.dp__input,
-.dp__menu,
-.dp__menu_wrap,
-.dp__calendar,
-.dp__calendar_wrap {
-  pointer-events: auto !important;
-  z-index: 1000 !important;
-}
-
-/* 防止父容器影响 */
-.dp__input_wrap {
-  isolation: isolate !important;
-}
-
 /* 增强的样式优化 */
 .dp__input {
   border: 1px solid var(--bg300) !important;
@@ -340,25 +282,4 @@
 
 .dp__preset_range:hover {
   background-color: var(--bg200) !important;
-}
-
-/* 响应式优化 */
-@media (max-width: 768px) {
-  :root {
-    --dp-cell-size: 2rem !important;
-    --dp-button-height: 2rem !important;
-    --dp-menu-min-width: 16rem !important;
-    --dp-font-size: var(--app-font-sizes) !important;
-    --dp-time-font-size: var(--app-font-size) !important;
-  }
-}
-
-@media (max-width: 480px) {
-  :root {
-    --dp-cell-size: 1.75rem !important;
-    --dp-button-height: 1.75rem !important;
-    --dp-menu-min-width: 14rem !important;
-    --dp-font-size: var(--app-font-sizes) !important;
-    --dp-time-font-size: var(--app-font-size) !important;
-  }
 }
