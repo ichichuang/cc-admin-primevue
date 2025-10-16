@@ -39,6 +39,9 @@ interface LayoutState {
 
   // 记住的滚动条距离
   layoutScrollbarTop: number
+
+  // 滚动位置记忆存储
+  scrollPositions: Record<string, { scrollLeft: number; scrollTop: number }>
 }
 
 /* 布局配置 */
@@ -67,6 +70,8 @@ export const useLayoutStore = defineStore('layout', {
     currentBreakpoint: 'md',
 
     layoutScrollbarTop: 0,
+
+    scrollPositions: {},
   }),
 
   getters: {
@@ -126,6 +131,9 @@ export const useLayoutStore = defineStore('layout', {
 
     // 记住的滚动条距离
     getLayoutScrollbarTop: (state: LayoutState) => state.layoutScrollbarTop,
+
+    // 获取滚动位置记忆存储
+    getScrollPositions: (state: LayoutState) => state.scrollPositions,
   },
 
   actions: {
@@ -186,6 +194,26 @@ export const useLayoutStore = defineStore('layout', {
     // 设置记住的滚动条距离
     setLayoutScrollbarTop(top: number) {
       this.layoutScrollbarTop = top
+    },
+
+    // 设置滚动位置
+    setScrollPosition(key: string, scrollLeft: number, scrollTop: number) {
+      this.scrollPositions[key] = { scrollLeft, scrollTop }
+    },
+
+    // 获取滚动位置
+    getScrollPosition(key: string): { scrollLeft: number; scrollTop: number } | null {
+      return this.scrollPositions[key] || null
+    },
+
+    // 清除滚动位置
+    clearScrollPosition(key: string) {
+      delete this.scrollPositions[key]
+    },
+
+    // 清除所有滚动位置
+    clearAllScrollPositions() {
+      this.scrollPositions = {}
     },
 
     // 初始化设备信息

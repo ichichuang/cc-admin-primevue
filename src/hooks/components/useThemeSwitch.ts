@@ -1,4 +1,5 @@
 import { useColorStore } from '@/stores'
+import { useI18nModeOptions } from '@/utils'
 import { computed, ref } from 'vue'
 
 type ViewTransition = {
@@ -33,7 +34,7 @@ export const useThemeSwitch = () => {
   const isAnimating = ref(false)
 
   // 计算属性
-  const modeOptions = computed(() => colorStore.getModeOptions)
+  const modeOptions = useI18nModeOptions()
   const mode = computed(() => colorStore.getMode)
   const isDark = computed(() => colorStore.isDark)
 
@@ -43,18 +44,18 @@ export const useThemeSwitch = () => {
   }
 
   // 获取下一个模式（排除 auto 自动模式）
-  const getNextMode = () => {
+  const getNextMode = (): Mode => {
     const newModeOptions = modeOptions.value.filter(item => item.value !== 'auto')
     const currentIndex = newModeOptions.findIndex(item => item.value === mode.value)
     const nextIndex = (currentIndex + 1) % newModeOptions.length
-    return newModeOptions[nextIndex].value
+    return newModeOptions[nextIndex].value as Mode
   }
 
   // 获取下一个模式（包含 auto 自动模式）
-  const getNextModeWithAuto = () => {
+  const getNextModeWithAuto = (): Mode => {
     const currentIndex = modeOptions.value.findIndex(item => item.value === mode.value)
     const nextIndex = (currentIndex + 1) % modeOptions.value.length
-    return modeOptions.value[nextIndex].value
+    return modeOptions.value[nextIndex].value as Mode
   }
 
   // 切换模式（排除 auto）

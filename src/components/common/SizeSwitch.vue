@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { useSizeStore } from '@/stores'
+import { useI18nSizeOptions } from '@/utils'
 import { computed } from 'vue'
 
 const sizeStore = useSizeStore()
 
-const sizeOptions = computed(() => sizeStore.getSizeOptions)
+const sizeOptions = useI18nSizeOptions()
 const size = computed(() => sizeStore.getSize)
 
 const setSize = (value: SizeOptions['value']) => {

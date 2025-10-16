@@ -100,6 +100,10 @@ export interface ScrollbarWrapperProps {
   options?: any
   /** 当内容增加时是否自动滚动到底部，默认为 true */
   autoScrollToBottom?: boolean
+  /** 是否记住滚动位置，默认为 true */
+  rememberScrollPosition?: boolean
+  /** 滚动位置存储的唯一标识符，如果不提供则使用组件实例的自动生成ID */
+  scrollPositionKey?: string
 }
 
 // ==================== 事件类型 ====================
@@ -166,6 +170,14 @@ export interface ScrollbarExposed {
   updateOptions: (options: PartialOptions) => void
   /** 销毁 OverlayScrollbars 实例，清理资源 */
   destroy: () => void
+  /** 保存当前滚动位置到本地存储 */
+  saveScrollPosition: () => void
+  /** 从本地存储恢复滚动位置 */
+  restoreScrollPosition: () => void
+  /** 清除滚动位置记忆 */
+  clearScrollPosition: () => void
+  /** 滚动位置存储的唯一标识符 */
+  scrollPositionKey: Ref<string>
 }
 
 // ==================== 颜色方案类型 ====================

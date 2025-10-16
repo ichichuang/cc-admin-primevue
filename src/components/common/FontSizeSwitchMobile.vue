@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { useSizeStore } from '@/stores'
+import { useI18nFontSizeOptions } from '@/utils'
 import { computed } from 'vue'
 
 const sizeStore = useSizeStore()
 
 /* 尺寸变量配置相关 fontSize */
-const fontSizeOptions = computed(() => sizeStore.getFontSizeOptions)
+const fontSizeOptions = useI18nFontSizeOptions()
 const fontSize = computed(() => sizeStore.getFontSize)
 
 const setFontSize = (value: FontSizeOptions['key']) => {

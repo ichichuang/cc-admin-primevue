@@ -28,6 +28,20 @@ const props = withDefaults(defineProps<ScrollbarWrapperProps>(), {
 const overlayScrollbarsRef = ref<any>()
 const scrollbarInstance = ref<OverlayScrollbars | null>(null)
 
+// 滚动位置记忆相关
+const scrollPositionKey = ref<string>('')
+
+// 初始化滚动位置 key
+const initScrollPositionKey = () => {
+  if (props.scrollPositionKey) {
+    scrollPositionKey.value = props.scrollPositionKey
+  } else {
+    // 生成一个稳定的 key，基于当前路由
+    const route = window.location.pathname
+    scrollPositionKey.value = `scroll-${route.replace(/\//g, '-')}-default`
+  }
+}
+
 // ==================== 配置计算 ====================
 
 // 动态计算滚动条配置
@@ -258,6 +272,7 @@ const scrollbarPaddingAxis = computed(() => {
 // ==================== 滚动状态管理 ====================
 
 let scrollTimer: NodeJS.Timeout | null = null
+let saveScrollTimer: NodeJS.Timeout | null = null
 let lastScrollLeft = 0
 let lastScrollTop = 0
 let isScrolling = false
@@ -268,6 +283,79 @@ let mutationObserver: MutationObserver | null = null
 let lastContentHeight = 0
 let isUserScrolling = false
 let userScrollTimer: NodeJS.Timeout | null = null
+
+// ==================== 滚动位置记忆 ====================
+
+// 保存滚动位置
+const saveScrollPosition = () => {
+  if (!props.rememberScrollPosition) {
+    return
+  }
+
+  const scrollEl = getScrollEl()
+  if (scrollEl) {
+    const { scrollLeft, scrollTop } = scrollEl
+    layoutStore.setScrollPosition(scrollPositionKey.value, scrollLeft, scrollTop)
+    console.log(`💾 [ScrollbarWrapper] 保存滚动位置: ${scrollPositionKey.value}`, {
+      scrollLeft,
+      scrollTop,
+    })
+  }
+}
+
+// 恢复滚动位置
+const restoreScrollPosition = (retryCount = 0) => {
+  if (!props.rememberScrollPosition) {
+    return
+  }
+
+  const savedPosition = layoutStore.getScrollPosition(scrollPositionKey.value)
+  if (!savedPosition) {
+    console.log(`❌ [ScrollbarWrapper] 未找到保存的滚动位置: ${scrollPositionKey.value}`)
+    return
+  }
+
+  console.log(`🔍 [ScrollbarWrapper] 找到保存的滚动位置: ${scrollPositionKey.value}`, savedPosition)
+
+  const scrollEl = getScrollEl()
+  if (!scrollEl) {
+    // 如果滚动元素还没有准备好，重试
+    if (retryCount < 10) {
+      setTimeout(() => {
+        restoreScrollPosition(retryCount + 1)
+      }, 100)
+    }
+    return
+  }
+
+  // 检查内容是否已经渲染完成
+  const { scrollHeight, clientHeight } = scrollEl
+  if (scrollHeight <= clientHeight && retryCount < 5) {
+    // 内容还没有完全渲染，重试
+    setTimeout(() => {
+      restoreScrollPosition(retryCount + 1)
+    }, 200)
+    return
+  }
+
+  // 执行滚动恢复
+  nextTick(() => {
+    scrollEl.scrollTo({
+      left: savedPosition.scrollLeft,
+      top: savedPosition.scrollTop,
+      behavior: 'instant', // 立即跳转，不使用动画
+    })
+
+    console.log(`🔄 [ScrollbarWrapper] 恢复滚动位置: ${scrollPositionKey.value}`, savedPosition)
+  })
+}
+
+// 清除滚动位置记忆
+const clearScrollPosition = () => {
+  if (props.rememberScrollPosition) {
+    layoutStore.clearScrollPosition(scrollPositionKey.value)
+  }
+}
 
 // ==================== 工具函数 ====================
 
@@ -431,6 +519,16 @@ const handleScroll = getThrottleFunction()((event: Event) => {
   // 更新上次滚动位置
   lastScrollLeft = scrollLeft
   lastScrollTop = scrollTop
+
+  // 保存滚动位置（防抖处理，避免频繁保存）
+  if (props.rememberScrollPosition) {
+    if (saveScrollTimer) {
+      clearTimeout(saveScrollTimer)
+    }
+    saveScrollTimer = setTimeout(() => {
+      saveScrollPosition()
+    }, 300) // 300ms 后保存，避免频繁操作
+  }
 })
 
 // ==================== 尺寸变化处理 ====================
@@ -559,6 +657,13 @@ const handleInitialized = (instance: OverlayScrollbars) => {
 
   // 设置内容变化监听器
   setupContentChangeListeners(instance)
+
+  // 恢复滚动位置 - 使用更长的延迟确保内容完全渲染
+  nextTick(() => {
+    setTimeout(() => {
+      restoreScrollPosition()
+    }, 300) // 延迟 300ms 确保内容完全渲染
+  })
 
   // 添加尺寸监听器
   if (typeof ResizeObserver !== 'undefined') {
@@ -711,6 +816,11 @@ const removeScrollListener = () => {
     clearTimeout(userScrollTimer)
     userScrollTimer = null
   }
+
+  if (saveScrollTimer) {
+    clearTimeout(saveScrollTimer)
+    saveScrollTimer = null
+  }
 }
 
 // ==================== 监听器 ====================
@@ -727,7 +837,10 @@ watch(
 // ==================== 生命周期 ====================
 
 onMounted(() => {
-  // 初始化时不需要额外操作，CSS 变量已经通过 style 绑定应用
+  // 初始化滚动位置 key
+  initScrollPositionKey()
+
+  console.log(`🆔 [ScrollbarWrapper] 初始化滚动位置 key: ${scrollPositionKey.value}`)
 })
 
 onUnmounted(() => {
@@ -752,6 +865,11 @@ defineExpose<ScrollbarExposed>({
   removeScrollListener,
   updateOptions,
   destroy,
+  // 滚动位置记忆相关方法
+  saveScrollPosition,
+  restoreScrollPosition,
+  clearScrollPosition,
+  scrollPositionKey: scrollPositionKey,
 })
 </script>
 

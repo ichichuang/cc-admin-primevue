@@ -51,6 +51,44 @@ const zhCN = {
       systemManagement: '管理系统',
       logout: '退出系统',
     },
+    systemOptions: {
+      // 主题模式选项
+      themeMode: {
+        light: '明亮',
+        dark: '暗色',
+        auto: '自动',
+      },
+      // 尺寸选项
+      size: {
+        compact: '紧凑',
+        comfortable: '舒适',
+        loose: '宽松',
+      },
+      // 圆角选项
+      rounded: {
+        sharp: '尖锐',
+        smooth: '平滑',
+        round: '圆滑',
+        soft: '圆润',
+      },
+      // 间距选项
+      padding: {
+        sm: '小',
+        md: '中',
+        lg: '大',
+      },
+      // 字体大小选项
+      fontSize: {
+        xs: '迷你',
+        sm: '小号',
+        md: '中号',
+        lg: '大号',
+        xl: '特大号',
+        xls: '超特大号',
+        xxl: '超超特大号',
+        xxxl: '超超超特大号',
+      },
+    },
     error: {
       notFound: '页面未找到',
       forbidden: '访问被拒绝',

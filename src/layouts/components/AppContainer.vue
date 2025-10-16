@@ -68,7 +68,8 @@ watch(
     :wrapper-class='currentLayoutMode !== "fullscreen" && currentLayoutMode !== "ratio" ? "px-12 sm:px-16  lg:px-18 xxl:px-24" : ""',
     :style='{ height: containerHeight + "px" }',
     @scroll='handleScroll',
-    @initialized='handleInitialized'
+    @initialized='handleInitialized',
+    :remember-scroll-position='true'
   )
     AnimateRouterView(:style='{ minHeight: containerHeight + "px" }')
 </template>

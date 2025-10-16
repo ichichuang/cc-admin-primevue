@@ -9,7 +9,6 @@ import store, { useLayoutStoreWithOut } from '@/stores'
 import { env, useMitt } from '@/utils'
 import { defineStore } from 'pinia'
 import { nextTick } from 'vue'
-const { on } = useMitt()
 
 // 显式为 getters 与 actions 补全类型，避免通过聚合导出时类型推断丢失
 type SizeGetters = {
@@ -568,6 +567,7 @@ export const useSizeStore = defineStore<'size', SizeState, SizeGetters, SizeActi
 
     init(this: any) {
       this.setSize(this.size)
+      const { on } = useMitt()
       on('windowResize', async () => {
         // 更新窗口尺寸状态，触发 getter 重新计算
         this.windowSize = {

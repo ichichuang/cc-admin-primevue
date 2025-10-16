@@ -212,45 +212,49 @@ export const getDeviceType = (width: number): keyof typeof deviceTypes => {
 
 /**
  * 尺寸选项配置
+ * 注意：label 现在通过国际化系统动态获取
  */
 export const sizeOptions = [
-  { label: '紧凑', value: 'compact' },
-  { label: '舒适', value: 'comfortable' },
-  { label: '宽松', value: 'loose' },
+  { labelKey: 'common.systemOptions.size.compact', value: 'compact' },
+  { labelKey: 'common.systemOptions.size.comfortable', value: 'comfortable' },
+  { labelKey: 'common.systemOptions.size.loose', value: 'loose' },
 ] as const
 
 /**
  * 间距选项配置
+ * 注意：label 现在通过国际化系统动态获取
  */
 export const paddingOptions = [
-  { label: '小', key: 'sm', value: 8 },
-  { label: '中', key: 'md', value: 12 },
-  { label: '大', key: 'lg', value: 16 },
+  { labelKey: 'common.systemOptions.padding.sm', key: 'sm', value: 8 },
+  { labelKey: 'common.systemOptions.padding.md', key: 'md', value: 12 },
+  { labelKey: 'common.systemOptions.padding.lg', key: 'lg', value: 16 },
 ] as const
 
 /**
  * 圆角选项配置
+ * 注意：label 现在通过国际化系统动态获取
  */
 export const roundedOptions = [
-  { label: '尖锐', key: 'sharp', value: 0 },
-  { label: '平滑', key: 'smooth', value: 6 },
-  { label: '圆滑', key: 'round', value: 12 },
-  { label: '圆润', key: 'soft', value: 24 },
+  { labelKey: 'common.systemOptions.rounded.sharp', key: 'sharp', value: 0 },
+  { labelKey: 'common.systemOptions.rounded.smooth', key: 'smooth', value: 6 },
+  { labelKey: 'common.systemOptions.rounded.round', key: 'round', value: 12 },
+  { labelKey: 'common.systemOptions.rounded.soft', key: 'soft', value: 24 },
 ] as const
 
 /**
  * 字体尺寸选项配置
  * 与设备配置的 baseFontSize 保持一致
+ * 注意：label 现在通过国际化系统动态获取
  */
 export const fontSizeOptions = [
-  { label: '迷你', key: 'xs', value: 14 }, // 适用于紧凑模式
-  { label: '小号', key: 'sm', value: 14 },
-  { label: '中号', key: 'md', value: 15 }, // 移动端默认
-  { label: '大号', key: 'lg', value: 16 }, // 桌面端默认
-  { label: '特大号', key: 'xl', value: 18 }, // 大屏默认
-  { label: '超特大号', key: 'xls', value: 20 }, // 超宽屏默认
-  { label: '超超特大号', key: 'xxl', value: 22 },
-  { label: '超超超特大号', key: 'xxxl', value: 24 }, // 4K屏默认
+  { labelKey: 'common.systemOptions.fontSize.xs', key: 'xs', value: 14 }, // 适用于紧凑模式
+  { labelKey: 'common.systemOptions.fontSize.sm', key: 'sm', value: 14 },
+  { labelKey: 'common.systemOptions.fontSize.md', key: 'md', value: 15 }, // 移动端默认
+  { labelKey: 'common.systemOptions.fontSize.lg', key: 'lg', value: 16 }, // 桌面端默认
+  { labelKey: 'common.systemOptions.fontSize.xl', key: 'xl', value: 18 }, // 大屏默认
+  { labelKey: 'common.systemOptions.fontSize.xls', key: 'xls', value: 20 }, // 超宽屏默认
+  { labelKey: 'common.systemOptions.fontSize.xxl', key: 'xxl', value: 22 },
+  { labelKey: 'common.systemOptions.fontSize.xxxl', key: 'xxxl', value: 24 }, // 4K屏默认
 ] as const
 
 /**

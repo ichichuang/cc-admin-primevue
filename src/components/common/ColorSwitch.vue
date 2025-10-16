@@ -15,13 +15,20 @@ const items = computed(() => {
     label: item.label,
     value: item.value,
     color: item.themeColors.primary100,
-    icon: 'pi pi-check',
     command: () => setTheme(item),
   }))
 })
 </script>
 <template lang="pug">
-SpeedDial.flex.select-none(:model='items', direction='up', class='items-end!')
+SpeedDial.select-none(:model='items', type='quarter-circle', direction='up-left', :radius='140')
+  template(#item='{ item, toggleCallback }')
+    .c-card.c-cp.rounded-full(
+      :class='item.value === themeValue ? "c-border-accent p-paddings" : ""',
+      :style='{ background: item.value === themeValue ? item.color : "transparent" }',
+      @click='toggleCallback'
+    )
+      .w-appFontSizex.h-appFontSizex.rounded-full(:style='{ background: item.color }')
+//- SpeedDial.flex.select-none(:model='items', direction='up', class='items-end!')
   // 按钮插槽
   template(#button='{ toggleCallback }')
     .c-card-accent.size-1-1(@click='toggleCallback')

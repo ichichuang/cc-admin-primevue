@@ -51,6 +51,44 @@ const zhTW = {
       systemManagement: '系統管理',
       logout: '登出系統',
     },
+    systemOptions: {
+      // 主題模式選項
+      themeMode: {
+        light: '明亮',
+        dark: '暗色',
+        auto: '自動',
+      },
+      // 尺寸選項
+      size: {
+        compact: '緊湊',
+        comfortable: '舒適',
+        loose: '寬鬆',
+      },
+      // 圓角選項
+      rounded: {
+        sharp: '尖銳',
+        smooth: '平滑',
+        round: '圓滑',
+        soft: '圓潤',
+      },
+      // 間距選項
+      padding: {
+        sm: '小',
+        md: '中',
+        lg: '大',
+      },
+      // 字體大小選項
+      fontSize: {
+        xs: '迷你',
+        sm: '小號',
+        md: '中號',
+        lg: '大號',
+        xl: '特大號',
+        xls: '超特大號',
+        xxl: '超超特大號',
+        xxxl: '超超超特大號',
+      },
+    },
     error: {
       notFound: '頁面未找到',
       forbidden: '訪問被拒絕',

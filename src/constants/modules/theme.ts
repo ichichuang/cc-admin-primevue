@@ -79,11 +79,12 @@ export const createFunctionalColors: CreateFunctionalColors = primaryColor => {
 
 /**
  * 主题模式选项
+ * 注意：label 现在通过国际化系统动态获取
  */
 export const modeOptions: ModeOptions[] = [
-  { label: '明亮', value: 'light' },
-  { label: '暗色', value: 'dark' },
-  { label: '自动', value: 'auto' },
+  { labelKey: 'common.systemOptions.themeMode.light', value: 'light' },
+  { labelKey: 'common.systemOptions.themeMode.dark', value: 'dark' },
+  { labelKey: 'common.systemOptions.themeMode.auto', value: 'auto' },
 ]
 
 /**

@@ -4,7 +4,6 @@ import { useLoading, useNprogress, usePageTitle } from '@/hooks'
 import { usePermissionStore, useUserStoreWithOut } from '@/stores'
 import { computed } from 'vue'
 import type { Router } from 'vue-router'
-const { loadingStart, loadingDone, pageLoadingStart, pageLoadingDone } = useLoading()
 
 export const usePermissionGuard = ({
   router,
@@ -17,6 +16,7 @@ export const usePermissionGuard = ({
 }) => {
   // 全局前置守卫
   router.beforeEach(async (to, from, next) => {
+    const { loadingStart, pageLoadingStart } = useLoading()
     const { startProgress } = useNprogress()
     const { updatePageTitle } = usePageTitle()
     startProgress()
@@ -69,6 +69,7 @@ export const usePermissionGuard = ({
 
   // 全局后置守卫
   router.afterEach((_to, _from) => {
+    const { loadingDone, pageLoadingDone } = useLoading()
     const { doneProgress } = useNprogress()
     const { updatePageTitle } = usePageTitle()
     doneProgress()

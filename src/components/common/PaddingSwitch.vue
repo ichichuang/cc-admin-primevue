@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { useSizeStore } from '@/stores'
+import { useI18nPaddingOptions } from '@/utils'
 import { computed } from 'vue'
 
 const sizeStore = useSizeStore()
 
 /* 尺寸变量配置相关 padding */
-const paddingOptions = computed(() => sizeStore.getPaddingOptions)
+const paddingOptions = useI18nPaddingOptions()
 const padding = computed(() => sizeStore.getPadding)
 
 const setPadding = (value: PaddingOptions['key']) => {

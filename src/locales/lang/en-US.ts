@@ -51,6 +51,44 @@ const enUS = {
       systemManagement: 'System Management',
       logout: 'Logout',
     },
+    systemOptions: {
+      // Theme mode options
+      themeMode: {
+        light: 'Light',
+        dark: 'Dark',
+        auto: 'Auto',
+      },
+      // Size options
+      size: {
+        compact: 'Compact',
+        comfortable: 'Comfortable',
+        loose: 'Loose',
+      },
+      // Rounded options
+      rounded: {
+        sharp: 'Sharp',
+        smooth: 'Smooth',
+        round: 'Round',
+        soft: 'Soft',
+      },
+      // Padding options
+      padding: {
+        sm: 'Small',
+        md: 'Medium',
+        lg: 'Large',
+      },
+      // Font size options
+      fontSize: {
+        xs: 'Mini',
+        sm: 'Small',
+        md: 'Medium',
+        lg: 'Large',
+        xl: 'Extra Large',
+        xls: 'Super Large',
+        xxl: 'Ultra Large',
+        xxxl: 'Mega Large',
+      },
+    },
     error: {
       notFound: 'Page Not Found',
       forbidden: 'Forbidden',

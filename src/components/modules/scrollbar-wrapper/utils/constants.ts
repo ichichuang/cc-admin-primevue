@@ -37,6 +37,10 @@ export const defaultProps: ScrollbarWrapperProps = {
   colorScheme: {},
   /** 当内容增加时自动滚动到底部，默认开启 */
   autoScrollToBottom: true,
+  /** 是否记住滚动位置，默认开启 */
+  rememberScrollPosition: false,
+  /** 滚动位置存储的唯一标识符，如果不提供则使用组件实例的自动生成ID */
+  scrollPositionKey: '',
 }
 
 // ==================== 设备适配配置 ====================

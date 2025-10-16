@@ -6,7 +6,8 @@ declare global {
   type Mode = 'light' | 'dark' | 'auto'
 
   interface ModeOptions {
-    label: string
+    label?: string
+    labelKey?: string
     value: Mode
   }
 
@@ -66,7 +67,8 @@ declare global {
   type Size = 'compact' | 'comfortable' | 'loose'
 
   interface SizeOptions {
-    label: string
+    label?: string
+    labelKey?: string
     value: Size
   }
 
@@ -87,7 +89,8 @@ declare global {
   ]
 
   interface PaddingOptions {
-    label: Padding[number]['label']
+    label?: string
+    labelKey?: string
     key: Padding[number]['key']
     value: number
   }
@@ -113,7 +116,8 @@ declare global {
   ]
 
   interface RoundedOptions {
-    label: Rounded[number]['label']
+    label?: string
+    labelKey?: string
     key: Rounded[number]['key']
     value: number
   }
@@ -155,7 +159,8 @@ declare global {
   ]
 
   interface FontSizeOptions {
-    label: FontSize[number]['label']
+    label?: string
+    labelKey?: string
     key: FontSize[number]['key']
     value: number
   }
