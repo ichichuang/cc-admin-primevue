@@ -42,7 +42,12 @@ const toggleMobileMenu = () => {
 <template lang="pug">
 //- 未登录-登录界面
 template(v-if='!isLoggedIn')
-  ThemeSwitch
+  .c-card-primary.size-1-1.center(@click='toggleThemeWithAnimation($event)')
+    template(v-if='isDark')
+      .fs-appFontSizex(class='icon-line-md:moon-twotone-alt-loop')
+    template(v-else)
+      .fs-appFontSizex(class='icon-line-md:sunny-outline-twotone')
+  ColorSwitch.fixed.b-gap.r-gap
 template(v-else)
   //- 全屏布局
   template(v-if='currentLayoutMode === "ratio"')
