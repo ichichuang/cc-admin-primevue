@@ -105,9 +105,8 @@ const exampleRoutes: RouteConfig[] = [
             path: 'schema-form',
             name: 'ExampleComponentsSchemaForm',
             meta: {
-              titleKey: 'router.example.components.schemaForm.title',
               rank: 4,
-              icon: 'icon-line-md:text-box',
+              titleKey: 'router.example.components.schemaForm.title',
             },
             children: [
               {
@@ -118,8 +117,6 @@ const exampleRoutes: RouteConfig[] = [
                 meta: {
                   titleKey: 'router.example.components.schemaForm.basic',
                   rank: 1,
-                  icon: 'icon-line-md:text-box',
-                  keepAlive: true,
                 },
               },
               {
@@ -130,7 +127,6 @@ const exampleRoutes: RouteConfig[] = [
                 meta: {
                   titleKey: 'router.example.components.schemaForm.step',
                   rank: 2,
-                  icon: 'icon-line-md:text-box',
                 },
               },
               {
@@ -143,7 +139,6 @@ const exampleRoutes: RouteConfig[] = [
                 meta: {
                   titleKey: 'router.example.components.schemaForm.section',
                   rank: 3,
-                  icon: 'icon-line-md:text-box',
                 },
               },
             ],
@@ -154,7 +149,6 @@ const exampleRoutes: RouteConfig[] = [
             meta: {
               titleKey: 'router.example.components.gridTable.title',
               rank: 5,
-              icon: 'icon-line-md:telegram',
             },
             children: [
               {
@@ -165,7 +159,6 @@ const exampleRoutes: RouteConfig[] = [
                 meta: {
                   titleKey: 'router.example.components.gridTable.default',
                   rank: 1,
-                  icon: 'icon-line-md:telegram',
                 },
               },
               {
@@ -176,7 +169,18 @@ const exampleRoutes: RouteConfig[] = [
                 meta: {
                   titleKey: 'router.example.components.gridTable.basic',
                   rank: 2,
-                  icon: 'icon-line-md:telegram',
+                },
+              },
+              {
+                path: 'advanced',
+                name: 'ExampleComponentsGridTableAdvanced',
+                component: () =>
+                  import(
+                    '@/views/example/views/example-grid-table/example-grid-table-advanced.vue'
+                  ),
+                meta: {
+                  titleKey: 'router.example.components.gridTable.advanced',
+                  rank: 3,
                 },
               },
               {
@@ -186,8 +190,7 @@ const exampleRoutes: RouteConfig[] = [
                   import('@/views/example/views/example-grid-table/example-grid-table-service.vue'),
                 meta: {
                   titleKey: 'router.example.components.gridTable.service',
-                  rank: 3,
-                  icon: 'icon-line-md:telegram',
+                  rank: 4,
                 },
               },
             ],
@@ -195,11 +198,61 @@ const exampleRoutes: RouteConfig[] = [
           {
             path: 'echarts',
             name: 'ExampleComponentsEcharts',
-            component: () => import('@/views/example/views/example-echarts.vue'),
             meta: {
-              titleKey: 'router.example.components.echarts',
+              titleKey: 'router.example.components.echarts.title',
               rank: 6,
-              icon: 'icon-line-md:telegram',
+            },
+            children: [
+              {
+                path: 'default',
+                name: 'ExampleComponentsEchartsDefault',
+                component: () =>
+                  import('@/views/example/views/example-echarts/example-echarts-default.vue'),
+                meta: {
+                  titleKey: 'router.example.components.echarts.default',
+                  rank: 1,
+                },
+              },
+              {
+                path: 'static',
+                name: 'ExampleComponentsEchartsStatic',
+                component: () =>
+                  import('@/views/example/views/example-echarts/example-echarts-static.vue'),
+                meta: {
+                  titleKey: 'router.example.components.echarts.static',
+                  rank: 2,
+                },
+              },
+              {
+                path: 'event',
+                name: 'ExampleComponentsEchartsEvent',
+                component: () =>
+                  import('@/views/example/views/example-echarts/example-echarts-event.vue'),
+                meta: {
+                  titleKey: 'router.example.components.echarts.event',
+                  rank: 3,
+                },
+              },
+              {
+                path: 'dynamic',
+                name: 'ExampleComponentsEchartsDynamic',
+                component: () =>
+                  import('@/views/example/views/example-echarts/example-echarts-dynamic.vue'),
+                meta: {
+                  titleKey: 'router.example.components.echarts.dynamic',
+                  rank: 4,
+                  parent: 'fullscreen',
+                },
+              },
+            ],
+          },
+          {
+            path: 'datepicker',
+            name: 'ExampleComponentsDatepicker',
+            component: () => import('@/views/example/views/example-datepicker.vue'),
+            meta: {
+              titleKey: 'router.example.components.datepicker.title',
+              rank: 7,
             },
           },
         ],

@@ -15,8 +15,6 @@ import AutoComplete from 'primevue/autocomplete'
 import CascadeSelect from 'primevue/cascadeselect'
 import Checkbox from 'primevue/checkbox'
 import ColorPicker from 'primevue/colorpicker'
-import DatePicker from 'primevue/datepicker'
-import Editor from 'primevue/editor'
 import InputGroup from 'primevue/inputgroup'
 import InputGroupAddon from 'primevue/inputgroupaddon'
 import InputMask from 'primevue/inputmask'
@@ -36,6 +34,9 @@ import Textarea from 'primevue/textarea'
 import ToggleButton from 'primevue/togglebutton'
 import ToggleSwitch from 'primevue/toggleswitch'
 import TreeSelect from 'primevue/treeselect'
+
+// Custom Components
+import { DatePicker } from '@/components/modules/date-picker'
 
 // ==================== Props Interface ====================
 
@@ -286,12 +287,39 @@ export default defineComponent({
         case 'ColorPicker':
           return <ColorPicker {...componentProps} />
 
-        case 'DatePicker':
-          return <DatePicker {...componentProps} />
+        case 'DatePicker': {
+          // 自定义 DatePicker 组件需要特殊处理，因为它使用 v-model 而不是 name 属性
+          const { name: _name, ...restComponentProps } = componentProps
+          const datePickerProps = {
+            ...restComponentProps,
+            modelValue: props.form.values?.[column.field],
+            onUpdateModelValue: (value: any) => {
+              // 通过 emit 或回调更新表单值，避免直接修改 props
+              if (props.form.onFieldChange) {
+                props.form.onFieldChange(column.field, value)
+              } else if (props.form.setFieldValue) {
+                props.form.setFieldValue(column.field, value)
+              }
+            },
+          }
+
+          return (
+            <DatePicker
+              {...datePickerProps}
+              class={[
+                ...baseProps.class,
+                mergedColumnStyle.value.contentClass || '', // 自定义内容类名（第一优先级）
+              ].filter(Boolean)}
+              style={{
+                ...baseProps.style,
+                ...(mergedColumnStyle.value.contentStyle || {}), // 自定义内容样式（第一优先级）
+              }}
+            />
+          )
+        }
 
         case 'Editor':
-          return <Editor {...componentProps} />
-
+          return <div>不支持的组件类型: {column.component}</div>
         case 'InputGroup': {
           // InputGroup 需要特殊处理，因为它需要包含 InputGroupAddon 和实际的输入组件
           const { addonBefore, addonAfter, ...otherProps } = column.props || {}

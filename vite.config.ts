@@ -133,9 +133,11 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
             // UI 库 (primeicons 是纯 CSS 库，不需要在 JS 打包中处理)
             'ui-library': ['primevue', '@primevue/themes'],
             // 工具库
-            utilities: ['lodash-es', 'crypto-js', 'dayjs', '@vueuse/core', '@pureadmin/utils'],
+            utilities: ['lodash-es', 'crypto-js', 'dayjs', '@vueuse/core'],
             // 图表库
-            'echarts-core': ['echarts'],
+            'echarts-core': ['echarts', 'vue-echarts'],
+            // 表格库
+            'ag-grid-core': ['ag-grid-community', 'ag-grid-vue3'],
             // HTTP 库
             'http-client': ['alova'],
             // 国际化

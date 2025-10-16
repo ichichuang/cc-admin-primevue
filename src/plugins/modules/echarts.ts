@@ -1,19 +1,23 @@
-// import * as echarts from 'echarts'
+import type { App } from 'vue'
+import ECharts from 'vue-echarts'
+
+// ECharts 核心模块
+import { use } from 'echarts/core'
+
+// 引入渲染器
+import { CanvasRenderer } from 'echarts/renderers'
+
+// 引入所有常用图表类型
 import {
   BarChart,
   BoxplotChart,
   CandlestickChart,
-  CustomChart,
-  EffectScatterChart,
   FunnelChart,
   GaugeChart,
   GraphChart,
   HeatmapChart,
   LineChart,
-  LinesChart,
-  MapChart,
   ParallelChart,
-  PictorialBarChart,
   PieChart,
   RadarChart,
   SankeyChart,
@@ -21,73 +25,79 @@ import {
   SunburstChart,
   ThemeRiverChart,
   TreeChart,
-  TreemapChart,
 } from 'echarts/charts'
-import * as echarts from 'echarts/core'
-import type { App } from 'vue'
 
+// 引入所有常用组件
 import {
   AriaComponent,
+  BrushComponent,
   CalendarComponent,
+  DatasetComponent,
   DataZoomComponent,
+  GeoComponent,
   GraphicComponent,
   GridComponent,
   LegendComponent,
+  MarkAreaComponent,
+  MarkLineComponent,
+  MarkPointComponent,
   ParallelComponent,
   PolarComponent,
   RadarComponent,
+  SingleAxisComponent,
   TimelineComponent,
   TitleComponent,
   ToolboxComponent,
   TooltipComponent,
+  TransformComponent,
   VisualMapComponent,
 } from 'echarts/components'
 
-import { CanvasRenderer, SVGRenderer } from 'echarts/renderers'
-
-// 注册必要的组件
-echarts.use([
-  TitleComponent,
-  TooltipComponent,
-  GridComponent,
-  PolarComponent,
-  AriaComponent,
-  ParallelComponent,
-  LegendComponent,
-  RadarComponent,
-  ToolboxComponent,
-  DataZoomComponent,
-  VisualMapComponent,
-  TimelineComponent,
-  CalendarComponent,
-  GraphicComponent,
+// 注册所有组件
+use([
+  // 渲染器
+  CanvasRenderer,
+  // 图表类型
   BarChart,
   LineChart,
   PieChart,
   ScatterChart,
   RadarChart,
-  MapChart,
-  TreeChart,
-  TreemapChart,
-  GraphChart,
-  GaugeChart,
   FunnelChart,
+  GaugeChart,
+  CandlestickChart,
+  HeatmapChart,
+  GraphChart,
+  TreeChart,
+  SunburstChart,
+  BoxplotChart,
   ParallelChart,
   SankeyChart,
-  BoxplotChart,
-  CandlestickChart,
-  EffectScatterChart,
-  LinesChart,
-  HeatmapChart,
-  PictorialBarChart,
   ThemeRiverChart,
-  SunburstChart,
-  CustomChart,
-  CanvasRenderer,
-  SVGRenderer,
+  // 组件
+  TitleComponent,
+  TooltipComponent,
+  GridComponent,
+  LegendComponent,
+  DatasetComponent,
+  TransformComponent,
+  ToolboxComponent,
+  DataZoomComponent,
+  VisualMapComponent,
+  MarkLineComponent,
+  MarkPointComponent,
+  MarkAreaComponent,
+  GraphicComponent,
+  CalendarComponent,
+  PolarComponent,
+  RadarComponent,
+  GeoComponent,
+  ParallelComponent,
+  SingleAxisComponent,
+  BrushComponent,
+  TimelineComponent,
+  AriaComponent,
 ])
-
 export const setupEcharts = (app: App) => {
-  // app.config.globalProperties.$echarts = echarts
-  app.config.globalProperties.$echarts = echarts
+  app.component('VECharts', ECharts)
 }

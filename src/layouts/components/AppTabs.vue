@@ -199,31 +199,31 @@ const contextMenuItems = computed(() => {
   return [
     {
       label: $t('layout.tabs.close'),
-      icon: 'pi pi-times',
+      icon: 'icon-line-md:close-small',
       command: () => closeTab(target),
       disabled: target.fixed, // 固定的标签不可删除
     },
     {
       label: $t('layout.tabs.closeAll'),
-      icon: 'pi pi-times-circle',
+      icon: 'icon-line-md:close-circle-filled',
       command: () => closeAllTabs(),
       disabled: !hasOtherTabs,
     },
     {
       label: $t('layout.tabs.closeOther'),
-      icon: 'pi pi-minus-circle',
+      icon: 'icon-line-md:close',
       command: () => closeOtherTabs(target),
       disabled: !hasOtherTabs,
     },
     {
       label: $t('layout.tabs.closeLeft'),
-      icon: 'pi pi-chevron-left',
+      icon: 'icon-line-md:close',
       command: () => closeLeftTabs(target),
       disabled: !canCloseLeft,
     },
     {
       label: $t('layout.tabs.closeRight'),
-      icon: 'pi pi-chevron-right',
+      icon: 'icon-line-md:close',
       command: () => closeRightTabs(target),
       disabled: !canCloseRight,
     },
@@ -232,7 +232,7 @@ const contextMenuItems = computed(() => {
     },
     {
       label: target.fixed ? $t('layout.tabs.unFixed') : $t('layout.tabs.fixed'),
-      icon: target.fixed ? 'pi pi-unlock' : 'pi pi-lock',
+      icon: target.fixed ? 'icon-line-md:filter-minus-filled' : 'icon-line-md:filter-filled',
       command: () => toggleFixedTab(target),
     },
   ]

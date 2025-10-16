@@ -1,45 +1,7 @@
 @use '@/assets/styles/custom-color.scss';
 @use '@/assets/styles/custom-nprogress.scss';
 @use '@/assets/styles/custom-primevue.scss';
-
-/* AG Grid 固定列样式 - 确保复选框列固定在左侧 */
-.ag-pinned-left-cols-container {
-  position: sticky !important;
-  left: 0 !important;
-  z-index: 10 !important;
-}
-
-.ag-pinned-left-cols-container .ag-cell,
-.ag-pinned-left-cols-container .ag-header-cell {
-  position: sticky !important;
-  left: 0 !important;
-  z-index: 10 !important;
-  background-color: var(--ag-background-color) !important;
-  border-right: 1px solid var(--ag-border-color) !important;
-}
-
-/* 确保固定列在所有主题下都能正确显示 */
-.ag-theme-alpine .ag-pinned-left-cols-container,
-.ag-theme-quartz .ag-pinned-left-cols-container,
-.ag-theme-balham .ag-pinned-left-cols-container {
-  position: sticky !important;
-  left: 0 !important;
-  z-index: 10 !important;
-}
-
-/* 确保固定列容器有正确的背景色 */
-.ag-pinned-left-cols-container {
-  background-color: var(--ag-background-color) !important;
-}
-
-/* 确保固定列的单元格有正确的样式 */
-.ag-pinned-left-cols-container .ag-cell {
-  background-color: var(--ag-background-color) !important;
-}
-
-.ag-pinned-left-cols-container .ag-header-cell {
-  background-color: var(--ag-header-background-color, var(--ag-background-color)) !important;
-}
+@use '@/assets/styles/custom-datepicker.scss';
 
 /* View Transitions API 样式 - 固定分层优先级避免闪白 */
 ::view-transition-old(root) {

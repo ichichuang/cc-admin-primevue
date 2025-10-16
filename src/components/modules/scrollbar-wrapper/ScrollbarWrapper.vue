@@ -1,19 +1,18 @@
 <script setup lang="ts">
-import { useLayoutStore } from '@/stores'
+/**
+ * ScrollbarWrapper 组件
+ * 基于 OverlayScrollbars v2 的滚动条包装器组件
+ * 完全使用 CSS 变量来控制滚动条样式，避免直接操作 DOM
+ */
+import { useColorStore, useLayoutStore } from '@/stores'
 import { OverlayScrollbars } from 'overlayscrollbars'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import {
-  applyColorScheme,
-  defaultColorScheme,
-  defaultProps,
-  getColorSchemeVars,
-  getDeviceConfig,
-  mergeOptions,
-} from './utils/constants'
+import { defaultProps, getDeviceConfig, mergeOptions } from './utils/constants'
 import type { Rect, ScrollbarExposed, ScrollbarWrapperProps, ScrollEvent } from './utils/types'
 
 const layoutStore = useLayoutStore()
+const colorStore = useColorStore()
 
 // 定义属性和默认值
 const props = withDefaults(defineProps<ScrollbarWrapperProps>(), {
@@ -21,47 +20,33 @@ const props = withDefaults(defineProps<ScrollbarWrapperProps>(), {
   style: () => ({}),
   wrapperStyle: () => ({}),
   contentStyle: () => ({}),
-  colorScheme: () => defaultColorScheme,
+  colorScheme: () => ({}),
   options: () => ({}),
 })
 
 // 组件引用
 const overlayScrollbarsRef = ref<any>()
+const scrollbarInstance = ref<OverlayScrollbars | null>(null)
+
+// ==================== 配置计算 ====================
 
 // 动态计算滚动条配置
-const computedScrollbarConfig = computed<any>(() => {
-  try {
-    // 使用最简单的配置确保滚动条能正常显示
-    const baseConfig = {
-      scrollbars: {
-        autoHide: 'leave' as const,
-        autoHideDelay: 0,
-        clickScroll: true,
-        dragScroll: true,
-        pointers: ['mouse', 'touch', 'pen'],
-      },
-      overflow: {
-        x: (props.direction === 'vertical' ? 'hidden' : 'scroll') as any,
-        y: (props.direction === 'horizontal' ? 'hidden' : 'scroll') as any,
-      },
-    }
-
-    // 合并自定义选项
-    const mergedConfig = mergeOptions(baseConfig, props.options)
-
-    return mergedConfig
-  } catch (error) {
-    console.warn('ScrollbarWrapper: 计算滚动条配置失败', error)
-    return {
-      scrollbars: {
-        autoHide: 'leave',
-      },
-      overflow: {
-        x: 'scroll',
-        y: 'scroll',
-      },
-    }
+const computedScrollbarConfig = computed(() => {
+  const baseConfig: any = {
+    scrollbars: {
+      autoHide: props.autoHide === true ? 'leave' : props.autoHide || 'leave',
+      autoHideDelay: props.autoHideDelay || 0,
+      clickScroll: props.clickScroll !== false,
+      dragScroll: true,
+      pointers: ['mouse', 'touch', 'pen'],
+    },
+    overflow: {
+      x: props.direction === 'vertical' ? 'hidden' : 'scroll',
+      y: props.direction === 'horizontal' ? 'hidden' : 'scroll',
+    },
   }
+
+  return mergeOptions(baseConfig, props.options)
 })
 
 // 定义事件
@@ -78,181 +63,244 @@ const emit = defineEmits<{
   destroyed: []
 }>()
 
-// 合并颜色方案
-const mergedColorScheme = computed(() => {
-  try {
-    // 直接使用默认颜色方案，不区分深色浅色模式
-    return {
-      ...defaultColorScheme,
-      ...props.colorScheme,
+// ==================== OverlayScrollbars CSS 变量 ====================
+
+// 应用 CSS 变量到滚动条元素的函数
+const applyCssVariablesToScrollbar = () => {
+  const instance = scrollbarInstance.value
+  if (!instance) {
+    return
+  }
+
+  nextTick(() => {
+    try {
+      const elements = instance.elements()
+      const host = elements.host
+      const scrollbarHorizontal = elements.scrollbarHorizontal?.scrollbar
+      const scrollbarVertical = elements.scrollbarVertical?.scrollbar
+      const viewport = elements.viewport
+
+      // 获取外层包装元素
+      const wrapperEl = overlayScrollbarsRef.value?.$el?.parentElement
+
+      const vars = overlayScrollbarsCssVars.value
+      const setCssVars = (element: HTMLElement | undefined) => {
+        if (!element) {
+          return
+        }
+        Object.entries(vars).forEach(([key, value]) => {
+          // 将 --custom-os- 转换为 --os-
+          const osKey = key.replace('--custom-os-', '--os-')
+          element.style.setProperty(osKey, value as string, 'important')
+        })
+      }
+
+      // 在多个元素上设置 CSS 变量，使用 !important 确保生效
+      setCssVars(wrapperEl)
+      setCssVars(host as HTMLElement)
+      setCssVars(scrollbarHorizontal as HTMLElement)
+      setCssVars(scrollbarVertical as HTMLElement)
+      setCssVars(viewport)
+    } catch (error) {
+      console.error('❌ [ScrollbarWrapper] 应用 CSS 变量失败:', error)
     }
-  } catch (error) {
-    console.warn('ScrollbarWrapper: 合并颜色方案失败', error)
-    return defaultColorScheme
+  })
+}
+
+// 动态计算 OverlayScrollbars 的 CSS 变量
+const overlayScrollbarsCssVars = computed(() => {
+  // 颜色变量 - 从 colorStore 获取
+  const handleBg = props.colorScheme?.thumbColor || colorStore.getBg300
+  const handleBgHover = props.colorScheme?.thumbHoverColor || colorStore.getPrimary200
+  const handleBgActive = props.colorScheme?.thumbActiveColor || colorStore.getPrimary100
+  const trackBg = props.colorScheme?.trackColor || colorStore.getBg100
+  const trackBgHover = props.colorScheme?.trackHoverColor || colorStore.getBg200
+  const trackBgActive = props.colorScheme?.trackActiveColor || colorStore.getBg300
+
+  // 尺寸变量
+  const handleSize = scrollbarHandleSize.value
+  const handleSizeHover = scrollbarHandleSizeHover.value
+  const handleSizeActive = scrollbarHandleSizeActive.value
+  const trackSizeValue = scrollbarTrackSize.value
+  const paddingPerp = scrollbarPaddingPerpendicular.value
+  const paddingAxisValue = scrollbarPaddingAxis.value
+
+  const vars = {
+    // 使用 --custom-os- 前缀，避免被 OverlayScrollbars 默认主题覆盖
+    // 颜色变量
+    '--custom-os-handle-bg': handleBg,
+    '--custom-os-handle-bg-hover': handleBgHover,
+    '--custom-os-handle-bg-active': handleBgActive,
+    '--custom-os-track-bg': trackBg,
+    '--custom-os-track-bg-hover': trackBgHover,
+    '--custom-os-track-bg-active': trackBgActive,
+
+    // 尺寸变量（符合 OverlayScrollbars v2 官方规范）
+    // --os-size: 整个滚动条区域的尺寸（垂直滚动条的宽度）
+    '--custom-os-size': trackSizeValue,
+    // --os-handle-perpendicular-size: 滑块默认状态的尺寸（垂直滚动条 = 滑块宽度）
+    '--custom-os-handle-perpendicular-size': handleSize,
+    // --os-handle-perpendicular-size-hover: 滑块悬停状态的尺寸
+    '--custom-os-handle-perpendicular-size-hover': handleSizeHover,
+    // --os-handle-perpendicular-size-active: 滑块激活/拖拽状态的尺寸
+    '--custom-os-handle-perpendicular-size-active': handleSizeActive,
+    // --os-padding-perpendicular: 垂直于滚动方向的内边距（垂直滚动条的左右内边距）
+    '--custom-os-padding-perpendicular': paddingPerp,
+    // --os-padding-axis: 沿滚动方向的内边距（垂直滚动条的上下内边距）
+    '--custom-os-padding-axis': paddingAxisValue,
+
+    // 形状变量
+    '--custom-os-handle-border-radius': '20px',
+    '--custom-os-track-border-radius': '20px',
+    '--custom-os-handle-min-size': '20px',
+    '--custom-os-handle-max-size': 'none',
+
+    // 边框变量
+    '--custom-os-handle-border': 'none',
+    '--custom-os-track-border': 'none',
   }
+
+  return vars
 })
 
-// 计算颜色方案对应的 CSS 变量
-const colorSchemeVars = computed(() => {
-  try {
-    return getColorSchemeVars(mergedColorScheme.value)
-  } catch (error) {
-    console.warn('ScrollbarWrapper: 计算颜色方案变量失败', error)
-    return getColorSchemeVars(defaultColorScheme)
+// 监听主题颜色变化，自动重新应用 CSS 变量
+watch(
+  () => [
+    colorStore.getBg100,
+    colorStore.getBg200,
+    colorStore.getBg300,
+    colorStore.getPrimary100,
+    colorStore.getPrimary200,
+    colorStore.getPrimary300,
+    colorStore.isDark, // 监听深浅色模式切换
+  ],
+  () => {
+    // 当主题颜色变化时，重新应用 CSS 变量
+    applyCssVariablesToScrollbar()
+  },
+  { deep: true }
+)
+
+// ==================== 尺寸计算 ====================
+
+// 计算滚动条滑块尺寸（handle/thumb 的宽度 - 默认状态）
+const scrollbarHandleSize = computed(() => {
+  if (typeof props.size === 'number' && props.size > 0) {
+    return `${props.size}px`
   }
+  const isMobile = layoutStore.getIsMobile
+  const deviceConfig = getDeviceConfig(isMobile)
+  return `${deviceConfig.size}px`
 })
 
-// 计算滚动条尺寸
-const scrollbarSize = computed(() => {
-  try {
-    if (props.size > 0) {
-      return `${props.size}px`
-    }
-    const isMobile = layoutStore.getIsMobile
-    const deviceConfig = getDeviceConfig(isMobile)
-    return `${deviceConfig.size}px`
-  } catch (error) {
-    console.warn('ScrollbarWrapper: 计算滚动条尺寸失败', error)
-    return '10px'
+// 计算滚动条滑块尺寸（悬停状态）
+const scrollbarHandleSizeHover = computed(() => {
+  if (typeof props.sizeHover === 'number' && props.sizeHover > 0) {
+    return `${props.sizeHover}px`
   }
+  // 如果没有设置 sizeHover，默认使用 size 的值
+  return scrollbarHandleSize.value
 })
 
-// 计算滚动条填充
+// 计算滚动条滑块尺寸（激活/拖拽状态）
+const scrollbarHandleSizeActive = computed(() => {
+  if (typeof props.sizeActive === 'number' && props.sizeActive > 0) {
+    return `${props.sizeActive}px`
+  }
+  // 如果没有设置 sizeActive，使用 sizeHover 的值
+  return scrollbarHandleSizeHover.value
+})
+
+// 计算滚动条轨道尺寸（整个滚动条区域的宽度，对应 --os-size）
+const scrollbarTrackSize = computed(() => {
+  if (typeof props.trackSize === 'number' && props.trackSize > 0) {
+    return `${props.trackSize}px`
+  }
+  // 如果没有设置轨道尺寸，自动计算
+  const isMobile = layoutStore.getIsMobile
+  const deviceConfig = getDeviceConfig(isMobile)
+
+  // 获取滑块尺寸
+  const handleSize =
+    typeof props.size === 'number' && props.size > 0 ? props.size : deviceConfig.size
+
+  // 获取 padding 值（左右各一个）
+  const paddingPerp =
+    typeof props.paddingPerpendicular === 'number' && props.paddingPerpendicular > 0
+      ? props.paddingPerpendicular
+      : deviceConfig.paddingPerpendicular
+
+  // 轨道尺寸 = 滑块尺寸 + 左右 padding
+  // 由于 padding 在滑块两侧，所以需要 * 2
+  return `${handleSize + paddingPerp * 2}px`
+})
+
+// 计算滚动条填充 - 垂直方向（perpendicular）
 const scrollbarPaddingPerpendicular = computed(() => {
-  try {
-    if (props.paddingPerpendicular > 0) {
-      return `${props.paddingPerpendicular}px`
-    }
-    const isMobile = layoutStore.getIsMobile
-    const deviceConfig = getDeviceConfig(isMobile)
-    return `${deviceConfig.paddingPerpendicular}px`
-  } catch (error) {
-    console.warn('ScrollbarWrapper: 计算滚动条填充失败', error)
-    return '0px'
+  if (props.paddingPerpendicular > 0) {
+    return `${props.paddingPerpendicular}px`
   }
+  const isMobile = layoutStore.getIsMobile
+  const deviceConfig = getDeviceConfig(isMobile)
+  return `${deviceConfig.paddingPerpendicular}px`
 })
 
+// 计算滚动条填充 - 轴方向（axis）
 const scrollbarPaddingAxis = computed(() => {
-  try {
-    if (props.paddingAxis > 0) {
-      return `${props.paddingAxis}px`
-    }
-    const isMobile = layoutStore.getIsMobile
-    const deviceConfig = getDeviceConfig(isMobile)
-    return `${deviceConfig.paddingAxis}px`
-  } catch (error) {
-    console.warn('ScrollbarWrapper: 计算滚动条填充失败', error)
-    return '0px'
+  if (props.paddingAxis > 0) {
+    return `${props.paddingAxis}px`
   }
+  const isMobile = layoutStore.getIsMobile
+  const deviceConfig = getDeviceConfig(isMobile)
+  return `${deviceConfig.paddingAxis}px`
 })
 
-// 滚动状态管理
+// ==================== 滚动状态管理 ====================
+
 let scrollTimer: NodeJS.Timeout | null = null
 let lastScrollLeft = 0
 let lastScrollTop = 0
 let isScrolling = false
 
+// 自动滚动到底部相关状态
+let contentObserver: ResizeObserver | null = null
+let mutationObserver: MutationObserver | null = null
+let lastContentHeight = 0
+let isUserScrolling = false
+let userScrollTimer: NodeJS.Timeout | null = null
+
+// ==================== 工具函数 ====================
+
 // 节流函数
 const throttle = (func: (...args: any[]) => void, wait: number) => {
   let timeout: NodeJS.Timeout | null = null
-  return function (this: any, ...args: any[]) {
-    const context = this as any
+  return function (...args: any[]) {
     if (!timeout) {
       timeout = setTimeout(() => {
         timeout = null
-        try {
-          func.apply(context, args)
-        } catch (error) {
-          console.warn('ScrollbarWrapper: throttle 函数执行失败', error)
-        }
+        func(...args)
       }, wait)
     }
   }
 }
 
-// 应用滚动条样式的辅助函数
-const applyScrollbarStyles = (wrapperEl: HTMLElement, colorScheme: any) => {
-  // 直接强制设置滚动条滑块颜色
-  const handleEls = wrapperEl.querySelectorAll('.os-scrollbar-handle, .os-scrollbar-thumb')
-  handleEls.forEach((handleEl: Element) => {
-    const htmlEl = handleEl as HTMLElement
-    htmlEl.style.setProperty('background-color', colorScheme.thumbColor, 'important')
-    htmlEl.style.setProperty('background', colorScheme.thumbColor, 'important')
-
-    // 添加悬停和激活状态的样式
-    htmlEl.addEventListener('mouseenter', () => {
-      htmlEl.style.setProperty('background-color', colorScheme.thumbHoverColor, 'important')
-      htmlEl.style.setProperty('background', colorScheme.thumbHoverColor, 'important')
-    })
-
-    htmlEl.addEventListener('mouseleave', () => {
-      htmlEl.style.setProperty('background-color', colorScheme.thumbColor, 'important')
-      htmlEl.style.setProperty('background', colorScheme.thumbColor, 'important')
-    })
-
-    htmlEl.addEventListener('mousedown', () => {
-      htmlEl.style.setProperty('background-color', colorScheme.thumbActiveColor, 'important')
-      htmlEl.style.setProperty('background', colorScheme.thumbActiveColor, 'important')
-    })
-
-    htmlEl.addEventListener('mouseup', () => {
-      htmlEl.style.setProperty('background-color', colorScheme.thumbHoverColor, 'important')
-      htmlEl.style.setProperty('background', colorScheme.thumbHoverColor, 'important')
-    })
-  })
-
-  // 直接强制设置滚动条轨道颜色
-  const trackEls = wrapperEl.querySelectorAll('.os-scrollbar-track')
-  trackEls.forEach((trackEl: Element) => {
-    const htmlEl = trackEl as HTMLElement
-    htmlEl.style.setProperty('background-color', colorScheme.trackColor, 'important')
-    htmlEl.style.setProperty('background', colorScheme.trackColor, 'important')
-
-    // 添加轨道悬停和激活状态的样式
-    htmlEl.addEventListener('mouseenter', () => {
-      htmlEl.style.setProperty('background-color', colorScheme.trackHoverColor, 'important')
-      htmlEl.style.setProperty('background', colorScheme.trackHoverColor, 'important')
-    })
-
-    htmlEl.addEventListener('mouseleave', () => {
-      htmlEl.style.setProperty('background-color', colorScheme.trackColor, 'important')
-      htmlEl.style.setProperty('background', colorScheme.trackColor, 'important')
-    })
-
-    htmlEl.addEventListener('mousedown', () => {
-      htmlEl.style.setProperty('background-color', colorScheme.trackActiveColor, 'important')
-      htmlEl.style.setProperty('background', colorScheme.trackActiveColor, 'important')
-    })
-
-    htmlEl.addEventListener('mouseup', () => {
-      htmlEl.style.setProperty('background-color', colorScheme.trackHoverColor, 'important')
-      htmlEl.style.setProperty('background', colorScheme.trackHoverColor, 'important')
-    })
-  })
-}
-
 // 防抖函数
 const debounce = (func: (...args: any[]) => void, wait: number) => {
   let timeout: NodeJS.Timeout | null = null
-  return function (this: any, ...args: any[]) {
-    const context = this as any
+  return function (...args: any[]) {
     if (timeout) {
       clearTimeout(timeout)
     }
     timeout = setTimeout(() => {
       timeout = null
-      try {
-        func.apply(context, args)
-      } catch (error) {
-        console.warn('ScrollbarWrapper: debounce 函数执行失败', error)
-      }
+      func(...args)
     }, wait)
   }
 }
 
 // 获取节流/防抖函数
 const getThrottleFunction = () => {
-  const wait = props.throttleWait || 333
+  const wait = props.throttleWait || 16
   switch (props.throttleType) {
     case 'throttle':
       return (func: (...args: any[]) => void) => throttle(func, wait)
@@ -264,252 +312,338 @@ const getThrottleFunction = () => {
   }
 }
 
+// ==================== 自动滚动到底部 ====================
+
+// 检查是否应该自动滚动到底部
+const shouldAutoScrollToBottom = () => {
+  if (!props.autoScrollToBottom) {
+    return false
+  }
+
+  const scrollEl = getScrollEl()
+  if (!scrollEl) {
+    return false
+  }
+
+  // 如果用户正在手动滚动，则不自动滚动
+  if (isUserScrolling) {
+    return false
+  }
+
+  // 检查是否已经在底部附近（允许 10px 误差）
+  const { scrollTop, scrollHeight, clientHeight } = scrollEl
+  return scrollTop + clientHeight >= scrollHeight - 10
+}
+
+// 自动滚动到底部
+const autoScrollToBottom = () => {
+  if (!shouldAutoScrollToBottom()) {
+    return
+  }
+
+  const scrollEl = getScrollEl()
+  if (scrollEl) {
+    scrollEl.scrollTo({
+      top: scrollEl.scrollHeight,
+      behavior: 'smooth',
+    })
+  }
+}
+
+// ==================== 滚动事件处理 ====================
+
 // 处理滚动事件
 const handleScroll = getThrottleFunction()((event: Event) => {
-  try {
-    const scrollEl = event.target as HTMLElement
-    if (!scrollEl) {
-      return
-    }
-
-    const { scrollLeft, scrollTop, scrollWidth, scrollHeight, clientWidth, clientHeight } = scrollEl
-
-    // 计算滚动方向和距离
-    const deltaX = scrollLeft - lastScrollLeft
-    const deltaY = scrollTop - lastScrollTop
-
-    // 确定滚动方向
-    let direction: 'horizontal' | 'vertical' | 'both' = 'both'
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      direction = 'horizontal'
-    } else if (Math.abs(deltaY) > Math.abs(deltaX)) {
-      direction = 'vertical'
-    }
-
-    // 构造滚动事件数据
-    const scrollEventData: ScrollEvent = {
-      scrollLeft,
-      scrollTop,
-      scrollWidth,
-      scrollHeight,
-      clientWidth,
-      clientHeight,
-      direction,
-      deltaX,
-      deltaY,
-    }
-
-    // 触发滚动开始事件（仅在第一次滚动时触发）
-    if (!isScrolling && (deltaX !== 0 || deltaY !== 0)) {
-      isScrolling = true
-      emit('scroll-start')
-    }
-
-    // 清除之前的定时器
-    if (scrollTimer) {
-      clearTimeout(scrollTimer)
-    }
-
-    // 抛出通用滚动事件
-    emit('scroll', scrollEventData)
-
-    // 根据主要滚动方向抛出对应事件
-    if (deltaX !== 0) {
-      emit('scroll-horizontal', scrollEventData)
-    }
-    if (deltaY !== 0) {
-      emit('scroll-vertical', scrollEventData)
-    }
-
-    // 设置滚动结束检测定时器
-    scrollTimer = setTimeout(() => {
-      if (isScrolling) {
-        isScrolling = false
-        emit('scroll-end')
-      }
-    }, 150) // 150ms 后认为滚动结束
-
-    // 更新上次滚动位置
-    lastScrollLeft = scrollLeft
-    lastScrollTop = scrollTop
-  } catch (error) {
-    console.warn('ScrollbarWrapper: 处理滚动事件失败', error)
+  const scrollEl = event.target as HTMLElement
+  if (!scrollEl) {
+    return
   }
-}) // 使用动态节流配置
 
-// 处理尺寸变化事件
+  const { scrollLeft, scrollTop, scrollWidth, scrollHeight, clientWidth, clientHeight } = scrollEl
+
+  // 计算滚动方向和距离
+  const deltaX = scrollLeft - lastScrollLeft
+  const deltaY = scrollTop - lastScrollTop
+
+  // 检测用户是否在手动滚动
+  if (deltaX !== 0 || deltaY !== 0) {
+    isUserScrolling = true
+
+    if (userScrollTimer) {
+      clearTimeout(userScrollTimer)
+    }
+
+    // 1秒后认为用户停止手动滚动
+    userScrollTimer = setTimeout(() => {
+      isUserScrolling = false
+    }, 1000)
+  }
+
+  // 确定滚动方向
+  let direction: 'horizontal' | 'vertical' | 'both' = 'both'
+  if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    direction = 'horizontal'
+  } else if (Math.abs(deltaY) > Math.abs(deltaX)) {
+    direction = 'vertical'
+  }
+
+  // 构造滚动事件数据
+  const scrollEventData: ScrollEvent = {
+    scrollLeft,
+    scrollTop,
+    scrollWidth,
+    scrollHeight,
+    clientWidth,
+    clientHeight,
+    direction,
+    deltaX,
+    deltaY,
+  }
+
+  // 触发滚动开始事件（仅在第一次滚动时触发）
+  if (!isScrolling && (deltaX !== 0 || deltaY !== 0)) {
+    isScrolling = true
+    emit('scroll-start')
+  }
+
+  if (scrollTimer) {
+    clearTimeout(scrollTimer)
+  }
+
+  // 抛出滚动事件
+  emit('scroll', scrollEventData)
+
+  if (deltaX !== 0) {
+    emit('scroll-horizontal', scrollEventData)
+  }
+  if (deltaY !== 0) {
+    emit('scroll-vertical', scrollEventData)
+  }
+
+  // 设置滚动结束检测定时器（150ms 后认为滚动结束）
+  scrollTimer = setTimeout(() => {
+    if (isScrolling) {
+      isScrolling = false
+      emit('scroll-end')
+    }
+  }, 150)
+
+  // 更新上次滚动位置
+  lastScrollLeft = scrollLeft
+  lastScrollTop = scrollTop
+})
+
+// ==================== 尺寸变化处理 ====================
+
 const handleWrapperResize = (rect: Rect) => {
-  try {
-    emit('wrapper-resize', rect)
-  } catch (error) {
-    console.warn('ScrollbarWrapper: wrapper-resize 事件处理失败', error)
-  }
+  emit('wrapper-resize', rect)
 }
 
 const handleContentResize = (rect: Rect) => {
-  try {
-    emit('content-resize', rect)
-  } catch (error) {
-    console.warn('ScrollbarWrapper: content-resize 事件处理失败', error)
+  emit('content-resize', rect)
+}
+
+// ==================== 内容变化监听 ====================
+
+// 设置内容变化监听器
+const setupContentChangeListeners = (instance: OverlayScrollbars) => {
+  if (!props.autoScrollToBottom) {
+    return
+  }
+
+  const contentEl = instance.elements().content
+  if (!contentEl) {
+    return
+  }
+
+  // 初始化内容高度
+  lastContentHeight = contentEl.scrollHeight
+
+  // 设置 ResizeObserver 监听内容尺寸变化
+  if (typeof ResizeObserver !== 'undefined') {
+    contentObserver = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        const newHeight = entry.target.scrollHeight
+
+        // 如果内容高度增加，触发自动滚动
+        if (newHeight > lastContentHeight) {
+          lastContentHeight = newHeight
+          nextTick(() => {
+            setTimeout(() => {
+              autoScrollToBottom()
+            }, 50)
+          })
+        } else {
+          lastContentHeight = newHeight
+        }
+      }
+    })
+    contentObserver.observe(contentEl)
+  }
+
+  // 设置 MutationObserver 监听DOM变化
+  if (typeof MutationObserver !== 'undefined') {
+    mutationObserver = new MutationObserver(mutations => {
+      let shouldCheckScroll = false
+
+      for (const mutation of mutations) {
+        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+          shouldCheckScroll = true
+          break
+        }
+
+        if (mutation.type === 'attributes') {
+          const attrName = mutation.attributeName
+          if (attrName === 'style' || attrName === 'class') {
+            shouldCheckScroll = true
+            break
+          }
+        }
+      }
+
+      if (shouldCheckScroll) {
+        nextTick(() => {
+          setTimeout(() => {
+            const newHeight = contentEl.scrollHeight
+            if (newHeight > lastContentHeight) {
+              lastContentHeight = newHeight
+              autoScrollToBottom()
+            }
+          }, 50)
+        })
+      }
+    })
+
+    mutationObserver.observe(contentEl, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['style', 'class'],
+    })
   }
 }
 
-// OverlayScrollbars 事件处理器
+// 清理内容变化监听器
+const cleanupContentChangeListeners = () => {
+  if (contentObserver) {
+    contentObserver.disconnect()
+    contentObserver = null
+  }
+
+  if (mutationObserver) {
+    mutationObserver.disconnect()
+    mutationObserver = null
+  }
+}
+
+// ==================== OverlayScrollbars 事件处理 ====================
+
 const handleInitialized = (instance: OverlayScrollbars) => {
-  try {
-    emit('initialized', instance)
+  // 保存实例引用
+  scrollbarInstance.value = instance
 
-    // 立即添加滚动监听器
-    nextTick(() => {
-      addScrollListener()
-    })
+  emit('initialized', instance)
 
-    // 初始化滚动位置
-    const viewport = instance.elements().viewport
-    if (viewport) {
-      lastScrollLeft = viewport.scrollLeft
-      lastScrollTop = viewport.scrollTop
+  // 添加滚动监听器
+  nextTick(() => addScrollListener())
+
+  // 初始化滚动位置
+  const viewport = instance.elements().viewport
+  if (viewport) {
+    lastScrollLeft = viewport.scrollLeft
+    lastScrollTop = viewport.scrollTop
+  }
+
+  // 🔥 初始化时应用 CSS 变量
+  applyCssVariablesToScrollbar()
+
+  // 设置内容变化监听器
+  setupContentChangeListeners(instance)
+
+  // 添加尺寸监听器
+  if (typeof ResizeObserver !== 'undefined') {
+    const wrapperEl = overlayScrollbarsRef.value?.$el
+    const contentEl = instance.elements().content
+
+    if (wrapperEl) {
+      const wrapperObserver = new ResizeObserver(entries => {
+        for (const entry of entries) {
+          const rect = entry.contentRect
+          handleWrapperResize({
+            left: rect.left,
+            top: rect.top,
+            right: rect.right,
+            bottom: rect.bottom,
+            width: rect.width,
+            height: rect.height,
+            x: rect.x,
+            y: rect.y,
+          })
+        }
+      })
+      wrapperObserver.observe(wrapperEl)
     }
 
-    // 应用颜色方案到滚动条元素
-    nextTick(() => {
-      const wrapperEl = overlayScrollbarsRef.value?.$el
-      if (wrapperEl) {
-        // 应用颜色方案到容器元素
-        Object.entries(colorSchemeVars.value).forEach(([key, value]) => {
-          wrapperEl.style.setProperty(key, value)
-        })
-
-        // 使用辅助函数应用滚动条样式
-        applyScrollbarStyles(wrapperEl, mergedColorScheme.value)
-      }
-    })
-
-    // 添加尺寸监听器
-    if (typeof ResizeObserver !== 'undefined') {
-      const wrapperEl = overlayScrollbarsRef.value?.$el
-      const contentEl = instance.elements().content
-
-      if (wrapperEl) {
-        const wrapperObserver = new ResizeObserver(entries => {
-          for (const entry of entries) {
-            const rect = entry.contentRect
-            handleWrapperResize({
-              left: rect.left,
-              top: rect.top,
-              right: rect.right,
-              bottom: rect.bottom,
-              width: rect.width,
-              height: rect.height,
-              x: rect.x,
-              y: rect.y,
-            })
-          }
-        })
-        wrapperObserver.observe(wrapperEl)
-      }
-
-      if (contentEl) {
-        const contentObserver = new ResizeObserver(entries => {
-          for (const entry of entries) {
-            const rect = entry.contentRect
-            handleContentResize({
-              left: rect.left,
-              top: rect.top,
-              right: rect.right,
-              bottom: rect.bottom,
-              width: rect.width,
-              height: rect.height,
-              x: rect.x,
-              y: rect.y,
-            })
-          }
-        })
-        contentObserver.observe(contentEl)
-      }
+    if (contentEl) {
+      const contentResizeObserver = new ResizeObserver(entries => {
+        for (const entry of entries) {
+          const rect = entry.contentRect
+          handleContentResize({
+            left: rect.left,
+            top: rect.top,
+            right: rect.right,
+            bottom: rect.bottom,
+            width: rect.width,
+            height: rect.height,
+            x: rect.x,
+            y: rect.y,
+          })
+        }
+      })
+      contentResizeObserver.observe(contentEl)
     }
-  } catch (error) {
-    console.warn('ScrollbarWrapper: initialized 事件处理失败', error)
   }
 }
 
 const handleUpdated = (instance: OverlayScrollbars) => {
-  try {
-    emit('updated', instance)
-  } catch (error) {
-    console.warn('ScrollbarWrapper: updated 事件处理失败', error)
-  }
+  emit('updated', instance)
 }
 
 const handleDestroyed = () => {
-  try {
-    emit('destroyed')
-  } catch (error) {
-    console.warn('ScrollbarWrapper: destroyed 事件处理失败', error)
-  }
+  cleanupContentChangeListeners()
+  emit('destroyed')
 }
+
+// ==================== 暴露的方法 ====================
 
 // 获取 OverlayScrollbars 实例
 const getOverlayScrollbars = (): OverlayScrollbars | null => {
-  try {
-    return overlayScrollbarsRef.value?.osInstance() || null
-  } catch (error) {
-    console.warn('ScrollbarWrapper: 获取 OverlayScrollbars 实例失败', error)
-    return null
-  }
+  return overlayScrollbarsRef.value?.osInstance() || null
 }
 
 // 获取滚动元素（视口元素）
 const getScrollEl = (): HTMLElement | null => {
-  try {
-    const instance = getOverlayScrollbars()
-    if (instance) {
-      return instance.elements().viewport
-    }
-    return null
-  } catch (error) {
-    console.warn('ScrollbarWrapper: 获取滚动元素失败', error)
-    return null
-  }
+  const instance = getOverlayScrollbars()
+  return instance ? instance.elements().viewport : null
 }
 
 // 获取视口元素
 const getViewport = (): HTMLElement | null => {
-  try {
-    const instance = getOverlayScrollbars()
-    if (instance) {
-      return instance.elements().viewport
-    }
-    return null
-  } catch (error) {
-    console.warn('ScrollbarWrapper: 获取视口元素失败', error)
-    return null
-  }
+  const instance = getOverlayScrollbars()
+  return instance ? instance.elements().viewport : null
 }
 
 // 获取内容元素
 const getContent = (): HTMLElement | null => {
-  try {
-    const instance = getOverlayScrollbars()
-    if (instance) {
-      return instance.elements().content
-    }
-    return null
-  } catch (error) {
-    console.warn('ScrollbarWrapper: 获取内容元素失败', error)
-    return null
-  }
+  const instance = getOverlayScrollbars()
+  return instance ? instance.elements().content : null
 }
 
 // 滚动方法
 const scrollTo = (options: ScrollToOptions) => {
-  try {
-    const scrollEl = getScrollEl()
-    if (scrollEl) {
-      scrollEl.scrollTo(options)
-    }
-  } catch (error) {
-    console.warn('ScrollbarWrapper: scrollTo 失败', error)
+  const scrollEl = getScrollEl()
+  if (scrollEl) {
+    scrollEl.scrollTo(options)
   }
 }
 
@@ -518,13 +652,9 @@ const scrollToTop = (behavior: ScrollBehavior = 'smooth') => {
 }
 
 const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
-  try {
-    const scrollEl = getScrollEl()
-    if (scrollEl) {
-      scrollTo({ top: scrollEl.scrollHeight, behavior })
-    }
-  } catch (error) {
-    console.warn('ScrollbarWrapper: scrollToBottom 失败', error)
+  const scrollEl = getScrollEl()
+  if (scrollEl) {
+    scrollTo({ top: scrollEl.scrollHeight, behavior })
   }
 }
 
@@ -533,156 +663,77 @@ const scrollToLeft = (behavior: ScrollBehavior = 'smooth') => {
 }
 
 const scrollToRight = (behavior: ScrollBehavior = 'smooth') => {
-  try {
-    const scrollEl = getScrollEl()
-    if (scrollEl) {
-      scrollTo({ left: scrollEl.scrollWidth, behavior })
-    }
-  } catch (error) {
-    console.warn('ScrollbarWrapper: scrollToRight 失败', error)
+  const scrollEl = getScrollEl()
+  if (scrollEl) {
+    scrollTo({ left: scrollEl.scrollWidth, behavior })
   }
 }
 
 // 更新 OverlayScrollbars 选项
 const updateOptions = (options: any) => {
-  try {
-    const instance = getOverlayScrollbars()
-    if (instance) {
-      instance.options(options)
-    }
-  } catch (error) {
-    console.warn('ScrollbarWrapper: 更新选项失败', error)
+  const instance = getOverlayScrollbars()
+  if (instance) {
+    instance.options(options)
   }
 }
 
 // 销毁 OverlayScrollbars 实例
 const destroy = () => {
-  try {
-    const instance = getOverlayScrollbars()
-    if (instance) {
-      instance.destroy()
-    }
-  } catch (error) {
-    console.warn('ScrollbarWrapper: 销毁实例失败', error)
+  const instance = getOverlayScrollbars()
+  if (instance) {
+    instance.destroy()
   }
 }
 
 // 添加滚动事件监听器
 const addScrollListener = () => {
-  try {
-    const scrollEl = getScrollEl()
-    if (scrollEl) {
-      // 初始化滚动位置
-      lastScrollLeft = scrollEl.scrollLeft
-      lastScrollTop = scrollEl.scrollTop
-
-      // 使用 passive: true 监听 scroll，确保事件能及时触发
-      scrollEl.addEventListener('scroll', handleScroll, { passive: true })
-    }
-  } catch (error) {
-    console.warn('ScrollbarWrapper: 添加滚动监听器失败', error)
+  const scrollEl = getScrollEl()
+  if (scrollEl) {
+    lastScrollLeft = scrollEl.scrollLeft
+    lastScrollTop = scrollEl.scrollTop
+    scrollEl.addEventListener('scroll', handleScroll, { passive: true })
   }
 }
 
 // 移除滚动事件监听器
 const removeScrollListener = () => {
-  try {
-    const scrollEl = getScrollEl()
-    if (scrollEl) {
-      scrollEl.removeEventListener('scroll', handleScroll)
-    }
-  } catch (error) {
-    console.warn('ScrollbarWrapper: 移除滚动监听器失败', error)
+  const scrollEl = getScrollEl()
+  if (scrollEl) {
+    scrollEl.removeEventListener('scroll', handleScroll)
   }
 
   if (scrollTimer) {
     clearTimeout(scrollTimer)
     scrollTimer = null
   }
+
+  if (userScrollTimer) {
+    clearTimeout(userScrollTimer)
+    userScrollTimer = null
+  }
 }
+
+// ==================== 监听器 ====================
 
 // 监听配置变化
 watch(
   () => computedScrollbarConfig.value,
   newConfig => {
-    nextTick(() => {
-      updateOptions(newConfig)
-    })
+    nextTick(() => updateOptions(newConfig))
   },
   { deep: true }
 )
 
-// 监听颜色方案变化
-watch(
-  () => colorSchemeVars.value,
-  newColorVars => {
-    nextTick(() => {
-      const wrapperEl = overlayScrollbarsRef.value?.$el
-      if (wrapperEl) {
-        // 更新容器元素的 CSS 变量
-        Object.entries(newColorVars).forEach(([key, value]) => {
-          wrapperEl.style.setProperty(key, value)
-        })
+// ==================== 生命周期 ====================
 
-        // 使用辅助函数应用滚动条样式
-        applyScrollbarStyles(wrapperEl, mergedColorScheme.value)
-      }
-    })
-  },
-  { deep: true }
-)
-
-// 监听尺寸变化
-watch(
-  () => [scrollbarSize.value, scrollbarPaddingPerpendicular.value, scrollbarPaddingAxis.value],
-  ([newSize, newPaddingPerpendicular, newPaddingAxis]) => {
-    nextTick(() => {
-      const wrapperEl = overlayScrollbarsRef.value?.$el
-      if (wrapperEl) {
-        const scrollbarEls = wrapperEl.querySelectorAll('.os-scrollbar')
-        scrollbarEls.forEach((scrollbarEl: Element) => {
-          const htmlEl = scrollbarEl as HTMLElement
-          htmlEl.style.setProperty('--os-size', newSize)
-          htmlEl.style.setProperty('--os-padding-perpendicular', newPaddingPerpendicular)
-          htmlEl.style.setProperty('--os-padding-axis', newPaddingAxis)
-        })
-      }
-    })
-  },
-  { deep: true }
-)
-
-// 生命周期钩子
 onMounted(() => {
-  // 应用默认颜色方案到根元素
-  try {
-    applyColorScheme(mergedColorScheme.value)
-
-    // 延迟应用颜色，确保 OverlayScrollbars 已经初始化
-    setTimeout(() => {
-      const wrapperEl = overlayScrollbarsRef.value?.$el
-      if (wrapperEl) {
-        // 应用颜色方案到容器元素
-        Object.entries(colorSchemeVars.value).forEach(([key, value]) => {
-          wrapperEl.style.setProperty(key, value)
-        })
-
-        // 使用辅助函数应用滚动条样式
-        applyScrollbarStyles(wrapperEl, mergedColorScheme.value)
-      }
-    }, 100)
-  } catch (error) {
-    console.warn('ScrollbarWrapper: 应用默认颜色方案失败', error)
-  }
+  // 初始化时不需要额外操作，CSS 变量已经通过 style 绑定应用
 })
 
 onUnmounted(() => {
-  try {
-    removeScrollListener()
-    destroy()
-  } catch (error) {
-    console.warn('ScrollbarWrapper: 清理失败', error)
-  }
+  removeScrollListener()
+  cleanupContentChangeListeners()
+  destroy()
 })
 
 // 暴露给父组件的方法和属性
@@ -708,26 +759,20 @@ defineExpose<ScrollbarExposed>({
   <div
     class="overlay-scrollbar-wrapper"
     :class="[props.direction === 'vertical' ? 'is-vertical' : 'is-horizontal', props.class]"
-    :style="{
-      // 颜色方案 - 使用统一的 CSS 变量名
-      ...colorSchemeVars,
-
-      // 尺寸配置 - 使用正确的 CSS 变量名
-      '--os-size': scrollbarSize,
-      '--os-padding-perpendicular': scrollbarPaddingPerpendicular,
-      '--os-padding-axis': scrollbarPaddingAxis,
-
-      // 其他自定义样式
-      ...props.style,
-    }"
+    :style="props.style"
   >
-    <!-- OverlayScrollbars 组件 -->
+    <!-- OverlayScrollbars 组件 - CSS 变量直接设置在这里 -->
     <OverlayScrollbarsComponent
       class="full"
       ref="overlayScrollbarsRef"
-      :options="computedScrollbarConfig"
+      :options="computedScrollbarConfig as any"
       :class="props.wrapperClass"
-      :style="props.wrapperStyle"
+      :style="{
+        // OverlayScrollbars 官方 CSS 变量（动态适配系统主题）
+        ...overlayScrollbarsCssVars,
+        // 用户自定义样式
+        ...props.wrapperStyle,
+      }"
       @os-initialized="handleInitialized"
       @os-updated="handleUpdated"
       @os-destroyed="handleDestroyed"
@@ -745,19 +790,20 @@ defineExpose<ScrollbarExposed>({
 </template>
 
 <style lang="scss">
-/* 基础滚动条样式 - 使用配置中的默认值 */
-.os-scrollbar {
-  padding: 0 !important;
-  transition: all 0.4s ease !important;
-}
+/**
+ * ScrollbarWrapper 样式
+ * 完全基于 OverlayScrollbars v2 的 CSS 变量系统
+ * 不直接操作 DOM 元素样式
+ */
 
+/* 基础容器样式 */
 .overlay-scrollbar-wrapper {
   background: transparent;
   width: 100%;
   height: 100%;
 }
 
-/* 根据方向设置滚动行为 */
+/* 根据方向控制滚动条显示 */
 .overlay-scrollbar-wrapper.is-vertical :deep(.os-scrollbar-horizontal) {
   display: none !important;
 }
@@ -766,145 +812,42 @@ defineExpose<ScrollbarExposed>({
   display: none !important;
 }
 
-/* 自定义 OverlayScrollbars 样式 - 使用动态 CSS 变量 */
-.overlay-scrollbar-wrapper :deep(.os-scrollbar) {
-  /* 尺寸配置 - 从父级继承变量值 */
-  --os-size: inherit;
-  --os-padding-perpendicular: inherit;
-  --os-padding-axis: inherit;
+/**
+ * 覆盖 OverlayScrollbars 默认主题的 CSS 变量
+ * 使用 !important 确保我们的自定义变量优先级最高
+ */
+.overlay-scrollbar-wrapper :deep(.os-theme-dark),
+.overlay-scrollbar-wrapper :deep(.os-theme-light) {
+  /* 颜色变量 - 继承父元素的自定义变量 */
+  --os-handle-bg: var(--custom-os-handle-bg) !important;
+  --os-handle-bg-hover: var(--custom-os-handle-bg-hover) !important;
+  --os-handle-bg-active: var(--custom-os-handle-bg-active) !important;
+  --os-track-bg: var(--custom-os-track-bg) !important;
+  --os-track-bg-hover: var(--custom-os-track-bg-hover) !important;
+  --os-track-bg-active: var(--custom-os-track-bg-active) !important;
 
-  /* 轨道样式 - 使用配置中的默认值 */
-  --os-track-border-radius: 0px;
-  --os-track-border: transparent;
-  --os-track-border-hover: transparent;
-  --os-track-border-active: transparent;
+  /* 尺寸变量 - 支持三种交互状态 */
+  --os-size: var(--custom-os-size) !important;
+  --os-handle-perpendicular-size: var(--custom-os-handle-perpendicular-size) !important;
+  --os-handle-perpendicular-size-hover: var(--custom-os-handle-perpendicular-size-hover) !important;
+  --os-handle-perpendicular-size-active: var(
+    --custom-os-handle-perpendicular-size-active
+  ) !important;
+  --os-padding-perpendicular: var(--custom-os-padding-perpendicular) !important;
+  --os-padding-axis: var(--custom-os-padding-axis) !important;
 
-  /* 滑块样式 - 使用配置中的默认值 */
-  --os-thumb-border-radius: 0px;
-  --os-thumb-min-size: 20px;
-  --os-thumb-max-size: none;
+  /* 形状变量 */
+  --os-handle-border-radius: var(--custom-os-handle-border-radius) !important;
+  --os-track-border-radius: var(--custom-os-track-border-radius) !important;
+  --os-handle-min-size: var(--custom-os-handle-min-size) !important;
+  --os-handle-max-size: var(--custom-os-handle-max-size) !important;
+
+  /* 边框变量 */
+  --os-handle-border: var(--custom-os-handle-border) !important;
+  --os-handle-border-hover: var(--custom-os-handle-border) !important;
+  --os-handle-border-active: var(--custom-os-handle-border) !important;
+  --os-track-border: var(--custom-os-track-border) !important;
+  --os-track-border-hover: var(--custom-os-track-border) !important;
+  --os-track-border-active: var(--custom-os-track-border) !important;
 }
-
-/* 滚动条滑块样式 - 使用与 JS 一致的 CSS 变量名 */
-.overlay-scrollbar-wrapper :deep(.os-scrollbar-handle) {
-  background-color: var(--os-thumb-bg, var(--bg300)) !important;
-  border-radius: var(--os-thumb-border-radius) !important;
-  border: var(--os-thumb-border, transparent) !important;
-  min-width: var(--os-thumb-min-size) !important;
-  min-height: var(--os-thumb-min-size) !important;
-  max-width: var(--os-thumb-max-size) !important;
-  max-height: var(--os-thumb-max-size) !important;
-  transition: all 0.2s ease !important;
-}
-
-.overlay-scrollbar-wrapper :deep(.os-scrollbar-handle:hover) {
-  background-color: var(--os-thumb-bg-hover, var(--primary100)) !important;
-  border-color: var(--os-thumb-border-hover, var(--bg200)) !important;
-}
-
-.overlay-scrollbar-wrapper :deep(.os-scrollbar-handle:active) {
-  background-color: var(--os-thumb-bg-active, var(--primary200)) !important;
-  border-color: var(--os-thumb-border-active, var(--bg300)) !important;
-}
-
-/* 兼容性：同时支持 .os-scrollbar-thumb 选择器 */
-.overlay-scrollbar-wrapper :deep(.os-scrollbar-thumb) {
-  background-color: var(--os-thumb-bg, var(--bg300)) !important;
-  border-radius: var(--os-thumb-border-radius) !important;
-  border: var(--os-thumb-border, transparent) !important;
-  min-width: var(--os-thumb-min-size) !important;
-  min-height: var(--os-thumb-min-size) !important;
-  max-width: var(--os-thumb-max-size) !important;
-  max-height: var(--os-thumb-max-size) !important;
-  transition: all 0.2s ease !important;
-}
-
-.overlay-scrollbar-wrapper :deep(.os-scrollbar-thumb:hover) {
-  background-color: var(--os-thumb-bg-hover, var(--primary100)) !important;
-  border-color: var(--os-thumb-border-hover, var(--bg200)) !important;
-}
-
-.overlay-scrollbar-wrapper :deep(.os-scrollbar-thumb:active) {
-  background-color: var(--os-thumb-bg-active, var(--primary200)) !important;
-  border-color: var(--os-thumb-border-active, var(--bg300)) !important;
-}
-
-/* 滚动条轨道样式 */
-.overlay-scrollbar-wrapper :deep(.os-scrollbar-track) {
-  background-color: var(--os-track-bg, var(--bg100)) !important;
-  border-radius: var(--os-track-border-radius) !important;
-  border: var(--os-track-border, transparent) !important;
-  transition: all 0.2s ease !important;
-}
-
-.overlay-scrollbar-wrapper :deep(.os-scrollbar-track:hover) {
-  background-color: var(--os-track-bg-hover, var(--bg200)) !important;
-  border-color: var(--os-track-border-hover, var(--bg200)) !important;
-}
-
-.overlay-scrollbar-wrapper :deep(.os-scrollbar-track:active) {
-  background-color: var(--os-track-bg-active, var(--bg300)) !important;
-  border-color: var(--os-track-border-active, var(--bg300)) !important;
-}
-
-/* 视口样式 - 使用配置中的默认值 */
-.overlay-scrollbar-wrapper :deep(.os-viewport) {
-  overflow-x: var(--os-viewport-overflow-x, auto) !important;
-  overflow-y: var(--os-viewport-overflow-y, auto) !important;
-}
-
-/* 内容区域样式 - 使用配置中的默认值 */
-.overlay-scrollbar-wrapper :deep(.os-content) {
-  padding: var(--os-content-padding, 0) !important;
-}
-
-/* 响应式设计 - 通过 props 动态控制，不再硬编码 */
-
-/* 原生滚动条样式支持 - WebKit 浏览器（Chrome, Safari, Edge） */
-.overlay-scrollbar-wrapper ::-webkit-scrollbar {
-  width: var(--os-size, 8px);
-  height: var(--os-size, 8px);
-}
-
-.overlay-scrollbar-wrapper ::-webkit-scrollbar-track {
-  background: var(--os-track-bg);
-  border: 1px solid var(--os-track-border);
-  border-radius: var(--os-track-border-radius, 0px);
-}
-
-.overlay-scrollbar-wrapper ::-webkit-scrollbar-track:hover {
-  background: var(--os-track-bg-hover);
-  border-color: var(--os-track-border-hover);
-}
-
-.overlay-scrollbar-wrapper ::-webkit-scrollbar-track:active {
-  background: var(--os-track-bg-active);
-  border-color: var(--os-track-border-active);
-}
-
-.overlay-scrollbar-wrapper ::-webkit-scrollbar-thumb {
-  background: var(--os-thumb-bg);
-  border: 1px solid var(--os-thumb-border);
-  border-radius: var(--os-thumb-border-radius, 0px);
-  min-width: var(--os-thumb-min-size, 20px);
-  min-height: var(--os-thumb-min-size, 20px);
-}
-
-.overlay-scrollbar-wrapper ::-webkit-scrollbar-thumb:hover {
-  background: var(--os-thumb-bg-hover);
-  border-color: var(--os-thumb-border-hover);
-}
-
-.overlay-scrollbar-wrapper ::-webkit-scrollbar-thumb:active {
-  background: var(--os-thumb-bg-active);
-  border-color: var(--os-thumb-border-active);
-}
-
-/* Firefox 浏览器原生滚动条样式 */
-.overlay-scrollbar-wrapper {
-  scrollbar-color: var(--os-thumb-bg) var(--os-track-bg);
-  scrollbar-width: thin;
-}
-
-/* 主题样式 - 通过 props.colorScheme 动态控制，不再硬编码 */
 </style>

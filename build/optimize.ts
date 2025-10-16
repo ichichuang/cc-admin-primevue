@@ -12,8 +12,10 @@ export const include = [
   'crypto-js',
   'lodash-es',
   'echarts',
+  'vue-echarts',
   '@vueuse/core',
-  '@pureadmin/utils',
+  'ag-grid-community',
+  'ag-grid-vue3',
 ]
 
 /**

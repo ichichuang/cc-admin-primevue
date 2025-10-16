@@ -38,7 +38,7 @@ const routes: BackendRouteConfig[] = [
     name: 'User',
     component: 'user/index',
     meta: {
-      titleKey: 'user.title',
+      titleKey: 'router.user.title',
       icon: 'icon-line-md:account',
       rank: 1,
     },
@@ -48,7 +48,7 @@ const routes: BackendRouteConfig[] = [
         name: 'UserList',
         component: 'user/views/user-list',
         meta: {
-          titleKey: 'user.list.title',
+          titleKey: 'router.user.list.title',
           icon: 'icon-line-md:account',
           rank: 1,
         },
@@ -58,7 +58,7 @@ const routes: BackendRouteConfig[] = [
         name: 'UserPermission',
         component: 'user/views/user-permission',
         meta: {
-          titleKey: 'user.permission.title',
+          titleKey: 'router.user.permission.title',
           icon: 'icon-line-md:account',
           rank: 2,
         },
@@ -70,7 +70,7 @@ const routes: BackendRouteConfig[] = [
     name: 'Permission',
     component: 'permission/index',
     meta: {
-      titleKey: 'permission.title',
+      titleKey: 'router.permission.title',
       icon: 'icon-line-md:construction',
       rank: 2,
     },
@@ -80,7 +80,7 @@ const routes: BackendRouteConfig[] = [
         name: 'PermissionPage',
         component: 'permission/views/permission-page',
         meta: {
-          titleKey: 'permission.page.title',
+          titleKey: 'router.permission.page.title',
           roles: ['admin', 'common'],
           icon: 'icon-line-md:construction',
         },
@@ -90,7 +90,7 @@ const routes: BackendRouteConfig[] = [
         name: 'PermissionButton',
         component: 'permission/views/permission-button',
         meta: {
-          titleKey: 'permission.button.title',
+          titleKey: 'router.permission.button.title',
           roles: ['admin'],
           auths: ['permission:btn:add', 'permission:btn:edit', 'permission:btn:delete'],
           icon: 'icon-line-md:construction',

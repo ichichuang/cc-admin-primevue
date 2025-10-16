@@ -7,8 +7,8 @@ import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
 import DialogService from 'primevue/dialogservice'
 import ToastService from 'primevue/toastservice'
+import Tooltip from 'primevue/tooltip'
 import { watch, type App } from 'vue'
-
 /**
  * PrimeVue 配置选项
  */
@@ -116,7 +116,7 @@ export function setupPrimeVue(app: App, config: Partial<PrimeVueConfig> = {}) {
   app.use(ConfirmationService)
   app.use(DialogService)
   app.use(ToastService)
-
+  app.directive('tooltip', Tooltip)
   // 监听语言变化，动态更新 PrimeVue locale
   watch(
     () => (i18n.global.locale as any).value,

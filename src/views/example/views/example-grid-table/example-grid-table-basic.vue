@@ -1,254 +1,308 @@
 <script setup lang="tsx">
-import type { GridTableConfig } from '@/components/modules/grid-table/utils/types'
-import { useGridTableController } from '@/hooks'
-import { computed, nextTick, reactive, ref } from 'vue'
+import type { ExtendedColDef, ExtendedColGroupDef } from '@/components/modules/grid-table'
+import {
+  GridTable,
+  type GridColorConfig,
+  type GridSizeConfig,
+} from '@/components/modules/grid-table'
+import { computed, ref } from 'vue'
 
-// 交互式控制状态
-const controlState = reactive({
-  // 布局控制
-  zebra: 'none' as 'none' | 'odd' | 'even',
-  zebraColor: '',
+// ==================== 表格列配置示例 ====================
 
-  // 功能控制
-  filtering: false,
-  sorting: false,
-  resizing: false,
-  columnMoving: false,
-  allowPinnedColumnMoving: false,
-  clipboard: false,
-  export: false,
-  pagination: true, // 分页
-  hoverRowHighlight: true, // 悬停行高亮
-  hoverColumnHighlight: true, // 悬停列高亮
-  selectedCellBorderHighlight: false, // 选中单元格边框高亮
-  selectedCellBackgroundHighlight: false, // 选中单元格背景高亮
+// 每列只展示一个独特的配置项示例
+const idColumnWidthMode = ref('fixed' as 'auto' | 'fixed') // ID列：列宽模式
+const nameColumnSortable = ref(true) // 姓名列：排序功能
+const ageColumnResizable = ref(false) // 年龄列：列宽调整
+const emailColumnFilterable = ref(true) // 邮箱列：过滤功能
+const departmentColumnMovable = ref(true) // 部门列：列移动
+const positionColumnPinned = ref(null as 'left' | 'right' | null) // 职位列：列固定位置
+const salaryColumnHeaderAlign = ref('right' as 'left' | 'center' | 'right') // 薪资列：表头对齐
+const statusColumnCellAlign = ref('center' as 'left' | 'center' | 'right') // 状态列：单元格对齐
+const phoneColumnVisible = ref(true) // 电话列：列显示
+const addressColumnEditable = ref(false) // 地址列：列编辑
 
-  // 分页控制
-  pageSize: 10,
-  showPageSizeSelector: true,
+// 通用选项
+const columnPinnedOptions = [
+  { label: '职位列不固定', value: null },
+  { label: '职位列左侧固定', value: 'left' },
+  { label: '职位列右侧固定', value: 'right' },
+]
+const columnHeaderAlignOptions = [
+  { label: '薪资列表头左对齐', value: 'left' },
+  { label: '薪资列表头居中', value: 'center' },
+  { label: '薪资列表头右对齐', value: 'right' },
+]
+const columnCellAlignOptions = [
+  { label: '状态列左对齐', value: 'left' },
+  { label: '状态列居中', value: 'center' },
+  { label: '状态列右对齐', value: 'right' },
+]
+// ==================== 列定义 ====================
 
-  // 选择控制
-  selectionMode: 'multiple' as 'single' | 'multiple',
-  checkboxes: true,
-  clickToSelect: false,
-  keyboardToSelect: false,
-  pinned: 'left',
+// 列定义 - 支持列分组和单元格合并功能
+const columnDefs = computed((): (ExtendedColDef | ExtendedColGroupDef)[] => {
+  if (enableColumnGrouping.value) {
+    // 启用列分组
+    return [
+      {
+        headerName: '基本信息',
+        marryChildren: true,
+        children: [
+          {
+            field: 'id',
+            headerName: 'ID',
+            width: idColumnWidthMode.value === 'auto' ? undefined : 50,
+            pinned: 'left',
+          },
+          {
+            field: 'name',
+            headerName: '姓名',
+            sortable: nameColumnSortable.value,
+          },
+          {
+            field: 'age',
+            headerName: '年龄',
+            resizable: ageColumnResizable.value,
+          },
+        ],
+      },
+      {
+        headerName: '联系信息',
+        marryChildren: true,
+        children: [
+          {
+            field: 'email',
+            headerName: '邮箱',
+            minWidth: 200,
+            filter: emailColumnFilterable.value,
+          },
+          {
+            field: 'phone',
+            headerName: '电话',
+            hide: !phoneColumnVisible.value,
+          },
+          {
+            field: 'address',
+            headerName: '地址',
+            editable: addressColumnEditable.value,
+          },
+        ],
+      },
+      {
+        headerName: '工作信息',
+        marryChildren: true,
+        children: [
+          {
+            field: 'department',
+            headerName: '部门',
+            suppressMovable: !departmentColumnMovable.value,
+            rowSpan: params => {
+              // 如果部门相同则合并行
+              const currentDept = params.data.department
+              const rowIndex = params.node?.rowIndex
+              const api = params.api
 
-  // 列控制
-  nameColumnFilterable: false,
-  ageColumnSortable: false,
-  sexColumnFilterable: false,
-  emailColumnResizable: false,
+              // 检查参数有效性
+              if (rowIndex === null || rowIndex === undefined) {
+                return 1
+              }
 
-  // 预设筛选条件
-  presetFilterEnabled: false,
-  // 预设年龄排序
-  presetAgeSortEnabled: false,
+              // 检查上一行是否相同部门
+              if (rowIndex > 0) {
+                const prevRow = api.getDisplayedRowAtIndex(rowIndex - 1)
+                if (prevRow && prevRow.data.department === currentDept) {
+                  return 0 // 隐藏当前单元格
+                }
+              }
 
-  // 分割线控制
-  horizontalLines: true, // 横向分割线（行线）
-  verticalLines: true, // 纵向分割线（列线）
-})
-// 斑马纹颜色演示已移除，使用主题默认色
+              // 计算需要合并的行数
+              let spanCount = 1
+              let nextIndex = rowIndex + 1
+              while (nextIndex < api.getDisplayedRowCount()) {
+                const nextRow = api.getDisplayedRowAtIndex(nextIndex)
+                if (nextRow && nextRow.data.department === currentDept) {
+                  spanCount++
+                  nextIndex++
+                } else {
+                  break
+                }
+              }
 
-// 使用新的配置方式
-const gridConfig = computed(
-  (): GridTableConfig => ({
-    columns: [
+              return spanCount
+            },
+          },
+          {
+            field: 'position',
+            headerName: '职位',
+            pinned: positionColumnPinned.value,
+          },
+          {
+            field: 'salary',
+            headerName: '薪资',
+            context: {
+              headerTextAlign: salaryColumnHeaderAlign.value,
+              cellTextAlign: 'right',
+            },
+            valueFormatter: (params: any) => {
+              return `¥${params.value?.toLocaleString() || 0}`
+            },
+          },
+        ],
+      },
+      {
+        headerName: '状态信息',
+        marryChildren: true,
+        children: [
+          {
+            field: 'status',
+            headerName: '状态',
+            context: {
+              headerTextAlign: 'center',
+              cellTextAlign: statusColumnCellAlign.value,
+            },
+            valueGetter: (params: any) => {
+              const status = params.data?.status
+              const statusMap = {
+                active: '在职',
+                inactive: '离职',
+                pending: '待定',
+              }
+              return statusMap[status as keyof typeof statusMap] || status
+            },
+          },
+          {
+            field: 'joinDate',
+            headerName: '入职日期',
+            pinned: 'right',
+            valueFormatter: (params: any) => {
+              if (!params.value) {
+                return ''
+              }
+              return new Date(params.value).toLocaleDateString('zh-CN')
+            },
+          },
+        ],
+      },
+    ]
+  } else {
+    // 普通列定义（无分组）
+    return [
       {
         field: 'id',
         headerName: 'ID',
-        layout: {
-          filtering: false,
-          minWidth: 60,
-          headerClass: 'bg-primary100 color-primary400',
-          cellClass: 'font-bold',
-        },
-        type: 'number',
+        width: idColumnWidthMode.value === 'auto' ? undefined : 50,
         pinned: 'left',
       },
       {
         field: 'name',
         headerName: '姓名',
-        layout: {
-          filtering: controlState.nameColumnFilterable,
-          textAlign: 'left',
-          headerTextAlign: 'left',
-          minWidth: 100,
+        sortable: nameColumnSortable.value,
+        colSpan: params => {
+          // 当名字是 '陈十八' 时，这个单元格横跨 2 列
+          return params.data.name === '陈十八' ? 2 : 1
         },
-        // 临时移除固定列以测试合并功能
-        // pinned: 'left',
-        // 测试列合并：只设置 mergeRight，去掉 mergeDown
-        mergeRight: params => {
-          const name = params.data.name
-          return name === '张三' ? 2 : 0
+        rowSpan: params => {
+          // 当名字是 '陈十八' 时，这个单元格纵跨 2 列
+          return params.data.name === '陈十八' ? 2 : 1
         },
-        // mergeDown: true, // 注释掉行合并
       },
       {
         field: 'age',
         headerName: '年龄',
-        type: 'number',
-        layout: {
-          sorting: controlState.ageColumnSortable,
-        },
-        // 测试表头合并：个人信息组
-        headerGroup: {
-          name: 'personalInfo',
-          title: '个人信息',
-          className: 'bg-primary100 color-primary400',
-        },
-      },
-      {
-        field: 'sex',
-        headerName: '性别',
-        layout: {
-          filtering: controlState.sexColumnFilterable,
-        },
-        // 测试表头合并：个人信息组
-        headerGroup: {
-          name: 'personalInfo',
-          title: '个人信息',
-        },
-        cellRenderer: (params: any) => {
-          const sexMap: Record<number, { text: string; color: string }> = {
-            1: { text: '男', color: '#007bff' },
-            2: { text: '女', color: '#e83e8c' },
-          }
-          const sex = sexMap[params.value] || { text: '未知', color: '#6c757d' }
-          return `<span style="color: ${sex.color}; font-weight: bold;">${sex.text}</span>`
-        },
-        filter: 'agTextColumnFilter',
-        filterParams: {
-          filterOptions: ['equals'],
-          suppressAndOrCondition: true,
-          maxNumConditions: 1,
-          textFormatter: (input: any) => {
-            if (typeof input !== 'string') {
-              return input
-            }
-
-            const trimmedInput = input.trim()
-
-            if (trimmedInput === '男') {
-              return 1
-            }
-            if (trimmedInput === '女') {
-              return 2
-            }
-
-            return trimmedInput
-          },
-        },
-        valueFormatter: (params: any) => {
-          const value = params.value
-          if (value === 1) {
-            return '男'
-          }
-          if (value === 2) {
-            return '女'
-          }
-          return value
-        },
+        resizable: ageColumnResizable.value,
       },
       {
         field: 'email',
         headerName: '邮箱',
-        layout: {
-          minWidth: 220,
-          resizing: controlState.emailColumnResizable,
-          textAlign: 'left',
-          headerTextAlign: 'left',
-          cellClass: 'color-primary100 italic',
-        },
+        minWidth: 200,
+        filter: emailColumnFilterable.value,
+      },
+      {
+        field: 'phone',
+        headerName: '电话',
+        hide: !phoneColumnVisible.value,
+      },
+      {
+        field: 'address',
+        headerName: '地址',
+        editable: addressColumnEditable.value,
       },
       {
         field: 'department',
         headerName: '部门',
-        layout: {},
-        // 测试行合并：部门列有重复值，应该能看到合并效果
-        // mergeDown: true, // 暂时禁用，先确保列合并和表头合并正常
-        // 测试表头合并：工作信息组
-        headerGroup: {
-          name: 'workInfo',
-          title: '工作信息',
-        },
-        cellRenderer: (params: any) => {
-          const deptColors: Record<string, string> = {
-            技术部: '#007bff',
-            产品部: '#28a745',
-            设计部: '#ffc107',
-            运营部: '#17a2b8',
-            市场部: '#dc3545',
+        suppressMovable: !departmentColumnMovable.value,
+        rowSpan: params => {
+          // 如果部门相同则合并行
+          const currentDept = params.data.department
+          const rowIndex = params.node?.rowIndex
+          const api = params.api
+
+          // 检查参数有效性
+          if (rowIndex === null || rowIndex === undefined) {
+            return 1
           }
-          const color = deptColors[params.value] || '#6c757d'
-          return `<span style="color: ${color}; font-weight: bold;">${params.value}</span>`
+
+          // 检查上一行是否相同部门
+          if (rowIndex > 0) {
+            const prevRow = api.getDisplayedRowAtIndex(rowIndex - 1)
+            if (prevRow && prevRow.data.department === currentDept) {
+              return 0 // 隐藏当前单元格
+            }
+          }
+
+          // 计算需要合并的行数
+          let spanCount = 1
+          let nextIndex = rowIndex + 1
+          while (nextIndex < api.getDisplayedRowCount()) {
+            const nextRow = api.getDisplayedRowAtIndex(nextIndex)
+            if (nextRow && nextRow.data.department === currentDept) {
+              spanCount++
+              nextIndex++
+            } else {
+              break
+            }
+          }
+
+          return spanCount
         },
       },
       {
         field: 'position',
         headerName: '职位',
-        layout: {
-          minWidth: 120,
-          textAlign: 'right',
-          headerTextAlign: 'right',
-        },
-        // 测试表头合并：工作信息组
-        headerGroup: {
-          name: 'workInfo',
-          title: '工作信息',
-        },
+        pinned: positionColumnPinned.value,
       },
       {
         field: 'salary',
         headerName: '薪资',
-        type: 'number',
-        layout: {
-          minWidth: 120,
-          textAlign: 'right',
-          headerTextAlign: 'right',
-          cellClass: 'font-bold text-green-600',
+        context: {
+          headerTextAlign: salaryColumnHeaderAlign.value,
+          cellTextAlign: 'right',
         },
-        valueFormatter: (params: any) => `¥${params.value?.toLocaleString() || 0}`,
-        filterParams: {
-          filterOptions: ['equals', 'greaterThan', 'lessThan'],
-        },
-      },
-      {
-        field: 'isActive',
-        headerName: '是否在职',
-        type: 'boolean',
-        pinned: 'right',
-        layout: {
-          minWidth: 120,
+        valueFormatter: (params: any) => {
+          return `¥${params.value?.toLocaleString() || 0}`
         },
       },
       {
         field: 'status',
         headerName: '状态',
-        pinned: 'right',
-        cellRenderer: (params: any) => {
-          const statusMap: Record<string, { text: string; class: string; color: string }> = {
-            在职: { text: '在职', class: 'status-active', color: '#28a745' },
-            离职: { text: '离职', class: 'status-inactive', color: '#dc3545' },
-            试用期: { text: '试用期', class: 'status-trial', color: '#ffc107' },
+        context: {
+          headerTextAlign: 'center',
+          cellTextAlign: statusColumnCellAlign.value,
+        },
+        valueGetter: (params: any) => {
+          const status = params.data?.status
+          const statusMap = {
+            active: '在职',
+            inactive: '离职',
+            pending: '待定',
           }
-          const status = statusMap[params.value] || {
-            text: params.value,
-            class: '',
-            color: '#6c757d',
-          }
-          return `<span class="status-badge ${status.class}" style="color: ${status.color}; font-weight: bold;">${status.text}</span>`
+          return statusMap[status as keyof typeof statusMap] || status
         },
       },
       {
         field: 'joinDate',
         headerName: '入职日期',
-        type: 'date',
-        layout: {
-          minWidth: 180,
-          filtering: true,
-        },
+        pinned: 'right',
         valueFormatter: (params: any) => {
           if (!params.value) {
             return ''
@@ -256,796 +310,720 @@ const gridConfig = computed(
           return new Date(params.value).toLocaleDateString('zh-CN')
         },
       },
-      {
-        field: 'lastLogin',
-        headerName: '最后登录',
-        type: 'date',
-        valueFormatter: (params: any) => {
-          if (!params.value) {
-            return '从未登录'
-          }
-          const date = new Date(params.value)
-          const now = new Date()
-          const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
+    ]
+  }
+})
 
-          if (diffDays === 0) {
-            return '今天'
-          }
-          if (diffDays === 1) {
-            return '昨天'
-          }
-          if (diffDays < 7) {
-            return `${diffDays}天前`
-          }
-          return date.toLocaleDateString('zh-CN')
-        },
-        layout: {
-          minWidth: 180,
-          textAlign: 'left',
-          headerTextAlign: 'left',
-        },
-      },
-    ],
-    data: rowData.value,
-    layout: {
-      // 使用 '100%' 让表格占满父容器高度
-      // 也可以使用 'auto' 让表格自动撑开高度，或使用固定值如 '500px'
-      height: '100%',
-      width: '100%',
-      zebra: controlState.zebra,
-      zebraColor: controlState.zebraColor || undefined,
-      horizontalLines: controlState.horizontalLines,
-      verticalLines: controlState.verticalLines,
-      headerHeight: 40,
-      hoverRowHighlight: controlState.hoverRowHighlight,
-      hoverColumnHighlight: controlState.hoverColumnHighlight,
-      selectedCellBorderHighlight: controlState.selectedCellBorderHighlight,
-      selectedCellBackgroundHighlight: controlState.selectedCellBackgroundHighlight,
-      layout: {
-        minWidth: 90,
-        filtering: controlState.filtering,
-        sorting: controlState.sorting,
-        resizing: controlState.resizing,
-        columnMoving: controlState.columnMoving,
-      },
-    },
-    features: {
-      allowPinnedColumnMoving: controlState.allowPinnedColumnMoving,
-      clipboard: controlState.clipboard,
-      export: controlState.export,
-      pagination: controlState.pagination,
-    },
-    pagination: {
-      enabled: controlState.pagination,
-      pageSize: controlState.pageSize,
-      pageSizeOptions: [5, 10, 20, 50, 100],
-      showPageSizeSelector: controlState.showPageSizeSelector,
-    },
-    // 无限滚动配置
-    infiniteScroll: {
-      enabled: true,
-      threshold: 10, // 距离底部 50px 时触发
-      onScrollToBottom: handleScrollToBottom,
-      showLoadingIndicator: true,
-      loadingText: '加载中...',
-    },
-    selection: {
-      mode: controlState.selectionMode === 'multiple' ? 'multiRow' : 'singleRow',
-      checkboxes: controlState.checkboxes,
-      clickToSelect: controlState.clickToSelect,
-      keyboardToSelect: controlState.keyboardToSelect,
-      pinned: controlState.pinned as 'left' | 'right',
-    },
-    export: {
-      csv: true,
-      excel: false,
-      fileName: '员工数据',
-      params: {
-        columnSeparator: ',',
-        fileName: '员工数据.csv',
-      },
-    },
-    gridOptions: {
-      animateRows: true,
-      // enableCellTextSelection: true, // 注释掉，与行合并冲突
-      suppressRowTransform: true, // 启用行合并必需
-      suppressRowHoverHighlight: !controlState.hoverRowHighlight,
-      // 确保不抑制行点击选择
-      suppressRowClickSelection: false,
-      // 选择功能由 transformer.ts 中的 selection 配置统一处理
-      // 包括复选框显示、多选模式、点击选择等所有选择相关功能
-      onRowClicked: (event: any) => {
-        console.log('行点击事件:', event.data)
-      },
-      onCellClicked: (event: any) => {
-        console.log('单元格点击事件:', event.value, event.colDef.field)
-      },
-      onSelectionChanged: (event: any) => {
-        console.log('选择变化事件:', event.api.getSelectedRows())
-      },
-      // Cmd/Ctrl + C 复制当前单元格内容
-      onCellKeyDown: (e: any) => {
-        if (!controlState.clipboard) {
-          return
-        }
-        const kev = e.event as KeyboardEvent
-        const isCopy = (kev.metaKey || kev.ctrlKey) && (kev.key === 'c' || kev.key === 'C')
-        if (!isCopy) {
-          return
-        }
-        copyToClipboard(e.value)
-      },
-    },
-  })
-)
-
-// 滚动触底处理
-const handleScrollToBottom = (data: any) => {
-  console.log('滚动触底，开始加载更多数据: ', data)
-  // dataStore.fetchObsObjectsByDevice(props.deviceId)
-}
-// 模拟数据
-const rowData = ref([
+/* 自定义家数据 */
+const rowData = [
   {
     id: 1,
-    name: '张三',
+    name: '陈十八',
     age: 28,
-    sex: 1,
-    email: 'zhangsan@example.com',
+    email: 'chen18@example.com',
     department: '技术部',
     position: '前端工程师',
     salary: 15000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2022-01-15',
-    lastLogin: '2024-01-15',
+    status: 'active',
+    joinDate: '2022-03-15',
+    phone: '13800138001',
+    address: '北京市朝阳区',
   },
   {
     id: 2,
     name: '李四',
-    age: 32,
-    sex: 2,
+    age: 28,
     email: 'lisi@example.com',
-    department: '技术部', // 修改为技术部，与上一行连续
-    position: '产品经理',
+    department: '技术部',
+    position: '后端工程师',
     salary: 18000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2021-06-20',
-    lastLogin: '2024-01-14',
+    status: 'active',
+    joinDate: '2021-08-20',
+    phone: '13800138002',
+    address: '上海市浦东新区',
   },
   {
     id: 3,
     name: '王五',
-    age: 25,
-    sex: 1,
+    age: 28,
     email: 'wangwu@example.com',
-    department: '技术部', // 修改为技术部，形成连续3行
+    department: '技术部',
     position: 'UI设计师',
     salary: 12000,
-    status: '试用期',
-    isActive: true,
-    isEnabled: false,
-    joinDate: '2023-03-10',
-    lastLogin: '2024-01-13',
+    status: 'active',
+    joinDate: '2023-01-10',
+    phone: '13800138003',
+    address: '广州市天河区',
   },
   {
     id: 4,
     name: '赵六',
-    age: 35,
-    sex: 1,
+    age: 28,
     email: 'zhaoliu@example.com',
     department: '技术部',
-    position: '后端工程师',
+    position: '产品经理',
     salary: 20000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2020-09-05',
-    lastLogin: '2024-01-12',
+    status: 'active',
+    joinDate: '2020-06-01',
+    phone: '13800138004',
+    address: '深圳市南山区',
   },
   {
     id: 5,
     name: '钱七',
     age: 29,
-    sex: 2,
     email: 'qianqi@example.com',
     department: '运营部',
     position: '运营专员',
-    salary: 13000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2022-08-12',
-    lastLogin: '2024-01-11',
+    salary: 10000,
+    status: 'inactive',
+    joinDate: '2022-11-15',
+    phone: '13800138005',
+    address: '杭州市西湖区',
   },
   {
     id: 6,
     name: '孙八',
     age: 27,
-    sex: 1,
     email: 'sunba@example.com',
-    department: '市场部',
-    position: '市场专员',
-    salary: 11000,
-    status: '离职',
-    isActive: false,
-    isEnabled: false,
-    joinDate: '2021-12-01',
-    lastLogin: '2023-12-01',
+    department: '技术部',
+    position: '测试工程师',
+    salary: 13000,
+    status: 'active',
+    joinDate: '2023-05-20',
+    phone: '13800138006',
+    address: '成都市武侯区',
   },
   {
     id: 7,
     name: '周九',
     age: 31,
-    sex: 1,
     email: 'zhoujiu@example.com',
-    department: '技术部',
-    position: '架构师',
-    salary: 25000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2019-04-18',
-    lastLogin: '2024-01-10',
+    department: '市场部',
+    position: '市场专员',
+    salary: 11000,
+    status: 'active',
+    joinDate: '2022-09-01',
+    phone: '13800138007',
+    address: '武汉市江汉区',
   },
   {
     id: 8,
     name: '吴十',
     age: 26,
-    sex: 2,
     email: 'wushi@example.com',
-    department: '产品部',
-    position: '产品助理',
-    salary: 10000,
-    status: '试用期',
-    isActive: true,
-    isEnabled: false,
-    joinDate: '2023-05-22',
-    lastLogin: '2024-01-09',
+    department: '人事部',
+    position: '人事专员',
+    salary: 9000,
+    status: 'pending',
+    joinDate: '2023-08-15',
+    phone: '13800138008',
+    address: '南京市鼓楼区',
   },
   {
     id: 9,
     name: '郑十一',
     age: 33,
-    sex: 2,
     email: 'zhengshiyi@example.com',
-    department: '设计部',
-    position: '视觉设计师',
-    salary: 16000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2021-02-14',
-    lastLogin: '2024-01-08',
+    department: '财务部',
+    position: '会计',
+    salary: 14000,
+    status: 'active',
+    joinDate: '2021-12-01',
+    phone: '13800138009',
+    address: '西安市雁塔区',
   },
   {
     id: 10,
     name: '王十二',
     age: 24,
-    sex: 1,
     email: 'wangshier@example.com',
     department: '技术部',
-    position: '测试工程师',
-    salary: 9000,
-    status: '试用期',
-    isActive: true,
-    joinDate: '2023-07-08',
-    lastLogin: '2024-01-07',
+    position: '实习生',
+    salary: 5000,
+    status: 'active',
+    joinDate: '2023-10-01',
+    phone: '13800138010',
+    address: '重庆市渝中区',
   },
   {
     id: 11,
     name: '李十三',
     age: 30,
-    sex: 1,
     email: 'lishisan@example.com',
-    department: '运营部',
-    position: '运营经理',
-    salary: 17000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2020-11-30',
-    lastLogin: '2024-01-06',
+    department: '销售部',
+    position: '销售经理',
+    salary: 16000,
+    status: 'active',
+    joinDate: '2022-01-15',
+    phone: '13800138011',
+    address: '天津市和平区',
   },
   {
     id: 12,
     name: '张十四',
     age: 28,
-    sex: 2,
     email: 'zhangshisi@example.com',
-    department: '市场部',
-    position: '市场经理',
-    salary: 19000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2021-08-25',
-    lastLogin: '2024-01-05',
+    department: '客服部',
+    position: '客服主管',
+    salary: 12000,
+    status: 'active',
+    joinDate: '2022-07-01',
+    phone: '13800138012',
+    address: '苏州市姑苏区',
   },
   {
     id: 13,
     name: '刘十五',
     age: 35,
-    sex: 1,
     email: 'liushiwu@example.com',
     department: '技术部',
-    position: '技术总监',
-    salary: 30000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2018-03-12',
-    lastLogin: '2024-01-04',
+    position: '架构师',
+    salary: 25000,
+    status: 'active',
+    joinDate: '2020-03-01',
+    phone: '13800138013',
+    address: '长沙市岳麓区',
   },
   {
     id: 14,
     name: '陈十六',
     age: 27,
-    sex: 2,
     email: 'chenshiliu@example.com',
-    department: '产品部',
-    position: '产品总监',
-    salary: 28000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2019-10-15',
-    lastLogin: '2024-01-03',
+    department: '设计部',
+    position: '平面设计师',
+    salary: 11000,
+    status: 'active',
+    joinDate: '2023-02-20',
+    phone: '13800138014',
+    address: '福州市鼓楼区',
   },
   {
     id: 15,
     name: '杨十七',
     age: 29,
-    sex: 2,
     email: 'yangshiqi@example.com',
-    department: '设计部',
-    position: '设计总监',
-    salary: 22000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2020-05-20',
-    lastLogin: '2024-01-02',
+    department: '运营部',
+    position: '运营经理',
+    salary: 15000,
+    status: 'active',
+    joinDate: '2022-05-10',
+    phone: '13800138015',
+    address: '郑州市金水区',
   },
+  // 添加更多相同部门的数据用于演示合并功能
   {
     id: 16,
-    name: '黄十八',
+    name: '陈十八',
     age: 26,
-    sex: 1,
-    email: 'huangshiba@example.com',
+    email: 'chenshiba@example.com',
     department: '技术部',
-    position: 'DevOps工程师',
-    salary: 14000,
-    status: '在职',
-    isActive: true,
-    isEnabled: false,
-    joinDate: '2022-03-15',
-    lastLogin: '2024-01-01',
+    position: '全栈工程师',
+    salary: 16000,
+    status: 'active',
+    joinDate: '2023-03-15',
+    phone: '13800138016',
+    address: '杭州市西湖区',
   },
   {
     id: 17,
     name: '林十九',
     age: 31,
-    sex: 1,
     email: 'linshijiu@example.com',
-    department: '产品部',
-    position: '产品运营',
-    salary: 15000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2021-07-10',
-    lastLogin: '2023-12-31',
+    department: '技术部',
+    position: '架构师',
+    salary: 22000,
+    status: 'active',
+    joinDate: '2021-09-20',
+    phone: '13800138017',
+    address: '成都市武侯区',
   },
   {
     id: 18,
-    name: '何二十',
+    name: '黄二十',
     age: 28,
-    sex: 2,
-    email: 'heshi@example.com',
+    email: 'huangershi@example.com',
     department: '设计部',
     position: '交互设计师',
     salary: 13000,
-    status: '离职',
-    isActive: false,
-    isEnabled: false,
-    joinDate: '2022-01-20',
-    lastLogin: '2023-11-15',
+    status: 'active',
+    joinDate: '2022-11-01',
+    phone: '13800138018',
+    address: '武汉市江汉区',
   },
   {
     id: 19,
-    name: '罗二一',
+    name: '吴二一',
     age: 33,
-    sex: 1,
-    email: 'luoeryi@example.com',
-    department: '运营部',
-    position: '数据分析师',
-    salary: 16000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2020-08-30',
-    lastLogin: '2023-12-30',
+    email: 'wuereryi@example.com',
+    department: '设计部',
+    position: '视觉设计师',
+    salary: 14000,
+    status: 'inactive',
+    joinDate: '2020-12-15',
+    phone: '13800138019',
+    address: '南京市鼓楼区',
   },
   {
     id: 20,
-    name: '高二二',
-    age: 25,
-    sex: 2,
-    email: 'gaoershi@example.com',
-    department: '市场部',
-    position: '市场推广',
-    salary: 12000,
-    status: '试用期',
-    isActive: true,
-    joinDate: '2023-09-01',
-    lastLogin: '2023-12-29',
+    name: '徐二二',
+    age: 27,
+    email: 'xuerer@example.com',
+    department: '产品部',
+    position: '产品助理',
+    salary: 11000,
+    status: 'pending',
+    joinDate: '2023-07-01',
+    phone: '13800138020',
+    address: '西安市雁塔区',
   },
-])
+  {
+    id: 21,
+    name: '孙二三',
+    age: 30,
+    email: 'sunersan@example.com',
+    department: '产品部',
+    position: '产品总监',
+    salary: 25000,
+    status: 'active',
+    joinDate: '2020-04-10',
+    phone: '13800138021',
+    address: '重庆市渝中区',
+  },
+  {
+    id: 22,
+    name: '马二四',
+    age: 25,
+    email: 'maersi@example.com',
+    department: '运营部',
+    position: '内容运营',
+    salary: 9000,
+    status: 'active',
+    joinDate: '2023-06-15',
+    phone: '13800138022',
+    address: '天津市和平区',
+  },
+  {
+    id: 23,
+    name: '朱二五',
+    age: 32,
+    email: 'zhuerwu@example.com',
+    department: '运营部',
+    position: '用户运营',
+    salary: 12000,
+    status: 'active',
+    joinDate: '2021-10-20',
+    phone: '13800138023',
+    address: '苏州市姑苏区',
+  },
+  {
+    id: 24,
+    name: '胡二六',
+    age: 29,
+    email: 'huerliu@example.com',
+    department: '市场部',
+    position: '市场专员',
+    salary: 10000,
+    status: 'inactive',
+    joinDate: '2022-08-05',
+    phone: '13800138024',
+    address: '长沙市岳麓区',
+  },
+  {
+    id: 25,
+    name: '郭二七',
+    age: 26,
+    email: 'guoerqi@example.com',
+    department: '市场部',
+    position: '品牌经理',
+    salary: 15000,
+    status: 'active',
+    joinDate: '2023-01-10',
+    phone: '13800138025',
+    address: '福州市鼓楼区',
+  },
+]
 
-const gridTableRef = ref()
-const table = useGridTableController(gridTableRef)
+/* 自定义配色 */
+const customColorConfig: GridColorConfig = {
+  // ==================== 表格整体配色 ====================
+  backgroundColor: '#ffffff', // 纯白背景
+  borderColor: '#000000', // 纯黑边框，强烈对比
 
-// 复制到剪贴板（兼容写法）
-const copyToClipboard = async (text: unknown) => {
-  const str = text === null || text === undefined ? '' : String(text)
-  try {
-    await navigator.clipboard.writeText(str)
-  } catch {
-    const textarea = document.createElement('textarea')
-    textarea.value = str
-    textarea.style.position = 'fixed'
-    textarea.style.opacity = '0'
-    document.body.appendChild(textarea)
-    textarea.select()
-    try {
-      document.execCommand('copy')
-    } finally {
-      document.body.removeChild(textarea)
-    }
-  }
+  // ==================== 表头配色 ====================
+  headerBackgroundColor: '#0078d7', // 明亮蓝色表头
+  headerTextColor: '#ffffff', // 白色表头文字
+  headerCellHoverBackgroundColor: '#0099ff', // 悬停更亮蓝
+  headerCellMovingBackgroundColor: '#005a9e', // 拖动更深蓝
+
+  // ==================== 行配色 ====================
+  rowTextColor: '#222222', // 深灰主文字
+  rowHoverBackgroundColor: '#d0f0ff', // 悬停浅蓝
+
+  // ==================== 奇偶行配色 ====================
+  oddRowBackgroundColor: '#f5faff', // 淡蓝灰，易区分
+
+  // ==================== 选中行配色 ====================
+  selectedRowBackgroundColor: '#ffeb3b', // 明黄色，强提示
+
+  // ==================== 聚焦与复选框配色 ====================
+  checkboxCheckedBackgroundColor: '#00c853', // 选中绿
+  checkboxUncheckedBackgroundColor: '#ffffff', // 未选白
+  checkboxUncheckedBorderColor: '#9e9e9e', // 中灰边框
+  checkboxBorderWidth: '2px',
+  cellFocusBackgroundColor: '#ffcc80', // 聚焦橙
+
+  // ==================== 编辑状态配色 ====================
+  editingCellBackgroundColor: '#fff3e0', // 编辑状态浅橙底
+  editingCellTextColor: '#000000', // 编辑文字黑色
+  editingCellBorderColor: '#ff6f00', // 编辑边框亮橙
+
+  // ==================== 滚动条配色 ====================
+  scrollbarColor: '#9c27b0', // 紫色滚动条滑块
+  scrollbarHoverColor: '#ba68c8', // 悬停淡紫
+  scrollbarTrackColor: '#e1bee7', // 轨道浅紫粉
+
+  // ==================== 加载和空状态配色 ====================
+  loadingOverlayBackgroundColor: 'rgba(0, 0, 0, 0.5)', // 半透明黑背景
+  loadingOverlayTextColor: '#ffffff', // 白色加载文字
+  noRowsOverlayBackgroundColor: '#ffebee', // 无数据淡粉背景
+  noRowsOverlayTextColor: '#d32f2f', // 无数据红文字
+
+  // ==================== 工具栏和状态栏配色 ====================
+  toolbarBackgroundColor: '#2196f3', // 工具栏亮蓝
+  statusBarBackgroundColor: '#4caf50', // 状态栏亮绿
+  statusBarTextColor: '#ffffff', // 白色文字
 }
+const colorConfig = {}
+const isCustomColorConfig = ref(false)
+const currentColorConfig = computed(() => {
+  return isCustomColorConfig.value ? customColorConfig : colorConfig
+})
 
-const handleExport = () => {
-  console.log('导出数据')
-  table.exportCsv()
+/* 默认尺寸 - 表格会自动响应系统尺寸模式变化（紧凑/舒适/宽松） */
+const sizeConfig: GridSizeConfig = {
+  heightMode: 'fill', //内容自动撑满容器
+  defaultColumnWidth: 'auto', //默认列宽自适应
+  // 注意：表格会根据系统尺寸模式自动调整行高、表头高度、列宽等
+  // 紧凑模式：行高32px，表头36px，滚动条6px
+  // 舒适模式：行高38px，表头42px，滚动条8px
+  // 宽松模式：行高48px，表头52px，滚动条12px
 }
-
-const handleClearSelection = () => {
-  table.clearSelection()
+const customSizeConfig: GridSizeConfig = {
+  rowHeight: 28, //行高
+  headerHeight: 52, //表头高度
+  defaultColumnWidth: 150,
+  height: 400, //固定高度400px
+  heightMode: 'fixed', //固定高度
+  globalCellTextAlign: 'right', //全局单元格水平对齐方式
+  globalCellVerticalAlign: 'middle', //全局单元格垂直对齐方式
+  globalHeaderTextAlign: 'right', //全局表头水平对齐方式
+  globalHeaderVerticalAlign: 'middle', //全局表头垂直对齐方式
 }
+const isCustomSizeConfig = ref(false)
+const currentSizeConfig = computed(() => {
+  return isCustomSizeConfig.value ? customSizeConfig : sizeConfig
+})
 
-// 控制函数
-const toggleFiltering = () => {
-  controlState.filtering = !controlState.filtering
+// ==================== 表格功能配置示例 ====================
+
+// 表格选项配置
+const customGridOptions = {
+  onRowClicked: (_event: any) => {
+    // console.log('行被点击:', event.data)
+  },
+  onCellClicked: (_event: any) => {
+    // console.log('单元格被点击:', event.value, '列:', event.colDef.field)
+  },
+  onRowDoubleClicked: (_event: any) => {
+    // console.log('行被双击:', event.data)
+  },
+  onCellDoubleClicked: (_event: any) => {
+    // console.log('单元格被双击:', event.value, '列:', event.colDef.field)
+  },
 }
+const gridOptions = {}
+const isCustomGridOptions = ref(true)
+const currentGridOptions = computed(() => {
+  return isCustomGridOptions.value ? customGridOptions : gridOptions
+})
 
-const toggleSorting = () => {
-  controlState.sorting = !controlState.sorting
-}
+// 边框显示
 
-const toggleResizing = () => {
-  controlState.resizing = !controlState.resizing
-}
+// 行号显示
+const showRowNumbers = ref(false)
 
-const toggleColumnMoving = () => {
-  controlState.columnMoving = !controlState.columnMoving
-}
+// 行选择模式
+const rowSelectionOptions = [
+  { label: '无选择', value: null },
+  { label: '单选', value: 'single' },
+  { label: '多选', value: 'multiple' },
+]
+const currentRowSelection = ref(null)
+// 是否能点击行选中
+const enableRowClickSelection = ref(false)
 
-const togglePinnedColumnMoving = () => {
-  controlState.allowPinnedColumnMoving = !controlState.allowPinnedColumnMoving
-}
+// 排序功能
+const enableSorting = ref(false)
 
-const togglePagination = () => {
-  controlState.pagination = !controlState.pagination
-}
+// 过滤功能
+const enableFilter = ref(false)
 
-const toggleHoverRowHighlight = () => {
-  controlState.hoverRowHighlight = !controlState.hoverRowHighlight
-}
+// 列宽调整
+const enableColumnResize = ref(false)
 
-const toggleHoverColumnHighlight = () => {
-  controlState.hoverColumnHighlight = !controlState.hoverColumnHighlight
-}
+// 工具栏显示
+const showToolbar = ref(false)
 
-const toggleSelectedCellBorderHighlight = () => {
-  controlState.selectedCellBorderHighlight = !controlState.selectedCellBorderHighlight
-}
+// 状态栏显示
+const showStatusBar = ref(false)
 
-const toggleSelectedCellBackgroundHighlight = () => {
-  controlState.selectedCellBackgroundHighlight = !controlState.selectedCellBackgroundHighlight
-}
+// 自定义CSS类名
+const customClass = ref('')
 
-const changeSelectionMode = (mode: 'single' | 'multiple') => {
-  controlState.selectionMode = mode
-}
+// 自定义样式
+const customStyle = ref({})
 
-const toggleCheckboxes = () => {
-  controlState.checkboxes = !controlState.checkboxes
-}
+// 复选框位置
+const selectionCheckboxPositionOptions = [
+  { label: '左侧', value: 'left' },
+  { label: '右侧', value: 'right' },
+]
+const currentSelectionCheckboxPosition = ref('left' as 'left' | 'right')
 
-const toggleClickToSelect = () => {
-  controlState.clickToSelect = !controlState.clickToSelect
-}
+// 行悬停高亮
+const enableRowHoverHighlight = ref(true)
 
-const changePinned = (pinned: 'left' | 'right') => {
-  controlState.pinned = pinned
-}
+// 列适配视口
+const fitColumnsToViewport = ref(true)
 
-// 列控制函数
-const toggleIdColumnFilter = () => {
-  controlState.nameColumnFilterable = !controlState.nameColumnFilterable
-}
+// 单元格聚焦高亮
+const enableCellFocusHighlight = ref(false)
 
-const togglePresetFilter = async () => {
-  controlState.presetFilterEnabled = !controlState.presetFilterEnabled
+// 斑马线
+const enableZebraStripe = ref(false)
 
-  // 获取 AG Grid API 实例
-  const gridApi = table.gridApi
-  if (!gridApi) {
-    return
-  }
+// 列拖拽
+const enableColumnDrag = ref(false)
 
-  if (controlState.presetFilterEnabled) {
-    // 确保姓名列的筛选功能是启用的
-    controlState.nameColumnFilterable = true
-    // 启用预设筛选条件：姓名包含"王"或"李"
-    const filterModel = {
-      name: {
-        filterType: 'text',
-        conditions: [
-          {
-            filterType: 'text',
-            type: 'contains',
-            filter: '王',
-          },
-          {
-            filterType: 'text',
-            type: 'contains',
-            filter: '李',
-          },
-        ],
-        operator: 'OR',
-      },
-    }
-    await nextTick()
-    setTimeout(() => {
-      gridApi.setFilterModel(filterModel)
-    }, 100)
-  } else {
-    // 清除筛选条件
-    gridApi.setFilterModel(null)
-  }
-}
+// 纵向分割线
+const enableVerticalSplitLine = ref(true)
 
-// 预设年龄排序：切换为升序/清除
-const togglePresetAgeSort = () => {
-  controlState.presetAgeSortEnabled = !controlState.presetAgeSortEnabled
-  const gridApi = table.gridApi
-  // 先启用年龄列排序功能
-  controlState.ageColumnSortable = true
+// 横向分割线
+const enableHorizontalSplitLine = ref(true)
 
-  if (controlState.presetAgeSortEnabled) {
-    nextTick(() => {
-      gridApi.applyColumnState({
-        defaultState: { sort: null },
-        state: [{ colId: 'age', sort: 'asc' }],
-      })
-    })
-  } else {
-    gridApi.applyColumnState({ defaultState: { sort: null }, state: [] })
-  }
-}
+// 剪贴板功能
+const enableClipboard = ref(false)
 
-const toggleNameColumnSort = () => {
-  controlState.ageColumnSortable = !controlState.ageColumnSortable
-}
+// 跟随系统尺寸
+const followSystemSize = ref(true)
 
-const toggleSexColumnFilter = () => {
-  controlState.sexColumnFilterable = !controlState.sexColumnFilterable
-}
+// 单元格跨越功能
+// 注意：enableCellSpan 和 spanRows 是 AG Grid 企业版功能，社区版不支持
+// const enableCellSpan = ref(false)
 
-const toggleAgeColumnResize = () => {
-  controlState.emailColumnResizable = !controlState.emailColumnResizable
-}
-
-// 分割线控制函数
-const toggleHorizontalLines = () => {
-  controlState.horizontalLines = !controlState.horizontalLines
-}
-
-const toggleVerticalLines = () => {
-  controlState.verticalLines = !controlState.verticalLines
-}
-
-// 新增功能控制函数
-const toggleClipboard = () => {
-  controlState.clipboard = !controlState.clipboard
-}
+// 列分组功能
+const enableColumnGrouping = ref(false)
 </script>
+
 <template lang="pug">
 .full.between-col.gap-gap
-  //- 顶部工具栏
-  .c-card.h-100
-    ScrollbarWrapper.full(:size='1', direction='horizontal', wrapper-class='between-start')
-      .flex.gap-gap
-        div
-          Button.text-nowrap(@click='handleExport') 导出CSV
-        div
-          Button.text-nowrap(@click='handleClearSelection') 清除选择
+  .c-border(class='h-40%')
+    ScrollbarWrapper(ref='scrollbarRef', wrapper-class='pr-6', :size='2')
+      .p-padding
+        .color-accent100.mb-gaps 表格配置
+        .grid.grid-cols-3.gap-gap(class='sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xxl:grid-cols-8')
+          // ==================== 基础配置 ====================
+          Button(
+            :severity='isCustomColorConfig ? "primary" : "secondary"',
+            @click='isCustomColorConfig = !isCustomColorConfig'
+          ) {{ isCustomColorConfig ? '自定义配色' : '默认配色' }}
+          Button(
+            :severity='isCustomSizeConfig ? "success" : "secondary"',
+            @click='isCustomSizeConfig = !isCustomSizeConfig'
+          ) {{ isCustomSizeConfig ? '自定义尺寸' : '默认尺寸' }}
 
-  //- 表格容器
-  GridTable(ref='gridTableRef', :config='gridConfig', v-model='rowData')
+          // ==================== 表格功能 ====================
+          Button(
+            :severity='showRowNumbers ? "success" : "secondary"',
+            @click='showRowNumbers = !showRowNumbers'
+          ) {{ showRowNumbers ? '显示行号' : '隐藏行号' }}
+          Button(
+            :severity='enableSorting ? "success" : "secondary"',
+            @click='enableSorting = !enableSorting'
+          ) {{ enableSorting ? '启用排序' : '禁用排序' }}
+          Button(
+            :severity='enableFilter ? "success" : "secondary"',
+            @click='enableFilter = !enableFilter'
+          ) {{ enableFilter ? '启用过滤' : '禁用过滤' }}
+          Button(
+            :severity='enableColumnResize ? "success" : "secondary"',
+            @click='enableColumnResize = !enableColumnResize'
+          ) {{ enableColumnResize ? '可调列宽' : '固定列宽' }}
 
-  //- 控制面板
-  .h-200.rounded-0.c-border-accent
-    ScrollbarWrapper.full(:size='0')
-      .between-col.items-start.gap-gapl.p-padding
-        //- 布局控制
-        .full.c-card.p-padding.between-col
-          .fs-appFontSizes.color-accent100.mb-gaps 布局控制
-          .full.between-col.gap-gaps
-            .between.gap-gap
-              .flex-1.between.gap-gap
-                p 斑马纹:
-                Select.flex-1(
-                  :model-value='controlState.zebra',
-                  @update:model-value='v => (controlState.zebra = v)',
-                  option-label='label',
-                  option-value='value',
-                  :options='[ { label: "无", value: "none" }, { label: "奇数行", value: "odd" }, { label: "偶数行", value: "even" }, ]'
-                )
-              .flex-1.between.gap-gap
-                p 斑马纹颜色:
-                ColorPicker.flex-1(
-                  :model-value='controlState.zebraColor || null',
-                  @update:model-value='v => (controlState.zebraColor = v || "")',
-                  format='hex'
-                )
-                Button(severity='secondary', @click='controlState.zebraColor = ""') 清除
-            .full.grid.grid-cols-1.gap-gap(class='sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6')
-              Button(
-                :label='`悬停行高亮: ${controlState.hoverRowHighlight ? "启用" : "禁用"}`',
-                :severity='controlState.hoverRowHighlight ? "success" : "secondary"',
-                @click='toggleHoverRowHighlight'
-              )
-              Button(
-                :label='`悬停列高亮: ${controlState.hoverColumnHighlight ? "启用" : "禁用"}`',
-                :severity='controlState.hoverColumnHighlight ? "success" : "secondary"',
-                @click='toggleHoverColumnHighlight'
-              )
-              Button(
-                :label='`选中单元格边框高亮: ${controlState.selectedCellBorderHighlight ? "启用" : "禁用"}`',
-                :severity='controlState.selectedCellBorderHighlight ? "success" : "secondary"',
-                @click='toggleSelectedCellBorderHighlight'
-              )
-              Button(
-                :label='`选中单元格背景高亮: ${controlState.selectedCellBackgroundHighlight ? "启用" : "禁用"}`',
-                :severity='controlState.selectedCellBackgroundHighlight ? "success" : "secondary"',
-                @click='toggleSelectedCellBackgroundHighlight'
-              )
-              Button(
-                :label='`横向分割线: ${controlState.horizontalLines ? "启用" : "禁用"}`',
-                :severity='controlState.horizontalLines ? "success" : "secondary"',
-                @click='toggleHorizontalLines'
-              )
-              Button(
-                :label='`纵向分割线: ${controlState.verticalLines ? "启用" : "禁用"}`',
-                :severity='controlState.verticalLines ? "success" : "secondary"',
-                @click='toggleVerticalLines'
-              )
-        //- 功能控制
-        .full.c-card.p-padding.between-col
-          .fs-appFontSizes.color-accent100.mb-gaps 功能控制
-          .full.grid.grid-cols-2.gap-gap(class='sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-8')
-            Button(
-              :label='`筛选: ${controlState.filtering ? "启用" : "禁用"}`',
-              :severity='controlState.filtering ? "success" : "secondary"',
-              @click='toggleFiltering'
-            )
-            Button(
-              :label='`排序: ${controlState.sorting ? "启用" : "禁用"}`',
-              :severity='controlState.sorting ? "success" : "secondary"',
-              @click='toggleSorting'
-            )
-            Button(
-              :label='`调整大小: ${controlState.resizing ? "启用" : "禁用"}`',
-              :severity='controlState.resizing ? "success" : "secondary"',
-              @click='toggleResizing'
-            )
-            Button(
-              :label='`列移动: ${controlState.columnMoving ? "启用" : "禁用"}`',
-              :severity='controlState.columnMoving ? "success" : "secondary"',
-              @click='toggleColumnMoving'
-            )
-            Button(
-              :label='`固定列移动: ${controlState.allowPinnedColumnMoving ? "启用" : "禁用"}`',
-              :severity='controlState.allowPinnedColumnMoving ? "success" : "secondary"',
-              @click='togglePinnedColumnMoving'
-            )
-            Button(
-              :label='`分页: ${controlState.pagination ? "启用" : "禁用"}`',
-              :severity='controlState.pagination ? "success" : "secondary"',
-              @click='togglePagination'
-            )
+          // ==================== 选择功能 ====================
+          Select(
+            v-model='currentRowSelection',
+            :options='rowSelectionOptions',
+            option-label='label',
+            option-value='value',
+            placeholder='选择模式'
+          )
+          Select(
+            v-model='currentSelectionCheckboxPosition',
+            :options='selectionCheckboxPositionOptions',
+            option-label='label',
+            option-value='value',
+            placeholder='复选框位置'
+          )
+          Button(
+            :severity='enableRowClickSelection ? "success" : "secondary"',
+            @click='enableRowClickSelection = !enableRowClickSelection'
+          ) {{ enableRowClickSelection ? '可点击行选中' : '禁用点击行选中' }}
+          // ==================== 视觉效果 ====================
+          Button(
+            :severity='enableRowHoverHighlight ? "success" : "secondary"',
+            @click='enableRowHoverHighlight = !enableRowHoverHighlight'
+          ) {{ enableRowHoverHighlight ? '行悬停高亮' : '禁用悬停' }}
 
-            Button(
-              :label='`复制粘贴: ${controlState.clipboard ? "启用" : "禁用"}`',
-              :severity='controlState.clipboard ? "success" : "secondary"',
-              @click='toggleClipboard'
-            )
+          Button(
+            :severity='enableCellFocusHighlight ? "success" : "secondary"',
+            @click='enableCellFocusHighlight = !enableCellFocusHighlight'
+          ) {{ enableCellFocusHighlight ? '单元格聚焦' : '禁用聚焦' }}
+          Button(
+            :severity='enableZebraStripe ? "success" : "secondary"',
+            @click='enableZebraStripe = !enableZebraStripe'
+          ) {{ enableZebraStripe ? '斑马线' : '禁用斑马线' }}
+          Button(
+            :severity='enableVerticalSplitLine ? "success" : "secondary"',
+            @click='enableVerticalSplitLine = !enableVerticalSplitLine'
+          ) {{ enableVerticalSplitLine ? '纵向分割线' : '禁用纵向线' }}
+          Button(
+            :severity='enableHorizontalSplitLine ? "success" : "secondary"',
+            @click='enableHorizontalSplitLine = !enableHorizontalSplitLine'
+          ) {{ enableHorizontalSplitLine ? '横向分割线' : '禁用横向线' }}
 
-        //- 选择控制
-        .full.c-card.p-padding.between-col
-          .fs-appFontSizes.color-accent100.mb-gaps 选择控制
-          .full.grid.grid-cols-2.gap-gap(class='sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4')
-            .flex.gap-1.items-center
-              label 选择模式:
-              Select(
-                :model-value='controlState.selectionMode',
-                @update:model-value='changeSelectionMode',
-                option-label='label',
-                option-value='value',
-                :options='[ { label: "单选", value: "single" }, { label: "多选", value: "multiple" }, ]',
-                size='small'
-              )
-            .flex.gap-1.items-center
-              label 固定位置:
-              Select(
-                :model-value='controlState.pinned',
-                @update:model-value='changePinned',
-                option-label='label',
-                option-value='value',
-                :options='[ { label: "左侧", value: "left" }, { label: "右侧", value: "right" }, ]',
-                size='small'
-              )
-            Button(
-              :label='`复选框: ${controlState.checkboxes ? "显示" : "隐藏"}`',
-              :severity='controlState.checkboxes ? "success" : "secondary"',
-              @click='toggleCheckboxes'
-            )
-            Button(
-              :label='`点击选择: ${controlState.clickToSelect ? "启用" : "禁用"}`',
-              :severity='controlState.clickToSelect ? "success" : "secondary"',
-              @click='toggleClickToSelect'
-            )
+          // ==================== 交互功能 ====================
+          Button(
+            :severity='enableColumnDrag ? "success" : "secondary"',
+            @click='enableColumnDrag = !enableColumnDrag'
+          ) {{ enableColumnDrag ? '列拖拽' : '禁用拖拽' }}
+          Button(
+            :severity='fitColumnsToViewport ? "success" : "secondary"',
+            @click='fitColumnsToViewport = !fitColumnsToViewport'
+          ) {{ fitColumnsToViewport ? '适配视口' : '固定列宽' }}
+          Button(
+            :severity='enableClipboard ? "success" : "secondary"',
+            @click='enableClipboard = !enableClipboard'
+          ) {{ enableClipboard ? '剪贴板' : '禁用剪贴板' }}
+          Button(
+            :severity='followSystemSize ? "success" : "secondary"',
+            @click='followSystemSize = !followSystemSize'
+          ) {{ followSystemSize ? '跟随系统尺寸' : '自定义尺寸' }}
+          // 注意：单元格合并功能需要 AG Grid 企业版，社区版不支持
+          Button(
+            :severity='enableColumnGrouping ? "success" : "secondary"',
+            @click='enableColumnGrouping = !enableColumnGrouping'
+          ) {{ enableColumnGrouping ? '启用列分组' : '禁用列分组' }}
+        .color-accent100.mt-gap.mb-gaps 高级功能说明
+        .text-sm.color-text200.mb-2
+          | • 列合并（colSpan）：当姓名为"陈十八"时，该单元格会横跨2列、纵跨两列
+          br
+          | • 部门合并：相同部门的单元格会自动合并显示
+          br
+          | • 注意：合并功能仅在视觉层面生效，不影响数据结构和排序筛选
+        .text-sm.text-text200
+          p • <strong>列分组</strong>：将相关列组织在一起，创建分组表头
+          p • <strong>单元格合并</strong>：相同值的连续行会自动合并显示
+          p • <strong>数据说明</strong>：已添加更多相同部门/状态的数据用于演示合并效果
 
-        //- 列控制
-        .full.c-card.p-padding.between-col
-          .fs-appFontSizes.color-accent100.mb-gaps 列控制
-          .full.grid.grid-cols-2.gap-gap(class='sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5')
-            Button(
-              :label='`姓名列筛选: ${controlState.nameColumnFilterable ? "启用" : "禁用"}`',
-              :severity='controlState.nameColumnFilterable ? "success" : "secondary"',
-              @click='toggleIdColumnFilter'
-            )
-            Button(
-              :label='`预设筛选条件: ${controlState.presetFilterEnabled ? "启用" : "禁用"}`',
-              :severity='controlState.presetFilterEnabled ? "success" : "secondary"',
-              @click='togglePresetFilter'
-            )
-            Button(
-              :label='`年龄列排序: ${controlState.ageColumnSortable ? "启用" : "禁用"}`',
-              :severity='controlState.ageColumnSortable ? "success" : "secondary"',
-              @click='toggleNameColumnSort'
-            )
-            Button(
-              :label='`预设年龄排序: ${controlState.presetAgeSortEnabled ? "启用" : "禁用"}`',
-              :severity='controlState.presetAgeSortEnabled ? "success" : "secondary"',
-              @click='togglePresetAgeSort'
-            )
-            Button(
-              :label='`性别列筛选: ${controlState.sexColumnFilterable ? "启用" : "禁用"}`',
-              :severity='controlState.sexColumnFilterable ? "success" : "secondary"',
-              @click='toggleSexColumnFilter'
-            )
-            Button(
-              :label='`邮箱列调整: ${controlState.emailColumnResizable ? "启用" : "禁用"}`',
-              :severity='controlState.emailColumnResizable ? "success" : "secondary"',
-              @click='toggleAgeColumnResize'
-            )
-
-        //- 功能说明
-        .full.c-card.p-padding.between-col
-          .fs-appFontSizes.color-accent100.mb-gaps 功能说明
-          .text-sm.color-text200.space-y-1
-            div • 点击表格行可以查看控制台输出的行点击事件
-            div • 点击单元格可以查看控制台输出的单元格点击事件
-            div • 选择行时可以查看控制台输出的选择变化事件
-            div • 所有列类型都有对应的默认配置和渲染方式
-            div • 支持自定义渲染器、格式化器、过滤器等
-            div • 列配置优先级：列配置 > 全局配置 > 默认配置
-            div • 键盘导航：支持方向键、Tab键等键盘操作
-            div • 复制粘贴：支持 Ctrl+C 复制选中单元格内容
-            div • 这是一个基础展示示例，不包含数据编辑功能
+          // ==================== 工具栏和状态栏 ====================
+          Button(
+            :severity='showToolbar ? "success" : "secondary"',
+            @click='showToolbar = !showToolbar'
+          ) {{ showToolbar ? '显示工具栏' : '隐藏工具栏' }}
+          Button(
+            :severity='showStatusBar ? "success" : "secondary"',
+            @click='showStatusBar = !showStatusBar'
+          ) {{ showStatusBar ? '显示状态栏' : '隐藏状态栏' }}
+        .color-accent100.mt-gap.mb-gaps 表格列配置
+        .grid.grid-cols-3.gap-gap(class='sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xxl:grid-cols-8')
+          // ==================== 每列独特配置项示例 ====================
+          Button(
+            :severity='idColumnWidthMode === "auto" ? "success" : "secondary"',
+            @click='idColumnWidthMode = idColumnWidthMode === "auto" ? "fixed" : "auto"'
+          ) ID列宽{{ idColumnWidthMode === 'auto' ? '自适应' : '固定' }}
+          Button(
+            :severity='nameColumnSortable ? "success" : "secondary"',
+            @click='nameColumnSortable = !nameColumnSortable'
+          ) 姓名列{{ nameColumnSortable ? '可排序' : '禁用排序' }}
+          Button(
+            :severity='ageColumnResizable ? "success" : "secondary"',
+            @click='ageColumnResizable = !ageColumnResizable'
+          ) 年龄列{{ ageColumnResizable ? '可调宽' : '固定宽' }}
+          Button(
+            :severity='emailColumnFilterable ? "success" : "secondary"',
+            @click='emailColumnFilterable = !emailColumnFilterable'
+          ) 邮箱列{{ emailColumnFilterable ? '可过滤' : '禁用过滤' }}
+          Button(
+            :severity='departmentColumnMovable ? "success" : "secondary"',
+            @click='departmentColumnMovable = !departmentColumnMovable'
+          ) 部门列{{ departmentColumnMovable ? '可移动' : '固定位置' }}
+          Select(
+            v-model='positionColumnPinned',
+            :options='columnPinnedOptions',
+            option-label='label',
+            option-value='value',
+            placeholder='职位列固定位置'
+          )
+          Select(
+            v-model='salaryColumnHeaderAlign',
+            :options='columnHeaderAlignOptions',
+            option-label='label',
+            option-value='value',
+            placeholder='薪资列表头对齐'
+          )
+          Select(
+            v-model='statusColumnCellAlign',
+            :options='columnCellAlignOptions',
+            option-label='label',
+            option-value='value',
+            placeholder='状态列单元格对齐'
+          )
+          Button(
+            :severity='phoneColumnVisible ? "success" : "secondary"',
+            @click='phoneColumnVisible = !phoneColumnVisible'
+          ) 电话列{{ phoneColumnVisible ? '显示' : '隐藏' }}
+          Button(
+            :severity='addressColumnEditable ? "success" : "secondary"',
+            @click='addressColumnEditable = !addressColumnEditable'
+          ) 地址列{{ addressColumnEditable ? '可编辑' : '只读' }}
+  div(class='h-60%')
+    GridTable(
+      :column-defs='columnDefs',
+      :row-data='rowData',
+      :color-config='currentColorConfig',
+      :size-config='currentSizeConfig',
+      :grid-options='currentGridOptions',
+      :show-row-numbers='showRowNumbers',
+      :row-selection='currentRowSelection',
+      :enable-sorting='enableSorting',
+      :enable-filter='enableFilter',
+      :enable-column-resize='enableColumnResize',
+      :enable-row-click-selection='enableRowClickSelection',
+      :show-toolbar='showToolbar',
+      :show-status-bar='showStatusBar',
+      :custom-class='customClass',
+      :custom-style='customStyle',
+      :selection-checkbox-position='currentSelectionCheckboxPosition',
+      :enable-row-hover-highlight='enableRowHoverHighlight',
+      :fit-columns-to-viewport='fitColumnsToViewport',
+      :enable-cell-focus-highlight='enableCellFocusHighlight',
+      :enable-zebra-stripe='enableZebraStripe',
+      :enable-column-drag='enableColumnDrag',
+      :enable-vertical-split-line='enableVerticalSplitLine',
+      :enable-horizontal-split-line='enableHorizontalSplitLine',
+      :enable-clipboard='enableClipboard',
+      :follow-system-size='followSystemSize'
+    )
 </template>

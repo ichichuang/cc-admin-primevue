@@ -252,7 +252,7 @@ async function checkVueFileNaming(filePath) {
         varMatch.forEach(match => {
           const varName = match.replace(/(?:const|let|var)\s+/, '')
 
-          // 判断是否为常量（全大写）
+          // 判断是否为常量（全大写且包含下划线）
           if (varName === varName.toUpperCase() && varName.includes('_')) {
             if (!NAMING_RULES.constants.test(varName)) {
               addError(
@@ -262,7 +262,18 @@ async function checkVueFileNaming(filePath) {
                 `常量名应使用SCREAMING_SNAKE_CASE：${varName}`
               )
             }
+          } else if (varName === varName.toUpperCase() && !varName.includes('_')) {
+            // 全大写但不包含下划线的变量，应该转换为camelCase
+            if (!NAMING_RULES.variables.test(varName)) {
+              addError(
+                'variable-naming',
+                filePath,
+                lineNumber,
+                `变量名应使用camelCase：${varName} -> 建议：${toCamelCase(varName)}`
+              )
+            }
           } else {
+            // 普通变量检查
             if (!NAMING_RULES.variables.test(varName)) {
               addError(
                 'variable-naming',
@@ -340,6 +351,12 @@ async function scanDirectory(dirPath) {
  * 转换为camelCase
  */
 function toCamelCase(str) {
+  // 如果是全大写字符串，直接转换为小写
+  if (str === str.toUpperCase() && !str.includes('_') && !str.includes('-')) {
+    return str.toLowerCase()
+  }
+
+  // 处理包含下划线或连字符的字符串
   return str.replace(/[-_](.)/g, (_, char) => char.toUpperCase())
 }
 

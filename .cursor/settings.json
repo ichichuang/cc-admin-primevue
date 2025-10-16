@@ -142,5 +142,57 @@
     }
   ],
   "i18n-ally.usage.scanningDirs": ["src"],
-  "i18n-ally.usage.ignoredFiles": ["**/*.d.ts", "**/node_modules/**", "**/dist/**"]
+  "i18n-ally.usage.ignoredFiles": ["**/*.d.ts", "**/node_modules/**", "**/dist/**"],
+
+  // === Cursor 自动编码配置 ===
+  "cursor.general.enableAutoCompletion": true,
+  "cursor.general.enableSmartSuggestions": true,
+  "cursor.general.enableContextAwareCompletion": true,
+  "cursor.general.enableTypeInference": true,
+  "cursor.general.enableImportOptimization": true,
+  "cursor.general.enableNamingConvention": true,
+  "cursor.general.enableErrorHandling": true,
+  "cursor.general.enablePerformanceOptimization": true,
+
+  // === 编码规范配置 ===
+  "cursor.coding.forceCamelCase": true,
+  "cursor.coding.forcePascalCase": true,
+  "cursor.coding.forceKebabCase": true,
+  "cursor.coding.forceScreamingSnakeCase": true,
+  "cursor.coding.enablePathAliases": true,
+  "cursor.coding.enableTypeSafety": true,
+  "cursor.coding.enableErrorHandling": true,
+  "cursor.coding.enablePerformanceOptimization": true,
+
+  // === 自动补全配置 ===
+  "cursor.autocomplete.enableVariableCompletion": true,
+  "cursor.autocomplete.enableFunctionCompletion": true,
+  "cursor.autocomplete.enableTypeCompletion": true,
+  "cursor.autocomplete.enableImportCompletion": true,
+  "cursor.autocomplete.enableVueCompletion": true,
+  "cursor.autocomplete.enableApiCompletion": true,
+  "cursor.autocomplete.enableStoreCompletion": true,
+  "cursor.autocomplete.enableComposableCompletion": true,
+
+  // === 智能重构配置 ===
+  "cursor.refactor.enableAutoRename": true,
+  "cursor.refactor.enableImportOptimization": true,
+  "cursor.refactor.enableTypeOptimization": true,
+  "cursor.refactor.enableErrorHandlingOptimization": true,
+  "cursor.refactor.enablePerformanceOptimization": true,
+
+  // === 代码质量配置 ===
+  "cursor.quality.enableNamingCheck": true,
+  "cursor.quality.enableImportPathCheck": true,
+  "cursor.quality.enableTypeSafetyCheck": true,
+  "cursor.quality.enableErrorHandlingCheck": true,
+  "cursor.quality.enablePerformanceCheck": true,
+
+  // === 项目特定规则 ===
+  "cursor.project.enableVueCompositionAPI": true,
+  "cursor.project.enableTypeScriptStrict": true,
+  "cursor.project.enableESLintRules": true,
+  "cursor.project.enableUnocssIntegration": true,
+  "cursor.project.enableI18nIntegration": true,
+  "cursor.project.enablePathAliasSupport": true
 }

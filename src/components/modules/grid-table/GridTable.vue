@@ -1,348 +1,421 @@
 <script setup lang="ts">
-import { useGridTable } from '@/hooks'
-import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community'
+// @/components/modules/grid-table/GridTable.vue
+/**
+ * GridTable 组件
+ *
+ * 基于 AG Grid 社区版的二次封装表格组件
+ * 提供动态配色、尺寸控制和丰富的功能配置
+ */
+
+import { debounce } from '@#/index'
+import { useRevoGrid } from '@/hooks/components/ussGridTable'
+import { t } from '@/locales'
 import { AgGridVue } from 'ag-grid-vue3'
-import { computed, ref, useAttrs, watch } from 'vue'
-import { DatePickerEditor, DatePickerRenderer } from './components/date'
-import { DateTimePickerEditor, DateTimePickerRenderer } from './components/datetime'
-import { InputNumberEditor, InputNumberRenderer } from './components/number'
-import { ToggleSwitchEditor, ToggleSwitchRenderer } from './components/switch'
-import { InputTextEditor, InputTextRenderer } from './components/text'
-import { TimePickerEditor, TimePickerRenderer } from './components/time'
-import { GRID_TABLE_DEFAULT_CONFIG, GRID_TABLE_DEFAULT_PROPS } from './utils/constants'
-import { extractListeners } from './utils/helper'
-import { transformGridConfig } from './utils/transformer'
-import type { GridTableConfig, GridTableProps } from './utils/types'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import {
+  DEFAULT_GRID_COLOR_CONFIG,
+  DEFAULT_GRID_SIZE_CONFIG,
+  createDefaultGridTableProps,
+} from './utils/constants'
+import type { GridTableEmits, GridTableProps } from './utils/types'
 
-// 导入 AG Grid 基础样式与主题样式（Quartz）
-// 注意：使用 Theming API 的 theme 选项时，不需要额外引入 ag-theme-quartz.css
-// 若引入会导致主题参数被 CSS 默认值覆盖，参考官方错误 #239 文档
+// ==================== Props 定义 ====================
 
-// 注册社区模块，修复错误 #272（无注册模块）
-ModuleRegistry.registerModules([AllCommunityModule])
+type Props = GridTableProps
 
-const attrs = useAttrs()
-const listeners = computed(() => extractListeners(attrs))
+const props = withDefaults(defineProps<Props>(), createDefaultGridTableProps())
 
-const props = withDefaults(defineProps<GridTableProps>(), GRID_TABLE_DEFAULT_PROPS)
+// 将传入的配色与尺寸配置与默认值进行合并，确保有完整的有效配置
+const mergedColorConfig = computed(() => ({
+  ...DEFAULT_GRID_COLOR_CONFIG,
+  ...(props.colorConfig || {}),
+}))
 
-// 判断是否使用新的配置模式
-const useConfigMode = computed(() => 'config' in props && props.config)
+const mergedSizeConfig = computed(() => ({
+  ...DEFAULT_GRID_SIZE_CONFIG,
+  ...(props.sizeConfig || {}),
+}))
 
-// 合并配置
-const mergedConfig = computed(() => {
-  if (useConfigMode.value) {
-    return {
-      ...GRID_TABLE_DEFAULT_CONFIG,
-      ...props.config,
-    } as GridTableConfig
-  }
-  return null
-})
+// 组合后的 props，确保下游始终拿到合并后的配置
+const mergedProps = computed<GridTableProps>(() => ({
+  ...props,
+  colorConfig: mergedColorConfig.value,
+  sizeConfig: mergedSizeConfig.value,
+}))
 
-// 转换配置为 AG Grid 格式
-const transformedConfig = computed(() => {
-  if (mergedConfig.value) {
-    return transformGridConfig(mergedConfig.value)
-  }
-  return null
-})
+// ==================== Emits 定义 ====================
 
-// 兼容旧版本的列定义和数据
-const columnDefs = computed(() => {
-  if (transformedConfig.value) {
-    return transformedConfig.value.columnDefs
-  }
-  return (props as any).columnDefs || []
-})
+const emit = defineEmits<GridTableEmits>()
 
-const rowData = computed(() => {
-  // 检查是否使用 infinite 行模型
-  const isInfiniteModel = transformedConfig.value?.gridOptions?.rowModelType === 'infinite'
-  if (isInfiniteModel) {
-    return undefined // infinite 行模型不需要 rowData
-  }
+// ==================== 使用组合式函数 ====================
 
-  if (transformedConfig.value) {
-    return transformedConfig.value.gridOptions.rowData || props.modelValue || []
-  }
-  return (props as any).rowData || props.modelValue || []
-})
+// 用于强制重新渲染 AgGridVue 组件的 key
+const gridKey = ref(0)
 
-const gridOptions = computed(() => {
-  if (transformedConfig.value) {
-    return transformedConfig.value.gridOptions
-  }
-  return (props as any).gridOptions || {}
-})
-
-// 内置组件注册
-const builtinComponents = {
-  // Text 组件
-  inputTextRenderer: InputTextRenderer,
-  inputTextEditor: InputTextEditor,
-  // Number 组件
-  inputNumberRenderer: InputNumberRenderer,
-  inputNumberEditor: InputNumberEditor,
-  // Date 组件
-  datePickerRenderer: DatePickerRenderer,
-  datePickerEditor: DatePickerEditor,
-  // DateTime 组件
-  dateTimePickerRenderer: DateTimePickerRenderer,
-  dateTimePickerEditor: DateTimePickerEditor,
-  // Time 组件
-  timePickerRenderer: TimePickerRenderer,
-  timePickerEditor: TimePickerEditor,
-  // Boolean 组件
-  toggleSwitchRenderer: ToggleSwitchRenderer,
-  toggleSwitchEditor: ToggleSwitchEditor,
+// 当系统语言切换时，强制重建组件，兜底确保分页/过滤等全部应用新文案
+const handleLocaleChanged = () => {
+  gridKey.value++
 }
 
-// 框架组件注册 - 内置组件 + 使用者传入的组件
-const frameworkComponents = computed(() => {
-  const userComponents = transformedConfig.value?.components || (props as any).components || {}
-  return {
-    ...builtinComponents,
-    ...userComponents,
-  }
-})
+const {
+  gridApi,
+  rowData,
+  selectedRows,
+  gridContainer,
+  gridOptions,
+  columnDefs,
+  gridStyle,
+  gridClass,
+  scrollbarStyles,
+  toolbarStyle,
+  statusBarStyle,
+  autoSizeColumns,
+  exportData,
+  getFilteredData,
+  setRowData,
+  addRow,
+  addRows,
+  loadMoreData,
+  updateRow,
+  deleteRow,
+  clearSelection,
+  selectAll,
+  deselectAll,
+  clearCellFocus,
+  copySelectedCellsToClipboard,
+  showLoadingOverlay,
+  hideOverlay,
+  showNoRowsOverlay,
+  setLoading,
+} = useRevoGrid(mergedProps, emit)
 
-// 使用 GridTable Hook
-const { gridKey, mergedGridOptions, exposedApi } = useGridTable(props, {
-  initialGridOptions: gridOptions,
-  enableSelectionPersistence: true,
-  autoSizeOnMount: true,
-})
+// 注意：enableCellSpan 是 AG Grid 企业版功能，社区版不支持
+// 已移除 enableCellSpan 相关的监听和重新渲染逻辑
 
-// 根容器用于查询内部滚动视口
-const rootRef = ref<HTMLElement | null>(null)
+// ==================== 动态样式注入 ====================
 
-// 容器样式
-const containerStyle = computed(() => {
-  const height = mergedConfig.value?.layout?.height || (props as any).height
-  const width = mergedConfig.value?.layout?.width || (props as any).width
+let styleElement: HTMLStyleElement | null = null
 
-  // 处理 auto 高度：当高度为 auto 时，不设置容器高度，让 AG Grid 自动撑开
-  const containerHeight = height === 'auto' ? undefined : height
-
-  return {
-    height: containerHeight,
-    width,
-  }
-})
-
-// 动态类名
-const containerClasses = computed(() => {
-  const classes = ['ag-theme-quartz', 'full']
-
-  // 添加分割线控制类名
-  const lineClasses = mergedGridOptions.value?.context?.lineClasses
-  if (lineClasses && Array.isArray(lineClasses)) {
-    classes.push(...lineClasses)
-  }
-
-  // 行/单元格高亮控制类
-  const layout = mergedConfig.value?.layout || {}
-  if (layout?.selectedCellBorderHighlight) {
-    classes.push('cc-cell-border-highlight-on')
-  }
-  if (layout?.selectedCellBackgroundHighlight) {
-    classes.push('cc-cell-background-highlight-on')
+// 注入滚动条样式
+const injectScrollbarStyles = () => {
+  // 移除旧的样式元素
+  if (styleElement) {
+    document.head.removeChild(styleElement)
   }
 
-  return classes
-})
+  // 创建新的样式元素
+  styleElement = document.createElement('style')
+  styleElement.id = 'ag-grid-scrollbar-styles'
+  styleElement.textContent = scrollbarStyles.value
+  document.head.appendChild(styleElement)
+}
 
-// 监听配置变化，更新数据
+// 监听滚动条样式变化
 watch(
-  () => props.modelValue,
-  newData => {
-    if (newData && exposedApi.updateData) {
-      exposedApi.updateData(newData)
-    }
+  scrollbarStyles,
+  () => {
+    injectScrollbarStyles()
   },
-  { deep: true }
+  { immediate: true }
 )
 
-// 暴露 API
-defineExpose(exposedApi)
+// 绑定/解绑滚动监听（可重复调用，内部会处理清理）
+const bindScrollListener = () => {
+  const el = (gridContainer.value as any)?.$el || gridContainer.value
+  if (!el) {
+    return
+  }
+  const old = (el as any).__ag_onScroll__
+  if (old) {
+    el.removeEventListener('scroll', old, true)
+  }
+  const viewport = (el.querySelector('.ag-body-viewport') as HTMLElement | null) || el
+  ;(el as any).__ag_lastScrollTop__ = (viewport && (viewport as any).scrollTop) || 0
+  const onScrollHandler = () => {
+    const vp = el.querySelector('.ag-body-viewport') as HTMLElement | null
+    if (!vp) {
+      return
+    }
+    const last = (el as any).__ag_lastScrollTop__ || 0
+    const current = vp.scrollTop
+    if (current <= last) {
+      ;(el as any).__ag_lastScrollTop__ = current
+      return
+    }
+    const clientHeight = vp.clientHeight
+    const scrollHeight = vp.scrollHeight
+    const offset = props.bottomReachOffset ?? 120
+    if (current + clientHeight >= scrollHeight - offset) {
+      emit('reachBottom', { scrollTop: current, clientHeight, scrollHeight })
+    }
+    ;(el as any).__ag_lastScrollTop__ = current
+  }
+  const debouncedOnScroll = debounce(onScrollHandler, 100)
+  ;(el as any).__ag_onScroll__ = debouncedOnScroll
+  el.addEventListener('scroll', debouncedOnScroll, true)
+}
+
+const unbindScrollListener = () => {
+  const el = (gridContainer.value as any)?.$el || gridContainer.value
+  if (el && (el as any).__ag_onScroll__) {
+    el.removeEventListener('scroll', (el as any).__ag_onScroll__, true)
+    delete (el as any).__ag_onScroll__
+    if ((el as any).__ag_lastScrollTop__ !== undefined) {
+      delete (el as any).__ag_lastScrollTop__
+    }
+  }
+}
+
+// 组件挂载时注入样式与绑定滚动
+onMounted(() => {
+  injectScrollbarStyles()
+  window.addEventListener('locale-changed', handleLocaleChanged)
+  bindScrollListener()
+})
+
+// 组件卸载时清理样式
+onUnmounted(() => {
+  if (styleElement) {
+    document.head.removeChild(styleElement)
+    styleElement = null
+  }
+  window.removeEventListener('locale-changed', handleLocaleChanged)
+  // 卸载滚动监听
+  unbindScrollListener()
+})
+
+// 当 key 变化导致 AgGrid 重新挂载后，重新绑定滚动监听
+watch(
+  () => gridKey.value,
+  async () => {
+    await nextTick()
+    bindScrollListener()
+  }
+)
+
+// ==================== 事件处理 ====================
+// 事件处理已移至 useRevoGrid 中的 gridOptions 配置
+
+// ==================== 暴露给父组件的方法 ====================
+
+defineExpose({
+  gridApi,
+  autoSizeColumns,
+  exportData,
+  getFilteredData,
+  setRowData,
+  addRow,
+  addRows,
+  loadMoreData,
+  updateRow,
+  deleteRow,
+  clearSelection,
+  selectAll,
+  deselectAll,
+  clearCellFocus,
+  copySelectedCellsToClipboard,
+  showLoadingOverlay,
+  hideOverlay,
+  showNoRowsOverlay,
+  setLoading,
+})
 </script>
+
 <template lang="pug">
-.full(:style='containerStyle')
-  //- 使用自定义主题，不再需要手动设置 CSS 变量
-  .full(ref='rootRef', :class='containerClasses')
-    AgGridVue.full(
+.between-col.w-full.bg-bg100.border.border-bg300.rounded-rounded.overflow-hidden(
+  :class='props.sizeConfig.heightMode === "fixed" ? "h-" + props.sizeConfig.height : "h-full"'
+)
+  // 工具栏区域
+  .between.items-center.justify-between.border-b.border-bg300.rounded-rounded.px-padding.py-paddings(
+    v-if='props.showToolbar',
+    :style='toolbarStyle'
+  )
+    .between.items-center
+      slot(name='toolbar-left')
+    .flex-1.justify-center
+      slot(name='toolbar-center')
+    .between.items-center
+      slot(name='toolbar-right')
+        .p-paddings.c-transitions(@click='autoSizeColumns')
+          .fs-appFontSizex.c-cp(
+            v-if='props.enableColumnResize',
+            class='icon-line-md:arrows-horizontal-alt hover:color-accent100',
+            v-tooltip.top='t("components.gridTable.autoSizeColumns")'
+          )
+        .p-paddings.c-transitions(@click='exportData("csv")')
+          .fs-appFontSizex.c-cp(
+            class='icon-line-md:download hover:color-accent100',
+            v-tooltip.top='t("components.gridTable.exportCsv")'
+          )
+        .p-paddings.c-transitions(@click='exportData("excel")')
+          .fs-appFontSizex.c-cp(
+            class='icon-line-md:document-list-twotone hover:color-accent100',
+            v-tooltip.top='t("components.gridTable.exportExcel")'
+          )
+
+  // 表格主体
+  .flex-1.min-h-0.overflow-hidden
+    AgGridVue(
       :key='gridKey',
-      :grid-options='mergedGridOptions',
-      :row-data='rowData',
+      ref='gridContainer',
+      :class='gridClass',
+      :style='gridStyle',
       :column-defs='columnDefs',
-      :components='frameworkComponents',
-      v-on='listeners'
+      :row-data='rowData',
+      :grid-options='gridOptions',
+      :locale-text='gridOptions.localeText'
     )
+
+  // 状态栏区域
+  .between.items-center.justify-between.p-gaps.border-t.border-bg300.fs-appFontSizes.rounded-rounded(
+    v-if='props.showStatusBar',
+    :style='statusBarStyle'
+  )
+    .between.items-center.gap-gaps
+      slot(name='status-left')
+        span {{ t('components.gridTable.totalCount', { count: rowData.length }) }}
+        span(v-if='selectedRows.length > 0') | {{ t('components.gridTable.selectedCount', { count: selectedRows.length }) }}
+    .flex-1.justify-center
+      slot(name='status-center')
+    .between.items-center.gap-gaps
+      slot(name='status-right')
 </template>
-<style lang="scss" scope>
-// ==================== 基础布局样式 ====================
 
-/* 单元格包装器：确保内容占满整个单元格 */
-.ag-cell-wrapper {
-  width: 100%;
-  height: 100%;
+<style scoped>
+/* 动态滚动条样式 */
+:deep(.ag-theme-alpine) {
+  /* 滚动条样式将通过 JavaScript 动态注入 */
 }
 
-// ==================== 表头对齐控制 ====================
-
-/* 表头标签：默认居中对齐 */
-.ag-header-cell-label {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* 修复过滤菜单 z-index 层级问题 - 只处理层级，不改变定位 */
+:deep(.ag-theme-alpine .ag-menu) {
+  z-index: 9999 !important;
 }
 
-/* 表头对齐：与 transformer 中注入的 headerClass（left/center/right）配合 */
-.ag-header-cell.left .ag-header-cell-label {
-  justify-content: flex-start;
-}
-.ag-header-cell.center .ag-header-cell-label {
-  justify-content: center;
-}
-.ag-header-cell.right .ag-header-cell-label {
-  justify-content: flex-end;
+:deep(.ag-theme-alpine .ag-filter-menu) {
+  z-index: 9999 !important;
 }
 
-// ==================== 单元格、表头内边距 ====================
-
-/* 统一设置表头和单元格的内边距 */
-.ag-header-cell,
-.ag-cell {
-  padding-left: var(--gaps) !important;
-  padding-right: var(--gaps) !important;
-  padding-top: 2px !important;
-  padding-bottom: 2px !important;
-  margin: 0 !important;
-  gap: 0 !important;
+:deep(.ag-theme-alpine .ag-popup-child) {
+  z-index: 9999 !important;
 }
 
-// ==================== 选中状态高亮样式 ====================
-
-/* 单元格边框 */
-.ag-cell-focus {
-  border: none;
-  outline: none;
-}
-.ag-cell-focus:not(.ag-cell-range-selected):focus-within,
-.ag-cell-range-single-cell,
-.ag-cell-range-single-cell.ag-cell-range-handle,
-.ag-context-menu-open .ag-cell-focus:not(.ag-cell-range-selected),
-.ag-context-menu-open .ag-full-width-row.ag-row-focus .ag-cell-wrapper.ag-row-group,
-.ag-full-width-row.ag-row-focus:focus .ag-cell-wrapper.ag-row-group {
-  border-color: transparent;
-  outline-color: transparent;
-}
-/* 选中单元格边框 */
-.cc-ag-cell-border-highlight {
-  .ag-cell-focus {
-    box-shadow: inset 0 0 0 1px var(--accent100);
-  }
-}
-/* 选中单元格背景 */
-.cc-ag-cell-background-highlight {
-  .ag-cell-focus {
-    background: color-mix(in srgb, var(--accent100) 15%, transparent);
-  }
+/* 确保过滤菜单在所有元素之上 */
+:deep(.ag-theme-alpine .ag-menu.ag-filter-menu) {
+  z-index: 10000 !important;
 }
 
-/* 选中行边框 */
-.cc-ag-row-border-highlight {
-  .ag-row-focus {
-    box-shadow: inset 0 0 0 1px var(--accent100) !important;
-  }
-  .ag-pinned-left-cols-container {
-    .ag-row-focus > * {
-      border-top: 1px solid var(--accent100) !important;
-      border-bottom: 1px solid var(--accent100) !important;
-    }
-    .ag-row-focus > *:first-child {
-      border-left: 1px solid var(--accent100) !important;
-    }
-  }
+/* 确保过滤菜单的弹出层正确显示 */
+:deep(.ag-theme-alpine .ag-popup-positioned-under) {
+  z-index: 10000 !important;
 }
-.ag-menu,
-.ag-popup {
-  z-index: 15 !important;
-}
-/* 固定的左侧列 */
-.ag-pinned-left-cols-container {
-  .ag-row {
-    padding: 0 !important;
-    gap: 0 !important;
-    margin: 0 !important;
-    &:before {
-      z-index: 12 !important;
-    }
-    .ag-cell {
-      outline-color: transparent !important;
-    }
-    .ag-cell:last-child {
-      border-right: 1px solid var(--bg300) !important;
-    }
-  }
-}
-/* 选中行背景 */
-.cc-ag-row-background-highlight-on {
-  .ag-row-focus {
-    .ag-cell {
-      background: color-mix(in srgb, var(--accent100) 15%, transparent) !important;
-    }
-  }
-}
-.cc-ag-row-background-highlight-off {
-  .ag-row-focus {
-    .ag-cell {
-      background: transparent !important;
-    }
-  }
-}
-// ==================== 分割线控制样式 ====================
 
-.ag-row-position-absolute {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  .ag-column-hover {
-    background: color-mix(in srgb, var(--accent100) 6%, transparent) !important;
-  }
+/* 过滤菜单内容样式优化 */
+:deep(.ag-theme-alpine .ag-filter-menu .ag-filter) {
+  background: var(--bg100);
+  border: 1px solid var(--bg300);
+  border-radius: var(--rounded);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
-/* 横向分割线控制 */
-.cc-ag-horizontal-lines {
-  .ag-row {
-    border-top: 1px solid var(--bg300) !important;
-    border-bottom: 1px solid var(--bg300) !important;
-  }
-  .ag-pinned-left-cols-container {
-    .ag-row {
-      .ag-cell {
-        border-top: 1px solid var(--bg300) !important;
-        border-bottom: 1px solid var(--bg300) !important;
-      }
-    }
-  }
+
+/* 过滤输入框样式 */
+:deep(.ag-theme-alpine .ag-filter-menu .ag-input-field-input) {
+  background: var(--bg200) !important;
+  border: 1px solid var(--bg300) !important;
+  color: var(--text100) !important;
 }
-.cc-ag-no-horizontal-lines {
-  .ag-row {
-    border-bottom: 1px solid transparent !important;
-  }
+
+:deep(.ag-theme-alpine .ag-filter-menu .ag-input-field-input:focus) {
+  border-color: var(--primary100) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(var(--primary100-rgb), 0.2) !important;
 }
-/* 纵向分割线控制 */
-.cc-ag-vertical-lines {
-  .ag-cell {
-    border-right: 1px solid var(--bg300) !important;
-  }
+
+/* 过滤选择器样式 */
+:deep(.ag-theme-alpine .ag-filter-menu .ag-picker-field-wrapper) {
+  background: var(--bg200) !important;
+  border: 1px solid var(--bg300) !important;
+  color: var(--text100) !important;
 }
-.cc-ag-no-vertical-lines {
-  .ag-cell {
-    border-right: 1px solid transparent !important;
-  }
+
+:deep(.ag-theme-alpine .ag-filter-menu .ag-picker-field-wrapper:hover) {
+  border-color: var(--primary100) !important;
+}
+
+:deep(.ag-theme-alpine .ag-filter-menu .ag-picker-field-wrapper:focus) {
+  border-color: var(--primary100) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(var(--primary100-rgb), 0.2) !important;
+}
+
+/* 过滤选择器显示字段样式 */
+:deep(.ag-theme-alpine .ag-filter-menu .ag-picker-field-display) {
+  color: var(--text100) !important;
+}
+
+/* 过滤选择器图标样式 */
+:deep(.ag-theme-alpine .ag-filter-menu .ag-picker-field-icon) {
+  color: var(--text200) !important;
+}
+
+/* 过滤菜单中的所有输入框和选择器 */
+:deep(.ag-theme-alpine .ag-filter-menu .ag-input-wrapper) {
+  background: var(--bg200) !important;
+  border: 1px solid var(--bg300) !important;
+}
+
+:deep(.ag-theme-alpine .ag-filter-menu .ag-input-wrapper:focus-within) {
+  border-color: var(--primary100) !important;
+  box-shadow: 0 0 0 2px rgba(var(--primary100-rgb), 0.2) !important;
+}
+
+/* 过滤菜单中的标签样式 */
+:deep(.ag-theme-alpine .ag-filter-menu .ag-label) {
+  color: var(--text200) !important;
+}
+
+/* 过滤菜单中的占位符样式 */
+:deep(.ag-theme-alpine .ag-filter-menu .ag-input-field-input::placeholder) {
+  color: var(--text200) !important;
+}
+
+/* ==================== 圆角样式配置 ==================== */
+
+/* 只设置表格最外层容器的圆角 */
+:deep(.ag-theme-alpine) {
+  border-radius: var(--rounded);
+}
+
+/* ==================== 合并单元格边框修复 ==================== */
+
+/* 注意：这些样式只在用户开启横向分割线时才生效，通过 AG Grid 的配置控制 */
+
+/* 当横向分割线开启时，为合并单元格添加底部边框 */
+:deep(.ag-theme-alpine[style*='--ag-row-border-style: solid']) .ag-cell[style*='height: 76px'] {
+  border-bottom: 1px solid var(--bg300) !important;
+}
+
+:deep(.ag-theme-alpine[style*='--ag-row-border-style: solid']) .ag-cell[style*='height: 114px'] {
+  border-bottom: 1px solid var(--bg300) !important;
+}
+
+:deep(.ag-theme-alpine[style*='--ag-row-border-style: solid']) .ag-cell[style*='height: 152px'] {
+  border-bottom: 1px solid var(--bg300) !important;
+}
+
+/* 当横向分割线开启时，为包含合并单元格的行添加底部边框 */
+:deep(.ag-theme-alpine[style*='--ag-row-border-style: solid'])
+  .ag-row:has(.ag-cell[style*='height: 76px']) {
+  border-bottom: 1px solid var(--bg300) !important;
+}
+
+/* 当横向分割线开启时，为合并单元格下方的行添加顶部边框 */
+:deep(.ag-theme-alpine[style*='--ag-row-border-style: solid'])
+  .ag-row:has(.ag-cell[style*='height: 76px'])
+  + .ag-row {
+  border-top: 1px solid var(--bg300) !important;
+}
+:deep(.ag-overlay) {
+  z-index: 99999 !important;
 }
 </style>

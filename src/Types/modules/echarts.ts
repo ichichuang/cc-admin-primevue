@@ -185,7 +185,8 @@ export interface ChartSizeConfig {
 export interface UseChartThemeReturn {
   chartTheme: ComputedRef<EChartsThemeOptions>
   sizeConfig: ComputedRef<ChartSizeConfig>
-  themeConfig: ComputedRef<EChartsThemeConfig | null>
+  themeConfig: ComputedRef<EChartsThemeConfig>
+  mergeChartOptions: (options: any) => any
 }
 
 // 图表 Hook 返回类型

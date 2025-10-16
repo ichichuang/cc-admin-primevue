@@ -1,376 +1,422 @@
-import type { GridTableConfig, GridTableDefaultProps } from './types'
+// @/components/modules/grid-table/utils/constants.ts
+/**
+ * GridTable 默认配置常量
+ *
+ * 提供基于项目配色方案的默认配置
+ */
+
+import type { GridColorConfig, GridSizeConfig } from './types'
+// ==================== 默认配色配置 ====================
 
 /**
- * GridTable 组件默认 Props
+ * 默认表格配色配置 - 基于项目配色方案，只包含真正有效的配置项
  *
- * 这些是 GridTable 组件的默认属性值，当用户没有提供相应属性时使用。
- * 主要用于 withDefaults 的默认值设置。
+ * 重要说明：
+ * 1. 奇行颜色由 backgroundColor 控制，偶行颜色由 oddRowBackgroundColor 控制
+ * 2. 已删除所有无效的配置项，只保留经过测试验证有效的配置
+ * 3. 使用框架的 CSS 变量确保主题一致性
  */
-export const GRID_TABLE_DEFAULT_PROPS: GridTableDefaultProps = {
-  /** 默认表格数据为空数组 */
-  modelValue: () => [],
-  /** 默认不禁用表格 */
-  disabled: false,
-  /** 默认不显示加载状态 */
-  loading: false,
+export const DEFAULT_GRID_COLOR_CONFIG: GridColorConfig = {
+  // ==================== 表格整体配色 ====================
+  /** 表格背景色 - 控制奇行背景色，对应 AG Grid 的 --ag-background-color */
+  backgroundColor: 'var(--bg100)',
+  /** 表格边框颜色 - 控制表格整体边框，对应 AG Grid 的 --ag-border-color */
+  borderColor: 'var(--bg300)',
+
+  // ==================== 表头配色 ====================
+  /** 表头背景色 - 控制表头背景，对应 AG Grid 的 --ag-header-background-color */
+  headerBackgroundColor: 'var(--bg200)',
+  /** 表头文字颜色 - 控制表头文字，对应 AG Grid 的 --ag-header-text-color */
+  headerTextColor: 'var(--text200)',
+  /** 表头单元格悬停背景色 */
+  headerCellHoverBackgroundColor: 'color-mix(in srgb, var(--bg100) 25%, transparent)',
+  /** 表头单元格拖动中背景色 */
+  headerCellMovingBackgroundColor: 'color-mix(in srgb, var(--bg100) 30%, transparent)',
+
+  // ==================== 行配色 ====================
+  /** 行文字颜色 - 控制表格行内文字颜色，对应 AG Grid 的 --ag-cell-text-color */
+  rowTextColor: 'var(--text100)',
+  /** 行悬停背景色 - 控制鼠标悬停时的行背景色，对应 AG Grid 的 --ag-row-hover-color */
+  rowHoverBackgroundColor: 'var(--bg200)',
+  /** 通用文字颜色 - 控制表格内所有文字颜色，对应 AG Grid 的 --ag-foreground-color */
+  foregroundColor: 'var(--text100)',
+
+  // ==================== 奇偶行配色 ====================
+  /** 偶行背景色 - 控制偶数行背景色，奇行由 backgroundColor 控制，对应 AG Grid 的 --ag-odd-row-background-color */
+  oddRowBackgroundColor: 'var(--bg200)',
+
+  // ==================== 选中行配色 ====================
+  /** 选中行背景色（半透明） - 对应 --ag-selected-row-background-color */
+  selectedRowBackgroundColor: 'color-mix(in srgb, var(--accent100) 20%, transparent)',
+
+  // ==================== 聚焦与复选框配色 ====================
+  /** 复选框选中背景色 */
+  checkboxCheckedBackgroundColor: 'var(--accent100)',
+  /** 复选框未选中背景色（用于覆盖 wrapper 默认变量） */
+  checkboxUncheckedBackgroundColor: 'var(--bg100)',
+  /** 复选框未选中边框颜色（用于覆盖 wrapper 默认变量） */
+  checkboxUncheckedBorderColor: 'var(--bg300)',
+  /** 复选框边框宽度 */
+  checkboxBorderWidth: '2px',
+  /** 单元格聚焦背景色（点击高亮） */
+  cellFocusBackgroundColor: 'color-mix(in srgb, var(--accent100) 20%, transparent)',
+
+  // ==================== 编辑状态配色 ====================
+  /** 编辑单元格背景色 - 控制编辑状态下的单元格背景，对应 AG Grid 的 --ag-editing-cell-background-color */
+  editingCellBackgroundColor: 'var(--bg200)',
+  /** 编辑单元格文字颜色 - 控制编辑状态下的单元格文字，对应 AG Grid 的 --ag-editing-cell-foreground-color */
+  editingCellTextColor: 'var(--text100)',
+  /** 编辑单元格边框颜色 - 控制编辑状态下的单元格边框，对应 AG Grid 的 --ag-editing-cell-border-color */
+  editingCellBorderColor: 'var(--primary-color)',
+
+  // ==================== 滚动条配色 ====================
+  /** 滚动条颜色 - 控制滚动条滑块颜色，通过 CSS 伪元素 ::-webkit-scrollbar-thumb 实现 */
+  scrollbarColor: 'var(--bg300)',
+  /** 滚动条悬停颜色 - 控制滚动条悬停时的颜色，通过 CSS 伪元素 ::-webkit-scrollbar-thumb:hover 实现 */
+  scrollbarHoverColor: 'var(--primary100)',
+  /** 滚动条轨道颜色 - 控制滚动条轨道背景色，通过 CSS 伪元素 ::-webkit-scrollbar-track 实现 */
+  scrollbarTrackColor: 'var(--bg100)',
+
+  // ==================== 加载和空状态配色 ====================
+  /** 加载遮罩背景色 - 控制数据加载时的遮罩背景，对应 AG Grid 的 --ag-loading-overlay-background-color */
+  loadingOverlayBackgroundColor: 'rgba(255, 255, 255, 0.8)',
+  /** 加载遮罩文字颜色 - 控制数据加载时的遮罩文字，对应 AG Grid 的 --ag-loading-overlay-foreground-color */
+  loadingOverlayTextColor: 'var(--text100)',
+  /** 无数据遮罩背景色 - 控制无数据时的遮罩背景，对应 AG Grid 的 --ag-no-rows-overlay-background-color */
+  noRowsOverlayBackgroundColor: 'var(--bg100)',
+  /** 无数据遮罩文字颜色 - 控制无数据时的遮罩文字，对应 AG Grid 的 --ag-no-rows-overlay-foreground-color */
+  noRowsOverlayTextColor: 'var(--text100)',
+
+  // ==================== 工具栏和状态栏配色 ====================
+  /** 工具栏背景色 - 控制工具栏背景，对应 AG Grid 的 --ag-toolbar-background-color */
+  toolbarBackgroundColor: 'var(--bg200)',
+  /** 状态栏背景色 - 控制状态栏背景，对应 AG Grid 的 --ag-status-bar-background-color */
+  statusBarBackgroundColor: 'var(--bg200)',
+  /** 状态栏文字颜色 - 控制状态栏文字，对应 AG Grid 的 --ag-status-bar-foreground-color */
+  statusBarTextColor: 'var(--text100)',
+
+  // ==================== 过滤菜单配色 ====================
+  /** 过滤菜单背景色 - 控制过滤菜单背景，对应 AG Grid 的 --ag-menu-background-color */
+  menuBackgroundColor: 'var(--bg100)',
+  /** 过滤菜单文字颜色 - 控制过滤菜单文字，对应 AG Grid 的 --ag-menu-foreground-color */
+  menuForegroundColor: 'var(--text100)',
+  /** 过滤菜单边框颜色 - 控制过滤菜单边框，对应 AG Grid 的 --ag-menu-border-color */
+  menuBorderColor: 'var(--bg300)',
+  /** 过滤菜单阴影 - 控制过滤菜单阴影效果 */
+  menuBoxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+  /** 过滤菜单输入框背景色 */
+  menuInputBackgroundColor: 'var(--bg200)',
+  /** 过滤菜单输入框边框颜色 */
+  menuInputBorderColor: 'var(--bg300)',
+  /** 过滤菜单输入框焦点边框颜色 */
+  menuInputFocusBorderColor: 'var(--primary100)',
+  /** 过滤菜单输入框文字颜色 */
+  menuInputTextColor: 'var(--text100)',
+  /** 过滤菜单占位符颜色 */
+  menuPlaceholderColor: 'var(--text200)',
+
+  // ==================== 圆角配置 ====================
+  /** 表格整体圆角 - 控制表格容器的圆角 */
+  tableBorderRadius: 'var(--rounded)',
+}
+
+// ==================== 默认尺寸配置 ====================
+
+/** 紧凑模式表格尺寸配置 - 适用于数据密集的表格 */
+export const COMPACT_GRID_SIZE_CONFIG: GridSizeConfig = {
+  /** 行高 - 控制表格行的高度，对应 AG Grid 的 --ag-row-height */
+  rowHeight: 32,
+  /** 表头高度 - 控制表头行的高度，对应 AG Grid 的 --ag-header-height */
+  headerHeight: 36,
+
+  /** 默认列宽 - 控制列的默认宽度 */
+  defaultColumnWidth: 'auto',
+  /** 最小列宽 - 控制列的最小宽度 */
+  minColumnWidth: 40,
+  /** 最大列宽 - 控制列的最大宽度 */
+  maxColumnWidth: 300,
+
+  /** 表格最小高度 - 控制表格的最小高度 */
+  minHeight: 200,
+  /** 表格最大高度 - 控制表格的最大高度 */
+  maxHeight: 0,
+  /** 表格高度 - 控制表格的默认高度 */
+  height: 0,
+  /** 高度模式：auto | fixed | fill */
+  heightMode: 'auto',
+  /** 滚动条尺寸（与生成样式联动） */
+  scrollbarSize: 6,
+  /** 全局单元格水平对齐方式 */
+  globalCellTextAlign: 'center',
+  /** 全局单元格垂直对齐方式 */
+  globalCellVerticalAlign: 'middle',
+  /** 全局表头水平对齐方式 */
+  globalHeaderTextAlign: 'center',
+  /** 全局表头垂直对齐方式 */
+  globalHeaderVerticalAlign: 'middle',
+}
+
+/** 舒适模式表格尺寸配置 - 默认推荐配置 */
+export const COMFORTABLE_GRID_SIZE_CONFIG: GridSizeConfig = {
+  /** 行高 - 控制表格行的高度，对应 AG Grid 的 --ag-row-height */
+  rowHeight: 38,
+  /** 表头高度 - 控制表头行的高度，对应 AG Grid 的 --ag-header-height */
+  headerHeight: 42,
+
+  /** 默认列宽 - 控制列的默认宽度 */
+  defaultColumnWidth: 'auto',
+  /** 最小列宽 - 控制列的最小宽度 */
+  minColumnWidth: 40,
+  /** 最大列宽 - 控制列的最大宽度 */
+  maxColumnWidth: 400,
+
+  /** 表格最小高度 - 控制表格的最小高度 */
+  minHeight: 200,
+  /** 表格最大高度 - 控制表格的最大高度 */
+  maxHeight: 0,
+  /** 表格高度 - 控制表格的默认高度 */
+  height: 0,
+  /** 高度模式：auto | fixed | fill */
+  heightMode: 'auto',
+  /** 滚动条尺寸（与生成样式联动） */
+  scrollbarSize: 8,
+  /** 全局单元格水平对齐方式 */
+  globalCellTextAlign: 'center',
+  /** 全局单元格垂直对齐方式 */
+  globalCellVerticalAlign: 'middle',
+  /** 全局表头水平对齐方式 */
+  globalHeaderTextAlign: 'center',
+  /** 全局表头垂直对齐方式 */
+  globalHeaderVerticalAlign: 'middle',
+}
+
+/** 宽松模式表格尺寸配置 - 适用于大屏显示 */
+export const LOOSE_GRID_SIZE_CONFIG: GridSizeConfig = {
+  /** 行高 - 控制表格行的高度，对应 AG Grid 的 --ag-row-height */
+  rowHeight: 48,
+  /** 表头高度 - 控制表头行的高度，对应 AG Grid 的 --ag-header-height */
+  headerHeight: 52,
+
+  /** 默认列宽 - 控制列的默认宽度 */
+  defaultColumnWidth: 'auto',
+  /** 最小列宽 - 控制列的最小宽度 */
+  minColumnWidth: 40,
+  /** 最大列宽 - 控制列的最大宽度 */
+  maxColumnWidth: 500,
+
+  /** 表格最小高度 - 控制表格的最小高度 */
+  minHeight: 200,
+  /** 表格最大高度 - 控制表格的最大高度 */
+  maxHeight: 0,
+  /** 表格高度 - 控制表格的默认高度 */
+  height: 0,
+  /** 高度模式：auto | fixed | fill */
+  heightMode: 'auto',
+  /** 滚动条尺寸（与生成样式联动） */
+  scrollbarSize: 12,
+  /** 全局单元格水平对齐方式 */
+  globalCellTextAlign: 'center',
+  /** 全局单元格垂直对齐方式 */
+  globalCellVerticalAlign: 'middle',
+  /** 全局表头水平对齐方式 */
+  globalHeaderTextAlign: 'center',
+  /** 全局表头垂直对齐方式 */
+  globalHeaderVerticalAlign: 'middle',
+}
+
+/** 默认表格尺寸配置 - 使用舒适模式作为默认 */
+export const DEFAULT_GRID_SIZE_CONFIG: GridSizeConfig = COMFORTABLE_GRID_SIZE_CONFIG
+
+// ==================== 尺寸模式映射 ====================
+
+/** 尺寸模式类型 */
+export type SizeMode = 'compact' | 'comfortable' | 'loose'
+
+/** 尺寸模式到表格配置的映射 */
+export const SIZE_MODE_TO_GRID_CONFIG: Record<SizeMode, GridSizeConfig> = {
+  compact: COMPACT_GRID_SIZE_CONFIG,
+  comfortable: COMFORTABLE_GRID_SIZE_CONFIG,
+  loose: LOOSE_GRID_SIZE_CONFIG,
 }
 
 /**
- * GridTable 默认配置对象
- *
- * 这是 GridTable 的完整默认配置，包含所有可配置项的默认值。
- * 用户可以通过传入 config 对象来覆盖这些默认值。
- *
- * 配置优先级：用户配置 > 此默认配置
+ * 根据尺寸模式获取对应的表格尺寸配置
+ * @param sizeMode 尺寸模式：'compact' | 'comfortable' | 'loose'
+ * @returns 对应的表格尺寸配置
  */
-export const GRID_TABLE_DEFAULT_CONFIG: Partial<GridTableConfig> = {
-  /** 布局配置默认值 */
-  layout: {
-    /** 默认表格高度占满父容器 */
-    height: '100%',
-    /** 默认表格宽度占满父容器 */
-    width: '100%',
-    /** 默认不显示斑马纹 */
-    zebra: 'none',
-    /** 默认无自定义斑马纹颜色（不强设颜色，走主题样式） */
-    zebraColor: undefined,
-    /** 默认显示横向分割线（行线） */
-    horizontalLines: true,
-    /** 默认显示纵向分割线（列线） */
-    verticalLines: true,
-    /** 默认禁用选中单元格边框高亮 */
-    selectedCellBorderHighlight: false,
-    /** 默认禁用选中单元格背景高亮 */
-    selectedCellBackgroundHighlight: false,
-    /** 统一配置（表格级别的默认值） */
-    layout: {
-      /** 默认禁用筛选功能 */
-      filtering: false,
-      /** 默认启用排序功能 */
-      sorting: true,
-      /** 默认启用列调整大小 */
-      resizing: true,
-      /** 默认禁用列移动（避免误操作） */
-      columnMoving: false,
-      /** 默认禁用单元格编辑（需要明确启用） */
-      cellEditing: false,
-      /** 默认不限制最小/最大宽度（0 表示不限制） */
-      minWidth: 0,
-      maxWidth: 0,
-      /** 默认文字对齐（未指定列时生效） */
-      textAlign: 'center',
-      /** 默认表头文字对齐（未指定列时生效） */
-      headerTextAlign: 'center',
-    },
-  },
-
-  /** 功能配置默认值 */
-  features: {
-    // ========== 表格特有功能 ==========
-    /** 默认不允许拖动固定列 */
-    allowPinnedColumnMoving: false,
-
-    // ========== 选择和编辑 ==========
-    /** 默认启用复制粘贴 */
-    clipboard: true,
-
-    // ========== 导出和打印 ==========
-    /** 默认启用导出功能 */
-    export: true,
-    /** 默认禁用全屏模式 */
-    fullScreen: false,
-
-    // ========== 滚动和分页 ==========
-    /** 默认启用分页 */
-    pagination: true,
-  },
-
-  /** 分页配置默认值 */
-  pagination: {
-    /** 默认启用分页 */
-    enabled: false,
-    /** 默认每页显示 10 条数据 */
-    pageSize: 10,
-    /** 默认分页大小选项 */
-    pageSizeOptions: [5, 10, 20, 50],
-    /** 默认显示分页大小选择器 */
-    showPageSizeSelector: true,
-  },
-
-  /** 选择配置默认值 */
-  selection: {
-    /** 默认单选模式 */
-    mode: 'singleRow',
-    /** 默认不显示复选框 */
-    checkboxes: false,
-    /** 默认不显示表头复选框 */
-    headerCheckbox: false,
-    /** 默认启用点击选择 */
-    clickToSelect: true,
-    /** 默认启用键盘选择 */
-    keyboardToSelect: true,
-    /** 默认固定列到左侧 */
-    pinned: 'left',
-  },
-
-  /** 导出配置默认值 */
-  export: {
-    /** 默认启用 CSV 导出 */
-    csv: true,
-    /** 默认禁用 Excel 导出（需要企业版） */
-    excel: false,
-    /** 默认导出文件名 */
-    fileName: '数据导出',
-  },
-
-  /** 无限滚动配置默认值 */
-  infiniteScroll: {
-    /** 默认禁用无限滚动 */
-    enabled: false,
-    /** 默认触发阈值（距离底部 100px 时触发） */
-    threshold: 100,
-    /** 默认不显示加载指示器 */
-    showLoadingIndicator: false,
-    /** 默认加载文本 */
-    loadingText: '加载中...',
-  },
+export function getGridSizeConfigByMode(sizeMode: SizeMode): GridSizeConfig {
+  return SIZE_MODE_TO_GRID_CONFIG[sizeMode] || DEFAULT_GRID_SIZE_CONFIG
 }
 
-/**
- * 默认容器尺寸配置
- *
- * 用于设置 GridTable 容器的默认尺寸。
- * 这些值会在没有明确指定容器尺寸时使用。
- */
-export const DEFAULT_CONTAINER_SIZE = {
-  /** 默认容器高度占满父元素 */
-  height: '100%',
-  /** 默认容器宽度占满父元素 */
-  width: '100%',
+// ==================== CSS 变量映射 ====================
+
+/** AG Grid CSS 变量映射 - 将配置项映射到 AG Grid 的 CSS 变量 */
+export const AG_GRID_CSS_VARS = {
+  // ==================== 表格整体配色 ====================
+  /** 表格背景色 - 控制奇行背景色 */
+  '--ag-background-color': 'backgroundColor',
+  /** 表格边框颜色 - 控制表格整体边框 */
+  '--ag-border-color': 'borderColor',
+
+  // ==================== 表头配色 ====================
+  /** 表头背景色 - 控制表头背景 */
+  '--ag-header-background-color': 'headerBackgroundColor',
+  /** 表头文字颜色 - 控制表头文字 */
+  '--ag-header-text-color': 'headerTextColor',
+  /** 表头悬停背景色 */
+  '--ag-header-cell-hover-background-color': 'headerCellHoverBackgroundColor',
+  /** 表头拖动中背景色 */
+  '--ag-header-cell-moving-background-color': 'headerCellMovingBackgroundColor',
+
+  // ==================== 行配色 ====================
+  /** 行文字颜色 - 控制表格行内文字颜色 */
+  '--ag-cell-text-color': 'rowTextColor',
+  /** 行悬停背景色 - 控制鼠标悬停时的行背景色 */
+  '--ag-row-hover-color': 'rowHoverBackgroundColor',
+  /** 通用文字颜色 - 控制表格内所有文字颜色 */
+  '--ag-foreground-color': 'foregroundColor',
+
+  // ==================== 奇偶行配色 ====================
+  /** 偶行背景色 - 控制偶数行背景色，奇行由 --ag-background-color 控制 */
+  '--ag-odd-row-background-color': 'oddRowBackgroundColor',
+
+  // ==================== 选中行配色 ====================
+  /** 选中行背景色 */
+  '--ag-selected-row-background-color': 'selectedRowBackgroundColor',
+
+  // ==================== 聚焦与复选框配色 ====================
+  /** 复选框选中背景色 */
+  '--ag-checkbox-checked-background-color': 'checkboxCheckedBackgroundColor',
+  /** 单元格聚焦背景色（用于点击高亮的背景色变量） */
+  '--ag-cell-focus-background-color': 'cellFocusBackgroundColor',
+  /** 复选框未选中背景色（许多主题的 wrapper 使用该变量） */
+  '--ag-checkbox-unchecked-background-color': 'checkboxUncheckedBackgroundColor',
+  /** 复选框未选中边框颜色 */
+  '--ag-checkbox-unchecked-border-color': 'checkboxUncheckedBorderColor',
+  /** 复选框边框宽度 */
+  '--ag-checkbox-border-width': 'checkboxBorderWidth',
+  /** 兼容继承变量（某些版本从 inherited 变量读取） */
+  '--ag-inherited-checkbox-checked-background-color': 'checkboxCheckedBackgroundColor',
+  '--ag-inherited-checkbox-unchecked-background-color': 'checkboxUncheckedBackgroundColor',
+  '--ag-inherited-checkbox-unchecked-border-color': 'checkboxUncheckedBorderColor',
+
+  // ==================== 编辑状态配色 ====================
+  /** 编辑单元格背景色 - 控制编辑状态下的单元格背景 */
+  '--ag-editing-cell-background-color': 'editingCellBackgroundColor',
+  /** 编辑单元格文字颜色 - 控制编辑状态下的单元格文字 */
+  '--ag-editing-cell-foreground-color': 'editingCellTextColor',
+  /** 编辑单元格边框颜色 - 控制编辑状态下的单元格边框 */
+  '--ag-editing-cell-border-color': 'editingCellBorderColor',
+
+  // ==================== 加载和空状态配色 ====================
+  /** 加载遮罩背景色 - 控制数据加载时的遮罩背景 */
+  '--ag-loading-overlay-background-color': 'loadingOverlayBackgroundColor',
+  /** 加载遮罩文字颜色 - 控制数据加载时的遮罩文字 */
+  '--ag-loading-overlay-foreground-color': 'loadingOverlayTextColor',
+  /** 无数据遮罩背景色 - 控制无数据时的遮罩背景 */
+  '--ag-no-rows-overlay-background-color': 'noRowsOverlayBackgroundColor',
+  /** 无数据遮罩文字颜色 - 控制无数据时的遮罩文字 */
+  '--ag-no-rows-overlay-foreground-color': 'noRowsOverlayTextColor',
+  /** 无数据遮罩文字颜色（备用变量名） */
+  '--ag-no-rows-overlay-text-color': 'noRowsOverlayTextColor',
+
+  // ==================== 工具栏和状态栏配色 ====================
+  /** 工具栏背景色 - 控制工具栏背景 */
+  '--ag-toolbar-background-color': 'toolbarBackgroundColor',
+  /** 状态栏背景色 - 控制状态栏背景 */
+  '--ag-status-bar-background-color': 'statusBarBackgroundColor',
+  /** 状态栏文字颜色 - 控制状态栏文字 */
+  '--ag-status-bar-foreground-color': 'statusBarTextColor',
+
+  // ==================== 过滤菜单配色 ====================
+  /** 过滤菜单背景色 - 控制过滤菜单背景 */
+  '--ag-menu-background-color': 'menuBackgroundColor',
+  /** 过滤菜单文字颜色 - 控制过滤菜单文字 */
+  '--ag-menu-foreground-color': 'menuForegroundColor',
+  /** 过滤菜单边框颜色 - 控制过滤菜单边框 */
+  '--ag-menu-border-color': 'menuBorderColor',
+  /** 过滤菜单输入框背景色 */
+  '--ag-input-background-color': 'menuInputBackgroundColor',
+  /** 过滤菜单输入框边框颜色 */
+  '--ag-input-border-color': 'menuInputBorderColor',
+  /** 过滤菜单输入框焦点边框颜色 */
+  '--ag-input-focus-border-color': 'menuInputFocusBorderColor',
+  /** 过滤菜单输入框文字颜色 */
+  '--ag-input-foreground-color': 'menuInputTextColor',
+
+  // ==================== 圆角配置 ====================
+  /** 表格整体圆角 */
+  '--ag-border-radius': 'tableBorderRadius',
 } as const
 
-/**
- * 默认 AG Grid 选项配置
- *
- * 这些是直接传递给 AG Grid 的基础配置选项。
- * 这些配置会与用户配置合并，形成最终的 GridOptions。
- */
-export const DEFAULT_GRID_OPTIONS = {
-  /** 防止拖拽离开时隐藏列 */
-  suppressDragLeaveHidesColumns: true,
-  /** 启用行动画效果 */
-  animateRows: true,
-  /** 启用单元格文本选择 */
-  enableCellTextSelection: true,
-  /** 不禁用行悬停高亮 */
-  suppressRowHoverHighlight: false,
-  /** 默认禁用行选择（除非明确启用） */
-  rowSelection: undefined,
-  /** 自定义行ID生成器（用于无障碍访问支持） */
-  getRowId: (params: any) =>
-    `row-${params.data?.id || params.node?.id || Math.random().toString(36).substr(2, 9)}`,
-  /** 默认列定义 */
-  defaultColDef: {
-    /** 不设置 flex，避免覆盖显式 width/最小最大宽 */
-    // flex: 1,
-    /** 由 transformer 覆盖具体 width/minWidth/maxWidth；不强制最小宽度 */
-    // minWidth: 100,
-    /** 默认启用排序 */
-    sortable: true,
-    /** 默认启用筛选 */
-    filter: false,
-    /** 默认启用列调整大小 */
-    resizable: true,
-  },
-} as const
+// ==================== 默认 Props 工厂 ====================
 
 /**
- * 列类型默认配置
- *
- * 定义了不同列类型的默认 AG Grid 配置。
- * 当用户指定列类型时，会自动应用相应的默认配置。
- *
- * 注意：所有配置都使用 AG Grid Community 版本的功能，
- * 避免依赖企业版功能。
+ * 提供 GridTable 组件的默认 props 设置，便于与 types 强绑定
+ * 与 UseEcharts 的 createDefaultUseEchartsProps 一致的用法
  */
-export const COLUMN_TYPE_DEFAULTS = {
-  /** 文本列默认配置：使用自定义封装的 InputText 组件 */
-  text: {
-    /** 使用文本过滤器（社区版） */
-    filter: 'agTextColumnFilter',
-    /** 自定义渲染器：使用 InputText 组件 */
-    cellRenderer: 'inputTextRenderer',
-    /** 自定义编辑器：使用 InputText 组件 */
-    cellEditor: 'inputTextEditor',
-  },
+export const createDefaultGridTableProps = () => ({
+  // 数据
+  rowData: () => [],
 
-  /** 数字列默认配置：使用自定义封装的 InputNumber 组件 */
-  number: {
-    /** 使用数字过滤器（社区版） */
-    filter: 'agNumberColumnFilter',
-    /** 自定义渲染器：使用 InputNumber 组件 */
-    cellRenderer: 'inputNumberRenderer',
-    /** 自定义编辑器：使用 InputNumber 组件 */
-    cellEditor: 'inputNumberEditor',
-  },
+  // 功能开关
+  /** 是否显示行号 */
+  showRowNumbers: false,
+  /** 是否可选择行 */
+  rowSelection: null as 'single' | 'multiple' | null,
+  /** 是否允许点击行选中（需开启单/多选），默认 false */
+  enableRowClickSelection: false,
+  /** 是否可排序 */
+  enableSorting: false,
+  /** 是否可过滤 */
+  enableFilter: false,
+  /** 是否可调整列宽 */
+  enableColumnResize: false,
+  /** 是否显示工具栏 */
+  showToolbar: false,
+  /** 是否显示状态栏 */
+  showStatusBar: false,
+  /** 复选列位置 */
+  selectionCheckboxPosition: 'left' as 'left' | 'right',
+  /** 是否开启鼠标悬停行高亮 */
+  enableRowHoverHighlight: true,
+  /** 是否开启鼠标悬停列高亮 */
+  enableColumnHoverHighlight: false,
+  /** 使所有列适配视口宽度（不出现横向滚动条） */
+  fitColumnsToViewport: true,
+  /** 是否开启点击格子边框高亮（默认 false） */
+  enableCellFocusHighlight: false,
+  /** 是否允许拖拽表头移动/隐藏列，默认 false */
+  enableColumnDrag: false,
+  /** 是否启用斑马线（偶数行背景与奇数行不同），默认 false */
+  enableZebraStripe: false,
+  /** 是否显示纵向分割线（列间边框），默认 false */
+  enableVerticalSplitLine: true,
+  /** 是否显示横向分割线（行间边框），默认 false */
+  enableHorizontalSplitLine: true,
+  /** 是否启用剪贴板功能（Ctrl+C/Cmd+C 复制单元格内容），默认 false */
+  enableClipboard: false,
+  /** 是否跟随系统尺寸模式变化（true：跟随系统尺寸，false：使用自定义尺寸），默认 true */
+  followSystemSize: true,
+  /** 是否启用分页器（AG Grid 内置分页），默认 false */
+  enablePagination: false,
+  /** 分页器每页展示条数（默认 20） */
+  paginationPageSize: 20,
+  /** 分页器每页可选展示条数（默认 10/20/50/80） */
+  paginationPageSizeOptions: (_props: any) => [10, 20, 50, 80],
+  /** 是否启用单元格跨越功能（合并单元格行），默认 false */
+  // enableCellSpan: false, // 企业版功能，社区版不支持
 
-  /** 日期列默认配置：使用自定义封装的 DatePicker 组件 */
-  date: {
-    /** 使用日期过滤器（社区版）并启用 between 选项 */
-    filter: 'agDateColumnFilter',
-    filterParams: {
-      /** 启用 between 选项 */
-      includeBlanksInEquals: false,
-      includeBlanksInLessThan: false,
-      includeBlanksInGreaterThan: false,
-      includeBlanksInRange: false,
-      /** 自定义过滤器选项 */
-      filterOptions: [
-        'equals',
-        'notEqual',
-        'lessThan',
-        'lessThanOrEqual',
-        'greaterThan',
-        'greaterThanOrEqual',
-        'inRange',
-        'blank',
-        'notBlank',
-      ],
-    },
-    /** 自定义渲染器：使用 DatePicker 组件 */
-    cellRenderer: 'datePickerRenderer',
-    /** 自定义编辑器：使用 DatePicker 组件 */
-    cellEditor: 'datePickerEditor',
-  },
+  // 配色与尺寸（来自默认配置）
+  colorConfig: () => ({ ...DEFAULT_GRID_COLOR_CONFIG }),
+  sizeConfig: () => ({ ...DEFAULT_GRID_SIZE_CONFIG }),
 
-  /** 日期时间列默认配置：使用自定义封装的 DateTimePicker 组件 */
-  datetime: {
-    /** 使用日期过滤器（社区版）并启用 between 选项 */
-    filter: 'agDateColumnFilter',
-    filterParams: {
-      /** 启用 between 选项 */
-      includeBlanksInEquals: false,
-      includeBlanksInLessThan: false,
-      includeBlanksInGreaterThan: false,
-      includeBlanksInRange: false,
-      /** 自定义过滤器选项 */
-      filterOptions: [
-        'equals',
-        'notEqual',
-        'lessThan',
-        'lessThanOrEqual',
-        'greaterThan',
-        'greaterThanOrEqual',
-        'inRange',
-        'blank',
-        'notBlank',
-      ],
-    },
-    /** 自定义渲染器：使用 DateTimePicker 组件 */
-    cellRenderer: 'dateTimePickerRenderer',
-    /** 自定义编辑器：使用 DateTimePicker 组件 */
-    cellEditor: 'dateTimePickerEditor',
-  },
-
-  /** 时间列默认配置：使用自定义封装的 TimePicker 组件 */
-  time: {
-    /** 使用日期过滤器（社区版）并启用 between 选项 */
-    filter: 'agDateColumnFilter',
-    filterParams: {
-      /** 启用 between 选项 */
-      includeBlanksInEquals: false,
-      includeBlanksInLessThan: false,
-      includeBlanksInGreaterThan: false,
-      includeBlanksInRange: false,
-      /** 自定义过滤器选项 */
-      filterOptions: [
-        'equals',
-        'notEqual',
-        'lessThan',
-        'lessThanOrEqual',
-        'greaterThan',
-        'greaterThanOrEqual',
-        'inRange',
-        'blank',
-        'notBlank',
-      ],
-    },
-    /** 自定义渲染器：使用 TimePicker 组件 */
-    cellRenderer: 'timePickerRenderer',
-    /** 自定义编辑器：使用 TimePicker 组件 */
-    cellEditor: 'timePickerEditor',
-  },
-
-  /** 布尔列默认配置：使用自定义封装的 ToggleSwitch 组件 */
-  boolean: {
-    /** 使用文本过滤器（社区版） */
-    filter: 'agTextColumnFilter',
-    /** 自定义渲染器：使用 ToggleSwitch 组件 */
-    cellRenderer: 'toggleSwitchRenderer',
-    /** 自定义编辑器：使用 ToggleSwitch 组件 */
-    cellEditor: 'toggleSwitchEditor',
-  },
-
-  /** 自定义列默认配置（空对象，完全由用户自定义） */
-  custom: {},
-} as const
-
-/**
- * 主题间距配置
- *
- * 定义了不同尺寸模式下的主题间距值。
- * 这些值会传递给 AG Grid 的 Quartz 主题，控制表格的视觉密度。
- *
- * 间距值越大，表格看起来越宽松；间距值越小，表格看起来越紧凑。
- */
-export const THEME_SPACING = {
-  /** 紧凑模式间距 */
-  compact: 6,
-  /** 舒适模式间距 */
-  comfortable: 8,
-  /** 宽松模式间距 */
-  spacious: 10,
-} as const
-
-/**
- * 斑马纹样式配置
- *
- * 定义了 GridTable 中斑马纹的样式配置。
- * 当启用斑马纹时，奇数行和偶数行会显示不同的背景色。
- */
-export const ZEBRA_STRIPE_STYLES = {
-  /** 偶数行背景色（默认透明，由主题控制） */
-  evenRowBackgroundColor: 'transparent',
-  /** 奇数行背景色（默认透明，由主题控制） */
-  oddRowBackgroundColor: 'transparent',
-  /** 斑马纹 CSS 类名 */
-  evenRowClass: 'ag-row-even',
-  oddRowClass: 'ag-row-odd',
-} as const
-
-/**
- * 滚动条样式配置
- *
- * 定义了 GridTable 中滚动条的样式配置。
- * 分别针对 WebKit 内核浏览器（Chrome、Safari）和 Firefox 浏览器。
- */
-export const SCROLLBAR_STYLES = {
-  /** WebKit 内核浏览器滚动条样式 */
-  webkit: {
-    /** 滚动条宽度 */
-    width: 8,
-    /** 滚动条高度 */
-    height: 8,
-    /** 滚动条圆角 */
-    borderRadius: 4,
-    /** 滚动条滑块背景色 */
-    backgroundColor: 'rgba(0, 0, 0, 0.35)',
-    /** 滚动条轨道背景色 */
-    trackBackgroundColor: 'transparent',
-  },
-  /** Firefox 浏览器滚动条样式 */
-  firefox: {
-    /** Firefox 滚动条宽度（thin 表示细滚动条） */
-    width: 'thin',
-  },
-} as const
+  // 自定义样式
+  customClass: '',
+  customStyle: () => ({}),
+  /** 触底阈值（px），滚动到距离底部小于等于该距离时触发触底事件 */
+  bottomReachOffset: 50,
+  // overlay 模板默认由 i18n 在运行时注入，保留自定义入口以便业务侧覆盖
+  overlayLoadingTemplate: undefined as unknown as string,
+  overlayNoRowsTemplate: undefined as unknown as string,
+})

@@ -830,7 +830,3 @@ defineExpose({
   },
 })
 </script>
-
-<style scoped>
-/* 样式已通过 UnoCSS 类处理 */
-</style>

@@ -135,27 +135,7 @@ const enUS = {
       noDataAvailable: 'No data available',
     },
   },
-  user: {
-    title: 'User Management',
-    list: {
-      title: 'User List',
-    },
-    permission: {
-      title: 'User Permission',
-    },
-  },
-  dashboard: {
-    title: 'Dashboard',
-  },
-  permission: {
-    title: 'Permission Management',
-    page: {
-      title: 'Page Permission',
-    },
-    button: {
-      title: 'Button Permission',
-    },
-  },
+
   router: {
     core: {
       root: 'Home',
@@ -189,10 +169,18 @@ const enUS = {
           default: 'Default Table',
           basic: 'Basic Table',
           service: 'Service Table',
-          noRowsToShow: 'No Rows To Show',
-          noDataAvailable: 'No data available',
+          advanced: 'Advanced Table',
         },
-        echarts: 'Echarts',
+        echarts: {
+          title: 'Echarts',
+          default: 'Default Echarts',
+          static: 'Static Echarts',
+          event: 'Event Echarts',
+          dynamic: 'Dynamic Echarts',
+        },
+        datepicker: {
+          title: 'Date Picker',
+        },
       },
       function: {
         title: 'Function',
@@ -203,6 +191,24 @@ const enUS = {
       notFound: 'Page Not Found',
       forbidden: 'Forbidden',
       serverError: 'Server Error',
+    },
+    user: {
+      title: 'User Management',
+      list: {
+        title: 'User List',
+      },
+      permission: {
+        title: 'User Permission',
+      },
+    },
+    permission: {
+      title: 'Permission Management',
+      page: {
+        title: 'Page Permission',
+      },
+      button: {
+        title: 'Button Permission',
+      },
     },
   },
   layout: {
@@ -359,6 +365,49 @@ const enUS = {
       zoomOut: 'Zoom Out',
       rotateRight: 'Rotate Right',
       rotateLeft: 'Rotate Left',
+    },
+  },
+  components: {
+    gridTable: {
+      autoSizeColumns: 'Auto size columns',
+      exportCsv: 'Export CSV',
+      exportExcel: 'Export Excel',
+      totalCount: 'Total {count} items',
+      selectedCount: 'Selected {count}',
+      loadingMore: 'Loading...',
+      noMore: 'No more data',
+    },
+    datePicker: {
+      placeholder: 'Select date',
+      rangePlaceholder: 'Select date range',
+      clearLabel: 'Clear',
+      cancelLabel: 'Cancel',
+      confirmLabel: 'Confirm',
+      todayLabel: 'Today',
+      nowLabel: 'Now',
+      selectDate: 'Select Date',
+      selectTime: 'Select Time',
+      startDate: 'Start Date',
+      endDate: 'End Date',
+      startTime: 'Start Time',
+      endTime: 'End Time',
+      // Different mode placeholders
+      placeholders: {
+        date: 'Select date',
+        datetime: 'Select date and time',
+        time: 'Select time',
+        month: 'Select month',
+        year: 'Select year',
+        week: 'Select week',
+        quarter: 'Select quarter',
+        range: 'Select date range',
+        'range-datetime': 'Select date and time range',
+        'range-time': 'Select time range',
+        'range-month': 'Select month range',
+        'range-year': 'Select year range',
+        'range-week': 'Select week range',
+        'range-quarter': 'Select quarter range',
+      },
     },
   },
 }

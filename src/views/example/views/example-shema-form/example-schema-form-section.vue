@@ -74,10 +74,39 @@ const initialSchema: Schema = {
       layout: { cols: 2, labelAlign: 'top' },
       style: { contentClass: 'center' },
     },
+    {
+      field: 'birthday',
+      label: '生日',
+      component: 'DatePicker',
+      rules: 'required',
+      help: '请选择您的生日',
+      props: {
+        mode: 'date',
+        valueFormat: 'iso',
+        clearable: true,
+        maxDate: new Date(), // 不能选择未来日期
+      },
+      layout: { cols: 4, labelAlign: 'top' },
+    },
+    {
+      field: 'appointmentTime',
+      label: '预约时间',
+      component: 'DatePicker',
+      help: '选择预约的日期和时间',
+      props: {
+        mode: 'datetime',
+        valueFormat: 'iso',
+        enableSeconds: false,
+        clearable: true,
+        is24: true,
+        minDate: new Date(), // 不能选择过去时间
+      },
+      layout: { cols: 4, labelAlign: 'top' },
+    },
   ],
   sections: [
-    { title: '基本信息', fields: ['username', 'email'] },
-    { title: '联系方式', fields: ['phone', 'city'] },
+    { title: '基本信息', fields: ['username', 'email', 'birthday'] },
+    { title: '联系方式', fields: ['phone', 'city', 'appointmentTime'] },
     { title: '偏好设置', fields: ['interests', 'notification'] },
   ],
   layout: {

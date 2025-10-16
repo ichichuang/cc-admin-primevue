@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ScrollbarWrapper } from '@/components/modules/scrollbar-wrapper'
 import { INTERVAL, REMEMBER_SCROLLBAR_TOP, STRATEGY } from '@/constants/modules/layout'
 import { useElementSize } from '@/hooks'
 import { useLayoutStore } from '@/stores'
@@ -68,7 +67,6 @@ watch(
     ref='scrollbarRef',
     :wrapper-class='currentLayoutMode !== "fullscreen" && currentLayoutMode !== "ratio" ? "px-12 sm:px-16  lg:px-18 xxl:px-24" : ""',
     :style='{ height: containerHeight + "px" }',
-    :size='0',
     @scroll='handleScroll',
     @initialized='handleInitialized'
   )

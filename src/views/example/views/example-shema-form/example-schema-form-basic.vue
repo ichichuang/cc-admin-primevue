@@ -398,14 +398,88 @@ const initialSchema: Schema = {
       field: 'datePicker',
       label: '日期选择',
       component: 'DatePicker',
-      placeholder: '请选择日期',
       rules: 'required',
       help: '请选择一个有效日期',
       props: {
-        showIcon: true,
-        dateFormat: 'yy-mm-dd',
-        showButtonBar: true,
-        value: null,
+        mode: 'date',
+        valueFormat: 'iso',
+        clearable: true,
+        is24: true,
+      },
+    },
+    {
+      field: 'dateTimePicker',
+      label: '日期时间选择',
+      component: 'DatePicker',
+      help: '选择日期和时间',
+      props: {
+        mode: 'datetime',
+        valueFormat: 'iso',
+        enableSeconds: true,
+        clearable: true,
+        is24: true,
+      },
+      layout: {
+        cols: 6,
+        labelAlign: 'top',
+      },
+    },
+    {
+      field: 'timePicker',
+      label: '时间选择',
+      component: 'DatePicker',
+      help: '仅选择时间',
+      props: {
+        mode: 'time',
+        valueFormat: 'iso',
+        enableSeconds: false,
+        is24: true,
+        clearable: true,
+      },
+      layout: {
+        cols: 6,
+        labelAlign: 'top',
+      },
+    },
+    {
+      field: 'dateRangePicker',
+      label: '日期范围选择',
+      component: 'DatePicker',
+      help: '选择日期范围',
+      props: {
+        mode: 'date',
+        range: true,
+        valueFormat: 'iso',
+        clearable: true,
+        presets: [
+          {
+            label: '今天',
+            start: () => new Date(),
+            end: () => new Date(),
+          },
+          {
+            label: '最近7天',
+            start: () => {
+              const date = new Date()
+              date.setDate(date.getDate() - 6)
+              return date
+            },
+            end: () => new Date(),
+          },
+          {
+            label: '最近30天',
+            start: () => {
+              const date = new Date()
+              date.setDate(date.getDate() - 29)
+              return date
+            },
+            end: () => new Date(),
+          },
+        ],
+      },
+      layout: {
+        cols: 12,
+        labelAlign: 'top',
       },
     },
     {
@@ -731,7 +805,10 @@ const handleSetValues = () => {
 
     // 特殊输入组件
     autoComplete: 'apple',
-    datePicker: new Date('2024-01-15'),
+    datePicker: '2024-01-15T00:00:00.000Z',
+    dateTimePicker: '2024-01-15T14:30:00.000Z',
+    timePicker: '2024-01-01T14:30:00.000Z',
+    dateRangePicker: ['2024-01-01T00:00:00.000Z', '2024-01-31T23:59:59.999Z'],
     colorPicker: '#00FF00',
     slider: 75,
     rating: 4,

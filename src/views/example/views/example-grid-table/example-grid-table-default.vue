@@ -1,391 +1,279 @@
-<script setup lang="tsx">
-import type { GridTableConfig } from '@/components/modules/grid-table/utils/types'
-import { computed, ref } from 'vue'
+<script setup lang="ts">
+import type { ExtendedColDef } from '@/components/modules/grid-table'
+import { GridTable } from '@/components/modules/grid-table'
 
-const gridConfig = computed(
-  (): GridTableConfig => ({
-    columns: [
-      {
-        field: 'id',
-        headerName: 'ID',
-        type: 'number',
-        pinned: 'left',
-      },
-      {
-        field: 'name',
-        headerName: '姓名',
-      },
-      {
-        field: 'age',
-        headerName: '年龄',
-        type: 'number',
-      },
-      {
-        field: 'sex',
-        headerName: '性别',
-        cellRenderer: (params: any) => {
-          const sexMap: Record<number, { text: string; color: string }> = {
-            1: { text: '男', color: '#007bff' },
-            2: { text: '女', color: '#e83e8c' },
-          }
-          const sex = sexMap[params.value] || { text: '未知', color: '#6c757d' }
-          return `<span style="color: ${sex.color}; font-weight: bold;">${sex.text}</span>`
-        },
-        filter: 'agTextColumnFilter',
-        filterParams: {
-          filterOptions: ['equals'],
-          suppressAndOrCondition: true,
-          maxNumConditions: 1,
-          textFormatter: (input: any) => {
-            if (typeof input !== 'string') {
-              return input
-            }
+// ==================== 列定义 ====================
 
-            const trimmedInput = input.trim()
-
-            if (trimmedInput === '男') {
-              return 1
-            }
-            if (trimmedInput === '女') {
-              return 2
-            }
-
-            return trimmedInput
-          },
-        },
-        valueFormatter: (params: any) => {
-          const value = params.value
-          if (value === 1) {
-            return '男'
-          }
-          if (value === 2) {
-            return '女'
-          }
-          return value
-        },
-      },
-      {
-        field: 'email',
-        headerName: '邮箱',
-      },
-      {
-        field: 'department',
-        headerName: '部门',
-        cellRenderer: (params: any) => {
-          const deptColors: Record<string, string> = {
-            技术部: '#007bff',
-            产品部: '#28a745',
-            设计部: '#ffc107',
-            运营部: '#17a2b8',
-            市场部: '#dc3545',
-          }
-          const color = deptColors[params.value] || '#6c757d'
-          return `<span style="color: ${color}; font-weight: bold;">${params.value}</span>`
-        },
-      },
-      {
-        field: 'position',
-        headerName: '职位',
-      },
-      {
-        field: 'salary',
-        headerName: '薪资',
-        type: 'number',
-        valueFormatter: (params: any) => `¥${params.value?.toLocaleString() || 0}`,
-        filterParams: {
-          filterOptions: ['equals', 'greaterThan', 'lessThan'],
-        },
-      },
-      {
-        field: 'isActive',
-        headerName: '是否在职',
-        type: 'boolean',
-      },
-      {
-        field: 'status',
-        headerName: '状态',
-        pinned: 'right',
-        cellRenderer: (params: any) => {
-          const statusMap: Record<string, { text: string; class: string; color: string }> = {
-            在职: { text: '在职', class: 'status-active', color: '#28a745' },
-            离职: { text: '离职', class: 'status-inactive', color: '#dc3545' },
-            试用期: { text: '试用期', class: 'status-trial', color: '#ffc107' },
-          }
-          const status = statusMap[params.value] || {
-            text: params.value,
-            class: '',
-            color: '#6c757d',
-          }
-          return `<span class="status-badge ${status.class}" style="color: ${status.color}; font-weight: bold;">${status.text}</span>`
-        },
-      },
-      {
-        field: 'joinDate',
-        headerName: '入职日期',
-        type: 'date',
-        valueFormatter: (params: any) => {
-          if (!params.value) {
-            return ''
-          }
-          return new Date(params.value).toLocaleDateString('zh-CN')
-        },
-      },
-      {
-        field: 'lastLogin',
-        headerName: '最后登录',
-        type: 'date',
-        valueFormatter: (params: any) => {
-          if (!params.value) {
-            return '从未登录'
-          }
-          const date = new Date(params.value)
-          const now = new Date()
-          const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
-
-          if (diffDays === 0) {
-            return '今天'
-          }
-          if (diffDays === 1) {
-            return '昨天'
-          }
-          if (diffDays < 7) {
-            return `${diffDays}天前`
-          }
-          return date.toLocaleDateString('zh-CN')
-        },
-      },
-    ],
-    data: rowData.value,
-    layout: {
-      // 使用 'auto' 让表格自动撑开高度，适应内容
-      height: 'auto',
-      horizontalLines: true,
-      verticalLines: true,
+const columnDefs: ExtendedColDef[] = [
+  {
+    field: 'id',
+    headerName: 'ID',
+    pinned: 'left',
+  },
+  {
+    field: 'name',
+    headerName: '姓名',
+  },
+  {
+    field: 'age',
+    headerName: '年龄',
+  },
+  {
+    field: 'email',
+    headerName: '邮箱',
+  },
+  {
+    field: 'department',
+    headerName: '部门',
+  },
+  {
+    field: 'position',
+    headerName: '职位',
+  },
+  {
+    field: 'salary',
+    headerName: '薪资',
+    sortable: true,
+    valueFormatter: (params: any) => {
+      return `¥${params.value?.toLocaleString() || 0}`
     },
-  })
-)
+  },
+  {
+    field: 'status',
+    headerName: '状态',
+    valueGetter: (params: any) => {
+      const status = params.data?.status
+      const statusMap = {
+        active: '在职',
+        inactive: '离职',
+        pending: '待定',
+      }
+      return statusMap[status as keyof typeof statusMap] || status
+    },
+  },
+  {
+    field: 'joinDate',
+    headerName: '入职日期',
+    valueFormatter: (params: any) => {
+      if (!params.value) {
+        return ''
+      }
+      return new Date(params.value).toLocaleDateString('zh-CN')
+    },
+  },
+  {
+    field: 'phone',
+    headerName: '电话',
+  },
+  {
+    field: 'address',
+    headerName: '地址',
+  },
+]
 
-// 模拟数据
-const rowData = ref([
+// ==================== 假数据 ====================
+
+const rowData = [
   {
     id: 1,
     name: '张三',
     age: 28,
-    sex: 1,
     email: 'zhangsan@example.com',
     department: '技术部',
     position: '前端工程师',
     salary: 15000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2022-01-15',
-    lastLogin: '2024-01-15',
+    status: 'active',
+    joinDate: '2022-03-15',
+    phone: '13800138001',
+    address: '北京市朝阳区',
   },
   {
     id: 2,
     name: '李四',
     age: 32,
-    sex: 2,
     email: 'lisi@example.com',
-    department: '产品部',
-    position: '产品经理',
+    department: '技术部',
+    position: '后端工程师',
     salary: 18000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2021-06-20',
-    lastLogin: '2024-01-14',
+    status: 'active',
+    joinDate: '2021-08-20',
+    phone: '13800138002',
+    address: '上海市浦东新区',
   },
   {
     id: 3,
     name: '王五',
     age: 25,
-    sex: 1,
     email: 'wangwu@example.com',
     department: '设计部',
     position: 'UI设计师',
     salary: 12000,
-    status: '试用期',
-    isActive: true,
-    isEnabled: false,
-    joinDate: '2023-03-10',
-    lastLogin: '2024-01-13',
+    status: 'active',
+    joinDate: '2023-01-10',
+    phone: '13800138003',
+    address: '广州市天河区',
   },
   {
     id: 4,
     name: '赵六',
     age: 35,
-    sex: 1,
     email: 'zhaoliu@example.com',
-    department: '技术部',
-    position: '后端工程师',
+    department: '产品部',
+    position: '产品经理',
     salary: 20000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2020-09-05',
-    lastLogin: '2024-01-12',
+    status: 'active',
+    joinDate: '2020-06-01',
+    phone: '13800138004',
+    address: '深圳市南山区',
   },
   {
     id: 5,
     name: '钱七',
     age: 29,
-    sex: 2,
     email: 'qianqi@example.com',
     department: '运营部',
     position: '运营专员',
-    salary: 13000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2022-08-12',
-    lastLogin: '2024-01-11',
+    salary: 10000,
+    status: 'inactive',
+    joinDate: '2022-11-15',
+    phone: '13800138005',
+    address: '杭州市西湖区',
   },
   {
     id: 6,
     name: '孙八',
     age: 27,
-    sex: 1,
     email: 'sunba@example.com',
-    department: '市场部',
-    position: '市场专员',
-    salary: 11000,
-    status: '离职',
-    isActive: false,
-    isEnabled: false,
-    joinDate: '2021-12-01',
-    lastLogin: '2023-12-01',
+    department: '技术部',
+    position: '测试工程师',
+    salary: 13000,
+    status: 'active',
+    joinDate: '2023-05-20',
+    phone: '13800138006',
+    address: '成都市武侯区',
   },
   {
     id: 7,
     name: '周九',
     age: 31,
-    sex: 1,
     email: 'zhoujiu@example.com',
-    department: '技术部',
-    position: '架构师',
-    salary: 25000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2019-04-18',
-    lastLogin: '2024-01-10',
+    department: '市场部',
+    position: '市场专员',
+    salary: 11000,
+    status: 'active',
+    joinDate: '2022-09-01',
+    phone: '13800138007',
+    address: '武汉市江汉区',
   },
   {
     id: 8,
     name: '吴十',
     age: 26,
-    sex: 2,
     email: 'wushi@example.com',
-    department: '产品部',
-    position: '产品助理',
-    salary: 10000,
-    status: '试用期',
-    isActive: true,
-    isEnabled: false,
-    joinDate: '2023-05-22',
-    lastLogin: '2024-01-09',
+    department: '人事部',
+    position: '人事专员',
+    salary: 9000,
+    status: 'pending',
+    joinDate: '2023-08-15',
+    phone: '13800138008',
+    address: '南京市鼓楼区',
   },
   {
     id: 9,
     name: '郑十一',
     age: 33,
-    sex: 2,
     email: 'zhengshiyi@example.com',
-    department: '设计部',
-    position: '视觉设计师',
-    salary: 16000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2021-02-14',
-    lastLogin: '2024-01-08',
+    department: '财务部',
+    position: '会计',
+    salary: 14000,
+    status: 'active',
+    joinDate: '2021-12-01',
+    phone: '13800138009',
+    address: '西安市雁塔区',
   },
   {
     id: 10,
     name: '王十二',
     age: 24,
-    sex: 1,
     email: 'wangshier@example.com',
     department: '技术部',
-    position: '测试工程师',
-    salary: 9000,
-    status: '试用期',
-    isActive: true,
-    joinDate: '2023-07-08',
-    lastLogin: '2024-01-07',
+    position: '实习生',
+    salary: 5000,
+    status: 'active',
+    joinDate: '2023-10-01',
+    phone: '13800138010',
+    address: '重庆市渝中区',
   },
   {
     id: 11,
     name: '李十三',
     age: 30,
-    sex: 1,
     email: 'lishisan@example.com',
-    department: '运营部',
-    position: '运营经理',
-    salary: 17000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2020-11-30',
-    lastLogin: '2024-01-06',
+    department: '销售部',
+    position: '销售经理',
+    salary: 16000,
+    status: 'active',
+    joinDate: '2022-01-15',
+    phone: '13800138011',
+    address: '天津市和平区',
   },
   {
     id: 12,
     name: '张十四',
     age: 28,
-    sex: 2,
     email: 'zhangshisi@example.com',
-    department: '市场部',
-    position: '市场经理',
-    salary: 19000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2021-08-25',
-    lastLogin: '2024-01-05',
+    department: '客服部',
+    position: '客服主管',
+    salary: 12000,
+    status: 'active',
+    joinDate: '2022-07-01',
+    phone: '13800138012',
+    address: '苏州市姑苏区',
   },
   {
     id: 13,
     name: '刘十五',
     age: 35,
-    sex: 1,
     email: 'liushiwu@example.com',
     department: '技术部',
-    position: '技术总监',
-    salary: 30000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2018-03-12',
-    lastLogin: '2024-01-04',
+    position: '架构师',
+    salary: 25000,
+    status: 'active',
+    joinDate: '2020-03-01',
+    phone: '13800138013',
+    address: '长沙市岳麓区',
   },
   {
     id: 14,
     name: '陈十六',
     age: 27,
-    sex: 2,
     email: 'chenshiliu@example.com',
-    department: '产品部',
-    position: '产品总监',
-    salary: 28000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2019-10-15',
-    lastLogin: '2024-01-03',
+    department: '设计部',
+    position: '平面设计师',
+    salary: 11000,
+    status: 'active',
+    joinDate: '2023-02-20',
+    phone: '13800138014',
+    address: '福州市鼓楼区',
   },
   {
     id: 15,
     name: '杨十七',
     age: 29,
-    sex: 2,
     email: 'yangshiqi@example.com',
-    department: '设计部',
-    position: '设计总监',
-    salary: 22000,
-    status: '在职',
-    isActive: true,
-    joinDate: '2020-05-20',
-    lastLogin: '2024-01-02',
+    department: '运营部',
+    position: '运营经理',
+    salary: 15000,
+    status: 'active',
+    joinDate: '2022-05-10',
+    phone: '13800138015',
+    address: '郑州市金水区',
   },
-])
+]
+// const nonRowData = []
 </script>
+
 <template lang="pug">
-.full.between-col.gap-gap
-  .fs-appFontSizex GridTable 组件默认示例
-    .color-text200 展示 GridTable 组件的默认配置
-  //- 表格容器
-  GridTable(ref='gridTableRef', :config='gridConfig', v-model='rowData')
+.full
+  GridTable(:column-defs='columnDefs', :row-data='rowData', :enable-zebra-stripe='true')
 </template>

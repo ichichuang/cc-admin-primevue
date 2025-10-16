@@ -533,7 +533,7 @@ const testThreeLayerNestedDialog = () => {
 </script>
 
 <template lang="pug">
-.grid.grid-cols-1.gap-gapx.p-gapx(class='sm:grid-cols-2 xl:grid-cols-3 xxl:grid-cols-4')
+.grid.grid-cols-1.gap-gapx(class='sm:grid-cols-2 xl:grid-cols-3 xxl:grid-cols-4')
   // 基础对话框
   .full.c-card.p-padding.rounded-rounded.between-col.center-start
     .fs-16.font-semibold.center 基础对话框

@@ -47,7 +47,6 @@ const isLoadingRef = ref(true)
 watch(
   () => isLoading.value,
   loading => {
-    console.log('loading: ', loading, ' ******************************')
     if (loading) {
       nextTick(() => {
         isLoadingRef.value = true

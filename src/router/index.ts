@@ -67,8 +67,6 @@ function createInitialRoutes(routes: RouteConfig[]): RouteRecordRaw[] {
 // 转换为 Vue Router 兼容格式
 const initialRoutes: RouteRecordRaw[] = createInitialRoutes(normalizedStaticRoutes)
 
-console.log('路由模式： ', env.routerMode)
-
 // 创建路由实例
 const router = createRouter({
   // history 模式

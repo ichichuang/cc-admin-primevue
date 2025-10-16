@@ -51,21 +51,6 @@ export interface ScrollEvent {
   deltaY?: number
 }
 
-// ==================== OverlayScrollbars 配置类型 ====================
-
-/**
- * 滚动条尺寸配置接口
- * 定义滚动条的尺寸和填充相关属性
- */
-export interface ScrollbarSize {
-  /** 滚动条宽度/高度（像素） */
-  size?: number
-  /** 滚动条轴垂直填充（水平滚动条为上下填充，垂直滚动条为左右填充） */
-  paddingPerpendicular?: number
-  /** 滚动条轴填充（水平滚动条为左右填充，垂直滚动条为上下填充） */
-  paddingAxis?: number
-}
-
 // ==================== 组件 Props 类型 ====================
 
 /**
@@ -87,38 +72,34 @@ export interface ScrollbarWrapperProps {
   contentStyle?: Record<string, any>
   /** 滚动方向：水平、垂直或双向 */
   direction?: 'horizontal' | 'vertical' | 'both'
-  /** 滚动条尺寸（像素），0 表示使用动态计算 */
+  /** 滚动条滑块尺寸（像素），对应 --os-handle-perpendicular-size，0 表示使用动态计算（桌面: 6px, 移动: 4px） */
   size?: number
-  /** 滚动条轴垂直填充（像素），0 表示使用动态计算 */
+  /** 鼠标悬停时的滑块尺寸（像素），对应 --os-handle-perpendicular-size-hover，0 表示使用 size 的值 */
+  sizeHover?: number
+  /** 激活/拖拽时的滑块尺寸（像素），对应 --os-handle-perpendicular-size-active，0 表示使用 sizeHover 或 size 的值 */
+  sizeActive?: number
+  /** 整个滚动条区域尺寸（像素），对应 --os-size，0 表示自动计算为 size + 4px */
+  trackSize?: number
+  /** 滚动条垂直于滚动方向的内边距（像素），对应 --os-padding-perpendicular，0 表示使用动态计算 */
   paddingPerpendicular?: number
-  /** 滚动条轴填充（像素），0 表示使用动态计算 */
+  /** 滚动条沿滚动方向的内边距（像素），对应 --os-padding-axis，0 表示使用动态计算 */
   paddingAxis?: number
   /** 是否启用点击滚动功能 */
   clickScroll?: boolean
-  /** 点击滚动时的步长（页面数） */
-  clickScrollStep?: number
-  /** 点击滚动的动画持续时间（毫秒） */
-  clickScrollDuration?: number
-  /** 点击滚动的缓动函数（CSS easing 值） */
-  clickScrollEasing?: string
   /** 是否自动隐藏滚动条，或指定自动隐藏行为 */
   autoHide?: boolean | 'scroll' | 'leave' | 'move' | 'never'
   /** 自动隐藏延迟时间（毫秒） */
   autoHideDelay?: number
-  /** 是否自动展开滚动条 */
-  autoExpand?: boolean
-  /** 是否固定滚动条滑块 */
-  fixedThumb?: boolean
   /** 滚动事件节流类型 */
   throttleType?: 'throttle' | 'debounce' | 'none'
   /** 节流等待时间（毫秒） */
   throttleWait?: number
-  /** 是否模拟滚动行为 */
-  simulateScroll?: boolean
   /** 自定义颜色方案 */
   colorScheme?: ColorScheme
   /** 自定义 OverlayScrollbars 选项配置 */
-  options?: PartialOptions
+  options?: any
+  /** 当内容增加时是否自动滚动到底部，默认为 true */
+  autoScrollToBottom?: boolean
 }
 
 // ==================== 事件类型 ====================

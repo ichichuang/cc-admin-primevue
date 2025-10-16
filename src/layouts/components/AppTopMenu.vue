@@ -47,12 +47,6 @@ template(v-else)
   //- 全屏布局
   template(v-if='currentLayoutMode === "ratio"')
   template(v-else-if='currentLayoutMode === "fullscreen"')
-    .c-card-primary.shadow-none.size-1-1.center(@click='toggleThemeWithAnimation($event)')
-      template(v-if='isDark')
-        .fs-appFontSizex(class='icon-line-md:moon-twotone-alt-loop')
-      template(v-else)
-        .fs-appFontSizex(class='icon-line-md:sunny-outline-twotone')
-    ColorSwitch.fixed.b-gapl.r-gapl
   template(v-else-if='currentLayoutMode === "screen"')
     .c-card-primary.shadow-none.size-1-1.center(@click='toggleThemeWithAnimation($event)')
       template(v-if='isDark')

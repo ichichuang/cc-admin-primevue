@@ -213,31 +213,31 @@
       border-color: var(--bg300);
       // 鼠标悬停
       &:hover {
-        border-color: var(--primary100) !important;
+        border-color: color-mix(in srgb, var(--primary-color-hover) 60%, transparent) !important;
       }
       // 聚焦
       &:focus {
-        border-color: var(--accent100) !important;
+        border-color: var(--primary-color-active) !important;
       }
       // 激活
       &:active {
-        border-color: var(--primary200) !important;
+        border-color: var(--primary-color-active) !important;
       }
       // 选中
       &:checked {
-        border-color: red;
+        border-color: var(--primary-color-active) !important;
       }
       // 聚焦可见
       &:focus-visible {
-        border-color: orange;
+        border-color: var(--primary-color-active) !important;
       }
       // 禁用
       &:disabled {
-        border-color: yellow;
+        border-color: var(--primary-color-disabled) !important;
       }
       // 无效
       &:invalid {
-        border-color: green;
+        border-color: var(--secondary-color) !important;
       }
       // 有效
       &:valid {

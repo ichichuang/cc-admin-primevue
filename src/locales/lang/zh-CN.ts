@@ -135,27 +135,7 @@ const zhCN = {
       noDataAvailable: '没有可显示的数据',
     },
   },
-  user: {
-    title: '用户管理',
-    list: {
-      title: '用户列表',
-    },
-    permission: {
-      title: '用户权限',
-    },
-  },
-  dashboard: {
-    title: '仪表盘',
-  },
-  permission: {
-    title: '权限管理',
-    page: {
-      title: '页面权限',
-    },
-    button: {
-      title: '按钮权限',
-    },
-  },
+
   router: {
     core: {
       root: '首页',
@@ -189,10 +169,18 @@ const zhCN = {
           default: '默认表格',
           basic: '基础表格',
           service: '服务端表格',
-          noRowsToShow: '暂无数据',
-          noDataAvailable: '没有可显示的数据',
+          advanced: '高级表格',
         },
-        echarts: '图表',
+        echarts: {
+          title: '图表',
+          default: '默认图表',
+          static: '静态图表',
+          event: '事件图表',
+          dynamic: '动态图表',
+        },
+        datepicker: {
+          title: '日期选择器',
+        },
       },
       function: {
         title: '函数',
@@ -203,6 +191,24 @@ const zhCN = {
       notFound: '页面未找到',
       forbidden: '访问被拒绝',
       serverError: '服务器错误',
+    },
+    user: {
+      title: '用户管理',
+      list: {
+        title: '用户列表',
+      },
+      permission: {
+        title: '用户权限',
+      },
+    },
+    permission: {
+      title: '权限管理',
+      page: {
+        title: '页面权限',
+      },
+      button: {
+        title: '按钮权限',
+      },
     },
   },
   layout: {
@@ -359,6 +365,49 @@ const zhCN = {
       zoomOut: '缩小',
       rotateRight: '向右旋转',
       rotateLeft: '向左旋转',
+    },
+  },
+  components: {
+    gridTable: {
+      autoSizeColumns: '重新计算列宽',
+      exportCsv: '导出 CSV',
+      exportExcel: '导出 Excel',
+      totalCount: '共 {count} 条数据',
+      selectedCount: '已选择 {count} 条',
+      loadingMore: '加载中...',
+      noMore: '没有更多数据了',
+    },
+    datePicker: {
+      placeholder: '请选择日期',
+      rangePlaceholder: '请选择日期范围',
+      clearLabel: '清空',
+      cancelLabel: '取消',
+      confirmLabel: '确定',
+      todayLabel: '今天',
+      nowLabel: '此刻',
+      selectDate: '选择日期',
+      selectTime: '选择时间',
+      startDate: '开始日期',
+      endDate: '结束日期',
+      startTime: '开始时间',
+      endTime: '结束时间',
+      // 不同模式的 placeholder
+      placeholders: {
+        date: '请选择日期',
+        datetime: '请选择日期时间',
+        time: '请选择时间',
+        month: '请选择月份',
+        year: '请选择年份',
+        week: '请选择周',
+        quarter: '请选择季度',
+        range: '请选择日期范围',
+        'range-datetime': '请选择日期时间范围',
+        'range-time': '请选择时间范围',
+        'range-month': '请选择月份范围',
+        'range-year': '请选择年份范围',
+        'range-week': '请选择周范围',
+        'range-quarter': '请选择季度范围',
+      },
     },
   },
 }

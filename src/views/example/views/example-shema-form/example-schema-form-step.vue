@@ -102,11 +102,66 @@ const initialSchema: Schema = {
         contentClass: 'center',
       },
     },
+
+    // Step 4: 时间安排
+    {
+      field: 'startDate',
+      label: '开始日期',
+      component: 'DatePicker',
+      rules: 'required',
+      help: '选择项目开始日期',
+      props: {
+        mode: 'date',
+        valueFormat: 'iso',
+        clearable: true,
+        minDate: new Date(), // 不能选择过去日期
+      },
+      layout: {
+        cols: 4,
+        labelAlign: 'top',
+      },
+    },
+    {
+      field: 'endDate',
+      label: '结束日期',
+      component: 'DatePicker',
+      rules: 'required',
+      help: '选择项目结束日期',
+      props: {
+        mode: 'date',
+        valueFormat: 'iso',
+        clearable: true,
+        minDate: new Date(), // 不能选择过去日期
+      },
+      layout: {
+        cols: 4,
+        labelAlign: 'top',
+      },
+    },
+    {
+      field: 'meetingTime',
+      label: '会议时间',
+      component: 'DatePicker',
+      help: '选择会议的具体时间',
+      props: {
+        mode: 'datetime',
+        valueFormat: 'iso',
+        enableSeconds: false,
+        clearable: true,
+        is24: true,
+        minDate: new Date(), // 不能选择过去时间
+      },
+      layout: {
+        cols: 4,
+        labelAlign: 'top',
+      },
+    },
   ],
   steps: [
     { title: '基本信息', fields: ['username', 'email'] },
     { title: '详情信息', fields: ['age', 'gender'] },
     { title: '偏好设置', fields: ['interests', 'notification'] },
+    { title: '时间安排', fields: ['startDate', 'endDate', 'meetingTime'] },
   ],
   layout: {
     labelAlign: 'left',

@@ -13,13 +13,12 @@ const importedHookComponents = autoImportModulesSync(hookComponentsModules)
 
 // 导出所有 Hook 模块
 export * from '@/hooks/components/useDialog'
-export * from '@/hooks/components/useGridTable'
 export * from '@/hooks/components/useSchemaForm'
 export * from '@/hooks/components/useThemeSwitch'
+export * from '@/hooks/components/ussGridTable'
 export * from '@/hooks/layout/useLoading'
 export * from '@/hooks/layout/useNprogress'
 export * from '@/hooks/layout/usePageTitle'
-export * from '@/hooks/modules/useChart'
 export * from '@/hooks/modules/useChartTheme'
 export * from '@/hooks/modules/useDateUtils'
 export * from '@/hooks/modules/useElementSize'
