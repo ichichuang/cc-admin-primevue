@@ -3,13 +3,12 @@ import { useThemeSwitch } from '@/hooks'
 import { getCurrentLocale, t } from '@/locales'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { datePickerDefaultPropsFactory } from './utils/constants'
 import { formatModelValue, getDefaultDisplayFormat, toDate } from './utils/helper'
 import type {
   DatePickerEmits,
-  DatePickerMode,
   DatePickerProps,
   DateValue,
-  PresetRange,
   UseDatePickerExpose,
 } from './utils/types'
 
@@ -18,26 +17,7 @@ const datePickerComp: any = VueDatePicker
 
 type Props = DatePickerProps
 
-const props = withDefaults(defineProps<Props>(), {
-  mode: 'date' as DatePickerMode,
-  range: false,
-  displayFormat: undefined,
-  valueFormat: 'date',
-  localeTexts: undefined,
-  placeholder: undefined,
-  disabled: false,
-  clearable: true,
-  is24: true,
-  enableSeconds: false,
-  minDate: undefined,
-  maxDate: undefined,
-  presets: () => [] as PresetRange[],
-  inline: false,
-  placement: 'bottom-start',
-  inputStyle: () => ({}),
-  customClass: '',
-  size: 'medium',
-})
+const props = withDefaults(defineProps<Props>(), datePickerDefaultPropsFactory())
 
 const emit = defineEmits<DatePickerEmits>()
 
@@ -53,10 +33,9 @@ const innerValue = ref<any>(null)
 // 标记是否正在内部更新，防止循环触发
 const isInternalUpdate = ref(false)
 
-// 有效展示格式（未传时随模式提供默认）；兼容 format 别名
+// 有效展示格式（未传时随模式提供默认）
 const effectiveDisplayFormat = computed(() => {
-  const alias = (props as unknown as Record<string, any>).format as string | undefined
-  return props.displayFormat || alias || getDefaultDisplayFormat(props.mode)
+  return props.displayFormat || getDefaultDisplayFormat(props.mode)
 })
 
 // 根据初始 modelValue 智能推断输出类型（未显式指定时）
@@ -253,12 +232,18 @@ const handleUpdate = (val: any) => {
 
   let out: DateValue
   if (Array.isArray(val)) {
-    out = [
-      formatModelValue(val[0], inferredValueFormat.value),
-      formatModelValue(val[1], inferredValueFormat.value),
-    ] as any
+    const left = formatModelValue(val[0], inferredValueFormat.value)
+    const right = formatModelValue(val[1], inferredValueFormat.value)
+    // 当范围两端均为空/无效时，向外派发 null，避免出现 1970-01-01
+    if ((left === null || left === undefined) && (right === null || right === undefined)) {
+      out = null
+    } else {
+      out = [left, right] as any
+    }
   } else {
-    out = formatModelValue(val, inferredValueFormat.value) as any
+    // 单值为空时同样派发 null
+    const single = formatModelValue(val, inferredValueFormat.value)
+    out = single === null || single === undefined ? null : (single as any)
   }
 
   emit('update:modelValue', out)
@@ -279,16 +264,10 @@ watch(
       return
     }
 
-    // 若外部未提供值，则以当前时间作为默认值
+    // 若外部未提供值，保持为空
     if (next === null || next === undefined) {
-      const now = new Date()
-      const internal = props.range
-        ? [normalizeForModelType(now, vf), normalizeForModelType(now, vf)]
-        : (normalizeForModelType(now, vf) as any)
-
-      // 设置内部值并同步给外部
-      innerValue.value = internal as any
-      handleUpdate(internal)
+      // 对于范围模式，使用 null 而非 [null, null]，避免组件内部默认化为起始时间
+      innerValue.value = null
       return
     }
 
@@ -364,6 +343,24 @@ const datePickerLocale = computed(() => {
   }
 })
 
+// 兼容定位：将自定义 placement 映射为 vue-datepicker 的 position/open-on-top
+// - position: 'left' | 'right' | 'center'
+// - open-on-top: boolean
+const positionAlign = computed<'left' | 'right' | 'center'>(() => {
+  const p = props.placement || 'bottom-start'
+  if (p.includes('left')) {
+    return 'left'
+  }
+  if (p.includes('right')) {
+    return 'right'
+  }
+  return 'center'
+})
+const openOnTop = computed<boolean>(() => {
+  const p = props.placement || 'bottom-start'
+  return p.startsWith('top')
+})
+
 // 无障碍标签配置
 const ariaLabels = computed(() => ({
   toggleOverlay: t('components.datePicker.selectDate'),
@@ -437,7 +434,7 @@ onMounted(() => {
     ref="dpRef"
     v-model="innerValue"
     :range="props.range"
-    :format="modelType === 'format' ? effectiveDisplayFormat : undefined"
+    :format="effectiveDisplayFormat"
     :model-type="modelType"
     :placeholder="placeholderText"
     :clearable="props.clearable"
@@ -446,11 +443,18 @@ onMounted(() => {
     :enable-seconds="props.enableSeconds"
     :min-date="minDateResolved"
     :max-date="maxDateResolved"
+    :min-range="props.minRange as any"
     :preset-dates="presetDates"
+    :max-range="props.maxRange as any"
+    :disabled-dates="props.disabledDates as any"
+    :disabled-week-days="props.disabledWeekDays"
+    :year-range="props.yearRange as any"
     :inline="props.inline"
     :teleport="false"
     :dark="isDark"
     :locale="datePickerLocale"
+    :position="positionAlign"
+    :open-on-top="openOnTop"
     :aria-labels="ariaLabels"
     :class="[props.customClass, { 'dp-initialized': isInitialized }]"
     :style="props.inputStyle"

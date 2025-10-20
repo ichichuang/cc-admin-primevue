@@ -12,12 +12,15 @@ import {
   BarChart,
   BoxplotChart,
   CandlestickChart,
+  EffectScatterChart,
   FunnelChart,
   GaugeChart,
   GraphChart,
   HeatmapChart,
   LineChart,
+  LinesChart,
   ParallelChart,
+  PictorialBarChart,
   PieChart,
   RadarChart,
   SankeyChart,
@@ -25,6 +28,7 @@ import {
   SunburstChart,
   ThemeRiverChart,
   TreeChart,
+  TreemapChart,
 } from 'echarts/charts'
 
 // 引入所有常用组件
@@ -74,6 +78,10 @@ use([
   ParallelChart,
   SankeyChart,
   ThemeRiverChart,
+  EffectScatterChart,
+  PictorialBarChart,
+  TreemapChart,
+  LinesChart,
   // 组件
   TitleComponent,
   TooltipComponent,

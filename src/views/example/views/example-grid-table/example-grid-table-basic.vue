@@ -51,7 +51,7 @@ const columnDefs = computed((): (ExtendedColDef | ExtendedColGroupDef)[] => {
           {
             field: 'id',
             headerName: 'ID',
-            width: idColumnWidthMode.value === 'auto' ? undefined : 50,
+            minWidth: idColumnWidthMode.value === 'auto' ? undefined : 80,
             pinned: 'left',
           },
           {
@@ -190,7 +190,7 @@ const columnDefs = computed((): (ExtendedColDef | ExtendedColGroupDef)[] => {
       {
         field: 'id',
         headerName: 'ID',
-        width: idColumnWidthMode.value === 'auto' ? undefined : 50,
+        minWidth: idColumnWidthMode.value === 'auto' ? undefined : 80,
         pinned: 'left',
       },
       {

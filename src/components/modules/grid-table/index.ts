@@ -1,3 +1,4 @@
+export { default as ActionCell } from './components/ActionCell.tsx'
 export { default as GridTable } from './GridTable.vue'
 
 // Re-export commonly used types for external usage
@@ -61,10 +62,4 @@ export {
 } from './utils/helper'
 
 // Re-export hooks for external usage
-export { useGridData, useGridValidation, useRevoGrid } from '@/hooks/components/ussGridTable'
-
-// Re-export Loading related types and utilities
-export type {
-  // Loading overlay templates
-  GridTableProps,
-} from './utils/types'
+export { useGridData, useGridValidation, useRevoGrid } from '@/hooks/components/useGridTable'

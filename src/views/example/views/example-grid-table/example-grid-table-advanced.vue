@@ -14,7 +14,7 @@ const columnDefs = ref<ExtendedColDef[]>([
   {
     field: 'name',
     headerName: '姓名',
-    width: 180,
+    minWidth: 120,
   },
   {
     field: 'age',

@@ -78,3 +78,31 @@ export function applyOpacityToColor(color: string, opacity: number): string {
 export function toKebabCase(str: string, start: string = '', end: string = ''): string {
   return start + `${str.replace(/([A-Z])/g, '-$1').toLowerCase()}` + end
 }
+
+import { v4 as uuidv4, v5 as uuidv5 } from 'uuid'
+/* 使用 uuid 生成唯一id */
+export function generateUniqueId(): string {
+  const uniqueId = uuidv4()
+  return uniqueId
+}
+
+/* 传入字符串，根据字符串使用固定的命名空间生成稳定的 UUID */
+export function generateIdFromKey(key: string | number | boolean | null | undefined): string {
+  // 确保输入是有效的字符串
+  const stringKey = String(key || '')
+
+  // 如果输入为空字符串，使用默认值
+  if (!stringKey) {
+    return generateUniqueId()
+  }
+
+  try {
+    const NAMESPACE = uuidv5.DNS
+    const uniqueId = uuidv5(stringKey, NAMESPACE) // 基于输入的键值生成 ID
+    return uniqueId
+  } catch (error) {
+    // 如果 uuidv5 失败，回退到 uuidv4
+    console.warn('generateIdFromKey failed, falling back to uuidv4:', error)
+    return generateUniqueId()
+  }
+}

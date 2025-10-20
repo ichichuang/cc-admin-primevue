@@ -138,6 +138,37 @@ const handleRendered = () => {
   // addEventLog('渲染完成')
 }
 
+// 特殊事件处理器
+// 这些是ECharts支持的特殊图表事件
+
+const handleTreeExpand = (params: any) => {
+  addEventLog('树图展开', {
+    name: params.name,
+    dataIndex: params.dataIndex,
+  })
+}
+
+const handleTreeCollapse = (params: any) => {
+  addEventLog('树图折叠', {
+    name: params.name,
+    dataIndex: params.dataIndex,
+  })
+}
+
+const handleTreemapZoom = (params: any) => {
+  addEventLog('矩形树图缩放', {
+    name: params.name,
+    dataIndex: params.dataIndex,
+  })
+}
+
+const handleParallelAxisSelected = (params: any) => {
+  addEventLog('平行坐标轴选择', {
+    axisIndex: params.axisIndex,
+    axisName: params.axisName,
+  })
+}
+
 // 柱状图配置（带数据缩放功能）
 const barChartOption = ref({
   title: {
@@ -672,6 +703,406 @@ const themeRiverChartOption = ref({
     },
   ],
 })
+
+// 带波纹动画的散点图配置
+const effectScatterChartOption = ref({
+  title: {
+    text: '城市人口分布（带波纹散点图）',
+  },
+  tooltip: {
+    trigger: 'item' as const,
+  },
+  legend: {},
+  xAxis: {
+    type: 'value' as const,
+    name: 'GDP（亿元）',
+  },
+  yAxis: {
+    type: 'value' as const,
+    name: '人口（万人）',
+  },
+  series: [
+    {
+      name: '一线城市',
+      type: 'effectScatter' as const,
+      data: [
+        [120, 200, 2000],
+        [200, 300, 3000],
+        [150, 250, 2500],
+        [180, 280, 2800],
+      ],
+      symbolSize: (val: number[]) => val[2] / 10,
+      showEffectOn: 'render' as const,
+      rippleEffect: {
+        brushType: 'stroke' as const,
+      },
+      hoverAnimation: true,
+      label: {
+        formatter: '{b}',
+        position: 'right' as const,
+        show: true,
+      },
+      emphasis: {
+        scale: true,
+      },
+    },
+    {
+      name: '二线城市',
+      type: 'effectScatter' as const,
+      data: [
+        [80, 150, 800],
+        [90, 180, 900],
+        [70, 120, 700],
+        [85, 160, 850],
+      ],
+      symbolSize: (val: number[]) => val[2] / 15,
+      showEffectOn: 'render' as const,
+      rippleEffect: {
+        brushType: 'stroke' as const,
+      },
+      hoverAnimation: true,
+      label: {
+        formatter: '{b}',
+        position: 'right' as const,
+        show: true,
+      },
+      emphasis: {
+        scale: true,
+      },
+    },
+  ],
+})
+
+// 象形柱图配置
+const pictorialBarChartOption = ref({
+  title: {
+    text: '销售业绩对比（象形柱图）',
+  },
+  tooltip: {
+    trigger: 'axis' as const,
+  },
+  legend: {},
+  xAxis: {
+    type: 'category' as const,
+    data: ['Q1', 'Q2', 'Q3', 'Q4'],
+  },
+  yAxis: {
+    type: 'value' as const,
+  },
+  series: [
+    {
+      name: '销售额',
+      type: 'pictorialBar' as const,
+      symbol: 'rect',
+      symbolSize: [20, 4],
+      symbolOffset: [0, -2],
+      symbolPosition: 'end' as const,
+      data: [120, 200, 150, 80],
+    },
+    {
+      name: '利润',
+      type: 'pictorialBar' as const,
+      symbol: 'rect',
+      symbolSize: [20, 4],
+      symbolOffset: [0, -2],
+      symbolPosition: 'end' as const,
+      data: [60, 100, 75, 40],
+    },
+  ],
+})
+
+// 关系图配置
+const graphChartOption = ref({
+  title: {
+    text: '社交网络关系图',
+  },
+  tooltip: {},
+  legend: {},
+  series: [
+    {
+      type: 'graph' as const,
+      layout: 'force' as const,
+      data: [
+        { name: '张三', value: 100, category: 0 },
+        { name: '李四', value: 80, category: 0 },
+        { name: '王五', value: 60, category: 1 },
+        { name: '赵六', value: 90, category: 1 },
+        { name: '钱七', value: 70, category: 2 },
+        { name: '孙八', value: 85, category: 2 },
+      ],
+      links: [
+        { source: '张三', target: '李四' },
+        { source: '张三', target: '王五' },
+        { source: '李四', target: '赵六' },
+        { source: '王五', target: '钱七' },
+        { source: '赵六', target: '孙八' },
+        { source: '钱七', target: '孙八' },
+      ],
+      categories: [{ name: '管理层' }, { name: '技术部' }, { name: '市场部' }],
+      roam: true,
+      label: {
+        show: true,
+        position: 'right' as const,
+      },
+      force: {
+        repulsion: 100,
+        layoutAnimation: true,
+      },
+      emphasis: {
+        focus: 'adjacency' as const,
+        lineStyle: {
+          width: 10,
+        },
+      },
+    },
+  ],
+})
+
+// 树图配置
+const treeChartOption = ref({
+  title: {
+    text: '组织架构图（树图）',
+  },
+  tooltip: {
+    trigger: 'item' as const,
+    triggerOn: 'mousemove' as const,
+  },
+  series: [
+    {
+      type: 'tree' as const,
+      data: [
+        {
+          name: 'CEO',
+          children: [
+            {
+              name: '技术部',
+              children: [{ name: '前端组' }, { name: '后端组' }, { name: '测试组' }],
+            },
+            {
+              name: '市场部',
+              children: [{ name: '销售组' }, { name: '推广组' }],
+            },
+            {
+              name: '人事部',
+              children: [{ name: '招聘组' }, { name: '培训组' }],
+            },
+          ],
+        },
+      ],
+      top: '5%',
+      left: '7%',
+      bottom: '2%',
+      right: '20%',
+      symbolSize: 7,
+      label: {
+        position: 'left' as const,
+        verticalAlign: 'middle' as const,
+        align: 'right' as const,
+      },
+      leaves: {
+        label: {
+          position: 'right' as const,
+          verticalAlign: 'middle' as const,
+          align: 'left' as const,
+        },
+      },
+      emphasis: {
+        focus: 'descendant' as const,
+      },
+      expandAndCollapse: true,
+      animationDuration: 550,
+      animationDurationUpdate: 750,
+    },
+  ],
+})
+
+// 矩形树图配置
+const treemapChartOption = ref({
+  title: {
+    text: '销售数据分布（矩形树图）',
+  },
+  tooltip: {
+    trigger: 'item' as const,
+    formatter: '{b}: {c}',
+  },
+  series: [
+    {
+      type: 'treemap' as const,
+      data: [
+        {
+          name: '华东区',
+          value: 1000,
+          children: [
+            { name: '上海', value: 400 },
+            { name: '杭州', value: 300 },
+            { name: '南京', value: 300 },
+          ],
+        },
+        {
+          name: '华北区',
+          value: 800,
+          children: [
+            { name: '北京', value: 500 },
+            { name: '天津', value: 200 },
+            { name: '石家庄', value: 100 },
+          ],
+        },
+        {
+          name: '华南区',
+          value: 600,
+          children: [
+            { name: '广州', value: 300 },
+            { name: '深圳', value: 200 },
+            { name: '珠海', value: 100 },
+          ],
+        },
+        {
+          name: '西南区',
+          value: 400,
+          children: [
+            { name: '成都', value: 200 },
+            { name: '重庆', value: 150 },
+            { name: '昆明', value: 50 },
+          ],
+        },
+      ],
+      roam: false,
+      nodeClick: 'zoomToNode' as const,
+      breadcrumb: {
+        show: true,
+      },
+      label: {
+        show: true,
+        formatter: '{b}',
+      },
+      upperLabel: {
+        show: true,
+        height: 30,
+      },
+      emphasis: {
+        focus: 'self' as const,
+      },
+    },
+  ],
+})
+
+// 平行坐标图配置
+const parallelChartOption = ref({
+  title: {
+    text: '汽车性能对比（平行坐标图）',
+  },
+  tooltip: {
+    trigger: 'item' as const,
+  },
+  legend: {},
+  parallelAxis: [
+    { dim: 0, name: '价格（万元）' },
+    { dim: 1, name: '油耗（L/100km）' },
+    { dim: 2, name: '功率（马力）' },
+    { dim: 3, name: '加速（秒）' },
+    { dim: 4, name: '舒适度' },
+  ],
+  series: [
+    {
+      type: 'parallel' as const,
+      data: [
+        [12, 6.5, 150, 8.5, 8],
+        [15, 7.2, 180, 7.8, 9],
+        [18, 8.1, 200, 7.2, 7],
+        [22, 9.5, 250, 6.8, 9],
+        [25, 10.2, 300, 6.2, 8],
+        [30, 12.5, 350, 5.8, 10],
+      ],
+      lineStyle: {
+        width: 2,
+        opacity: 0.7,
+      },
+      emphasis: {
+        focus: 'series' as const,
+        lineStyle: {
+          width: 4,
+          opacity: 1,
+        },
+      },
+    },
+  ],
+})
+
+// 线图层配置
+const linesChartOption = ref({
+  title: {
+    text: '线图层配置',
+  },
+  tooltip: {
+    trigger: 'axis' as const,
+  },
+  // cartesian2d 需要提供 xAxis 和 yAxis
+  xAxis: { type: 'value' as const },
+  yAxis: { type: 'value' as const },
+  series: [
+    {
+      type: 'lines' as const,
+      coordinateSystem: 'cartesian2d' as const,
+      data: [
+        {
+          coords: [
+            [100, 100],
+            [200, 150],
+          ],
+        },
+        {
+          coords: [
+            [150, 120],
+            [250, 180],
+          ],
+        },
+        {
+          coords: [
+            [120, 140],
+            [220, 200],
+          ],
+        },
+        {
+          coords: [
+            [180, 110],
+            [280, 160],
+          ],
+        },
+      ],
+      effect: {
+        show: true,
+        period: 6,
+        trailLength: 0.7,
+        symbolSize: 3,
+      },
+      lineStyle: {
+        width: 1,
+        opacity: 0.4,
+        curveness: 0.3,
+      },
+    },
+    {
+      type: 'scatter' as const,
+      coordinateSystem: 'cartesian2d' as const,
+      data: [
+        [100, 100, '北京'],
+        [200, 150, '上海'],
+        [150, 120, '广州'],
+        [250, 180, '深圳'],
+        [120, 140, '杭州'],
+        [220, 200, '南京'],
+        [180, 110, '成都'],
+        [280, 160, '重庆'],
+      ],
+      symbolSize: 8,
+      label: {
+        show: true,
+        formatter: '{c}',
+        position: 'top' as const,
+      },
+    },
+  ],
+})
 </script>
 
 <template lang="pug">
@@ -801,6 +1232,87 @@ const themeRiverChartOption = ref({
         :on-click='handleClick',
         :on-mouse-over='handleMouseOver',
         :on-mouse-out='handleMouseOut'
+      )
+
+      // 带波纹散点图 - 动画事件
+      UseEcharts(
+        :option='effectScatterChartOption',
+        :on-click='handleClick',
+        :on-dbl-click='handleDblClick',
+        :on-mouse-over='handleMouseOver',
+        :on-mouse-out='handleMouseOut',
+        :on-legend-select-changed='handleLegendSelectChanged',
+        :on-highlight='handleHighlight',
+        :on-downplay='handleDownplay'
+      )
+
+      // 象形柱图 - 基础事件
+      UseEcharts(
+        :option='pictorialBarChartOption',
+        :on-click='handleClick',
+        :on-dbl-click='handleDblClick',
+        :on-mouse-over='handleMouseOver',
+        :on-mouse-out='handleMouseOut',
+        :on-legend-select-changed='handleLegendSelectChanged'
+      )
+
+      // 关系图 - 拖拽和点击事件
+      UseEcharts(
+        :option='graphChartOption',
+        :on-click='handleClick',
+        :on-dbl-click='handleDblClick',
+        :on-mouse-over='handleMouseOver',
+        :on-mouse-out='handleMouseOut',
+        :on-legend-select-changed='handleLegendSelectChanged',
+        :on-highlight='handleHighlight',
+        :on-downplay='handleDownplay'
+      )
+
+      // 树图 - 展开折叠事件
+      UseEcharts(
+        :option='treeChartOption',
+        :on-click='handleClick',
+        :on-dbl-click='handleDblClick',
+        :on-mouse-over='handleMouseOver',
+        :on-mouse-out='handleMouseOut',
+        :on-highlight='handleHighlight',
+        :on-downplay='handleDownplay',
+        :on-tree-expand='handleTreeExpand',
+        :on-tree-collapse='handleTreeCollapse'
+      )
+
+      // 矩形树图 - 缩放和面包屑事件
+      UseEcharts(
+        :option='treemapChartOption',
+        :on-click='handleClick',
+        :on-dbl-click='handleDblClick',
+        :on-mouse-over='handleMouseOver',
+        :on-mouse-out='handleMouseOut',
+        :on-highlight='handleHighlight',
+        :on-downplay='handleDownplay',
+        :on-treemap-zoom='handleTreemapZoom'
+      )
+
+      // 平行坐标图 - 轴选择和线条事件
+      UseEcharts(
+        :option='parallelChartOption',
+        :on-click='handleClick',
+        :on-mouse-over='handleMouseOver',
+        :on-mouse-out='handleMouseOut',
+        :on-legend-select-changed='handleLegendSelectChanged',
+        :on-highlight='handleHighlight',
+        :on-downplay='handleDownplay',
+        :on-parallel-axis-selected='handleParallelAxisSelected'
+      )
+
+      // 线图层 - 动画和交互事件
+      UseEcharts(
+        :option='linesChartOption',
+        :on-click='handleClick',
+        :on-mouse-over='handleMouseOver',
+        :on-mouse-out='handleMouseOut',
+        :on-highlight='handleHighlight',
+        :on-downplay='handleDownplay'
       )
 
   .flex-1.h-full

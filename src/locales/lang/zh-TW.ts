@@ -215,6 +215,7 @@ const zhTW = {
           static: '靜態圖表',
           event: '事件圖表',
           dynamic: '動態圖表',
+          linkage: '聯動圖表',
         },
         datepicker: {
           title: '日期選擇器',

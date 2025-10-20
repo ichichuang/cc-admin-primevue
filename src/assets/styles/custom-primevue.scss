@@ -379,5 +379,8 @@
   .p-tabpanels {
     width: 100%;
     flex: 1;
+    .p-tabpanel {
+      height: 100% !important;
+    }
   }
 }

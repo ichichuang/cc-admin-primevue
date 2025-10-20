@@ -28,6 +28,39 @@ export interface ChartThemeConfig {
   opacity?: ChartOpacityConfig
 }
 
+// 图表联动配置类型
+export interface ChartConnectConfig {
+  /** 是否启用联动 */
+  enabled?: boolean
+  /** 联动组 ID */
+  groupId?: string
+  /** 联动事件类型 */
+  events?: readonly ('highlight' | 'downplay' | 'select' | 'unselect' | 'dataZoom' | 'brush')[]
+  /** 联动延迟时间 (ms) */
+  delay?: number
+  /** 是否启用数据缩放联动 */
+  dataZoomSync?: boolean
+  /** 是否启用画刷联动 */
+  brushSync?: boolean
+  /** 是否启用图例联动 */
+  legendSync?: boolean
+}
+
+// 图表联动状态类型
+export interface ChartConnectState {
+  /** 当前高亮的数据索引 */
+  highlightedDataIndex?: number
+  /** 当前选中的数据索引 */
+  selectedDataIndex?: number
+  /** 数据缩放状态 */
+  dataZoomState?: {
+    start: number
+    end: number
+  }
+  /** 画刷状态 */
+  brushState?: any
+}
+
 // UseEcharts 组件 Props 类型
 export interface UseEchartsProps extends ChartEventHandlers {
   /** ECharts 配置选项 */
@@ -46,6 +79,8 @@ export interface UseEchartsProps extends ChartEventHandlers {
   manualUpdate?: boolean
   /** 图表主题配置 */
   themeConfig?: ChartThemeConfig
+  /** 图表联动配置 */
+  connectConfig?: ChartConnectConfig
 }
 
 // 图表实例方法类型
@@ -60,6 +95,12 @@ export interface ChartInstance {
   clear: () => void
   /** 销毁图表 */
   dispose: () => void
+  /** 获取联动状态 */
+  getConnectState: () => ChartConnectState
+  /** 设置联动状态 */
+  setConnectState: (state: Partial<ChartConnectState>) => void
+  /** 触发联动事件 */
+  triggerConnect: (eventType: string, params: any) => void
 }
 
 // 透明度默认值类型
@@ -202,4 +243,10 @@ export interface ChartEventHandlers {
   // 焦点/失焦事件
   onFocusNodeAdjacency?: (params: ChartEventParams) => void
   onUnfocusNodeAdjacency?: (params: ChartEventParams) => void
+
+  // 特殊图表事件
+  onTreeExpand?: (params: ChartEventParams) => void
+  onTreeCollapse?: (params: ChartEventParams) => void
+  onTreemapZoom?: (params: ChartEventParams) => void
+  onParallelAxisSelected?: (params: ChartEventParams) => void
 }

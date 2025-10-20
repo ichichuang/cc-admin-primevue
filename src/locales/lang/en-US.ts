@@ -215,6 +215,7 @@ const enUS = {
           static: 'Static Echarts',
           event: 'Event Echarts',
           dynamic: 'Dynamic Echarts',
+          linkage: 'Linkage Echarts',
         },
         datepicker: {
           title: 'Date Picker',

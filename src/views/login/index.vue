@@ -31,7 +31,7 @@ const handleLogin = async () => {
     .fs-appFontSizel.font-bold.color-accent100 呆头呆脑 CMS 平台
     .c-shadow.p-padding.rounded-xl.wfull.c-border.p-paddingl.bg-bg100.center-col.gap-gap.c-gradient-primary-bottom-right
       .h-100.w-100.center
-        Image.full(src='/public/face.png')
+        Image.full(src='/face.png')
 
       Button.full(:disabled='loading', severity='help', @click='handleLogin') {{ loading ? '加载中...' : '进入系统' }}
 </template>

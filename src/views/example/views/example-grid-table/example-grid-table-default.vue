@@ -2,8 +2,6 @@
 import type { ExtendedColDef } from '@/components/modules/grid-table'
 import { GridTable } from '@/components/modules/grid-table'
 
-// ==================== 列定义 ====================
-
 const columnDefs: ExtendedColDef[] = [
   {
     field: 'id',
@@ -70,8 +68,6 @@ const columnDefs: ExtendedColDef[] = [
     headerName: '地址',
   },
 ]
-
-// ==================== 假数据 ====================
 
 const rowData = [
   {
@@ -270,7 +266,6 @@ const rowData = [
     address: '郑州市金水区',
   },
 ]
-// const nonRowData = []
 </script>
 
 <template lang="pug">

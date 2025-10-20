@@ -211,6 +211,7 @@ const exampleRoutes: RouteConfig[] = [
                 meta: {
                   titleKey: 'router.example.components.echarts.default',
                   rank: 1,
+                  parent: 'screen',
                 },
               },
               {
@@ -242,6 +243,16 @@ const exampleRoutes: RouteConfig[] = [
                   titleKey: 'router.example.components.echarts.dynamic',
                   rank: 4,
                   parent: 'fullscreen',
+                },
+              },
+              {
+                path: 'linkage',
+                name: 'ExampleComponentsEchartsLinkage',
+                component: () =>
+                  import('@/views/example/views/example-echarts/example-echarts-linkage.vue'),
+                meta: {
+                  titleKey: 'router.example.components.echarts.linkage',
+                  rank: 5,
                 },
               },
             ],

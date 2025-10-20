@@ -215,6 +215,7 @@ const zhCN = {
           static: '静态图表',
           event: '事件图表',
           dynamic: '动态图表',
+          linkage: '联动图表',
         },
         datepicker: {
           title: '日期选择器',

@@ -1,21 +1,14 @@
 <script setup lang="tsx">
 import type { ExtendedColDef } from '@/components/modules/grid-table'
 import { GridTable } from '@/components/modules/grid-table'
-import ActionCell from '@/components/modules/grid-table/components/ActionCell.tsx'
 import { PrimeVueDialog, addDialog, dialogStore } from '@/components/modules/prime-dialog'
 import { SchemaForm } from '@/components/modules/schema-form'
 import type { Schema } from '@/components/modules/schema-form/utils/types'
 import { ScrollbarWrapper } from '@/components/modules/scrollbar-wrapper'
 import { useDialog } from '@/hooks/components/useDialog'
-import type { GridOptions } from 'ag-grid-community'
 import { ref } from 'vue'
 
-// 注册到 gridOptions 作为组件渲染器
-const gridOptions = ref<GridOptions>({
-  // Vue3 使用 components 注册，键名用于列里引用
-  // 使用小写注册名适配命名规范，列里用同名字符串
-  components: { actionCell: ActionCell } as any,
-} as GridOptions)
+// 注意：ActionCell 组件现在由 GridTable 组件自动注册，无需手动定义 gridOptions
 
 // ==================== 列定义（含操作列） ====================
 
@@ -648,7 +641,6 @@ function handleDelete(record: any) {
     ref='gridRef',
     :column-defs='columnDefs',
     :row-data='rowData',
-    :grid-options='gridOptions',
     :show-toolbar='true',
     :show-status-bar='true',
     :row-selection='"multiple"'

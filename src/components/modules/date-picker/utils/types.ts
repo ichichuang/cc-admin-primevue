@@ -14,9 +14,6 @@ export type DateValue = DatePrimitive | DateRange | null
 /** 选择器模式 */
 export type DatePickerMode = 'date' | 'datetime' | 'time' | 'month' | 'year' | 'week' | 'quarter'
 
-/** 尺寸 */
-export type DatePickerSize = 'small' | 'medium' | 'large'
-
 /** 快捷范围 */
 export interface PresetRange {
   label: string
@@ -44,8 +41,31 @@ export interface DatePickerProps {
   mode?: DatePickerMode
   /** 是否范围选择 */
   range?: boolean
-  /** 展示格式(显示用) */
-  displayFormat?: string
+  /**
+   * 范围模式下可选择的最大跨度
+   * - 对应 @vuepic/vue-datepicker 的 max-range
+   * - 可传天数 number，或按年/月/天的对象
+   */
+  maxRange?: number
+  /**
+   * 范围模式下可选择的最小跨度
+   * - 对应 @vuepic/vue-datepicker 的 min-range
+   */
+  minRange?: number
+  /** 禁用的具体日期或区间 */
+  disabledDates?:
+    | Array<DatePrimitive | { start: DatePrimitive; end: DatePrimitive }>
+    | ((date: Date) => boolean)
+  /** 禁用的星期几(0-6，周日为0) */
+  disabledWeekDays?: number[]
+  /** 年份选择范围，例如 [2000, 2030] */
+  yearRange?: [number, number]
+  /**
+   * 展示格式(显示用)
+   * - 推荐使用以下已知格式，享受智能提示与一致性
+   * - 仍允许自定义字符串（与 @vuepic/vue-datepicker 兼容）
+   */
+  displayFormat?: KnownDisplayFormat | (string & {})
   /** 值格式(v-model 输出用) */
   valueFormat?: 'date' | 'timestamp' | 'iso' | 'string'
   /** 文案(可结合 i18n) */
@@ -85,8 +105,6 @@ export interface DatePickerProps {
   inputStyle?: CSSProperties | Record<string, string | number>
   /** 自定义类名 */
   customClass?: string
-  /** 尺寸 */
-  size?: DatePickerSize
 }
 
 /** 默认配置导出类型 */
@@ -115,3 +133,29 @@ export interface UseDatePickerExpose {
 export interface UseDatePickerComputed {
   effectiveDisplayFormat: ComputedRef<string>
 }
+
+/**
+ * 已知且经过验证的展示格式集合（覆盖常见场景与中英混合格式）
+ * 说明：这里的类型仅用于提高类型提示的严谨度，不会限制传入其他自定义字符串
+ */
+export type KnownDisplayFormat =
+  | 'yyyy-MM-dd'
+  | 'yyyy-MM-dd HH:mm'
+  | 'yyyy-MM-dd HH:mm:ss'
+  | 'HH:mm'
+  | 'HH:mm:ss'
+  | 'yyyy-MM'
+  | 'yyyy'
+  | "yyyy-'W'ww"
+  | "yyyy-'Q'Q"
+  | 'MM/dd/yyyy'
+  | 'MM/dd/yyyy hh:mm:ss a'
+  | 'hh:mm:ss a'
+  | 'MM/yyyy'
+  | "yyyy-MM-dd'T'HH:mm:ss"
+  | 'yyyy年MM月dd日'
+  | 'yyyy年MM月dd日 HH:mm:ss'
+  | 'yyyy年MM月'
+  | 'yyyy年'
+  | "yyyy年'第'ww周"
+  | "yyyy年'第'Q季度"

@@ -8,7 +8,7 @@
  */
 
 import { debounce } from '@#/index'
-import { useRevoGrid } from '@/hooks/components/ussGridTable'
+import { useRevoGrid } from '@/hooks/components/useGridTable'
 import { t } from '@/locales'
 import { AgGridVue } from 'ag-grid-vue3'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
@@ -43,6 +43,8 @@ const mergedProps = computed<GridTableProps>(() => ({
   sizeConfig: mergedSizeConfig.value,
 }))
 
+// 注意：mergedGridOptions 现在由 useRevoGrid 提供，包含 ActionCell 等组件的合并逻辑
+
 // ==================== Emits 定义 ====================
 
 const emit = defineEmits<GridTableEmits>()
@@ -62,7 +64,7 @@ const {
   rowData,
   selectedRows,
   gridContainer,
-  gridOptions,
+  mergedGridOptions,
   columnDefs,
   gridStyle,
   gridClass,
@@ -262,8 +264,8 @@ defineExpose({
       :style='gridStyle',
       :column-defs='columnDefs',
       :row-data='rowData',
-      :grid-options='gridOptions',
-      :locale-text='gridOptions.localeText'
+      :grid-options='mergedGridOptions',
+      :locale-text='mergedGridOptions.localeText'
     )
 
   // 状态栏区域

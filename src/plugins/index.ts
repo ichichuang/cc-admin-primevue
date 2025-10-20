@@ -16,7 +16,7 @@ import type { App } from 'vue'
 export const setupPlugins = async (app: App) => {
   // 先安装并初始化 Pinia Stores，确保持久化状态已就绪，再使用依赖 Store 的逻辑
   setupStores(app)
-  const { loadingStart, loadingDone } = useLoading()
+  const { loadingStart } = useLoading()
   loadingStart()
   setupRouter(app)
   setupLocales(app)
@@ -31,5 +31,4 @@ export const setupPlugins = async (app: App) => {
 
   // 首屏初始化完成后，确保关闭全局加载遮罩，避免阻塞首次交互
   // 路由 afterEach 也会调用一次，此处冗余调用是安全的
-  loadingDone()
 }
