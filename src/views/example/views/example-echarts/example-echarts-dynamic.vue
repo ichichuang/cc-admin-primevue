@@ -665,7 +665,6 @@ function toggleLegendVisible() {
         .fs-appFontSizes.color-text200
           | AInergy Dashboard v1.0 - 实时智能分析中枢
 </template>
-
 <style lang="scss" scope>
 @keyframes glow {
   0%,

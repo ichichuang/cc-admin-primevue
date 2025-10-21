@@ -4,7 +4,16 @@ import { INTERVAL, STRATEGY } from '@/constants/modules/layout'
 import { useChartTheme, useElementSize } from '@/hooks'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import VECharts from 'vue-echarts'
-import { createDefaultUseEchartsProps } from './utils/constants'
+import {
+  createDefaultUseEchartsProps,
+  DEFAULT_ANIMATION_CONFIG,
+  getDefaultAxisPointerConfig,
+  getDefaultBrushConfig,
+  getDefaultMarkLineConfig,
+  getDefaultMarkPointConfig,
+  getDefaultToolboxConfig,
+  getDefaultVisualMapConfig,
+} from './utils/constants'
 import type { ChartConnectState, UseEchartsProps } from './utils/types'
 
 const props = withDefaults(defineProps<UseEchartsProps & { group?: string }>(), {
@@ -51,19 +60,133 @@ useElementSize(
   { mode: 'none', delay: INTERVAL }
 )
 
+// 合并高级配置到 ECharts 选项
+const mergeAdvancedConfigs = (option: any) => {
+  const mergedOption = { ...option }
+
+  // 合并动画配置
+  if (props.animationConfig) {
+    const animationConfig =
+      typeof props.animationConfig === 'function'
+        ? (props.animationConfig as any)()
+        : { ...DEFAULT_ANIMATION_CONFIG, ...props.animationConfig }
+    mergedOption.animation = animationConfig.animation
+    mergedOption.animationDuration = animationConfig.duration
+    mergedOption.animationEasing = animationConfig.easing
+    mergedOption.animationDelay = animationConfig.delay
+    mergedOption.animationDurationUpdate = animationConfig.animationDurationUpdate
+    mergedOption.animationEasingUpdate = animationConfig.animationEasingUpdate
+  }
+
+  // 合并工具箱配置
+  if (props.toolboxConfig) {
+    const toolboxConfig =
+      typeof props.toolboxConfig === 'function'
+        ? (props.toolboxConfig as any)()
+        : props.toolboxConfig
+    if (toolboxConfig && toolboxConfig.show) {
+      mergedOption.toolbox = { ...getDefaultToolboxConfig(), ...toolboxConfig }
+    }
+  }
+
+  // 合并标记点配置
+  if (props.markPointConfig) {
+    const markPointConfig =
+      typeof props.markPointConfig === 'function'
+        ? (props.markPointConfig as any)()
+        : props.markPointConfig
+    if (markPointConfig && markPointConfig.show) {
+      const finalMarkPointConfig = { ...getDefaultMarkPointConfig(), ...markPointConfig }
+      if (mergedOption.series && Array.isArray(mergedOption.series)) {
+        mergedOption.series.forEach((series: any) => {
+          if (!series.markPoint) {
+            series.markPoint = finalMarkPointConfig
+          }
+        })
+      }
+    }
+  }
+
+  // 合并标记线配置
+  if (props.markLineConfig) {
+    const markLineConfig =
+      typeof props.markLineConfig === 'function'
+        ? (props.markLineConfig as any)()
+        : props.markLineConfig
+    if (markLineConfig && markLineConfig.show) {
+      const finalMarkLineConfig = { ...getDefaultMarkLineConfig(), ...markLineConfig }
+      if (mergedOption.series && Array.isArray(mergedOption.series)) {
+        mergedOption.series.forEach((series: any) => {
+          if (!series.markLine) {
+            series.markLine = finalMarkLineConfig
+          }
+        })
+      }
+    }
+  }
+
+  // 合并可视化映射配置
+  if (props.visualMapConfig) {
+    const visualMapConfig =
+      typeof props.visualMapConfig === 'function'
+        ? (props.visualMapConfig as any)()
+        : props.visualMapConfig
+    if (visualMapConfig && visualMapConfig.show) {
+      mergedOption.visualMap = { ...getDefaultVisualMapConfig(), ...visualMapConfig }
+    }
+  }
+
+  // 合并画刷配置
+  if (props.brushConfig) {
+    const brushConfig =
+      typeof props.brushConfig === 'function' ? (props.brushConfig as any)() : props.brushConfig
+    if (brushConfig && brushConfig.show) {
+      mergedOption.brush = { ...getDefaultBrushConfig(), ...brushConfig }
+    }
+  }
+
+  // 合并坐标轴指示器配置
+  if (props.axisPointerConfig) {
+    const axisPointerConfig =
+      typeof props.axisPointerConfig === 'function'
+        ? (props.axisPointerConfig as any)()
+        : { ...getDefaultAxisPointerConfig(), ...props.axisPointerConfig }
+    if (!mergedOption.tooltip) {
+      mergedOption.tooltip = {}
+    }
+    mergedOption.tooltip.axisPointer = axisPointerConfig
+  }
+
+  // 合并图例悬停联动配置
+  if (props.legendHoverLink !== undefined) {
+    mergedOption.legendHoverLink = props.legendHoverLink
+  }
+
+  // 合并背景颜色
+  if (props.backgroundColor) {
+    mergedOption.backgroundColor = props.backgroundColor
+  }
+
+  return mergedOption
+}
+
 // 使用主题合并后的配置
 const mergedOption = computed(() => {
   if (!props.option || Object.keys(props.option).length === 0) {
     return {}
   }
 
-  // 如果禁用了主题,直接返回原始配置
-  if (props.themeConfig?.enableTheme === false) {
-    return props.option
+  let finalOption = props.option
+
+  // 如果启用了主题,应用主题配置
+  if (props.themeConfig?.enableTheme !== false) {
+    finalOption = useChartTheme(props.option, props.themeConfig?.opacity)
   }
 
-  // 使用主题配置,传入透明度配置
-  return useChartTheme(props.option, props.themeConfig?.opacity)
+  // 合并高级配置
+  finalOption = mergeAdvancedConfigs(finalOption)
+
+  return finalOption
 })
 
 // 监听配置变化,手动更新图表
@@ -85,6 +208,22 @@ const createEventHandler = (originalHandler: any, _eventType: string) => {
       originalHandler(params)
     }
   }
+}
+
+// 处理 onEvents 事件映射
+const processOnEvents = (handlers: Record<string, any>) => {
+  if (props.onEvents) {
+    const onEvents =
+      typeof props.onEvents === 'function' ? (props.onEvents as any)() : props.onEvents
+    if (onEvents && typeof onEvents === 'object') {
+      Object.entries(onEvents).forEach(([eventName, handler]) => {
+        if (typeof handler === 'function') {
+          handlers[eventName] = createEventHandler(handler, eventName)
+        }
+      })
+    }
+  }
+  return handlers
 }
 
 // 事件处理器映射
@@ -265,6 +404,14 @@ const eventHandlers = computed(() => {
     )
   }
 
+  // 图表加载事件
+  if (props.onLoad) {
+    handlers.load = createEventHandler(props.onLoad, 'load')
+  }
+
+  // 处理 onEvents 事件映射
+  processOnEvents(handlers)
+
   return handlers
 })
 
@@ -315,9 +462,20 @@ onMounted(() => {
     const chartInstance = getEchartsInstance()
     if (chartInstance) {
       isChartInitialized.value = true
+
+      // 设置渲染器
+      if (props.renderer && chartInstance.setOption) {
+        // 通过重新设置配置来应用渲染器
+        const currentOption = chartInstance.getOption()
+        chartInstance.setOption(currentOption, true)
+      }
+
       console.log('UseEcharts: 图表实例已创建', {
         groupId: connectGroupId.value,
         chartId: chartInstance.id,
+        renderer: props.renderer,
+        autoResize: props.autoResize,
+        lazyLoad: props.lazyLoad,
       })
 
       // 通知父组件图表已就绪
@@ -385,7 +543,7 @@ defineExpose({
   VECharts(
     ref='chartRef',
     :option='mergedOption',
-    :style='{ width: width, height: height }',
+    :style='{ ...(typeof style === "function" ? style() : style), width: width, height: height }',
     :theme='theme',
     :loading='loading',
     :loading-options='loadingOptions',
@@ -426,6 +584,7 @@ defineExpose({
     @axisareaselected='eventHandlers.axisareaselected',
     @focusnodeadjacency='eventHandlers.focusnodeadjacency',
     @unfocusnodeadjacency='eventHandlers.unfocusnodeadjacency',
-    @finished='eventHandlers.finished'
+    @finished='eventHandlers.finished',
+    @load='eventHandlers.load'
   )
 </template>
