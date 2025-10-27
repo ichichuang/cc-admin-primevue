@@ -13,27 +13,30 @@ import type { ViteEnv } from './utils'
  * 在开发服务器启动时显示项目信息
  */
 function startupInfoPlugin(): PluginOption {
+  let hasShown = false
+
   return {
     name: 'startup-info',
     configureServer(server) {
-      const originalListen = server.listen
-      server.listen = function (...args) {
-        const result = originalListen.apply(this, args)
-
-        // 在服务器启动后显示自定义信息
-        result.then(() => {
-          console.log()
-          console.log(`\x1b[36m╭─────────────────────────────────────────╮\x1b[0m`)
-          console.log(
-            `\x1b[36m│\x1b[0m \x1b[1m\x1b[32m${name.toUpperCase()}\x1b[0m \x1b[90mv${version}\x1b[0m`
-          )
-          console.log(`\x1b[36m│\x1b[0m \x1b[90m现代化的 Vue3 + TypeScript 管理后台\x1b[0m    `)
-          console.log(`\x1b[36m╰─────────────────────────────────────────╯\x1b[0m`)
-          console.log()
-        })
-
-        return result
-      }
+      // 使用 Vite 的服务器启动钩子
+      server.middlewares.use((req, res, next) => {
+        // 只在第一次请求时显示启动信息
+        if (!hasShown) {
+          // 延迟显示，确保 Vite 的默认信息已经显示
+          setTimeout(() => {
+            console.log()
+            console.log(`\x1b[36m╭─────────────────────────────────────────╮\x1b[0m`)
+            console.log(
+              `\x1b[36m│\x1b[0m \x1b[1m\x1b[32m${name.toUpperCase()}\x1b[0m \x1b[90mv${version}\x1b[0m`
+            )
+            console.log(`\x1b[36m│\x1b[0m \x1b[90m现代化的 Vue3 + TypeScript 管理后台\x1b[0m    `)
+            console.log(`\x1b[36m╰─────────────────────────────────────────╯\x1b[0m`)
+            console.log()
+          }, 1000) // 进一步增加延迟时间
+          hasShown = true
+        }
+        next()
+      })
     },
   }
 }
@@ -70,7 +73,7 @@ export function getPluginsList(env: ViteEnv): PluginOption[] {
   const isBuild = process.env.npm_lifecycle_event === 'build'
 
   const plugins: PluginOption[] = [
-    // 启动信息插件 - 仅开发环境
+    // 启动信息插件 - 重新启用，优化显示时机
     isDev && startupInfoPlugin(),
 
     // UnoCSS 原子化 CSS - 必须在 Vue 插件之前

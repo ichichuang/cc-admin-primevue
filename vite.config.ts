@@ -35,7 +35,7 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
   return defineConfig({
     base: VITE_PUBLIC_PATH,
     root,
-    logLevel: isDev ? 'warn' : 'info',
+    logLevel: isDev ? 'info' : 'info',
     resolve: {
       alias,
       extensions: ['.mjs', '.ts', '.tsx', '.json', '.vue'],
