@@ -161,12 +161,14 @@ export const goToRoute = (
   if (shouldOpenNewWindow) {
     if (env.routerMode === 'hash') {
       const location = window.location
-      const path = location.origin + '/#' + targetRoute.path
+      const publicPath = env.publicPath
+      const path = location.origin + publicPath + '#' + targetRoute.path
       window.open(path, '_blank')
     } else {
-      window.open(targetRoute.path, '_blank')
+      const publicPath = env.publicPath
+      const fullPath = publicPath + targetRoute.path.replace(/^\//, '')
+      window.open(fullPath, '_blank')
     }
-    // window.open(path, '_blank')
   } else {
     router.push({ path: targetRoute.path, query })
   }
