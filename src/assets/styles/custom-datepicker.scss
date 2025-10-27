@@ -283,3 +283,16 @@
 .dp__preset_range:hover {
   background-color: var(--bg200) !important;
 }
+
+/* 禁用状态 */
+.dp__disabled {
+  background-color: var(--bg300) !important;
+  color: var(--text300) !important;
+  cursor: not-allowed !important;
+  opacity: 0.5 !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}

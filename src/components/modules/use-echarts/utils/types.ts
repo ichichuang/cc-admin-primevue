@@ -28,6 +28,246 @@ export interface ChartThemeConfig {
   opacity?: ChartOpacityConfig
 }
 
+// 图表联动配置类型
+export interface ChartConnectConfig {
+  /** 是否启用联动 */
+  enabled?: boolean
+  /** 联动组 ID */
+  groupId?: string
+  /** 联动事件类型 */
+  events?: readonly ('highlight' | 'downplay' | 'select' | 'unselect' | 'dataZoom' | 'brush')[]
+  /** 联动延迟时间 (ms) */
+  delay?: number
+  /** 是否启用数据缩放联动 */
+  dataZoomSync?: boolean
+  /** 是否启用画刷联动 */
+  brushSync?: boolean
+  /** 是否启用图例联动 */
+  legendSync?: boolean
+}
+
+// 图表联动状态类型
+export interface ChartConnectState {
+  /** 当前高亮的数据索引 */
+  highlightedDataIndex?: number
+  /** 当前选中的数据索引 */
+  selectedDataIndex?: number
+  /** 数据缩放状态 */
+  dataZoomState?: {
+    start: number
+    end: number
+  }
+  /** 画刷状态 */
+  brushState?: any
+}
+
+// 渲染器类型
+export type ChartRenderer = 'canvas' | 'svg'
+
+// 动画配置类型
+export interface ChartAnimationConfig {
+  /** 是否开启动画 */
+  animation?: boolean
+  /** 动画时长 */
+  duration?: number
+  /** 动画缓动效果 */
+  easing?:
+    | 'linear'
+    | 'easeIn'
+    | 'easeOut'
+    | 'easeInOut'
+    | 'cubicIn'
+    | 'cubicOut'
+    | 'cubicInOut'
+    | 'quadraticIn'
+    | 'quadraticOut'
+    | 'quadraticInOut'
+  /** 动画延迟 */
+  delay?: number
+  /** 动画更新 */
+  animationUpdate?: boolean
+  /** 动画更新时长 */
+  animationDurationUpdate?: number
+  /** 动画更新缓动 */
+  animationEasingUpdate?: string
+}
+
+// 事件映射配置类型
+export interface ChartOnEvents {
+  [eventName: string]: (params: any) => void
+}
+
+// 工具箱配置类型
+export interface ChartToolboxConfig {
+  /** 是否显示工具箱 */
+  show?: boolean
+  /** 工具箱位置 */
+  left?: string | number
+  /** 工具箱位置 */
+  right?: string | number
+  /** 工具箱位置 */
+  top?: string | number
+  /** 工具箱位置 */
+  bottom?: string | number
+  /** 工具箱宽度 */
+  width?: string | number
+  /** 工具箱高度 */
+  height?: string | number
+  /** 工具项配置 */
+  feature?: {
+    /** 保存图片 */
+    saveAsImage?: any
+    /** 还原 */
+    restore?: any
+    /** 数据视图 */
+    dataView?: any
+    /** 数据区域缩放 */
+    dataZoom?: any
+    /** 重置 */
+    reset?: any
+    /** 切换为折线图 */
+    line?: any
+    /** 切换为柱状图 */
+    bar?: any
+    /** 切换为堆叠 */
+    stack?: any
+    /** 切换为平铺 */
+    tiled?: any
+  }
+  /** 工具箱图标样式 */
+  iconStyle?: any
+  /** 工具箱强调样式 */
+  emphasis?: any
+  /** 工具箱文本样式 */
+  textStyle?: any
+}
+
+// 标记点配置类型
+export interface ChartMarkPointConfig {
+  /** 是否显示标记点 */
+  show?: boolean
+  /** 标记点数据 */
+  data?: Array<{
+    name?: string
+    coord?: number[]
+    value?: any
+    symbol?: string
+    symbolSize?: number | number[]
+    itemStyle?: any
+    label?: any
+    emphasis?: any
+  }>
+  /** 标记点样式 */
+  itemStyle?: any
+  /** 标记点标签 */
+  label?: any
+  /** 标记点强调样式 */
+  emphasis?: any
+}
+
+// 标记线配置类型
+export interface ChartMarkLineConfig {
+  /** 是否显示标记线 */
+  show?: boolean
+  /** 标记线数据 */
+  data?: Array<{
+    name?: string
+    coord?: number[]
+    value?: any
+    symbol?: string
+    symbolSize?: number | number[]
+    lineStyle?: any
+    label?: any
+    emphasis?: any
+  }>
+  /** 标记线样式 */
+  lineStyle?: any
+  /** 标记线标签 */
+  label?: any
+  /** 标记线强调样式 */
+  emphasis?: any
+}
+
+// 可视化映射配置类型
+export interface ChartVisualMapConfig {
+  /** 是否显示可视化映射 */
+  show?: boolean
+  /** 映射类型 */
+  type?: 'continuous' | 'piecewise'
+  /** 最小值 */
+  min?: number
+  /** 最大值 */
+  max?: number
+  /** 映射维度 */
+  dimension?: number
+  /** 映射范围 */
+  inRange?: any
+  /** 映射范围外 */
+  outOfRange?: any
+  /** 位置 */
+  left?: string | number
+  /** 位置 */
+  right?: string | number
+  /** 位置 */
+  top?: string | number
+  /** 位置 */
+  bottom?: string | number
+  /** 方向 */
+  orient?: 'horizontal' | 'vertical'
+  /** 文本样式 */
+  textStyle?: any
+}
+
+// 画刷配置类型
+export interface ChartBrushConfig {
+  /** 是否显示画刷 */
+  show?: boolean
+  /** 画刷类型 */
+  brushType?: 'rect' | 'polygon' | 'lineX' | 'lineY' | 'keep' | 'clear'
+  /** 画刷样式 */
+  brushStyle?: any
+  /** 画刷选择区域 */
+  areas?: any[]
+  /** 画刷位置 */
+  left?: string | number
+  /** 画刷位置 */
+  right?: string | number
+  /** 画刷位置 */
+  top?: string | number
+  /** 画刷位置 */
+  bottom?: string | number
+  /** 画刷宽度 */
+  width?: string | number
+  /** 画刷高度 */
+  height?: string | number
+}
+
+// 坐标轴指示器配置类型
+export interface ChartAxisPointerConfig {
+  /** 是否显示指示器 */
+  show?: boolean
+  /** 指示器类型 */
+  type?: 'line' | 'shadow' | 'none'
+  /** 指示器样式 */
+  lineStyle?: any
+  /** 指示器阴影样式 */
+  shadowStyle?: any
+  /** 指示器标签 */
+  label?: any
+  /** 指示器触发方式 */
+  triggerTooltip?: boolean
+  /** 指示器触发数据 */
+  triggerOn?: 'mousemove' | 'click' | 'mousemove|click' | 'none'
+  /** 指示器轴 */
+  axis?: 'auto' | 'x' | 'y' | 'angle' | 'radius'
+  /** 指示器动画 */
+  animation?: boolean
+  /** 指示器动画时长 */
+  animationDuration?: number
+  /** 指示器动画缓动 */
+  animationEasing?: string
+}
+
 // UseEcharts 组件 Props 类型
 export interface UseEchartsProps extends ChartEventHandlers {
   /** ECharts 配置选项 */
@@ -38,6 +278,16 @@ export interface UseEchartsProps extends ChartEventHandlers {
   height?: string | number
   /** 图表主题 */
   theme?: string
+  /** 渲染方式 */
+  renderer?: ChartRenderer
+  /** 是否自动调整大小 */
+  autoResize?: boolean
+  /** 自定义样式 */
+  style?: Record<string, any>
+  /** 背景颜色 */
+  backgroundColor?: string
+  /** 是否懒加载 */
+  lazyLoad?: boolean
   /** 是否显示加载状态 */
   loading?: boolean
   /** 加载配置选项 */
@@ -46,6 +296,26 @@ export interface UseEchartsProps extends ChartEventHandlers {
   manualUpdate?: boolean
   /** 图表主题配置 */
   themeConfig?: ChartThemeConfig
+  /** 图表联动配置 */
+  connectConfig?: ChartConnectConfig
+  /** 动画配置 */
+  animationConfig?: ChartAnimationConfig
+  /** 事件映射配置 */
+  onEvents?: ChartOnEvents
+  /** 工具箱配置 */
+  toolboxConfig?: ChartToolboxConfig
+  /** 标记点配置 */
+  markPointConfig?: ChartMarkPointConfig
+  /** 标记线配置 */
+  markLineConfig?: ChartMarkLineConfig
+  /** 可视化映射配置 */
+  visualMapConfig?: ChartVisualMapConfig
+  /** 画刷配置 */
+  brushConfig?: ChartBrushConfig
+  /** 坐标轴指示器配置 */
+  axisPointerConfig?: ChartAxisPointerConfig
+  /** 是否开启图例悬停联动 */
+  legendHoverLink?: boolean
 }
 
 // 图表实例方法类型
@@ -60,6 +330,12 @@ export interface ChartInstance {
   clear: () => void
   /** 销毁图表 */
   dispose: () => void
+  /** 获取联动状态 */
+  getConnectState: () => ChartConnectState
+  /** 设置联动状态 */
+  setConnectState: (state: Partial<ChartConnectState>) => void
+  /** 触发联动事件 */
+  triggerConnect: (eventType: string, params: any) => void
 }
 
 // 透明度默认值类型
@@ -202,4 +478,13 @@ export interface ChartEventHandlers {
   // 焦点/失焦事件
   onFocusNodeAdjacency?: (params: ChartEventParams) => void
   onUnfocusNodeAdjacency?: (params: ChartEventParams) => void
+
+  // 特殊图表事件
+  onTreeExpand?: (params: ChartEventParams) => void
+  onTreeCollapse?: (params: ChartEventParams) => void
+  onTreemapZoom?: (params: ChartEventParams) => void
+  onParallelAxisSelected?: (params: ChartEventParams) => void
+
+  // 图表加载事件
+  onLoad?: (params: ChartEventParams) => void
 }

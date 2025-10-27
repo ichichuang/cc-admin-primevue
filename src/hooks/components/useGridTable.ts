@@ -6,6 +6,8 @@
  * 提供动态配色、尺寸控制和数据管理功能
  */
 
+import { generateIdFromKey } from '@/common'
+import ActionCell from '@/components/modules/grid-table/components/ActionCell'
 import {
   DEFAULT_GRID_COLOR_CONFIG,
   getGridSizeConfigByMode,
@@ -150,8 +152,8 @@ export function useRevoGrid(props: Ref<GridTableProps>, emit?: any): UseRevoGrid
     return normalized
   })
 
-  /** 网格选项 */
-  const gridOptions = computed<GridOptions>(() => {
+  /** 合并后的网格选项 */
+  const mergedGridOptions = computed<GridOptions>(() => {
     const baseOptions = sizeConfigToGridOptions(mergedSizeConfig.value)
 
     // 适配 AG Grid v32 选择 API
@@ -201,7 +203,9 @@ export function useRevoGrid(props: Ref<GridTableProps>, emit?: any): UseRevoGrid
       } as any
     })()
 
-    return {
+    // 根据时间戳Date.now() 生成一个唯一的id作为rowData的id
+    // 基础网格选项
+    const baseGridOptions: GridOptions = {
       ...baseOptions,
       // 初始化 loading，便于 v32+ 使用 setGridOption 控制
       loading: false,
@@ -214,7 +218,22 @@ export function useRevoGrid(props: Ref<GridTableProps>, emit?: any): UseRevoGrid
       paginationPageSizeSelector: props.value.paginationPageSizeOptions,
 
       suppressScrollOnNewData: true,
-      getRowId: params => `${params.data.id}` || `${params.data.rowIndex}`, // 等价于原 getRowNodeId
+      getRowId: params => {
+        // 获取 id 如果没有就获取对象的第一项内容
+
+        const id = params.data.id || params.data[Object.keys(params.data)[0]]
+
+        // 确保 id 是有效的字符串
+        const stringId = String(id || '')
+        if (!stringId) {
+          // 如果无法获取有效 id，使用随机数作为后备
+          return `row-${Math.random().toString(36).substr(2, 9)}`
+        }
+
+        const uniqueId = generateIdFromKey(stringId)
+        // 返回生成的唯一 ID
+        return uniqueId
+      }, // 等价于原 getRowNodeId
 
       // 功能配置 - v32 新的 rowSelection 对象形式
       rowSelection: selection,
@@ -384,7 +403,27 @@ export function useRevoGrid(props: Ref<GridTableProps>, emit?: any): UseRevoGrid
         )
       ),
     }
+
+    // 合并用户传入的 gridOptions，确保 components 正确合并
+    const userGridOptions = props.value.gridOptions || {}
+
+    return {
+      ...baseGridOptions,
+      // 合并 components，确保 ActionCell 等组件可用
+      components: {
+        actionCell: ActionCell,
+        ...baseGridOptions.components,
+        ...userGridOptions.components,
+      },
+      // 其他用户自定义选项
+      ...Object.fromEntries(
+        Object.entries(userGridOptions).filter(([key]) => key !== 'components')
+      ),
+    }
   })
+
+  /** 网格选项（向后兼容） */
+  const gridOptions = computed<GridOptions>(() => mergedGridOptions.value)
 
   // ---- i18n: 构造 AG Grid localeText ----
   function buildAgGridLocaleText() {
@@ -1423,6 +1462,7 @@ export function useRevoGrid(props: Ref<GridTableProps>, emit?: any): UseRevoGrid
 
     // 计算属性
     gridOptions,
+    mergedGridOptions,
     columnDefs: processedColumnDefs,
     gridStyle,
     gridClass,

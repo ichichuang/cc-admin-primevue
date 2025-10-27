@@ -384,6 +384,8 @@ export interface UseRevoGridReturn {
   gridApi: Ref<GridApi | null>
   /** 网格选项 */
   gridOptions: ComputedRef<GridOptions>
+  /** 合并后的网格选项（包含 ActionCell 等组件） */
+  mergedGridOptions: ComputedRef<GridOptions>
   /** 列定义 */
   columnDefs: ComputedRef<ExtendedColDef[]>
   /** 行数据 */

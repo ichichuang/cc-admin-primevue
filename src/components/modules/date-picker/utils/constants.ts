@@ -3,7 +3,7 @@
  * DatePicker 默认配置常量
  */
 
-import type { DatePickerDefaults, DatePickerMode } from './types'
+import type { DatePickerDefaults, DatePickerMode, PresetRange } from './types'
 
 /**
  * 不同模式的默认展示格式（用于 UI 显示）
@@ -183,15 +183,6 @@ export const COMMON_PRESET_RANGES = {
 }
 
 /**
- * 尺寸对应的样式类名（如果需要）
- */
-export const SIZE_CLASS_MAP = {
-  small: 'dp-size-small',
-  medium: 'dp-size-medium',
-  large: 'dp-size-large',
-} as const
-
-/**
  * 默认的国际化文案（中文）
  */
 export const DEFAULT_LOCALE_TEXTS = {
@@ -209,3 +200,52 @@ export const DEFAULT_LOCALE_TEXTS = {
   startTime: '开始时间',
   endTime: '结束时间',
 } as const
+
+/**
+ * DatePicker 组件 Props 默认值
+ *
+ * 说明：
+ * - 统一集中在此，避免分散在组件中难以维护
+ * - 使用工厂函数以确保返回全新的引用，避免对象/数组默认值的共享引用问题
+ * - 与 `DatePickerProps` 一一对应，仅为可选项提供默认值，`modelValue` 不设默认
+ */
+export const datePickerDefaultPropsFactory = () =>
+  ({
+    // 基础模式与交互
+    mode: 'date' as DatePickerMode, // 选择器模式：默认日期选择
+    range: false, // 是否开启范围选择：默认关闭
+    maxRange: undefined, // 范围模式下的最大跨度（天数）
+    minRange: undefined, // 范围模式下的最小跨度（天数）
+    disabledDates: undefined, // 禁用的具体日期或区间
+    disabledWeekDays: undefined, // 禁用的星期几(0-6)
+    yearRange: undefined, // 年份选择范围 [from, to]
+
+    // 展示/值格式（displayFormat 未传时会基于 mode 使用默认格式）
+    displayFormat: undefined, // 展示格式：undefined 时按不同 mode 采用内置默认格式
+    valueFormat: 'date', // v-model 值格式：'date' | 'timestamp' | 'iso' | 'string'
+
+    // 文案与占位（可配合 i18n 使用）
+    localeTexts: undefined, // 自定义按钮/文案：优先于 i18n 内置文案
+    placeholder: undefined, // 自定义占位符：未设置时按 i18n 与 mode 自动推导
+
+    // 行为开关
+    disabled: false, // 是否禁用：默认可用
+    clearable: true, // 是否显示清空按钮：默认显示
+    is24: true, // 时间是否使用 24 小时制：默认 24h
+    enableSeconds: false, // 时间选择是否显示秒：默认不显示
+
+    // 选择范围限制
+    minDate: undefined, // 可选最小日期：默认不限
+    maxDate: undefined, // 可选最大日期：默认不限
+
+    // 快捷预设，默认空数组（返回新引用）
+    presets: () => [] as PresetRange[], // 快捷选择项：每次返回新数组避免引用共享
+
+    // 展示形态与定位
+    inline: false, // 是否内联展示面板：默认使用弹出层
+    placement: 'bottom-start', // 弹层出现位置：同 @vuepic/vue-datepicker
+
+    // 样式与类名（返回新引用，避免共享）
+    inputStyle: () => ({}) as Record<string, string | number>, // 输入框内联样式
+    customClass: '', // 自定义类名：用于外观定制
+  }) as const
