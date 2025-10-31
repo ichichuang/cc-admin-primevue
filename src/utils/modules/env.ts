@@ -88,15 +88,6 @@ export const env = {
     return import.meta.env.VITE_API_BASE_URL
   },
 
-  // 开发环境配置
-  get devTools(): boolean {
-    return toBool(import.meta.env.VITE_DEV_TOOLS)
-  },
-
-  get consoleLog(): boolean {
-    return toBool(import.meta.env.VITE_CONSOLE_LOG)
-  },
-
   get debug(): boolean {
     return toBool(import.meta.env.VITE_DEBUG)
   },

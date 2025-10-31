@@ -15,12 +15,13 @@ export function usePageTitle(_router?: Router) {
    * 获取路由页面标题（支持多语言）
    */
   const getRouteTitle = (route: any, appTitle: string): string => {
+    const isNoAppTitle = String(appTitle).trim() === '/'
     if (route.meta?.titleKey) {
       // 使用 titleKey 获取多语言标题
-      return `${t(route.meta.titleKey)} - ${appTitle}`
+      return isNoAppTitle ? `${t(route.meta.titleKey)}` : `${t(route.meta.titleKey)} - ${appTitle}`
     } else if (route.meta?.title) {
       // 兼容直接设置 title 的情况
-      return `${route.meta.title} - ${appTitle}`
+      return isNoAppTitle ? `${route.meta.title}` : `${route.meta.title} - ${appTitle}`
     }
     return appTitle
   }

@@ -63,13 +63,14 @@ watch(
 
 <template lang="pug">
 .full.relative(ref='containerRef')
-  ScrollbarWrapper(
-    ref='scrollbarRef',
-    :wrapper-class='currentLayoutMode !== "fullscreen" && currentLayoutMode !== "ratio" ? "px-12 sm:px-16  lg:px-18 xxl:px-24" : ""',
-    :style='{ height: containerHeight + "px" }',
-    @scroll='handleScroll',
-    @initialized='handleInitialized',
-    :remember-scroll-position='true'
-  )
-    AnimateRouterView(:style='{ minHeight: containerHeight + "px" }')
+  template(v-if='containerHeight && containerHeight > 0')
+    ScrollbarWrapper(
+      ref='scrollbarRef',
+      :wrapper-class='currentLayoutMode !== "fullscreen" && currentLayoutMode !== "ratio" ? "px-12 sm:px-16  lg:px-18 xxl:px-24" : ""',
+      :style='{ height: containerHeight + "px" }',
+      @scroll='handleScroll',
+      @initialized='handleInitialized',
+      :remember-scroll-position='true'
+    )
+      AnimateRouterView(:style='{ minHeight: containerHeight + "px" }')
 </template>

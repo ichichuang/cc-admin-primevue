@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { throttle } from '@/common'
 import { useThemeSwitch } from '@/hooks'
+import { useFull } from '@/hooks/layout/useFull'
 import { t } from '@/locales'
 import { useLayoutStore, useUserStore } from '@/stores'
 import { computed, ref } from 'vue'
 const { toggleThemeWithAnimation, isDark } = useThemeSwitch()
+const { fullscreen, toggle } = useFull()
 const userStore = useUserStore()
 const layoutStore = useLayoutStore()
 const isLoggedIn = computed(() => userStore.getIsLogin)
@@ -60,6 +62,11 @@ template(v-else)
         .fs-appFontSizex(class='icon-line-md:sunny-outline-twotone')
   template(v-else-if='currentLayoutMode === "admin"')
     .between.gap-gap(class='h100%')
+      .c-card-primary.shadow-none.size-1-1.center(@click='toggle')
+        template(v-if='fullscreen')
+          .fs-appFontSizex(class='icon-line-md:arrows-vertical-alt')
+        template(v-else)
+          .fs-appFontSizex(class='icon-line-md:arrows-vertical')
       //- 桌面端
       .hidden.c-card-primary.shadow-none.size-1-1.center(
         class='md:block',

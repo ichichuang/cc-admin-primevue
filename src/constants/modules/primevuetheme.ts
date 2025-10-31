@@ -589,9 +589,7 @@ export const createCustomPreset = (preset: any, { colorStore, sizeStore }: Prime
       ...customComponentsStyle1,
     })
     // dialog 组件单独处理
-    deepMergeStylesAdvancedInPlace(newPreset.components.dialog, {
-      // ...customComponentsStyle2,
-    })
+    deepMergeStylesAdvancedInPlace(newPreset.components.dialog, {})
     // menu 组件单独处理
     deepMergeStylesAdvancedInPlace(newPreset.components.menu, {
       ...customComponentsStyle1,

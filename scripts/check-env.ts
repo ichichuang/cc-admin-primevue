@@ -41,17 +41,12 @@ const validationRules: ValidationRules = {
   // 必需的环境变量（所有环境都必须有）
   required: ['VITE_APP_TITLE', 'VITE_API_BASE_URL', 'VITE_PINIA_PERSIST_KEY_PREFIX'],
 
-  // 已废弃的环境变量（检查时忽略）
-  deprecated: [
-    'VITE_BUILD_GZIP', // 已废弃，使用 VITE_COMPRESSION 替代
-  ],
+  deprecated: [],
 
   // 类型验证规则
   types: {
     VITE_PORT: 'number',
     VITE_LOADING_SIZE: 'number',
-    VITE_DEV_TOOLS: 'boolean',
-    VITE_CONSOLE_LOG: 'boolean',
     VITE_DEBUG: 'boolean',
     VITE_DROP_DEBUGGER: 'boolean',
     VITE_DROP_CONSOLE: 'boolean',

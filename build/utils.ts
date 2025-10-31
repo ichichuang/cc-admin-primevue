@@ -12,7 +12,7 @@ export const root: string = process.cwd()
  * @param dir 路径片段，默认当前目录
  * @param metaUrl 模块的完整 url
  */
-export const pathResolve = (dir = '.', metaUrl = import.meta.url) => {
+export const pathResolve = (dir = '.', metaUrl = import.meta.url): string => {
   const currentFileDir = dirname(fileURLToPath(metaUrl))
   return resolve(currentFileDir, dir)
 }
@@ -30,7 +30,7 @@ export const __APP_INFO__ = {
   lastBuildTime: new Date().toLocaleString('zh-CN'),
 }
 
-/** 环境变量类型 */
+/** 环境变量类型定义 */
 export interface ViteEnv {
   VITE_PORT: number
   VITE_PUBLIC_PATH: string
@@ -47,78 +47,77 @@ export interface ViteEnv {
   VITE_PINIA_PERSIST_KEY_PREFIX: string
   VITE_ROOT_REDIRECT: string
   VITE_LOADING_SIZE: number
-  VITE_DEV_TOOLS: boolean
-  VITE_CONSOLE_LOG: boolean
   VITE_DEBUG: boolean
   VITE_DROP_DEBUGGER: boolean
   VITE_DROP_CONSOLE: boolean
+  VITE_DEV_TOOLS?: boolean
 }
 
-/** 处理环境变量
- * 当环境变量文件中没有定义时使用默认值
+/**
+ * @description 将 Vite 加载的 env 对象包装为带类型的 ViteEnv
  */
-export const wrapperEnv = (envConf: Record<string, unknown>): ViteEnv => {
-  const ret: ViteEnv = {
-    VITE_PORT: 8888,
-    VITE_PUBLIC_PATH: '',
-    VITE_ROUTER_MODE: 'history',
-    VITE_CDN: false,
-    VITE_COMPRESSION: 'none',
-    VITE_BUILD_SOURCEMAP: false,
-    VITE_BUILD_ANALYZE: false,
-    VITE_LEGACY: false,
-    VITE_API_BASE_URL: '',
-    VITE_APP_TITLE: 'cc-admin',
-    VITE_APP_VERSION: '0.0.0',
-    VITE_APP_ENV: 'development',
-    VITE_PINIA_PERSIST_KEY_PREFIX: 'cc-admin',
-    VITE_ROOT_REDIRECT: '/dashboard',
-    VITE_LOADING_SIZE: 5,
-    VITE_DEV_TOOLS: true,
-    VITE_CONSOLE_LOG: true,
-    VITE_DEBUG: false,
-    VITE_DROP_DEBUGGER: true,
-    VITE_DROP_CONSOLE: true,
+export const wrapperEnv = (envConf: Record<string, any>): ViteEnv => {
+  const booleanKeys = [
+    'VITE_CDN',
+    'VITE_BUILD_SOURCEMAP',
+    'VITE_BUILD_ANALYZE',
+    'VITE_LEGACY',
+    'VITE_DEBUG',
+    'VITE_DROP_DEBUGGER',
+    'VITE_DROP_CONSOLE',
+    'VITE_DEV_TOOLS',
+  ]
+
+  const numberKeys = ['VITE_PORT', 'VITE_LOADING_SIZE']
+
+  const ret: Record<string, any> = {}
+
+  Object.keys(envConf).forEach(key => {
+    let value = envConf[key]?.replace(/\\n/g, '\n') ?? ''
+
+    if (booleanKeys.includes(key)) {
+      value = value === 'true'
+    } else if (numberKeys.includes(key)) {
+      const num = Number(value)
+      value = isNaN(num) ? 0 : num
+    }
+
+    ret[key] = value
+    // 同步写入 process.env
+    process.env[key] = typeof value === 'object' ? JSON.stringify(value) : String(value)
+  })
+
+  return {
+    VITE_PORT: ret.VITE_PORT,
+    VITE_PUBLIC_PATH: ret.VITE_PUBLIC_PATH || '/',
+    VITE_ROUTER_MODE: ret.VITE_ROUTER_MODE || 'history',
+    VITE_CDN: ret.VITE_CDN,
+    VITE_COMPRESSION: ret.VITE_COMPRESSION || 'none',
+    VITE_BUILD_SOURCEMAP: ret.VITE_BUILD_SOURCEMAP,
+    VITE_BUILD_ANALYZE: ret.VITE_BUILD_ANALYZE,
+    VITE_LEGACY: ret.VITE_LEGACY,
+    VITE_API_BASE_URL: ret.VITE_API_BASE_URL,
+    VITE_APP_TITLE: ret.VITE_APP_TITLE,
+    VITE_APP_VERSION: ret.VITE_APP_VERSION,
+    VITE_APP_ENV: ret.VITE_APP_ENV || 'development',
+    VITE_PINIA_PERSIST_KEY_PREFIX: ret.VITE_PINIA_PERSIST_KEY_PREFIX,
+    VITE_ROOT_REDIRECT: ret.VITE_ROOT_REDIRECT,
+    VITE_LOADING_SIZE: ret.VITE_LOADING_SIZE,
+    VITE_DEBUG: ret.VITE_DEBUG,
+    VITE_DROP_DEBUGGER: ret.VITE_DROP_DEBUGGER,
+    VITE_DROP_CONSOLE: ret.VITE_DROP_CONSOLE,
+    VITE_DEV_TOOLS: ret.VITE_DEV_TOOLS,
   }
-
-  for (const envName of Object.keys(envConf)) {
-    const envValue = String(envConf[envName])
-    let realName: string | number | boolean = envValue.replace(/\\n/g, '\n')
-
-    // 处理布尔值转换
-    if (realName === 'true') {
-      realName = true
-    } else if (realName === 'false') {
-      realName = false
-    }
-
-    // 处理数字类型转换
-    if (envName === 'VITE_PORT' || envName === 'VITE_LOADING_SIZE') {
-      realName = Number(realName)
-    }
-
-    if (envName in ret) {
-      ;(ret as unknown as Record<string, string | number | boolean>)[envName] = realName
-    }
-
-    if (typeof realName === 'string') {
-      process.env[envName] = realName
-    } else if (typeof realName === 'object') {
-      process.env[envName] = JSON.stringify(realName)
-    } else {
-      process.env[envName] = String(realName)
-    }
-  }
-
-  return ret
 }
 
-/** 获取包大小 */
+/**
+ * @description 获取指定目录的构建体积
+ */
 export const getPackageSize = (options: {
   folder?: string
   callback: (size: string) => void
   format?: boolean
-}) => {
+}): void => {
   const { folder = 'dist', callback, format = true } = options
   const fileListTotal: number[] = []
 
@@ -139,15 +138,20 @@ export const getPackageSize = (options: {
     if (err) {
       throw err
     }
-    let count = 0
+    if (files.length === 0) {
+      callback('0 Bytes')
+      return
+    }
+
+    let processed = 0
     const checkEnd = () => {
-      ++count
-      if (count === files.length) {
+      processed++
+      if (processed === files.length) {
         callback(format ? formatBytes(sum(fileListTotal)) : String(sum(fileListTotal)))
       }
     }
 
-    files.forEach((item: string) => {
+    files.forEach(item => {
       stat(`${folder}/${item}`, (err, stats) => {
         if (err) {
           throw err
@@ -163,9 +167,5 @@ export const getPackageSize = (options: {
         }
       })
     })
-
-    if (files.length === 0) {
-      callback('0 Bytes')
-    }
   })
 }

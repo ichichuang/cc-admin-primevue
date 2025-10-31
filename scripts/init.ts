@@ -195,11 +195,7 @@ function showSummary(
           const trimmed = line.trim()
 
           // 跳过 pnpm 和 eslint 的命令信息
-          if (
-            trimmed.startsWith('> ') ||
-            trimmed.startsWith('WARN') ||
-            trimmed.includes('cc-admin-primevue@')
-          ) {
+          if (trimmed.startsWith('> ') || trimmed.startsWith('WARN') || trimmed.includes('ccd@')) {
             continue
           }
 

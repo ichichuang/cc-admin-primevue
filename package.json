@@ -1,10 +1,10 @@
 {
-  "name": "cc-admin-primevue",
+  "name": "ccd",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "author": "",
-  "description": "cc-admin-primevue 企业级后台管理框架 - 基于 Vue 3.5+、TypeScript 5+ 和 PrimeVue 的现代化企业级后台管理框架",
+  "description": "ccd 企业级后台管理框架 - 基于 Vue 3.5+、TypeScript 5+ 和 PrimeVue 的现代化企业级后台管理框架",
   "keywords": [
     "vue3",
     "typescript",
@@ -14,7 +14,7 @@
     "alova",
     "admin",
     "framework",
-    "cc-admin-primevue"
+    "ccd"
   ],
   "engines": {
     "node": ">=22.0.0",

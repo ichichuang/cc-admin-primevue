@@ -20,8 +20,6 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
     VITE_PINIA_PERSIST_KEY_PREFIX,
     VITE_ROOT_REDIRECT,
     VITE_LOADING_SIZE,
-    VITE_DEV_TOOLS,
-    VITE_CONSOLE_LOG,
     VITE_DEBUG,
     VITE_DROP_DEBUGGER,
     VITE_DROP_CONSOLE,
@@ -165,7 +163,6 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
     },
     define: {
       __APP_INFO__: JSON.stringify(__APP_INFO__),
-
       processEnv: env,
       __VITE_APP_TITLE__: JSON.stringify(VITE_APP_TITLE),
       __VITE_APP_VERSION__: JSON.stringify(VITE_APP_VERSION),
@@ -173,8 +170,6 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
       __VITE_PINIA_PERSIST_KEY_PREFIX__: JSON.stringify(VITE_PINIA_PERSIST_KEY_PREFIX),
       __VITE_ROOT_REDIRECT__: JSON.stringify(VITE_ROOT_REDIRECT),
       __VITE_LOADING_SIZE__: JSON.stringify(VITE_LOADING_SIZE),
-      __VITE_DEV_TOOLS__: JSON.stringify(VITE_DEV_TOOLS),
-      __VITE_CONSOLE_LOG__: JSON.stringify(VITE_CONSOLE_LOG),
       __VITE_DEBUG__: JSON.stringify(VITE_DEBUG),
       __VITE_COMPRESSION__: JSON.stringify(VITE_COMPRESSION),
       __VITE_LEGACY__: JSON.stringify(VITE_LEGACY),
