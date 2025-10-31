@@ -3,6 +3,17 @@ import { ref } from 'vue'
 
 // 柱状图配置
 const barChartOption = ref({
+  color: [
+    '#1890FF',
+    '#91CB74',
+    '#FAC858',
+    '#EE6666',
+    '#73C0DE',
+    '#3CA272',
+    '#FC8452',
+    '#9A60B4',
+    '#ea7ccc',
+  ],
   title: {
     text: '月度销售数据（柱状图）',
   },
@@ -16,6 +27,7 @@ const barChartOption = ref({
   },
   yAxis: {
     type: 'value' as const,
+    name: '单位/万元',
   },
   series: [
     {
@@ -71,9 +83,7 @@ const pieChartOption = ref({
   title: {
     text: '产品市场份额（饼图）',
   },
-  tooltip: {
-    trigger: 'item' as const,
-  },
+
   legend: {},
   series: [
     {
@@ -144,6 +154,7 @@ const scatterChartOption = ref({
 
 // 雷达图配置
 const radarChartOption = ref({
+  color: ['#ec70f8', '#7b7cf9'],
   title: {
     text: '产品性能评估（雷达图）',
   },

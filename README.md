@@ -1,4 +1,4 @@
-# CC-Admin-PrimeVue
+# ccd
 
 > 基于 Vue 3.5+、TypeScript 5+ 和 PrimeVue 的现代化企业级后台管理框架
 

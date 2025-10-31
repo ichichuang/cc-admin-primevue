@@ -1,74 +1,16 @@
+import { debounce, throttle } from '@/common'
+import { INTERVAL, STRATEGY } from '@/constants/modules/layout'
+import {
+  breakpoints,
+  deviceConfigs,
+  deviceTypes,
+  getDeviceConfig,
+  getDeviceType,
+} from '@/constants/modules/rem'
 import { useSizeStoreWithOut } from '@/stores'
 import { env } from '@/utils'
 
-// 内联配置，避免循环依赖
-const breakpoints = {
-  xs: 375, // 超小屏
-  sm: 768, // 小屏（平板）
-  md: 1024, // 中等屏（小桌面）
-  lg: 1400, // 大屏（桌面）
-  xl: 1660, // 超大屏
-  xls: 1920, // 大屏显示器
-  xxl: 2560, // 超宽屏
-  xxxl: 3840, // 4K屏
-} as const
-
-const deviceConfigs = {
-  mobile: {
-    minWidth: 0,
-    maxWidth: breakpoints.sm - 1, // 0-767px
-    designWidth: 375,
-    baseFontSize: 14,
-    minFontSize: 12,
-    maxFontSize: 18,
-    name: '移动端',
-  },
-  tablet: {
-    minWidth: breakpoints.sm,
-    maxWidth: breakpoints.md - 1, // 768-1023px
-    designWidth: 768,
-    baseFontSize: 15,
-    minFontSize: 12,
-    maxFontSize: 20,
-    name: '平板端',
-  },
-  desktop: {
-    minWidth: breakpoints.md,
-    maxWidth: breakpoints.xls - 1, // 1024-1919px
-    designWidth: 1440,
-    baseFontSize: 16,
-    minFontSize: 14,
-    maxFontSize: 24,
-    name: '桌面端',
-  },
-  largeScreen: {
-    minWidth: breakpoints.xls,
-    maxWidth: breakpoints.xxl - 1, // 1920-2559px
-    designWidth: 1920,
-    baseFontSize: 18,
-    minFontSize: 16,
-    maxFontSize: 28,
-    name: '大屏显示器',
-  },
-  ultraWide: {
-    minWidth: breakpoints.xxl,
-    maxWidth: breakpoints.xxxl - 1, // 2560-3839px
-    designWidth: 2560,
-    baseFontSize: 20,
-    minFontSize: 18,
-    maxFontSize: 32,
-    name: '超宽屏',
-  },
-  fourK: {
-    minWidth: breakpoints.xxxl,
-    maxWidth: Infinity, // 3840px+
-    designWidth: 3840,
-    baseFontSize: 24,
-    minFontSize: 20,
-    maxFontSize: 48,
-    name: '4K屏',
-  },
-} as const
+// 使用统一断点/设备配置（来源于 '@/constants/modules/rem'）
 
 // 设备类型与尺寸模式的映射
 const deviceSizeMap = {
@@ -80,54 +22,12 @@ const deviceSizeMap = {
   fourK: 'loose', // 4K屏端默认宽松模式
 } as const
 
-// 工具函数
-const getDeviceType = (width: number): keyof typeof deviceConfigs => {
-  // 从大到小检查，确保正确的优先级
-  if (width >= breakpoints.xxxl) {
-    if (env.debug) {
-      console.log(`📱 设备类型检测: ${width}px >= ${breakpoints.xxxl}px -> fourK`)
-    }
-    return 'fourK'
-  }
-  if (width >= breakpoints.xxl) {
-    if (env.debug) {
-      console.log(`📱 设备类型检测: ${width}px >= ${breakpoints.xxl}px -> ultraWide`)
-    }
-    return 'ultraWide'
-  }
-  if (width >= breakpoints.xls) {
-    if (env.debug) {
-      console.log(`📱 设备类型检测: ${width}px >= ${breakpoints.xls}px -> largeScreen`)
-    }
-    return 'largeScreen'
-  }
-  if (width >= breakpoints.md) {
-    if (env.debug) {
-      console.log(`📱 设备类型检测: ${width}px >= ${breakpoints.md}px -> desktop`)
-    }
-    return 'desktop'
-  }
-  if (width >= breakpoints.sm) {
-    if (env.debug) {
-      console.log(`📱 设备类型检测: ${width}px >= ${breakpoints.sm}px -> tablet`)
-    }
-    return 'tablet'
-  }
-  if (env.debug) {
-    console.log(`📱 设备类型检测: ${width}px < ${breakpoints.sm}px -> mobile`)
-  }
-  return 'mobile'
-}
+// 工具函数改为使用常量模块的实现（已在顶部导入）
 
-const getDeviceConfig = (width: number) => {
-  const deviceType = getDeviceType(width)
-  return deviceConfigs[deviceType as keyof typeof deviceConfigs]
-}
-
-const getRecommendedSize = (deviceType: keyof typeof deviceConfigs): Size => {
+const getRecommendedSize = (deviceType: keyof typeof deviceTypes): Size => {
   const recommendedSize = deviceSizeMap[deviceType as keyof typeof deviceSizeMap] || 'comfortable'
   if (env.debug) {
-    console.log(`📏 尺寸推荐: ${deviceType} -> ${recommendedSize}`)
+    console.log(`📐 尺寸推荐: ${deviceType} -> ${recommendedSize}`)
   }
   return recommendedSize
 }
@@ -138,14 +38,14 @@ const _debugDeviceTypeDetection = (width: number) => {
     return
   }
 
-  console.log(`🔍 设备类型检测调试 - 屏幕宽度: ${width}px`)
-  console.log(`📊 断点配置:`, breakpoints)
+  console.log(`📐 设备类型检测调试 - 屏幕宽度: ${width}px`)
+  console.log(`📐 断点配置:`, breakpoints)
 
   const deviceType = getDeviceType(width)
   const deviceConfig = deviceConfigs[deviceType]
   const recommendedSize = getRecommendedSize(deviceType)
 
-  console.log(`📱 检测结果:`, {
+  console.log(`📐 检测结果:`, {
     deviceType,
     deviceConfig: {
       name: deviceConfig.name,
@@ -183,12 +83,12 @@ export class RemAdapter {
     try {
       this.config = { ...DEFAULT_CONFIG, ...config }
       this.currentFontSize = this.config.postcssRootValue
-      this.currentDeviceConfig = deviceConfigs.desktop
+      this.currentDeviceConfig = getDeviceConfig(1440)
     } catch (error) {
       console.error('RemAdapter 初始化失败:', error)
       this.config = DEFAULT_CONFIG
       this.currentFontSize = 16
-      this.currentDeviceConfig = deviceConfigs.desktop
+      this.currentDeviceConfig = getDeviceConfig(1440)
     }
   }
 
@@ -366,7 +266,7 @@ export class RemAdapter {
         }
       }
     } catch (error) {
-      console.error('更新尺寸模式失败:', error)
+      console.error('📐 更新尺寸模式失败:', error)
     }
   }
 
@@ -448,68 +348,50 @@ export class RemAdapter {
         recommendedSize: getRecommendedSize(_deviceType),
       }
       if (env.debug) {
-        console.log(`📐 rem 适配器初始化完成 ✅:`, initInfo)
+        console.log(`📐 ✅ rem 适配器初始化完成:`, initInfo)
       }
 
-      const createSmartDebouncedResize = (baseDebounceTime: number) => {
-        let lastWidth = deviceInfo.screen.width
-        let lastHeight = deviceInfo.screen.height
-        let resizeTimeout: NodeJS.Timeout | null = null
-        let rafId: number | null = null
+      let lastWidth = deviceInfo.screen.width
+      let lastHeight = deviceInfo.screen.height
 
-        return () => {
-          // 直接使用最新的窗口尺寸，避免使用可能过期的设备信息
-          const currentWidth = window.innerWidth
-          const currentHeight = window.innerHeight
+      const processResize = () => {
+        try {
+          const latest = getDeviceInfo()
+          const viewportWidth = window.innerWidth
+          const viewportHeight = window.innerHeight
+          const currentWidth = viewportWidth
+          const currentHeight = viewportHeight
+          const updated: DeviceInfo = {
+            ...latest,
+            screen: {
+              ...latest.screen,
+              width: viewportWidth,
+              height: viewportHeight,
+              orientation: viewportWidth >= viewportHeight ? 'horizontal' : 'vertical',
+              definitely: viewportWidth >= viewportHeight ? viewportHeight : viewportWidth,
+            },
+          }
 
           if (currentWidth === lastWidth && currentHeight === lastHeight) {
             return
           }
 
-          if (resizeTimeout) {
-            clearTimeout(resizeTimeout)
+          if (env.debug) {
+            console.log(`📐 RemAdapter resize 处理 - 当前宽度: ${currentWidth}px`)
           }
 
-          if (rafId) {
-            cancelAnimationFrame(rafId)
-          }
+          this.setRootFontSize(updated)
+          this.updateSizeByDevice(currentWidth)
 
-          rafId = requestAnimationFrame(() => {
-            resizeTimeout = setTimeout(() => {
-              try {
-                // 创建临时的设备信息对象，使用最新的窗口尺寸
-                const tempDeviceInfo: DeviceInfo = {
-                  type: currentWidth >= 768 ? 'PC' : 'Mobile',
-                  system: 'Unknown',
-                  screen: {
-                    orientation: currentWidth >= currentHeight ? 'horizontal' : 'vertical',
-                    deviceWidth: window.screen.width,
-                    deviceHeight: window.screen.height,
-                    width: currentWidth,
-                    height: currentHeight,
-                    definitely: currentWidth >= currentHeight ? currentHeight : currentWidth,
-                    navHeight: 0,
-                    tabHeight: 0,
-                  },
-                }
-
-                if (env.debug) {
-                  console.log(`🔄 RemAdapter resize 处理 - 当前宽度: ${currentWidth}px`)
-                }
-                this.setRootFontSize(tempDeviceInfo)
-                this.updateSizeByDevice(currentWidth)
-
-                lastWidth = currentWidth
-                lastHeight = currentHeight
-              } catch (error) {
-                console.error('处理窗口大小变化失败:', error)
-              }
-            }, baseDebounceTime)
-          })
+          lastWidth = currentWidth
+          lastHeight = currentHeight
+        } catch (error) {
+          console.error('📐 处理窗口大小变化失败:', error)
         }
       }
 
-      const handleResize = createSmartDebouncedResize(debounceTime)
+      const wrapper = STRATEGY === 'throttle' ? throttle : debounce
+      const handleResize = wrapper(processResize, INTERVAL || debounceTime)
 
       window.addEventListener('resize', handleResize, { passive: true })
       window.addEventListener('orientationchange', handleResize, { passive: true })
@@ -519,9 +401,9 @@ export class RemAdapter {
           this.isInitialized = false
           window.removeEventListener('resize', handleResize)
           window.removeEventListener('orientationchange', handleResize)
-          console.log('🧹 RemAdapter: 清理完成')
+          console.log('📐 RemAdapter: 清理完成')
         } catch (error) {
-          console.error('清理 RemAdapter 失败:', error)
+          console.error('📐 清理 RemAdapter 失败:', error)
         }
       }
     } catch (error) {

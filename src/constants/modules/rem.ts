@@ -57,9 +57,9 @@ export const deviceConfigs: Record<string, DeviceConfig> = {
     minWidth: 0,
     maxWidth: breakpoints.sm, // 768
     designWidth: 375, // 基于iPhone设计稿
-    baseFontSize: 14,
-    minFontSize: 14,
-    maxFontSize: 18,
+    baseFontSize: 12,
+    minFontSize: 12,
+    maxFontSize: 16,
     name: '移动端',
   },
   tablet: {
@@ -68,42 +68,42 @@ export const deviceConfigs: Record<string, DeviceConfig> = {
     designWidth: 768, // 基于iPad设计稿
     baseFontSize: 15,
     minFontSize: 12,
-    maxFontSize: 20,
+    maxFontSize: 17,
     name: '平板端',
   },
   desktop: {
     minWidth: breakpoints.md, // 1024
     maxWidth: breakpoints.xls, // 1920
     designWidth: 1440, // 基于主流桌面设计稿
-    baseFontSize: 16,
+    baseFontSize: 14,
     minFontSize: 14,
-    maxFontSize: 24,
+    maxFontSize: 16,
     name: '桌面端',
   },
   largeScreen: {
     minWidth: breakpoints.xls, // 1920
     maxWidth: breakpoints.xxl, // 2560
     designWidth: 1920, // 基于全高清设计稿
-    baseFontSize: 18,
-    minFontSize: 16,
-    maxFontSize: 28,
+    baseFontSize: 16,
+    minFontSize: 12,
+    maxFontSize: 18,
     name: '大屏显示器',
   },
   ultraWide: {
     minWidth: breakpoints.xxl, // 2560
     maxWidth: breakpoints.xxxl, // 3840
     designWidth: 2560, // 基于2K设计稿
-    baseFontSize: 20,
-    minFontSize: 18,
-    maxFontSize: 32,
+    baseFontSize: 16,
+    minFontSize: 14,
+    maxFontSize: 24,
     name: '超宽屏',
   },
   fourK: {
     minWidth: breakpoints.xxxl, // 3840
     designWidth: 3840, // 基于4K设计稿
-    baseFontSize: 24,
-    minFontSize: 20,
-    maxFontSize: 48,
+    baseFontSize: 18,
+    minFontSize: 16,
+    maxFontSize: 28,
     name: '4K屏',
   },
 } as const

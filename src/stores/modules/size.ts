@@ -126,27 +126,27 @@ export const useSizeStore = defineStore<'size', SizeState, SizeGetters, SizeActi
 
     // 获取侧边栏宽度
     getSidebarWidth(_state: SizeState) {
-      return (this as any).currentLayout.sidebarWidth as number
+      return this.currentLayout.sidebarWidth as number
     },
     // 获取侧边栏折叠宽度
     getSidebarCollapsedWidth(_state: SizeState) {
-      return (this as any).currentLayout.sidebarCollapsedWidth as number
+      return this.currentLayout.sidebarCollapsedWidth as number
     },
     // 获取头部高度
     getHeaderHeight(_state: SizeState) {
-      return (this as any).currentLayout.headerHeight as number
+      return this.currentLayout.headerHeight as number
     },
     // 获取面包屑高度
     getBreadcrumbHeight(_state: SizeState) {
-      return (this as any).currentLayout.breadcrumbHeight as number
+      return this.currentLayout.breadcrumbHeight as number
     },
     // 获取底部高度
     getFooterHeight(_state: SizeState) {
-      return (this as any).currentLayout.footerHeight as number
+      return this.currentLayout.footerHeight as number
     },
     // 获取标签页高度
     getTabsHeight(_state: SizeState) {
-      return (this as any).currentLayout.tabsHeight as number
+      return this.currentLayout.tabsHeight as number
     },
 
     // 获取内容容器高度 = 窗口高度 - 头部 - 底部 - 面包屑 - 标签页
@@ -166,16 +166,16 @@ export const useSizeStore = defineStore<'size', SizeState, SizeGetters, SizeActi
       const showTabs = layoutStore.getShowTabs
       let height: number = 0
       if (showHeader) {
-        height += (this as any).getHeaderHeight
+        height += this.getHeaderHeight
       }
       if (showFooter) {
-        height += (this as any).getFooterHeight
+        height += this.getFooterHeight
       }
       if (showBreadcrumb) {
-        height += (this as any).getBreadcrumbHeight
+        height += this.getBreadcrumbHeight
       }
       if (showTabs) {
-        height += (this as any).getTabsHeight
+        height += this.getTabsHeight
       }
       return (screenHeight - height) as number
     },
@@ -195,13 +195,13 @@ export const useSizeStore = defineStore<'size', SizeState, SizeGetters, SizeActi
       const showTabs = layoutStore.getShowTabs
       let height: number = 0
       if (showHeader) {
-        height += (this as any).getHeaderHeight
+        height += this.getHeaderHeight
       }
       if (showFooter) {
-        height += (this as any).getFooterHeight
+        height += this.getFooterHeight
       }
       if (showTabs) {
-        height += (this as any).getTabsHeight
+        height += this.getTabsHeight
       }
       return (screenHeight - height) as number
     },
@@ -221,13 +221,13 @@ export const useSizeStore = defineStore<'size', SizeState, SizeGetters, SizeActi
       const showBreadcrumb = layoutStore.getShowBreadcrumb
       let height: number = 0
       if (showHeader) {
-        height += (this as any).getHeaderHeight
+        height += this.getHeaderHeight
       }
       if (showFooter) {
-        height += (this as any).getFooterHeight
+        height += this.getFooterHeight
       }
       if (showBreadcrumb) {
-        height += (this as any).getBreadcrumbHeight
+        height += this.getBreadcrumbHeight
       }
       return (screenHeight - height) as number
     },
@@ -246,10 +246,10 @@ export const useSizeStore = defineStore<'size', SizeState, SizeGetters, SizeActi
       const showTabs = layoutStore.getShowTabs
       let height: number = 0
       if (showBreadcrumb) {
-        height += (this as any).getBreadcrumbHeight
+        height += this.getBreadcrumbHeight
       }
       if (showTabs) {
-        height += (this as any).getTabsHeight
+        height += this.getTabsHeight
       }
       return (screenHeight - height) as number
     },
@@ -267,7 +267,7 @@ export const useSizeStore = defineStore<'size', SizeState, SizeGetters, SizeActi
       const showTabs = layoutStore.getShowTabs
       let height: number = 0
       if (showTabs) {
-        height += (this as any).getTabsHeight
+        height += this.getTabsHeight
       }
       return (screenHeight - height) as number
     },
@@ -285,7 +285,7 @@ export const useSizeStore = defineStore<'size', SizeState, SizeGetters, SizeActi
       const showBreadcrumb = layoutStore.getShowBreadcrumb
       let height: number = 0
       if (showBreadcrumb) {
-        height += (this as any).getBreadcrumbHeight
+        height += this.getBreadcrumbHeight
       }
       return (screenHeight - height) as number
     },
@@ -293,7 +293,7 @@ export const useSizeStore = defineStore<'size', SizeState, SizeGetters, SizeActi
     // 获取间距
     getGap(_state: SizeState) {
       try {
-        const layout = (this as any).currentLayout
+        const layout = this.currentLayout
         const gap = layout?.gap
         if (gap === undefined || gap === null || isNaN(gap) || !isFinite(gap) || gap < 0) {
           console.warn('getGap: 无效的 gap 值，使用默认值 16')
@@ -308,7 +308,7 @@ export const useSizeStore = defineStore<'size', SizeState, SizeGetters, SizeActi
     // 获取间距的一半 = 间距 / 2
     getGaps(_state: SizeState) {
       try {
-        const gap = (this as any).getGap
+        const gap = this.getGap
         return (gap / 2) as number
       } catch (error) {
         console.error('getGaps: 计算失败，使用默认值 8:', error)
@@ -318,7 +318,7 @@ export const useSizeStore = defineStore<'size', SizeState, SizeGetters, SizeActi
     // 获取间距的一半多 = 间距 + 间距 / 2
     getGapx(_state: SizeState) {
       try {
-        const gap = (this as any).getGap
+        const gap = this.getGap
         return (gap + gap / 2) as number
       } catch (error) {
         console.error('getGapx: 计算失败，使用默认值 24:', error)
@@ -328,7 +328,7 @@ export const useSizeStore = defineStore<'size', SizeState, SizeGetters, SizeActi
     // 获取间距的两倍
     getGapl(_state: SizeState) {
       try {
-        const gap = (this as any).getGap
+        const gap = this.getGap
         return (gap * 2) as number
       } catch (error) {
         console.error('getGapl: 计算失败，使用默认值 32:', error)
@@ -421,14 +421,20 @@ export const useSizeStore = defineStore<'size', SizeState, SizeGetters, SizeActi
     // font size
     getFontSize: (state: SizeState) => state.fontSize,
     getFontSizeOptions: (state: SizeState) => state.fontSizeOptions,
-    getFontSizeValue: (state: SizeState) => {
+    getFontSizeValue(state: SizeState) {
       try {
-        return state.fontSizeOptions.find(option => option.key === state.fontSize)
-          ?.value as FontSizeOptions['value']
+        // 建立与窗口尺寸的响应式依赖，确保缩放时会重新计算
+        const _dep = state.windowSize.width + state.windowSize.height
+        // 直接读取根元素当前字体大小（由 RemAdapter 设置），单位 px
+        const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize)
+        if (!isNaN(rootFontSize) && isFinite(rootFontSize) && rootFontSize > 0) {
+          return rootFontSize
+        }
       } catch (error) {
-        console.error('获取 fontSizeValue 失败:', error)
-        return 14
+        console.error('获取 fontSizeValue 失败，使用回退值:', error)
       }
+      // 回退：保持一个合理的默认值
+      return 16
     },
     getFontSizeLabel: (state: SizeState) => {
       try {
@@ -438,34 +444,31 @@ export const useSizeStore = defineStore<'size', SizeState, SizeGetters, SizeActi
         return '中号'
       }
     },
-    getFontSizesValue: (state: SizeState) => {
+    getFontSizesValue(_state: SizeState) {
       try {
-        const current = state.fontSizeOptions.find(option => option.key === state.fontSize)
-          ?.value as FontSizeOptions['value']
+        const current = this.getFontSizeValue as number
         return current / 1.2
       } catch (error) {
         console.error('获取 fontSizesValue 失败:', error)
-        return 14
+        return 13.33
       }
     },
-    getFontSizexValue: (state: SizeState) => {
+    getFontSizexValue(_state: SizeState) {
       try {
-        const current = state.fontSizeOptions.find(option => option.key === state.fontSize)
-          ?.value as FontSizeOptions['value']
+        const current = this.getFontSizeValue as number
         return current + current / 2
       } catch (error) {
         console.error('获取 fontSizexValue 失败:', error)
-        return 21
+        return 24
       }
     },
-    getFontSizelValue: (state: SizeState) => {
+    getFontSizelValue(_state: SizeState) {
       try {
-        const current = state.fontSizeOptions.find(option => option.key === state.fontSize)
-          ?.value as FontSizeOptions['value']
+        const current = this.getFontSizeValue as number
         return current * 2
       } catch (error) {
         console.error('获取 fontSizelValue 失败:', error)
-        return 28
+        return 32
       }
     },
   },
@@ -577,6 +580,13 @@ export const useSizeStore = defineStore<'size', SizeState, SizeGetters, SizeActi
         await nextTick()
         this.setCssVariables()
       })
+
+      // 首次初始化时也根据当前窗口尺寸驱动一次，确保字体变量同步
+      this.windowSize = {
+        width: Math.max(375, Math.min(window.innerWidth, 3840)),
+        height: Math.max(667, Math.min(window.innerHeight, 2160)),
+      }
+      this.setCssVariables()
     },
 
     reset(this: any) {

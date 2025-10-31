@@ -1668,8 +1668,16 @@ export const useChartTheme = (option: any, opacityConfig?: ChartOpacityConfig) =
 
   // 设置全局调色盘（用于饼图等自动着色）
   // 注意：不要覆盖已经设置的颜色配置
+  // 兼容用户使用非标准键名 `colors` 的场景
+  if (Array.isArray((mergedOption as any).colors) && !(mergedOption as any).color) {
+    ;(mergedOption as any).color = (mergedOption as any).colors
+  }
   if (!mergedOption.color) {
     mergedOption.color = themeConfig.color.colors
+  }
+  // 若用户提供了自定义 color，则将后续主题内部使用的调色盘切换为该自定义颜色
+  if (Array.isArray(mergedOption.color) && mergedOption.color.length > 0) {
+    themeConfig.color.colors = mergedOption.color as string[]
   }
 
   // 全局颜色分配优化：确保所有图表类型都能正确使用系统配色
@@ -1785,6 +1793,16 @@ export const useChartTheme = (option: any, opacityConfig?: ChartOpacityConfig) =
     if (!axis.splitLine.lineStyle.color) {
       axis.splitLine.lineStyle.color = themeConfig.bgColor300
     }
+    // 轴名称样式（nameTextStyle）
+    if (!axis.nameTextStyle) {
+      axis.nameTextStyle = {}
+    }
+    if (!axis.nameTextStyle.color) {
+      axis.nameTextStyle.color = themeConfig.textColor100
+    }
+    if (!axis.nameTextStyle.fontSize) {
+      axis.nameTextStyle.fontSize = themeConfig.font.fontSizeSmall
+    }
   }
 
   if (mergedOption.xAxis) {
@@ -1877,6 +1895,17 @@ export const useChartTheme = (option: any, opacityConfig?: ChartOpacityConfig) =
       }
       if (!axis.axisTick.lineStyle.color) {
         axis.axisTick.lineStyle.color = themeConfig.bgColor300
+      }
+
+      // 轴名称样式（nameTextStyle）
+      if (!axis.nameTextStyle) {
+        axis.nameTextStyle = {}
+      }
+      if (!axis.nameTextStyle.color) {
+        axis.nameTextStyle.color = themeConfig.textColor100
+      }
+      if (!axis.nameTextStyle.fontSize) {
+        axis.nameTextStyle.fontSize = themeConfig.font.fontSizeSmall
       }
     }
     applyStylesToArray(singleAxisArray, applySingleAxisStyles)
@@ -1989,6 +2018,10 @@ export const useChartTheme = (option: any, opacityConfig?: ChartOpacityConfig) =
     const useGlobalColor = ['pie', 'funnel', 'sunburst', 'treemap', 'graph', 'sankey', 'heatmap']
 
     seriesArray.forEach((series: any, index: number) => {
+      // 系列级 tooltip 样式融合（若存在 series.tooltip）
+      if (series.tooltip) {
+        applyTooltipStyles(series.tooltip, themeConfig)
+      }
       // 应用基础系列样式
       applySeriesStyles(series, index, themeConfig)
 
@@ -2052,10 +2085,11 @@ export const useChartTheme = (option: any, opacityConfig?: ChartOpacityConfig) =
     })
   }
 
-  // 合并提示框样式
-  if (mergedOption.tooltip) {
-    applyTooltipStyles(mergedOption.tooltip, themeConfig)
+  // 合并提示框样式：若未声明 tooltip，则创建空对象以融合主题色
+  if (!mergedOption.tooltip) {
+    mergedOption.tooltip = {}
   }
+  applyTooltipStyles(mergedOption.tooltip, themeConfig)
 
   // 合并 dataZoom 样式
   if (mergedOption.dataZoom) {

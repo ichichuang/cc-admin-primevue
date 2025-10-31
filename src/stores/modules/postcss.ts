@@ -1,3 +1,4 @@
+import { breakpoints } from '@/constants/modules/rem'
 import store from '@/stores'
 import { useLayoutStoreWithOut } from '@/stores/modules/layout'
 import { RemAdapter, type RemAdapterConfig, env, useMitt } from '@/utils'
@@ -15,16 +16,7 @@ export const usePostcssStore = defineStore(
       strategy: 'adaptive',
       mobileFirst: false,
       postcssRootValue: 16,
-      breakpoints: {
-        xs: 375,
-        sm: 768,
-        md: 1024,
-        lg: 1400,
-        xl: 1660,
-        xls: 1920,
-        xxl: 2560,
-        xxxl: 3840,
-      },
+      breakpoints,
     })
 
     const currentRemBase = ref<number>(remConfig.value.postcssRootValue)
@@ -274,6 +266,11 @@ export const usePostcssStore = defineStore(
         const handleLayoutChange = () => {
           if (remAdapter.value && typeof remAdapter.value.setRootFontSize === 'function') {
             const newDeviceInfo = layoutStore.deviceInfo
+            if (env.debug) {
+              console.log(
+                `📐 PostCSS orientationchange 处理 - 宽度: ${newDeviceInfo.screen.width}px`
+              )
+            }
             remAdapter.value.setRootFontSize(newDeviceInfo)
             currentRemBase.value = remAdapter.value.getCurrentFontSize()
           }
@@ -306,31 +303,23 @@ export const usePostcssStore = defineStore(
         on('windowResize', async () => {
           await nextTick()
           if (remAdapter.value && typeof remAdapter.value.setRootFontSize === 'function') {
-            // 直接使用最新的窗口尺寸，避免使用可能过期的 deviceInfo
-            const currentWidth = window.innerWidth
-            const currentHeight = window.innerHeight
-
-            if (env.debug) {
-              console.log(`🔄 PostCSS mitt 事件处理 - 当前宽度: ${currentWidth}px`)
-            }
-
-            // 创建临时的设备信息对象
-            const tempDeviceInfo: DeviceInfo = {
-              type: currentWidth >= 768 ? 'PC' : 'Mobile',
-              system: 'Unknown',
+            const viewportWidth = window.innerWidth
+            const viewportHeight = window.innerHeight
+            const base = layoutStore.deviceInfo
+            const latestDeviceInfo: DeviceInfo = {
+              ...base,
               screen: {
-                orientation: currentWidth >= currentHeight ? 'horizontal' : 'vertical',
-                deviceWidth: window.screen.width,
-                deviceHeight: window.screen.height,
-                width: currentWidth,
-                height: currentHeight,
-                definitely: currentWidth >= currentHeight ? currentHeight : currentWidth,
-                navHeight: 0,
-                tabHeight: 0,
+                ...base.screen,
+                width: viewportWidth,
+                height: viewportHeight,
+                orientation: viewportWidth >= viewportHeight ? 'horizontal' : 'vertical',
+                definitely: viewportWidth >= viewportHeight ? viewportHeight : viewportWidth,
               },
             }
-
-            remAdapter.value.setRootFontSize(tempDeviceInfo)
+            if (env.debug) {
+              console.log(`📐 PostCSS mitt 事件处理 - 当前宽度: ${latestDeviceInfo.screen.width}px`)
+            }
+            remAdapter.value.setRootFontSize(latestDeviceInfo)
             currentRemBase.value = remAdapter.value.getCurrentFontSize()
           }
         })
