@@ -182,72 +182,10 @@ const zhTW = {
     dashboard: {
       dashboard: '儀表板',
     },
-    example: {
-      title: '示例',
-      layout: {
-        title: '布局',
-        screen: '屏幕',
-        fullscreen: '全屏',
-        test: '測試',
-        ratio: '比例',
-      },
-      components: {
-        title: '组件',
-        menu: '菜单',
-        dialog: '对话框',
-        toast: '即时通知',
-        schemaForm: {
-          title: '表单',
-          basic: '基础表单',
-          step: '步骤表单',
-          section: '分组表单',
-        },
-        gridTable: {
-          title: '表格',
-          default: '默认表格',
-          basic: '基础表格',
-          service: '服务端表格',
-          advanced: '高级表格',
-        },
-        echarts: {
-          title: '圖表',
-          default: '默認圖表',
-          static: '靜態圖表',
-          event: '事件圖表',
-          dynamic: '動態圖表',
-          linkage: '聯動圖表',
-        },
-        datepicker: {
-          title: '日期選擇器',
-        },
-      },
-      function: {
-        title: '函數',
-        date: '日期',
-      },
-    },
     error: {
       notFound: '頁面未找到',
       forbidden: '訪問被拒絕',
       serverError: '服務器錯誤',
-    },
-    user: {
-      title: '用戶管理',
-      list: {
-        title: '用戶列表',
-      },
-      permission: {
-        title: '用戶權限',
-      },
-    },
-    permission: {
-      title: '權限管理',
-      page: {
-        title: '頁面權限',
-      },
-      button: {
-        title: '按鈕權限',
-      },
     },
   },
   layout: {

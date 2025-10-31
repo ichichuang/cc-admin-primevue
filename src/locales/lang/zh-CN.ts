@@ -182,72 +182,10 @@ const zhCN = {
     dashboard: {
       dashboard: '仪表盘',
     },
-    example: {
-      title: '示例',
-      layout: {
-        title: '布局',
-        screen: '屏幕',
-        fullscreen: '全屏',
-        test: '测试',
-        ratio: '比例',
-      },
-      components: {
-        title: '组件',
-        menu: '菜单',
-        dialog: '对话框',
-        toast: '即时通知',
-        schemaForm: {
-          title: '表单',
-          basic: '基础表单',
-          step: '步骤表单',
-          section: '分组表单',
-        },
-        gridTable: {
-          title: '表格',
-          default: '默认表格',
-          basic: '基础表格',
-          service: '服务端表格',
-          advanced: '高级表格',
-        },
-        echarts: {
-          title: '图表',
-          default: '默认图表',
-          static: '静态图表',
-          event: '事件图表',
-          dynamic: '动态图表',
-          linkage: '联动图表',
-        },
-        datepicker: {
-          title: '日期选择器',
-        },
-      },
-      function: {
-        title: '函数',
-        date: '日期',
-      },
-    },
     error: {
       notFound: '页面未找到',
       forbidden: '访问被拒绝',
       serverError: '服务器错误',
-    },
-    user: {
-      title: '用户管理',
-      list: {
-        title: '用户列表',
-      },
-      permission: {
-        title: '用户权限',
-      },
-    },
-    permission: {
-      title: '权限管理',
-      page: {
-        title: '页面权限',
-      },
-      button: {
-        title: '按钮权限',
-      },
     },
   },
   layout: {
